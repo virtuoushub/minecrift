@@ -7,6 +7,11 @@ import subprocess
 
 from applychanges import applychanges
 
+try:
+    WindowsError
+except NameError:
+    WindowsError = OSError
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 #Helpers taken from forge mod loader, https://github.com/MinecraftForge/FML/blob/master/install/fml.py
@@ -130,17 +135,17 @@ def main(mcp_dir):
     os.chdir(mcp_dir)
     from runtime.decompile import decompile
     #         Conf  JAD    CSV    -r     -d     -a     -n     -p     -o     -l     -g     -c     -s
-    #decompile(None, False, False, False, False, False, False, False, False, False, False, True, False )
+    decompile(None, False, False, False, False, False, False, False, False, False, False, True, False )
 
     os.chdir( base_dir )
 
     src_dir = os.path.join(mcp_dir, "src","minecraft")
     org_src_dir = os.path.join(mcp_dir, "src",".minecraft_orig")
-    #if os.path.exists( org_src_dir ):
-    #    shutil.rmtree( org_src_dir, True )
-    #shutil.copytree( src_dir, org_src_dir )
+    if os.path.exists( org_src_dir ):
+        shutil.rmtree( org_src_dir, True )
+    shutil.copytree( src_dir, org_src_dir )
 
-    #applychanges( mcp_dir )
+    applychanges( mcp_dir )
     
 	#Need git in system PATH!
     process = subprocess.Popen(["git","submodule","update"], cwd=base_dir, bufsize=-1)
