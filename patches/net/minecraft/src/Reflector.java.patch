@@ -1,0 +1,24 @@
+--- a/net/minecraft/src/Reflector.java
++++ b/net/minecraft/src/Reflector.java
+@@ -32,6 +32,7 @@
+     public static ReflectorMethod ForgeHooks_onLivingFall = new ReflectorMethod(ForgeHooks, "onLivingFall");
+     public static ReflectorMethod ForgeHooks_onLivingJump = new ReflectorMethod(ForgeHooks, "onLivingJump");
+     public static ReflectorMethod ForgeHooks_isLivingOnLadder = new ReflectorMethod(ForgeHooks, "isLivingOnLadder");
++    public static ReflectorMethod ForgeHooks_getTotalArmorValue = new ReflectorMethod(ForgeHooks, "getTotalArmorValue");
+     public static ReflectorClass ForgeHooksClient = new ReflectorClass("net.minecraftforge.client.ForgeHooksClient");
+     public static ReflectorMethod ForgeHooksClient_onDrawBlockHighlight = new ReflectorMethod(ForgeHooksClient, "onDrawBlockHighlight");
+     public static ReflectorMethod ForgeHooksClient_orientBedCamera = new ReflectorMethod(ForgeHooksClient, "orientBedCamera");
+@@ -70,8 +71,13 @@
+     public static ReflectorField ForgeEntity_capturedDrops = new ReflectorField(ForgeEntity, "capturedDrops");
+     public static ReflectorClass ForgeItem = new ReflectorClass(Item.class);
+     public static ReflectorMethod ForgeItem_onEntitySwing = new ReflectorMethod(ForgeItem, "onEntitySwing");
++    public static ReflectorMethod ForgeItem_getFontRenderer = new ReflectorMethod(ForgeItem, "getFontRenderer");
++    public static ReflectorMethod ForgeItem_getRenderPasses = new ReflectorMethod(ForgeItem, "getRenderPasses");
+     public static ReflectorClass ForgePotionEffect = new ReflectorClass(PotionEffect.class);
+     public static ReflectorMethod ForgePotionEffect_isCurativeItem = new ReflectorMethod(ForgePotionEffect, "isCurativeItem");
++    public static ReflectorClass ForgeGuiIngame = new ReflectorClass("net.minecraftforge.client.GuiIngameForge");
++    public static ReflectorField ForgeGuiIngame_renderCrosshairs = new ReflectorField(ForgeGuiIngame, "renderCrosshairs");
++    public static ReflectorField ForgeGuiIngame_renderHelmet = new ReflectorField(ForgeGuiIngame, "renderHelmet");
+ 
+     public static void callVoid(ReflectorMethod var0, Object ... var1)
+     {

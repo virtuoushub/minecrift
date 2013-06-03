@@ -1,20 +1,24 @@
 --- a/net/minecraft/src/RenderPlayer.java
 +++ b/net/minecraft/src/RenderPlayer.java
-@@ -7,6 +7,7 @@
+@@ -7,7 +7,10 @@
      private ModelBiped modelBipedMain;
      private ModelBiped modelArmorChestplate;
      private ModelBiped modelArmor;
-+    private double vrOffset;
++    private float vrOffset;
      private static final String[] armorFilenamePrefix = new String[] {"cloth", "chain", "iron", "diamond", "gold"};
++    public static float NAME_TAG_RANGE = 64.0f;
++    public static float NAME_TAG_RANGE_SNEAK = 32.0f;
  
      public RenderPlayer()
-@@ -17,6 +18,13 @@
+     {
+@@ -17,6 +20,14 @@
          this.modelArmor = new ModelBiped(0.5F);
      }
  
 +	public void setVR(boolean vrMode, boolean renderHeadWear) {
 +		
-+		this.modelBipedMain.vrOffset = this.modelArmorChestplate.vrOffset = this.modelArmor.vrOffset = vrMode ? 0.25F : 0.0F;
++		vrOffset = vrMode? 0.25F : 0.0F;
++		this.modelBipedMain.vrOffset = this.modelArmorChestplate.vrOffset = this.modelArmor.vrOffset = vrOffset;
 +        this.modelBipedMain._renderHead = this.modelArmorChestplate._renderHead = this.modelArmor._renderHead = !vrMode;
 +        this.modelBipedMain._renderHeadWear = this.modelArmorChestplate._renderHeadWear = this.modelArmor._renderHeadWear = renderHeadWear;
 +	}
@@ -22,7 +26,72 @@
      protected void func_98191_a(EntityPlayer par1EntityPlayer)
      {
          this.loadDownloadableImageTexture(par1EntityPlayer.skinUrl, par1EntityPlayer.getTexture());
-@@ -504,4 +512,5 @@
+@@ -64,9 +75,9 @@
+ 
+                 float var8 = 1.0F;
+ 
+-                if (var6.getArmorMaterial() == EnumArmorMaterial.CLOTH)
++                int var9 = var6.getColor(var4);
++                if( var9 != -1 )
+                 {
+-                    int var9 = var6.getColor(var4);
+                     float var10 = (float)(var9 >> 16 & 255) / 255.0F;
+                     float var11 = (float)(var9 >> 8 & 255) / 255.0F;
+                     float var12 = (float)(var9 & 255) / 255.0F;
+@@ -164,9 +175,17 @@
+             this.modelBipedMain.bipedHead.postRender(0.0625F);
+             float var5;
+ 
+-            if (var4.getItem().itemID < 256)
++            if (var4 != null &&  var4.getItem() instanceof ItemBlock )
+             {
+-                if (RenderBlocks.renderItemIn3d(Block.blocksList[var4.itemID].getRenderType()))
++            	boolean render3D = false;
++            	if( false )
++            	{
++            		//TODO: forge compatibility
++            		//IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(itemstack, EQUIPPED);
++            		
++            	}
++            	
++                if (render3D || RenderBlocks.renderItemIn3d(Block.blocksList[var4.itemID].getRenderType()))
+                 {
+                     var5 = 0.625F;
+                     GL11.glTranslatef(0.0F, -0.25F, 0.0F);
+@@ -269,6 +288,7 @@
+         if (var21 != null)
+         {
+             GL11.glPushMatrix();
++            GL11.glTranslatef(0, 0, vrOffset);
+             this.modelBipedMain.bipedRightArm.postRender(0.0625F);
+             GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
+ 
+@@ -284,7 +304,9 @@
+                 var23 = var21.getItemUseAction();
+             }
+ 
+-            if (var21.itemID < 256 && RenderBlocks.renderItemIn3d(Block.blocksList[var21.itemID].getRenderType()))
++            boolean render3D = false;
++            boolean isBlock = var21.itemID < Block.blocksList.length && var21.getItemSpriteNumber() == 0;
++            if ( render3D || ( isBlock && RenderBlocks.renderItemIn3d(Block.blocksList[var21.itemID].getRenderType())))
+             {
+                 var7 = 0.5F;
+                 GL11.glTranslatef(0.0F, 0.1875F, -0.3125F);
+@@ -341,7 +363,12 @@
+ 
+             if (var21.getItem().requiresMultipleRenderPasses())
+             {
+-                for (var27 = 0; var27 <= 1; ++var27)
++            	int renderPasses = 1;
++            	if( Reflector.ForgeItem.exists() )
++            	{
++            		renderPasses = Reflector.callInt(var21.getItem(), Reflector.ForgeItem_getRenderPasses,new Object[]{var21.getItemDamage()});
++            	}
++                for (var27 = 0; var27 <= renderPasses; ++var27)
+                 {
+                     int var26 = var21.getItem().getColorFromItemStack(var21, var27);
+                     var28 = (float)(var26 >> 16 & 255) / 255.0F;
+@@ -504,4 +531,5 @@
      {
          this.renderPlayer((EntityPlayer)par1Entity, par2, par4, par6, par8, par9);
      }
