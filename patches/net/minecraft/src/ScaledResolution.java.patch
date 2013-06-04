@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ScaledResolution.java
++++ b/net/minecraft/src/ScaledResolution.java
+@@ -6,7 +6,7 @@
+     private int scaledHeight;
+     private double scaledWidthD;
+     private double scaledHeightD;
+-    private int scaleFactor;
++    public int scaleFactor;
+ 
+     public ScaledResolution(GameSettings par1GameSettings, int par2, int par3)
+     {

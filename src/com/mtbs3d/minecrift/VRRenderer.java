@@ -2,7 +2,6 @@ package com.mtbs3d.minecrift;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.sql.Ref;
 
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.HMDInfo;
@@ -78,6 +77,7 @@ public class VRRenderer extends EntityRenderer
     		superSampleSupported = false;
     		
     	}
+    	
     }
 
     /**
@@ -412,7 +412,7 @@ public class VRRenderer extends EntityRenderer
 	        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	        int var16 = var15.getScaledWidth();
 	        int var17 = var15.getScaledHeight();
-	        int mouseX = Mouse.getX() * var16 / this.mc.displayWidthVRFull;
+	        int mouseX = Mouse.getX() * var16 / this.mc.displayWidth;
 	        int mouseY = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
 
 	        setupStereoViewport();
@@ -747,7 +747,7 @@ public class VRRenderer extends EntityRenderer
         mc.checkGLError("FBO init");
 
         // Setup ortho view to render onto FBO
-        //this.setupOverlayRendering();
+        this.setupOverlayRendering();
         GL11.glClearColor(0, 0, 0, 0); //Draw transparent background for GUI FB
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
     	
@@ -1039,29 +1039,23 @@ public class VRRenderer extends EntityRenderer
         
         setupStereoViewport();
 
+		//Disable any forge gui crosshairs and helmet overlay (pumkinblur)
+		if( Reflector.ForgeGuiIngame_renderCrosshairs.exists())
+		{
+			Reflector.ForgeGuiIngame_renderCrosshairs.setValue(false);
+			Reflector.ForgeGuiIngame_renderHelmet.setValue(false);
+		}
+
         for (int renderSceneNumber = 0; renderSceneNumber < 2; ++renderSceneNumber)
         {
         	setupEyeViewport(renderSceneNumber);
 
-            GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            
             //TODO: fog color isn't quite right yet when eyes split water/air
             this.updateFogColor(renderPartialTicks);
             GL11.glClearColor (fogColorRed, fogColorGreen, fogColorBlue, 0.5f);
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_CULL_FACE);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glShadeModel(GL11.GL_SMOOTH);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthFunc(GL11.GL_LEQUAL);
-            GL11.glEnable(GL11.GL_ALPHA_TEST);
-            GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-            GL11.glCullFace(GL11.GL_BACK);
-            GL11.glMatrixMode(GL11.GL_PROJECTION);
-            GL11.glLoadIdentity();
-            GL11.glMatrixMode(GL11.GL_MODELVIEW);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             mc.checkGLError("FBO init");
 
             this.mc.mcProfiler.startSection("lightTex");
@@ -1147,20 +1141,22 @@ public class VRRenderer extends EntityRenderer
                     Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(0)});
                 }
 
+                //TODO: multiple render passes for entities?
                 renderGlobal.renderEntities(renderViewEntity.getPosition(renderPartialTicks), frustrum, renderPartialTicks);
 
                 if (var16)
                 {
                     Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(-1)});
                 }
-                this.enableLightmap((double) renderPartialTicks);
-                this.mc.mcProfiler.endStartSection("litParticles");
-                effectRenderer.renderLitParticles(renderViewEntity, renderPartialTicks);
-                RenderHelper.disableStandardItemLighting();
-                this.setupFog(0, renderPartialTicks);
-                this.mc.mcProfiler.endStartSection("particles");
-                effectRenderer.renderParticles(renderViewEntity, renderPartialTicks);
-                this.disableLightmap((double) renderPartialTicks);
+
+	            this.enableLightmap((double) renderPartialTicks);
+	            this.mc.mcProfiler.endStartSection("litParticles");
+	            effectRenderer.renderLitParticles(renderViewEntity, renderPartialTicks);
+	            RenderHelper.disableStandardItemLighting();
+	            this.setupFog(0, renderPartialTicks);
+	            this.mc.mcProfiler.endStartSection("particles");
+	            effectRenderer.renderParticles(renderViewEntity, renderPartialTicks);
+	            this.disableLightmap((double) renderPartialTicks);
                                                                                                                                                         // TODO: Always render outline?
                 if (this.mc.objectMouseOver != null && renderViewEntity.isInsideOfMaterial(Material.water) && renderViewEntity instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
                 {
@@ -1182,11 +1178,12 @@ public class VRRenderer extends EntityRenderer
 
             GL11.glDisable(GL11.GL_BLEND);
             GL11.glEnable(GL11.GL_CULL_FACE);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDepthMask(true);
             this.setupFog(0, renderPartialTicks);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glDisable(GL11.GL_CULL_FACE);
+
             this.mc.renderEngine.bindTexture("/terrain.png");
             WrUpdates.resumeBackgroundUpdates();
 
@@ -1261,6 +1258,8 @@ public class VRRenderer extends EntityRenderer
             GL11.glDisable(GL11.GL_BLEND);
             this.mc.mcProfiler.endStartSection("weather");
             this.renderRainSnow(renderPartialTicks);
+
+
             GL11.glDisable(GL11.GL_FOG);
 
             if (renderViewEntity.posY >= 128.0D)
@@ -1270,26 +1269,20 @@ public class VRRenderer extends EntityRenderer
 
             if (var16)
             {
+		        mc.checkGLError("PreFRenderLast");
                 this.mc.mcProfiler.endStartSection("FRenderLast");
                 Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, new Object[] {renderGlobal, Float.valueOf(renderPartialTicks)});
+		        mc.checkGLError("PostFRenderLast");
             }
 
+
             // Add GUI overlay
-            if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null  )
+            if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null )
             {
                 
-            	if( this.mc.gameSettings.thirdPersonView == 0 )
-            	{
-            		//Disable any forge gui crosshairs and helmet overlay (pumkinblur)
-            		if( Reflector.ForgeGuiIngame_renderCrosshairs.exists())
-            		{
-            			Reflector.ForgeGuiIngame_renderCrosshairs.setValue(false);
-            			Reflector.ForgeGuiIngame_renderHelmet.setValue(false);
-            		}
-
+		    	if( this.mc.gameSettings.thirdPersonView == 0 )
+		    	{
 	            	//Draw crosshair
-	                GL11.glClear( GL11.GL_DEPTH_BUFFER_BIT);
-	                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); //Normal Alpha blending for GUI
 		            this.mc.mcProfiler.endStartSection("crosshair");
 			        MovingObjectPosition crossPos = this.mc.objectMouseOver;
 			        if( crossPos == null )
@@ -1314,7 +1307,7 @@ public class VRRenderer extends EntityRenderer
 			            float scale = 0.025f*(float)Math.sqrt((crossX*crossX + crossY*crossY + crossZ*crossZ));
 			            GL11.glScalef(-scale, -scale, scale);
 			            GL11.glDisable(GL11.GL_LIGHTING);
-			            GL11.glEnable(GL11.GL_DEPTH_TEST);
+			            GL11.glDisable(GL11.GL_DEPTH_TEST);
 			            GL11.glEnable(GL11.GL_BLEND);
 				        GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); //white crosshair, with blending
 	
@@ -1337,20 +1330,25 @@ public class VRRenderer extends EntityRenderer
                 ScaledResolution scaledRes = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	            int scaledWidth = scaledRes.getScaledWidth();
 	            int scaledHeight = scaledRes.getScaledHeight();
-	            int mouseX = Mouse.getX() * scaledWidth / this.mc.displayWidthVRFull;
+
+	            int mouseX = Mouse.getX() * scaledWidth / this.mc.displayWidth;
 	            int mouseY = scaledHeight - Mouse.getY() * scaledHeight / this.mc.displayHeight - 1;
 
                 if (!this.mc.gameSettings.hideGUI/* && this.mc.currentScreen == null*/)
                 {
-                    this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, false, mouseX, mouseY);
+                    this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
+			        this.mc.renderEngine.bindTexture("/gui/icons.png"); //Not sure why, but needed for water animation
                     guiAchievement.updateAchievementWindow();
                 }
 
                 if (this.mc.currentScreen != null)
                 {
-                    this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, false, mouseX, mouseY);
-	                this.setupOverlayRendering();
+	                //this.setupOverlayRendering();
                     this.mc.currentScreen.drawScreen(mouseX, mouseY, renderPartialTicks);
+		            if (this.mc.currentScreen != null && this.mc.currentScreen.guiParticles != null)
+		            {
+		                this.mc.currentScreen.guiParticles.draw(renderPartialTicks);
+		            }
                     GL11.glDisable(GL11.GL_LIGHTING);
                     drawMouseQuad(mouseX,mouseY);
                 }

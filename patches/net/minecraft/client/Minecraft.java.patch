@@ -1,16 +1,15 @@
 --- a/net/minecraft/client/Minecraft.java
 +++ b/net/minecraft/client/Minecraft.java
-@@ -9,112 +9,22 @@
+@@ -9,6 +9,8 @@
  import java.awt.Graphics;
  import java.io.File;
  import java.io.IOException;
 +import java.lang.reflect.InvocationTargetException;
 +import java.lang.reflect.Method;
  import java.nio.ByteBuffer;
-+import java.sql.Ref;
  import java.text.DecimalFormat;
  import java.util.ArrayList;
- import java.util.HashMap;
+@@ -16,105 +18,12 @@
  import java.util.Iterator;
  import java.util.List;
  import javax.swing.JPanel;
@@ -122,7 +121,7 @@
  import org.lwjgl.LWJGLException;
  import org.lwjgl.Sys;
  import org.lwjgl.input.Keyboard;
-@@ -127,6 +37,10 @@
+@@ -127,6 +36,10 @@
  import org.lwjgl.opengl.GLContext;
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
@@ -133,7 +132,7 @@
  
  public abstract class Minecraft implements Runnable, IPlayerUsage
  {
-@@ -145,8 +59,13 @@
+@@ -145,8 +58,13 @@
  
      /** Instance of CrashReport. */
      private CrashReport crashReporter;
@@ -147,7 +146,7 @@
      private Timer timer = new Timer(20.0F);
  
      /** Instance of PlayerUsageSnooper. */
-@@ -183,6 +102,7 @@
+@@ -183,6 +101,7 @@
      public GuiScreen currentScreen = null;
      public LoadingScreenRenderer loadingScreen;
      public EntityRenderer entityRenderer;
@@ -155,7 +154,7 @@
  
      /** Reference to the download resources thread. */
      private ThreadDownloadResources downloadResourcesThread;
-@@ -226,7 +146,7 @@
+@@ -226,7 +145,7 @@
       * This is set to fpsCounter every debug screen update, and is shown on the debug screen. It's also sent as part of
       * the usage snooping.
       */
@@ -164,12 +163,13 @@
  
      /**
       * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
-@@ -285,6 +205,9 @@
+@@ -285,6 +204,10 @@
      /** Profiler currently displayed in the debug screen pie chart */
      private String debugProfilerName = "root";
  
 +    /** Oculus Rift */
 +    public IOculusRift oculusRift;
++	private int scaleFactor = 2;
 +
      public Minecraft(Canvas par1Canvas, MinecraftApplet par2MinecraftApplet, int par3, int par4, boolean par5)
      {
@@ -328,7 +328,7 @@
      }
  
      /**
-@@ -628,21 +618,28 @@
+@@ -628,21 +618,29 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -337,6 +337,7 @@
 -            ((GuiScreen)par1GuiScreen).setWorldAndResolution(this, var3, var4);
 +            int width = var2.getScaledWidth();
 +            int height = var2.getScaledHeight();
++            scaleFactor = var2.scaleFactor;
 +            ((GuiScreen)par1GuiScreen).setWorldAndResolution(this, width, height);
              this.skipRenderWorld = false;
 +
@@ -361,7 +362,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -700,6 +697,12 @@
+@@ -700,6 +698,12 @@
              this.sndManager.closeMinecraft();
              Mouse.destroy();
              Keyboard.destroy();
@@ -374,7 +375,7 @@
          }
          finally
          {
-@@ -856,9 +859,22 @@
+@@ -856,9 +860,26 @@
  
              if (!this.skipRenderWorld)
              {
@@ -388,7 +389,11 @@
 +		    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onRenderTickStart, new Object[]{this.timer.renderPartialTicks});
 +		    	}
                  this.mcProfiler.endStartSection("gameRenderer");
++	            int mouseX = Mouse.getX();
++	            int mouseY = Mouse.getY();
++	            Mouse.setCursorPosition(mouseX - this.displayWidth*scaleFactor/2, mouseY);
                  this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks);
++                Mouse.setCursorPosition(mouseX, mouseY);
                  this.mcProfiler.endSection();
 +		    	if( fmlCommonHandler != null )
 +		    	{
@@ -397,7 +402,7 @@
              }
  
              GL11.glFlush();
-@@ -869,7 +885,7 @@
+@@ -869,7 +890,7 @@
                  this.toggleFullscreen();
              }
  
@@ -406,7 +411,7 @@
              {
                  if (!this.mcProfiler.profilingEnabled)
                  {
-@@ -885,7 +901,7 @@
+@@ -885,7 +906,7 @@
                  this.prevFrameTime = System.nanoTime();
              }
  
@@ -415,7 +420,7 @@
              this.mcProfiler.startSection("root");
              Thread.yield();
  
-@@ -896,20 +912,21 @@
+@@ -896,20 +917,21 @@
  
              this.screenshotListener();
  
@@ -441,7 +446,7 @@
  
                  this.resize(this.displayWidth, this.displayHeight);
              }
-@@ -1192,12 +1209,11 @@
+@@ -1192,12 +1214,11 @@
       */
      public void setIngameNotInFocus()
      {
@@ -459,7 +464,7 @@
      }
  
      /**
-@@ -1346,12 +1362,12 @@
+@@ -1346,12 +1367,12 @@
              if (this.fullscreen)
              {
                  Display.setDisplayMode(Display.getDesktopDisplayMode());
@@ -475,7 +480,7 @@
                  }
  
                  if (this.displayHeight <= 0)
-@@ -1363,18 +1379,18 @@
+@@ -1363,18 +1384,18 @@
              {
                  if (this.mcCanvas != null)
                  {
@@ -498,7 +503,7 @@
                  }
  
                  if (this.displayHeight <= 0)
-@@ -1382,6 +1398,8 @@
+@@ -1382,6 +1403,8 @@
                      this.displayHeight = 1;
                  }
              }
@@ -507,7 +512,15 @@
  
              if (this.currentScreen != null)
              {
-@@ -1420,10 +1438,23 @@
+@@ -1411,6 +1434,7 @@
+             ScaledResolution var3 = new ScaledResolution(this.gameSettings, par1, par2);
+             int var4 = var3.getScaledWidth();
+             int var5 = var3.getScaledHeight();
++            this.scaleFactor = var3.scaleFactor;
+             this.currentScreen.setWorldAndResolution(this, var4, var5);
+         }
+     }
+@@ -1420,10 +1444,23 @@
       */
      public void runTick()
      {
@@ -531,7 +544,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1451,21 +1482,24 @@
+@@ -1451,21 +1488,24 @@
              this.renderEngine.updateDynamicTextures();
          }
  
@@ -565,7 +578,7 @@
  
          if (this.currentScreen != null)
          {
-@@ -1565,7 +1599,7 @@
+@@ -1565,7 +1605,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -574,7 +587,7 @@
                      }
                  }
              }
-@@ -1623,6 +1657,209 @@
+@@ -1623,6 +1663,209 @@
                                  this.displayInGameMenu();
                              }
  
@@ -784,7 +797,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.forceReload();
-@@ -1667,10 +1904,11 @@
+@@ -1667,10 +1910,11 @@
                                  this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
                              }
  
@@ -797,7 +810,7 @@
                              }
  
                              if (Keyboard.getEventKey() == 63)
-@@ -1881,6 +2119,11 @@
+@@ -1881,6 +2125,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -809,7 +822,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1925,8 +2168,43 @@
+@@ -1925,8 +2174,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -853,7 +866,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(StatCollector.translateToLocal("menu.loadingLevel"));
  
-@@ -1980,6 +2258,11 @@
+@@ -1980,6 +2264,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -865,7 +878,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -2021,6 +2304,7 @@
+@@ -2021,6 +2310,7 @@
  
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -873,7 +886,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2178,6 +2462,31 @@
+@@ -2178,6 +2468,31 @@
  
      public static void main(String[] par0ArrayOfStr)
      {
@@ -905,7 +918,7 @@
          HashMap var1 = new HashMap();
          boolean var2 = false;
          boolean var3 = true;
-@@ -2319,103 +2628,110 @@
+@@ -2319,103 +2634,110 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1111,7 +1124,7 @@
  
              if (var1)
              {
-@@ -2507,8 +2823,13 @@
+@@ -2507,8 +2829,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1125,7 +1138,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2516,6 +2837,7 @@
+@@ -2516,6 +2843,7 @@
  
              if (var1 != 0)
              {
