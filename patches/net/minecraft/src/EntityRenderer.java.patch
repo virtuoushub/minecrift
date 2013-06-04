@@ -202,7 +202,7 @@
              }
          }
          else
-@@ -1032,129 +1070,102 @@
+@@ -1032,129 +1070,103 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
@@ -379,6 +379,7 @@
 +            try
 +            {
 +                this.mc.currentScreen.drawScreen(var18, var20, par1);
++                GL11.glDisable(GL11.GL_LIGHTING);
 +            }
 +            catch (Throwable var13)
 +            {
@@ -402,7 +403,7 @@
      {
          this.serverWaitTimeCurrent = 0;
  
-@@ -1298,7 +1309,7 @@
+@@ -1298,7 +1310,7 @@
          }
      }
  
@@ -411,7 +412,7 @@
      {
          try
          {
-@@ -1341,7 +1352,7 @@
+@@ -1341,7 +1353,7 @@
          }
      }
  
@@ -420,7 +421,7 @@
      {
          try
          {
-@@ -1711,7 +1722,7 @@
+@@ -1711,7 +1723,7 @@
      /**
       * Render clouds if enabled
       */
@@ -429,7 +430,7 @@
      {
          if (this.mc.gameSettings.shouldRenderClouds())
          {
-@@ -2015,7 +2026,7 @@
+@@ -2015,7 +2027,7 @@
      /**
       * calculates fog and calls glClearColor
       */
@@ -438,7 +439,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLiving var3 = this.mc.renderViewEntity;
-@@ -2224,7 +2235,7 @@
+@@ -2224,7 +2236,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
