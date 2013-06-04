@@ -1,14 +1,16 @@
 --- a/net/minecraft/client/Minecraft.java
 +++ b/net/minecraft/client/Minecraft.java
-@@ -9,6 +9,7 @@
+@@ -9,112 +9,22 @@
  import java.awt.Graphics;
  import java.io.File;
  import java.io.IOException;
 +import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
  import java.nio.ByteBuffer;
++import java.sql.Ref;
  import java.text.DecimalFormat;
  import java.util.ArrayList;
-@@ -16,105 +17,11 @@
+ import java.util.HashMap;
  import java.util.Iterator;
  import java.util.List;
  import javax.swing.JPanel;
@@ -116,19 +118,22 @@
 +import de.fruitfly.ovr.IOculusRift;
 +
 +import net.minecraft.src.*;
++
  import org.lwjgl.LWJGLException;
  import org.lwjgl.Sys;
  import org.lwjgl.input.Keyboard;
-@@ -127,6 +34,8 @@
+@@ -127,6 +37,10 @@
  import org.lwjgl.opengl.GLContext;
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
 +import com.mtbs3d.minecrift.VRRenderer;
++import cpw.mods.fml.relauncher.ArgsWrapper;
++import cpw.mods.fml.relauncher.Side;
 +
  
  public abstract class Minecraft implements Runnable, IPlayerUsage
  {
-@@ -145,8 +54,13 @@
+@@ -145,8 +59,13 @@
  
      /** Instance of CrashReport. */
      private CrashReport crashReporter;
@@ -142,7 +147,7 @@
      private Timer timer = new Timer(20.0F);
  
      /** Instance of PlayerUsageSnooper. */
-@@ -183,6 +97,7 @@
+@@ -183,6 +102,7 @@
      public GuiScreen currentScreen = null;
      public LoadingScreenRenderer loadingScreen;
      public EntityRenderer entityRenderer;
@@ -150,7 +155,7 @@
  
      /** Reference to the download resources thread. */
      private ThreadDownloadResources downloadResourcesThread;
-@@ -226,7 +141,7 @@
+@@ -226,7 +146,7 @@
       * This is set to fpsCounter every debug screen update, and is shown on the debug screen. It's also sent as part of
       * the usage snooping.
       */
@@ -159,7 +164,7 @@
  
      /**
       * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
-@@ -285,6 +200,9 @@
+@@ -285,6 +205,9 @@
      /** Profiler currently displayed in the debug screen pie chart */
      private String debugProfilerName = "root";
  
@@ -169,7 +174,7 @@
      public Minecraft(Canvas par1Canvas, MinecraftApplet par2MinecraftApplet, int par3, int par4, boolean par5)
      {
          StatList.nopInit();
-@@ -294,7 +212,8 @@
+@@ -294,7 +217,8 @@
          Packet3Chat.maxChatLength = 32767;
          this.startTimerHackThread();
          this.mcCanvas = par1Canvas;
@@ -179,7 +184,7 @@
          this.displayHeight = par4;
          this.fullscreen = par5;
          theMinecraft = this;
-@@ -344,7 +263,7 @@
+@@ -344,7 +268,7 @@
              if (var1 != null)
              {
                  var1.setColor(Color.BLACK);
@@ -188,7 +193,7 @@
                  var1.dispose();
              }
  
-@@ -353,22 +272,23 @@
+@@ -353,22 +277,23 @@
          else if (this.fullscreen)
          {
              Display.setFullscreen(true);
@@ -216,7 +221,25 @@
          }
  
          Display.setTitle("Minecraft Minecraft 1.5.2");
-@@ -413,7 +333,32 @@
+@@ -403,6 +328,17 @@
+         this.loadScreen();
+         this.fontRenderer = new FontRenderer(this.gameSettings, "/font/default.png", this.renderEngine, false);
+         this.standardGalacticFontRenderer = new FontRenderer(this.gameSettings, "/font/alternate.png", this.renderEngine, false);
++        
++        Object fmlClientHandler = null;
++        if( Reflector.FMLClientHandler_instance.exists())
++        {
++        	fmlClientHandler = Reflector.call( Reflector.FMLClientHandler_instance, new Object[0]);
++        }
++        
++        if( fmlClientHandler != null)
++        {
++        	Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[]{this});
++        }
+ 
+         if (this.gameSettings.language != null)
+         {
+@@ -413,7 +349,32 @@
  
          ColorizerGrass.setGrassBiomeColorizer(this.renderEngine.getTextureContents("/misc/grasscolor.png"));
          ColorizerFoliage.setFoliageBiomeColorizer(this.renderEngine.getTextureContents("/misc/foliagecolor.png"));
@@ -250,16 +273,62 @@
          RenderManager.instance.itemRenderer = new ItemRenderer(this);
          this.statFileWriter = new StatFileWriter(this.session, this.mcDataDir);
          AchievementList.openInventory.setStatStringFormatter(new StatStringFormatKeyInv(this));
-@@ -436,7 +381,7 @@
+@@ -436,8 +397,14 @@
          this.sndManager.loadSoundSettings(this.gameSettings);
          this.renderGlobal = new RenderGlobal(this, this.renderEngine);
          this.renderEngine.refreshTextureMaps();
 -        GL11.glViewport(0, 0, this.displayWidth, this.displayHeight);
 +        GL11.glViewport(0, 0, this.displayWidthVRFull, this.displayHeight);
          this.effectRenderer = new EffectRenderer(this.theWorld, this.renderEngine);
++        
++        if( fmlClientHandler != null )
++        {
++        	Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_finishMinecraftLoading, new Object[0]);
++        }
++        	
  
          try
-@@ -628,21 +573,28 @@
+         {
+@@ -450,7 +417,25 @@
+         }
+ 
+         this.checkGLError("Post startup");
+-        this.ingameGUI = new GuiIngame(this);
++        if( Reflector.ForgeGuiIngame.exists())
++        {
++        	try {
++				this.ingameGUI = (GuiIngame)Reflector.ForgeGuiIngame_Constructor.getTargetConstructor().newInstance(new Object[]{this});
++			} catch (IllegalArgumentException e) {
++				e.printStackTrace();
++			} catch (InstantiationException e) {
++				e.printStackTrace();
++			} catch (IllegalAccessException e) {
++				e.printStackTrace();
++			} catch (InvocationTargetException e) {
++				e.printStackTrace();
++			}
++        }
++        else
++        {
++        	this.ingameGUI = new GuiIngame(this);
++        }
++
+ 
+         if (this.serverName != null)
+         {
+@@ -467,6 +452,11 @@
+         {
+             this.toggleFullscreen();
+         }
++        
++        if( fmlClientHandler != null )
++        {
++    		Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_onInitializationComplete, new Object[0]);
++        }
+     }
+ 
+     /**
+@@ -628,21 +618,28 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -292,7 +361,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -700,6 +652,12 @@
+@@ -700,6 +697,12 @@
              this.sndManager.closeMinecraft();
              Mouse.destroy();
              Keyboard.destroy();
@@ -305,7 +374,30 @@
          }
          finally
          {
-@@ -869,7 +827,7 @@
+@@ -856,9 +859,22 @@
+ 
+             if (!this.skipRenderWorld)
+             {
++		    	Object fmlCommonHandler = null;
++		    	if( Reflector.FMLCommonHandler_instance.exists())
++		    	{
++		    		fmlCommonHandler = Reflector.call(Reflector.FMLCommonHandler_instance, new Object[0]);
++		    	}
++		    	if( fmlCommonHandler != null )
++		    	{
++		    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onRenderTickStart, new Object[]{this.timer.renderPartialTicks});
++		    	}
+                 this.mcProfiler.endStartSection("gameRenderer");
+                 this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks);
+                 this.mcProfiler.endSection();
++		    	if( fmlCommonHandler != null )
++		    	{
++		    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onRenderTickEnd, new Object[]{this.timer.renderPartialTicks});
++		    	}
+             }
+ 
+             GL11.glFlush();
+@@ -869,7 +885,7 @@
                  this.toggleFullscreen();
              }
  
@@ -314,7 +406,7 @@
              {
                  if (!this.mcProfiler.profilingEnabled)
                  {
-@@ -885,7 +843,7 @@
+@@ -885,7 +901,7 @@
                  this.prevFrameTime = System.nanoTime();
              }
  
@@ -323,7 +415,7 @@
              this.mcProfiler.startSection("root");
              Thread.yield();
  
-@@ -896,20 +854,21 @@
+@@ -896,20 +912,21 @@
  
              this.screenshotListener();
  
@@ -349,7 +441,7 @@
  
                  this.resize(this.displayWidth, this.displayHeight);
              }
-@@ -1192,12 +1151,11 @@
+@@ -1192,12 +1209,11 @@
       */
      public void setIngameNotInFocus()
      {
@@ -367,7 +459,7 @@
      }
  
      /**
-@@ -1346,12 +1304,12 @@
+@@ -1346,12 +1362,12 @@
              if (this.fullscreen)
              {
                  Display.setDisplayMode(Display.getDesktopDisplayMode());
@@ -383,7 +475,7 @@
                  }
  
                  if (this.displayHeight <= 0)
-@@ -1363,18 +1321,18 @@
+@@ -1363,18 +1379,18 @@
              {
                  if (this.mcCanvas != null)
                  {
@@ -406,7 +498,7 @@
                  }
  
                  if (this.displayHeight <= 0)
-@@ -1382,6 +1340,8 @@
+@@ -1382,6 +1398,8 @@
                      this.displayHeight = 1;
                  }
              }
@@ -415,7 +507,31 @@
  
              if (this.currentScreen != null)
              {
-@@ -1451,21 +1411,24 @@
+@@ -1420,10 +1438,23 @@
+      */
+     public void runTick()
+     {
++    	Object fmlCommonHandler = null;
++    	if( Reflector.FMLCommonHandler_instance.exists())
++    	{
++    		fmlCommonHandler = Reflector.call(Reflector.FMLCommonHandler_instance, new Object[0]);
++    	}
++    	if( fmlCommonHandler != null )
++    	{
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_rescheduleTicks, new Object[]{Side.CLIENT});
++    	}
+         if (this.rightClickDelayTimer > 0)
+         {
+             --this.rightClickDelayTimer;
+         }
++    	if( fmlCommonHandler != null )
++    	{
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onPreClientTick, new Object[0]);
++    	}
+ 
+         this.mcProfiler.startSection("stats");
+         this.statFileWriter.func_77449_e();
+@@ -1451,21 +1482,24 @@
              this.renderEngine.updateDynamicTextures();
          }
  
@@ -449,7 +565,7 @@
  
          if (this.currentScreen != null)
          {
-@@ -1565,7 +1528,7 @@
+@@ -1565,7 +1599,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -458,7 +574,7 @@
                      }
                  }
              }
-@@ -1623,6 +1586,209 @@
+@@ -1623,6 +1657,209 @@
                                  this.displayInGameMenu();
                              }
  
@@ -668,7 +784,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.forceReload();
-@@ -1667,10 +1833,11 @@
+@@ -1667,10 +1904,11 @@
                                  this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
                              }
  
@@ -681,7 +797,75 @@
                              }
  
                              if (Keyboard.getEventKey() == 63)
-@@ -2021,6 +2188,7 @@
+@@ -1881,6 +2119,11 @@
+             this.myNetworkManager.processReadPackets();
+         }
+ 
++    	if( fmlCommonHandler != null )
++    	{
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onPostClientTick, new Object[0]);
++    	}
++
+         this.mcProfiler.endSection();
+         this.systemTime = getSystemTime();
+     }
+@@ -1925,8 +2168,43 @@
+         }
+ 
+         this.statFileWriter.readStat(StatList.startGameStat, 1);
++        
++        boolean fmlGameData = Reflector.FMLGameData.exists();
++        if( fmlGameData )
++        {
++        	Reflector.callVoid(Reflector.FMLGameData_initializeServerGate, new Object[]{2});
++        }
++
++
+         this.theIntegratedServer = new IntegratedServer(this, par1Str, par2Str, par3WorldSettings);
+         this.theIntegratedServer.startServerThread();
++        
++        if( fmlGameData  )
++        {
++			Object idDifferences = Reflector.call(Reflector.FMLGameData_gateWorldLoadingForValidation, new Object[0]);
++			if( idDifferences == null )
++			{
++				System.out.println("idDiff == null, continueLoading");
++				Reflector.call(Reflector.FMLGameData_releaseGate, new Object[]{true});
++				continueWorldLoading();
++			}
++			else
++			{
++		        Object var1 = Reflector.call(Reflector.FMLClientHandler_instance, new Object[0]);
++		        Reflector.call( var1, Reflector.FMLClientHandler_warnIDMismatch, new Object[]{idDifferences, true });
++			}
++        	
++        }
++        else
++        {
++			System.out.println("fmlGameData == null , continueLoading");
++        	continueWorldLoading();
++        }
++    }
++
++    public void continueWorldLoading() 
++    {
++        
+         this.integratedServerIsRunning = true;
+         this.loadingScreen.displayProgressMessage(StatCollector.translateToLocal("menu.loadingLevel"));
+ 
+@@ -1980,6 +2258,11 @@
+     public void loadWorld(WorldClient par1WorldClient, String par2Str)
+     {
+         this.statFileWriter.syncStats();
++        
++        if (this.theWorld != null && Reflector.EventBus.exists())
++        {
++            Reflector.postForgeBusEvent(Reflector.WorldEvent_Unload_Constructor, new Object[] {this.theWorld});
++        }
+ 
+         if (par1WorldClient == null)
+         {
+@@ -2021,6 +2304,7 @@
  
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -689,3 +873,263 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
+@@ -2178,6 +2462,31 @@
+ 
+     public static void main(String[] par0ArrayOfStr)
+     {
++	    ReflectorClass FMLRelauncher = new ReflectorClass("cpw.mods.fml.relauncher.FMLRelauncher");
++	    ReflectorMethod FMLRelauncher_handleClientRelaunch = new ReflectorMethod(FMLRelauncher, "handleClientRelaunch");
++    	ArgsWrapper wrapper = new ArgsWrapper( par0ArrayOfStr );
++    	if( FMLRelauncher.exists() )
++    	{
++	        try
++	        {
++				Method var2 = FMLRelauncher_handleClientRelaunch.getTargetMethod();
++	            var2.invoke((Object)null, wrapper);
++	    		System.out.println("For rizzles Relaunching..");
++	        }
++	        catch (Throwable var3)
++	        {
++	    		System.out.println("Gah! Couldn't relaunch, FML is broken...");
++	    	}
++    	}
++    	else
++    	{
++    		fmlReentry( wrapper );
++    	}
++    }
++    
++    public static void fmlReentry(ArgsWrapper wrapper)
++    {
++    	String[] par0ArrayOfStr = wrapper.args;
+         HashMap var1 = new HashMap();
+         boolean var2 = false;
+         boolean var3 = true;
+@@ -2319,103 +2628,110 @@
+         if (this.objectMouseOver != null)
+         {
+             boolean var1 = this.thePlayer.capabilities.isCreativeMode;
+-            int var3 = 0;
+-            boolean var4 = false;
+-            int var2;
+             int var5;
+-
+-            if (this.objectMouseOver.typeOfHit == EnumMovingObjectType.TILE)
+-            {
+-                var5 = this.objectMouseOver.blockX;
+-                int var6 = this.objectMouseOver.blockY;
+-                int var7 = this.objectMouseOver.blockZ;
+-                Block var8 = Block.blocksList[this.theWorld.getBlockId(var5, var6, var7)];
+-
+-                if (var8 == null)
+-                {
+-                    return;
+-                }
+-
+-                var2 = var8.idPicked(this.theWorld, var5, var6, var7);
+-
+-                if (var2 == 0)
+-                {
+-                    return;
+-                }
+-
+-                var4 = Item.itemsList[var2].getHasSubtypes();
+-                int var9 = var2 < 256 && !Block.blocksList[var8.blockID].isFlowerPot() ? var2 : var8.blockID;
+-                var3 = Block.blocksList[var9].getDamageValue(this.theWorld, var5, var6, var7);
+-            }
+-            else
++            if(!Reflector.ForgeHooks_onPickBlock.exists())
+             {
+-                if (this.objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
+-                {
+-                    return;
+-                }
+-
+-                if (this.objectMouseOver.entityHit instanceof EntityPainting)
+-                {
+-                    var2 = Item.painting.itemID;
+-                }
+-                else if (this.objectMouseOver.entityHit instanceof EntityItemFrame)
+-                {
+-                    EntityItemFrame var10 = (EntityItemFrame)this.objectMouseOver.entityHit;
+-
+-                    if (var10.getDisplayedItem() == null)
+-                    {
+-                        var2 = Item.itemFrame.itemID;
+-                    }
+-                    else
+-                    {
+-                        var2 = var10.getDisplayedItem().itemID;
+-                        var3 = var10.getDisplayedItem().getItemDamage();
+-                        var4 = true;
+-                    }
+-                }
+-                else if (this.objectMouseOver.entityHit instanceof EntityMinecart)
+-                {
+-                    EntityMinecart var11 = (EntityMinecart)this.objectMouseOver.entityHit;
+-
+-                    if (var11.getMinecartType() == 2)
+-                    {
+-                        var2 = Item.minecartPowered.itemID;
+-                    }
+-                    else if (var11.getMinecartType() == 1)
+-                    {
+-                        var2 = Item.minecartCrate.itemID;
+-                    }
+-                    else if (var11.getMinecartType() == 3)
+-                    {
+-                        var2 = Item.minecartTnt.itemID;
+-                    }
+-                    else if (var11.getMinecartType() == 5)
+-                    {
+-                        var2 = Item.minecartHopper.itemID;
+-                    }
+-                    else
+-                    {
+-                        var2 = Item.minecartEmpty.itemID;
+-                    }
+-                }
+-                else if (this.objectMouseOver.entityHit instanceof EntityBoat)
+-                {
+-                    var2 = Item.boat.itemID;
+-                }
+-                else
+-                {
+-                    var2 = Item.monsterPlacer.itemID;
+-                    var3 = EntityList.getEntityID(this.objectMouseOver.entityHit);
+-                    var4 = true;
+-
+-                    if (var3 <= 0 || !EntityList.entityEggs.containsKey(Integer.valueOf(var3)))
+-                    {
+-                        return;
+-                    }
+-                }
+-            }
+-
+-            this.thePlayer.inventory.setCurrentItem(var2, var3, var4, var1);
++	            int var3 = 0;
++	            boolean var4 = false;
++	            int var2;
++	
++	            if (this.objectMouseOver.typeOfHit == EnumMovingObjectType.TILE)
++	            {
++	                var5 = this.objectMouseOver.blockX;
++	                int var6 = this.objectMouseOver.blockY;
++	                int var7 = this.objectMouseOver.blockZ;
++	                Block var8 = Block.blocksList[this.theWorld.getBlockId(var5, var6, var7)];
++	
++	                if (var8 == null)
++	                {
++	                    return;
++	                }
++	
++	                var2 = var8.idPicked(this.theWorld, var5, var6, var7);
++	
++	                if (var2 == 0)
++	                {
++	                    return;
++	                }
++	
++	                var4 = Item.itemsList[var2].getHasSubtypes();
++	                int var9 = var2 < 256 && !Block.blocksList[var8.blockID].isFlowerPot() ? var2 : var8.blockID;
++	                var3 = Block.blocksList[var9].getDamageValue(this.theWorld, var5, var6, var7);
++	            }
++	            else
++	            {
++	                if (this.objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
++	                {
++	                    return;
++	                }
++	
++	                if (this.objectMouseOver.entityHit instanceof EntityPainting)
++	                {
++	                    var2 = Item.painting.itemID;
++	                }
++	                else if (this.objectMouseOver.entityHit instanceof EntityItemFrame)
++	                {
++	                    EntityItemFrame var10 = (EntityItemFrame)this.objectMouseOver.entityHit;
++	
++	                    if (var10.getDisplayedItem() == null)
++	                    {
++	                        var2 = Item.itemFrame.itemID;
++	                    }
++	                    else
++	                    {
++	                        var2 = var10.getDisplayedItem().itemID;
++	                        var3 = var10.getDisplayedItem().getItemDamage();
++	                        var4 = true;
++	                    }
++	                }
++	                else if (this.objectMouseOver.entityHit instanceof EntityMinecart)
++	                {
++	                    EntityMinecart var11 = (EntityMinecart)this.objectMouseOver.entityHit;
++	
++	                    if (var11.getMinecartType() == 2)
++	                    {
++	                        var2 = Item.minecartPowered.itemID;
++	                    }
++	                    else if (var11.getMinecartType() == 1)
++	                    {
++	                        var2 = Item.minecartCrate.itemID;
++	                    }
++	                    else if (var11.getMinecartType() == 3)
++	                    {
++	                        var2 = Item.minecartTnt.itemID;
++	                    }
++	                    else if (var11.getMinecartType() == 5)
++	                    {
++	                        var2 = Item.minecartHopper.itemID;
++	                    }
++	                    else
++	                    {
++	                        var2 = Item.minecartEmpty.itemID;
++	                    }
++	                }
++	                else if (this.objectMouseOver.entityHit instanceof EntityBoat)
++	                {
++	                    var2 = Item.boat.itemID;
++	                }
++	                else
++	                {
++	                    var2 = Item.monsterPlacer.itemID;
++	                    var3 = EntityList.getEntityID(this.objectMouseOver.entityHit);
++	                    var4 = true;
++	
++	                    if (var3 <= 0 || !EntityList.entityEggs.containsKey(Integer.valueOf(var3)))
++	                    {
++	                        return;
++	                    }
++	                }
++	            }
++	
++	            this.thePlayer.inventory.setCurrentItem(var2, var3, var4, var1);
++	        }
++	        else if (!Reflector.callBoolean(Reflector.ForgeHooks_onPickBlock, new Object[]{this.objectMouseOver,this.thePlayer,this.theWorld}))
++	        {
++	        	return;
++	        }
+ 
+             if (var1)
+             {
+@@ -2507,8 +2823,13 @@
+     /**
+      * Used in the usage snooper.
+      */
++    private static int max_texture_size = -1;
+     public static int getGLMaximumTextureSize()
+     {
++    	if (max_texture_size != -1)
++    	{
++    		return max_texture_size;
++    	}
+         for (int var0 = 16384; var0 > 0; var0 >>= 1)
+         {
+             GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
+@@ -2516,6 +2837,7 @@
+ 
+             if (var1 != 0)
+             {
++            	max_texture_size = var0;
+                 return var0;
+             }
+         }
