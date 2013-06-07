@@ -1,32 +1,47 @@
 package com.mtbs3d.minecrift;
 
+import com.mtbs3d.minecrift.gui.GuiButtonEx;
+import com.mtbs3d.minecrift.gui.GuiMinecriftDisplaySettings;
+import com.mtbs3d.minecrift.gui.GuiSliderEx;
+import com.mtbs3d.minecrift.gui.GuiSmallButtonEx;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.src.EnumOptions;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiOptions;
 import net.minecraft.src.GuiScreen;
-import net.minecraft.src.GuiSlider;
-import net.minecraft.src.GuiSmallButton;
-import net.minecraft.src.ScaledResolution;
-import net.minecraft.src.StatCollector;
 import net.minecraft.src.StringTranslate;
 
 public class GuiMinecriftSettings extends GuiScreen
 {
-    // Inner class, to ensure it's obfuscated
-	static EnumOptions[] minecriftOptions = new EnumOptions[] {EnumOptions.GRAPHICS, EnumOptions.RENDER_DISTANCE, EnumOptions.AMBIENT_OCCLUSION, EnumOptions.FRAMERATE_LIMIT, EnumOptions.ANAGLYPH, EnumOptions.VIEW_BOBBING, EnumOptions.GUI_SCALE, EnumOptions.ADVANCED_OPENGL, EnumOptions.GAMMA, EnumOptions.RENDER_CLOUDS, EnumOptions.PARTICLES, EnumOptions.USE_SERVER_TEXTURES, EnumOptions.USE_FULLSCREEN, EnumOptions.ENABLE_VSYNC};
-    /**
-	 * 
-	 */
+	static EnumOptions[] minecriftOptions = new EnumOptions[] {
+            EnumOptions.PLAYER_HEIGHT,
+            EnumOptions.EYE_PROTRUSION,
+            EnumOptions.NECK_LENGTH,
+            EnumOptions.MOVEMENT_MULTIPLIER,
+            EnumOptions.HUD_SCALE,
+            EnumOptions.HUD_DISTANCE,
+            EnumOptions.HUD_OPACITY,
+            EnumOptions.RENDER_OWN_HEADWEAR,
+            EnumOptions.ALLOW_MOUSE_PITCH_INPUT,
+        };
+
 	private final GuiOptions minecriftSettings;
 
 	private GuiScreen parentGuiScreen;
 
     /** The title string that is displayed in the top-center of the screen. */
-    protected String screenTitle = "Video Settings";
+    protected String screenTitle = "Minecrift Settings";
 
     /** GUI game settings */
     private GameSettings guiGameSettings;
+
+    private int lastMouseX = 0;
+    private int lastMouseY = 0;
+    private long mouseStillTime = 0L;
+
+    private VRRenderer vrRenderer;
 
     /**
      * True if the system is 64-bit (using a simple indexOf test on a system property)
@@ -35,11 +50,14 @@ public class GuiMinecriftSettings extends GuiScreen
 
     /** An array of all of EnumOption's video options. */
 
-    public GuiMinecriftSettings(GuiOptions guiOptions, GuiScreen par1GuiScreen, GameSettings par2GameSettings)
+    public GuiMinecriftSettings(GuiOptions guiOptions,
+                                GuiScreen par1GuiScreen,
+                                GameSettings par2GameSettings)
     {
         minecriftSettings = guiOptions;
 		this.parentGuiScreen = par1GuiScreen;
         this.guiGameSettings = par2GameSettings;
+        this.vrRenderer = Minecraft.getMinecraft().vrRenderer;
     }
 
     /**
@@ -47,14 +65,16 @@ public class GuiMinecriftSettings extends GuiScreen
      */
     public void initGui()
     {
-        StringTranslate var1 = StringTranslate.getInstance();
-        this.screenTitle = var1.translateKey("options.videoTitle");
+        StringTranslate stringTranslate = StringTranslate.getInstance();
+       // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, var1.translateKey("gui.done")));
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Oculus Settings..."));
         this.is64bit = false;
-        String[] var2 = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
-        String[] var3 = var2;
-        int var4 = var2.length;
+        String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
+        String[] var3 = archStrings;
+        int var4 = archStrings.length;
 
         for (int var5 = 0; var5 < var4; ++var5)
         {
@@ -73,17 +93,53 @@ public class GuiMinecriftSettings extends GuiScreen
         EnumOptions[] var10 = minecriftOptions;
         int var11 = var10.length;
 
-        for (int var12 = 0; var12 < var11; ++var12)
+        for (int var12 = 2; var12 < var11 + 2; ++var12)
         {
-            EnumOptions var8 = var10[var12];
+            EnumOptions var8 = var10[var12 - 2];
+            int width = this.width / 2 - 155 + var12 % 2 * 160;
+            int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
             if (var8.getEnumFloat())
             {
-                this.buttonList.add(new GuiSlider(var8.returnEnumOrdinal(), this.width / 2 - 155 + var9 % 2 * 160, this.height / 7 + var4 + 24 * (var9 >> 1), var8, this.guiGameSettings.getKeyBinding(var8), this.guiGameSettings.getOptionFloatValue(var8)));
+                float minValue = 0.0f;
+                float maxValue = 1.0f;
+
+                if (var8 == EnumOptions.PLAYER_HEIGHT)
+                {
+                    minValue = 1.62f;
+                    maxValue = 1.85f;
+                }
+                if (var8 == EnumOptions.EYE_PROTRUSION)
+                {
+                    minValue = 0.12f;
+                    maxValue = 0.25f;
+                }
+                if (var8 == EnumOptions.NECK_LENGTH)
+                {
+                    minValue = 0.15f;
+                    maxValue = 0.25f;
+                }
+                if (var8 == EnumOptions.MOVEMENT_MULTIPLIER)
+                {
+                    minValue = 0.15f;
+                    maxValue = 1.0f;
+                }
+                if (var8 == EnumOptions.HUD_SCALE)
+                {
+                    minValue = 0.25f;
+                    maxValue = 1.5f;
+                }
+                if (var8 == EnumOptions.HUD_DISTANCE)
+                {
+                    minValue = 0.25f;
+                    maxValue = 1.5f;
+                }
+
+                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, this.guiGameSettings.getOptionFloatValue(var8)));
             }
             else
             {
-                this.buttonList.add(new GuiSmallButton(var8.returnEnumOrdinal(), this.width / 2 - 155 + var9 % 2 * 160, this.height / 7 + var4 + 24 * (var9 >> 1), var8, this.guiGameSettings.getKeyBinding(var8)));
+                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
             }
 
             ++var9;
@@ -99,24 +155,29 @@ public class GuiMinecriftSettings extends GuiScreen
         {
             int var2 = this.guiGameSettings.guiScale;
 
-            if (par1GuiButton.id < 100 && par1GuiButton instanceof GuiSmallButton)
+            if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guiGameSettings.setOptionValue(((GuiSmallButton)par1GuiButton).returnEnumOptions(), 1);
+                EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
+                this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
                 par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+
+                if (num == EnumOptions.USE_VR)
+                {
+                    if (vrRenderer != null)
+                        vrRenderer._FBOInitialised = false;
+                }
+            }
+
+            if (par1GuiButton.id == 201)
+            {
+                this.mc.gameSettings.saveOptions();
+                this.mc.displayGuiScreen(new GuiMinecriftDisplaySettings(this, this.guiGameSettings));
             }
 
             if (par1GuiButton.id == 200)
             {
                 this.mc.gameSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
-            }
-
-            if (this.guiGameSettings.guiScale != var2)
-            {
-                ScaledResolution var3 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-                int var4 = var3.getScaledWidth();
-                int var5 = var3.getScaledHeight();
-                this.setWorldAndResolution(this.mc, var4, var5);
             }
         }
     }
@@ -127,14 +188,79 @@ public class GuiMinecriftSettings extends GuiScreen
     public void drawScreen(int par1, int par2, float par3)
     {
         this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, this.is64bit ? 20 : 5, 16777215);
+        this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 20, 16777215);
+        super.drawScreen(par1, par2, par3);
 
-        if (!this.is64bit && this.guiGameSettings.renderDistance == 0)
+        if (Math.abs(par1 - this.lastMouseX) <= 5 && Math.abs(par2 - this.lastMouseY) <= 5)
         {
-            this.drawCenteredString(this.fontRenderer, StatCollector.translateToLocal("options.farWarning1"), this.width / 2, this.height / 6 + 144 + 1, 11468800);
-            this.drawCenteredString(this.fontRenderer, StatCollector.translateToLocal("options.farWarning2"), this.width / 2, this.height / 6 + 144 + 13, 11468800);
+            short var4 = 700;
+
+            if (System.currentTimeMillis() >= this.mouseStillTime + (long)var4)
+            {
+                int var5 = this.width / 2 - 150;
+                int var6 = this.height / 6 - 5;
+
+                if (par2 <= var6 + 98)
+                {
+                    var6 += 105;
+                }
+
+                int var7 = var5 + 150 + 150;
+                int var8 = var6 + 84 + 10;
+                GuiButton var9 = this.getSelectedButton(par1, par2);
+
+                if (var9 != null)
+                {
+                    String var10 = this.getButtonName(var9.displayString);
+                    String[] var11 = this.getTooltipLines(var10);
+
+                    if (var11 == null)
+                    {
+                        return;
+                    }
+
+                    this.drawGradientRect(var5, var6, var7, var8, -536870912, -536870912);
+
+                    for (int var12 = 0; var12 < var11.length; ++var12)
+                    {
+                        String var13 = var11[var12];
+                        this.fontRenderer.drawStringWithShadow(var13, var5 + 5, var6 + 5 + var12 * 11, 14540253);
+                    }
+                }
+            }
+        }
+        else
+        {
+            this.lastMouseX = par1;
+            this.lastMouseY = par2;
+            this.mouseStillTime = System.currentTimeMillis();
+        }
+    }
+
+    private String[] getTooltipLines(String var1)
+    {
+        return var1.equals("Chrom. Ab. Correction") ? new String[] {"Chromatic aberration correction", "  OFF - no correction", "  ON - correction applied"} : null;
+    }
+
+    private String getButtonName(String var1)
+    {
+        int var2 = var1.indexOf(58);
+        return var2 < 0 ? var1 : var1.substring(0, var2);
+    }
+
+    private GuiButton getSelectedButton(int var1, int var2)
+    {
+        for (int var3 = 0; var3 < this.buttonList.size(); ++var3)
+        {
+            GuiButtonEx var4 = (GuiButtonEx)this.buttonList.get(var3);
+            boolean var5 = var1 >= var4.xPosition && var2 >= var4.yPosition && var1 < var4.xPosition + var4.getWidth() && var2 < var4.yPosition + var4.getHeight();
+
+            if (var5)
+            {
+                return var4;
+            }
         }
 
-        super.drawScreen(par1, par2, par3);
+        return null;
     }
 }

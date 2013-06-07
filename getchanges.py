@@ -31,6 +31,15 @@ def main(mcp_dir):
     new_src_dir    = os.path.join( base_dir , "src" )
     patch_base_dir = os.path.join( base_dir , "patches" )
 
+    try:
+        shutil.rmtree( new_src_dir )
+        shutil.rmtree( patch_base_dir )
+    except OSError as e:
+        pass
+    
+    os.mkdir( new_src_dir )
+    os.mkdir( patch_base_dir )
+
     mod_src_dir = os.path.join( mcp_dir , "src", "minecraft" )
     org_src_dir = os.path.join( mcp_dir , "src", ".minecraft_orig" )
 

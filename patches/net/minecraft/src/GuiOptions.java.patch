@@ -8,7 +8,23 @@
  public class GuiOptions extends GuiScreen
  {
      /**
-@@ -122,6 +124,12 @@
+@@ -38,8 +40,13 @@
+         for (int var5 = 0; var5 < var4; ++var5)
+         {
+             EnumOptions var6 = var3[var5];
+-
+-            if (var6.getEnumFloat())
++            if (var6.getEnumString().equalsIgnoreCase("options.fov"))    // Replace FOV slider with 'Minecrift settings' button
++            {
++                // Minecrift settings
++                GuiSmallButton var7 = new GuiSmallButton(666, this.width / 2 - 155 + var2 % 2 * 160, this.height / 6 - 12 + 24 * (var2 >> 1), var6, "Minecrift Settings...");
++                this.buttonList.add(var7);
++            }
++            else if (var6.getEnumFloat())
+             {
+                 this.buttonList.add(new GuiSlider(var6.returnEnumOrdinal(), this.width / 2 - 155 + var2 % 2 * 160, this.height / 6 - 12 + 24 * (var2 >> 1), var6, this.options.getKeyBinding(var6), this.options.getOptionFloatValue(var6)));
+             }
+@@ -122,6 +129,12 @@
                  this.mc.gameSettings.saveOptions();
                  this.mc.displayGuiScreen(new GuiTexturePacks(this, this.options));
              }
@@ -21,7 +37,7 @@
          }
      }
  
-@@ -134,4 +142,5 @@
+@@ -134,4 +147,5 @@
          this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 15, 16777215);
          super.drawScreen(par1, par2, par3);
      }

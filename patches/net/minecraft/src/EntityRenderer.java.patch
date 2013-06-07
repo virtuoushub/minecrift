@@ -16,7 +16,7 @@
  
      /** Pointed entity */
      private Entity pointedEntity = null;
-@@ -48,33 +48,33 @@
+@@ -48,33 +48,31 @@
  
      /** Mouse filter dummy 4 */
      private MouseFilter mouseFilterDummy4 = new MouseFilter();
@@ -57,12 +57,10 @@
      private float prevDebugCamFOV = 0.0F;
 -    private float camRoll = 0.0F;
 -    private float prevCamRoll = 0.0F;
-+    protected float camRoll = 0.0F;
-+    protected float prevCamRoll = 0.0F;
  
      /**
       * The texture id of the blocklight/skylight texture used for lighting effects
-@@ -98,10 +98,10 @@
+@@ -98,10 +96,12 @@
      private float field_82832_V;
  
      /** Cloud fog mode */
@@ -72,8 +70,10 @@
 -    private double cameraPitch = 0.0D;
 +    protected boolean cloudFog = false;
 +    protected double cameraZoom = 1.0D;
-+    protected double cameraYaw = 0.0D;
-+    protected double cameraPitch = 0.0D;
++    protected float cameraYaw = 0.0F;
++    protected float cameraPitch = 0.0F;
++    protected float cameraRoll = 0.0F;
++    protected float prevCamRoll = 0.0F;
  
      /** Previous frame time in milliseconds */
      private long prevFrameTime = Minecraft.getSystemTime();
@@ -120,6 +120,15 @@
      private int serverWaitTime = 0;
      private int serverWaitTimeCurrent = 0;
      private float avgServerTimeDiff = 0.0F;
+@@ -200,7 +200,7 @@
+         this.prevDebugCamYaw = this.debugCamYaw;
+         this.prevDebugCamPitch = this.debugCamPitch;
+         this.prevDebugCamFOV = this.debugCamFOV;
+-        this.prevCamRoll = this.camRoll;
++        this.prevCamRoll = this.cameraRoll;
+         float var1;
+         float var2;
+ 
 @@ -430,7 +430,7 @@
          }
      }
@@ -137,6 +146,15 @@
 +    protected void setupViewBobbing(float par1)
      {
          if (this.mc.renderViewEntity instanceof EntityPlayer)
+         {
+@@ -482,7 +482,7 @@
+         double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
+         double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
+         double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
+-        GL11.glRotatef(this.prevCamRoll + (this.camRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
++        GL11.glRotatef(this.prevCamRoll + (this.cameraRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
+ 
+         if (var2.isPlayerSleeping())
          {
 @@ -817,7 +817,7 @@
          this.lightmapUpdateNeeded = true;
