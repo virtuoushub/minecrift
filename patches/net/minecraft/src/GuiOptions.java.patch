@@ -32,7 +32,7 @@
 +            if (par1GuiButton.id == 666)
 +            {
 +                this.mc.gameSettings.saveOptions();
-+                this.mc.displayGuiScreen(new GuiMinecriftSettings(this, this, this.options));
++                this.mc.displayGuiScreen(new GuiMinecriftSettings(this, this.options));
 +            }
          }
      }

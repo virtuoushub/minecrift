@@ -13,7 +13,7 @@
      public boolean hideServerAddress = false;
  
 +    // Minecrift
-+    public boolean useVRRenderer    = true;
++    public boolean useVRRenderer    = false; //default to false
 +    public String vrImplementation = "de.fruitfly.ovr.OculusRift";
 +	public float playerHeight = 1.74f;
 +	public float eyeProtrusion = 0.185f;

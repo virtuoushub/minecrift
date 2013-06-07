@@ -173,17 +173,13 @@ public class VRRenderer extends EntityRenderer
         }
 
         //Next, possible neck-model transformation
-	    float cameraYOffset = 1.5f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
+	    float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
 	    GL11.glTranslatef(0.0f, -this.mc.gameSettings.neckBaseToEyeHeight, this.mc.gameSettings.eyeProtrusion);
 
         EntityLiving entity = this.mc.renderViewEntity;
         if( entity != null )
         {
         	//Do in-game camera adjustments if renderViewEntity exists
-
-		    cameraYOffset = entity.yOffset - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
-	
-	
 	        //A few game effects
 	        this.hurtCameraEffect(renderPartialTicks);
 	
@@ -489,27 +485,34 @@ public class VRRenderer extends EntityRenderer
         //Ensure FBO are in place and initialized
         setupFBOs();
 
-    	//Render all UI elements into guiFBO
-        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-        int var16 = var15.getScaledWidth();
-        int var17 = var15.getScaledHeight();
-        int mouseX = Mouse.getX() * var16 / this.mc.displayWidth;
-        int mouseY = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
-
-        guiFBO.bindRenderTarget();
-
-        GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
-    	GL11.glClearColor(0, 0, 0, 0);
-    	GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0.0D, var15.getScaledWidth_double(), var15.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glLoadIdentity();
-        GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
-
         boolean GUIDirty = false;
+        int mouseX = 0;
+        int mouseY = 0;
+        if ( (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI) || this.mc.currentScreen != null )
+        {
+
+	    	//Render all UI elements into guiFBO
+	        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+	        int var16 = var15.getScaledWidth();
+	        int var17 = var15.getScaledHeight();
+	        mouseX = Mouse.getX() * var16 / this.mc.displayWidth;
+	        mouseY = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
+	
+	        guiFBO.bindRenderTarget();
+	
+	        GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
+	    	GL11.glClearColor(0, 0, 0, 0);
+	    	GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
+	        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+	        GL11.glMatrixMode(GL11.GL_PROJECTION);
+	        GL11.glLoadIdentity();
+	        GL11.glOrtho(0.0D, var15.getScaledWidth_double(), var15.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
+	        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+	        GL11.glLoadIdentity();
+	        GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
+	        GUIDirty = true;
+        }
+
 
         if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI)
         {
@@ -523,7 +526,6 @@ public class VRRenderer extends EntityRenderer
 			//Draw in game GUI
             this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
             guiAchievement.updateAchievementWindow();
-	        GUIDirty = true;
         }
 
         if( this.mc.currentScreen != null )
@@ -544,7 +546,6 @@ public class VRRenderer extends EntityRenderer
 	        }
 	        GL11.glDisable(GL11.GL_LIGHTING); //inventory messes up fog color sometimes... This fixes
 	        drawMouseQuad( mouseX, mouseY );
-	        GUIDirty = true;
         }
       
         //Setup render target
@@ -555,7 +556,7 @@ public class VRRenderer extends EntityRenderer
         else if ( superSampleSupported && this.mc.gameSettings.useSupersample)
         {
             postDistortionFBO.bindRenderTarget();
-            eyeRenderParams._renderScale = 2/this.mc.gameSettings.superSampleScaleFactor;
+            eyeRenderParams._renderScale = 1.0f;
         }
         else
         {
@@ -882,7 +883,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glClear (GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);            // Clear Screen And Depth Buffer on the framebuffer to black
 
             // Render onto the entire screen framebuffer
-            GL11.glViewport(0, 0, FBWidth/2, FBHeight);
+            GL11.glViewport(0, 0, this.mc.displayFBWidth, FBHeight);
             mc.checkGLError("3");
 
 
@@ -1095,7 +1096,6 @@ public class VRRenderer extends EntityRenderer
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_CULL_FACE);
-        //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDepthMask(true);
         this.setupFog(0, renderPartialTicks);
         GL11.glEnable(GL11.GL_BLEND);
@@ -1175,10 +1175,10 @@ public class VRRenderer extends EntityRenderer
 	        mc.checkGLError("PostFRenderLast");
         }
 
+	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); //white crosshair, with blending
         // Draw GUI element (as real world object)
         if (!this.mc.gameSettings.hideGUI )
         {
-	        GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); //white crosshair, with blending
         	//Draw crosshair
 	    	if( this.mc.gameSettings.thirdPersonView == 0 )
 	    	{
@@ -1199,7 +1199,6 @@ public class VRRenderer extends EntityRenderer
 
 		            GL11.glPushMatrix();
 		            GL11.glTranslatef(crossX, crossY, crossZ);
-		            GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 		            GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
 		            GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
 		            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
@@ -1336,7 +1335,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-1.0f, -1.0f,  0.0f);  // Bottom Left Of The Texture and Quad
         GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( 1.0f, -1.0f,  0.0f);  // Bottom Right Of The Texture and Quad
         GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( 1.0f,  1.0f,  0.0f);  // Top Right Of The Texture and Quad
-        GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-1.0f, 1.0f, 0.0f);  // Top Left Of The Texture and Quad
+        GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-1.0f,  1.0f,  0.0f);  // Top Left Of The Texture and Quad
 
         GL11.glEnd();
     }
@@ -1347,10 +1346,10 @@ public class VRRenderer extends EntityRenderer
 
         GL11.glBegin(GL11.GL_QUADS);
 
-        GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-1.0f * scale, -1.0f * aspect * scale,  0.0f);  // Bottom Left Of The Texture and Quad
-        GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( 1.0f * scale, -1.0f * aspect * scale,  0.0f);  // Bottom Right Of The Texture and Quad
-        GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( 1.0f * scale, 1.0f * aspect * scale,  0.0f);  // Top Right Of The Texture and Quad
-        GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-1.0f * scale, 1.0f * aspect * scale, 0.0f);  // Top Left Of The Texture and Quad
+        GL11.glTexCoord2f(0.0f, 0.0f); GL11.glVertex3f(-1.0f * scale, -1.0f * aspect * scale, 0.0f);  // Bottom Left  Of The Texture and Quad
+        GL11.glTexCoord2f(1.0f, 0.0f); GL11.glVertex3f( 1.0f * scale, -1.0f * aspect * scale, 0.0f);  // Bottom Right Of The Texture and Quad
+        GL11.glTexCoord2f(1.0f, 1.0f); GL11.glVertex3f( 1.0f * scale,  1.0f * aspect * scale, 0.0f);  // Top    Right Of The Texture and Quad
+        GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-1.0f * scale,  1.0f * aspect * scale, 0.0f);  // Top    Left  Of The Texture and Quad
 
         GL11.glEnd();
     }

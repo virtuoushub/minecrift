@@ -1,5 +1,7 @@
 package com.mtbs3d.minecrift.gui;
 
+import org.lwjgl.opengl.Display;
+
 import com.mtbs3d.minecrift.VRRenderer;
 import net.minecraft.src.*;
 
@@ -148,32 +150,14 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen
      */
     protected void actionPerformed(GuiButton par1GuiButton)
     {
+        EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
+
         if (par1GuiButton.enabled)
         {
-            int var2 = this.guiGameSettings.guiScale;
-
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
                 this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
                 par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
-
-                if (num == EnumOptions.DISTORTION_FIT_POINT ||
-                        num == EnumOptions.USE_DISTORTION ||
-                        num == EnumOptions.SUPERSAMPLING ||
-                        num == EnumOptions.SUPERSAMPLE_SCALEFACTOR ||
-                        num == EnumOptions.IPD ||
-                        num == EnumOptions.CHROM_AB_CORRECTION)
-                {
-                    if (vrRenderer != null)
-                        vrRenderer._FBOInitialised = false;
-                }
-            }
-
-            if (par1GuiButton.id == 101)
-            {
-                this.mc.gameSettings.saveOptions();
-                this.mc.displayGuiScreen(new GuiMinecriftDisplaySettings(this, this.guiGameSettings));
             }
 
             if (par1GuiButton.id == 200)
@@ -181,6 +165,20 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen
                 this.mc.gameSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
+
+	        if (num == EnumOptions.DISTORTION_FIT_POINT ||
+	                num == EnumOptions.USE_DISTORTION ||
+	                num == EnumOptions.SUPERSAMPLING ||
+	                num == EnumOptions.SUPERSAMPLE_SCALEFACTOR ||
+	                num == EnumOptions.IPD ||
+	                num == EnumOptions.CHROM_AB_CORRECTION)
+	        {
+	            if (vrRenderer != null)
+	                vrRenderer._FBOInitialised = false;
+	            //TODO: need to do something else for dragging Distortion Border and Render Scale while the options are enabled...
+	            //this.mc.resize(mc.displayFBWidth,mc.displayFBHeight);
+	            //Display.update();
+	        }
         }
     }
 

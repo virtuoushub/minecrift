@@ -27,8 +27,6 @@ public class GuiMinecriftSettings extends GuiScreen
             EnumOptions.ALLOW_MOUSE_PITCH_INPUT,
         };
 
-	private final GuiOptions minecriftSettings;
-
 	private GuiScreen parentGuiScreen;
 
     /** The title string that is displayed in the top-center of the screen. */
@@ -50,11 +48,9 @@ public class GuiMinecriftSettings extends GuiScreen
 
     /** An array of all of EnumOption's video options. */
 
-    public GuiMinecriftSettings(GuiOptions guiOptions,
-                                GuiScreen par1GuiScreen,
+    public GuiMinecriftSettings( GuiScreen par1GuiScreen,
                                 GameSettings par2GameSettings)
     {
-        minecriftSettings = guiOptions;
 		this.parentGuiScreen = par1GuiScreen;
         this.guiGameSettings = par2GameSettings;
         this.vrRenderer = Minecraft.getMinecraft().vrRenderer;
