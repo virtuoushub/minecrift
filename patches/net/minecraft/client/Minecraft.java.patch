@@ -1031,7 +1031,7 @@
                  return var0;
              }
          }
-@@ -2609,4 +2715,40 @@
+@@ -2609,4 +2715,47 @@
      {
          return this.field_94139_O;
      }
@@ -1044,22 +1044,29 @@
 +        	{
 +	            try {
 +	    			oculusRift = (IOculusRift)Class.forName(gameSettings.vrImplementation).getConstructor().newInstance();
++		
++			        // Oculus init
++			        this.oculusRift.init(new File(new File(getMinecraftDir(),"bin"),"natives"));
++			        this.oculusRift.setIPD(this.gameSettings.ipd);
++		        	if( this.vrRenderer == null )
++		        	{
++		        		this.vrRenderer = new VRRenderer(this,oculusRift,guiAchievement);
++		        	}
 +	    		} catch (Exception e) {
 +	    			//Yes, I am a bad person for catching Exception, sue me.
 +	    			e.printStackTrace();
 +	    		} 
-+	
-+		        // Oculus init
-+		        this.oculusRift.init(new File(new File(getMinecraftDir(),"bin"),"natives"));
-+		        this.oculusRift.setIPD(this.gameSettings.ipd);
 +        	}
 +
-+        	if( this.vrRenderer == null )
++        	if( this.vrRenderer != null )
 +        	{
-+        		this.vrRenderer = new VRRenderer(this,oculusRift,guiAchievement);
++	        	this.entityRenderer = this.vrRenderer;
++		        this.mouseHelper.grabMouseCursor();
 +        	}
-+        	this.entityRenderer = this.vrRenderer;
-+	        this.mouseHelper.grabMouseCursor();
++        	else if (this.entityRenderer == null )
++        	{
++        		this.entityRenderer = new EntityRenderer(this);
++        	}
 +
 +        }
 +        else
