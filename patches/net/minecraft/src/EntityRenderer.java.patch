@@ -129,7 +129,98 @@
          float var1;
          float var2;
  
-@@ -430,7 +430,7 @@
+@@ -280,51 +280,57 @@
+             }
+ 
+             Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
+-            Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
+-            this.pointedEntity = null;
+-            float var9 = 1.0F;
+-            List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
+-            double var11 = var4;
++            getPointedEntity(var6, var7, var2, var4);
++        }
++    }
++
++    protected void getPointedEntity( Vec3 var6, Vec3 var7, double var2, double var4 )
++    {
++        Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
++
++        this.pointedEntity = null;
++        float var9 = 1.0F;
++        List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
++        double var11 = var4;
+ 
+-            for (int var13 = 0; var13 < var10.size(); ++var13)
++        for (int var13 = 0; var13 < var10.size(); ++var13)
++        {
++            Entity var14 = (Entity)var10.get(var13);
++
++            if (var14.canBeCollidedWith())
+             {
+-                Entity var14 = (Entity)var10.get(var13);
++                float var15 = var14.getCollisionBorderSize();
++                AxisAlignedBB var16 = var14.boundingBox.expand((double)var15, (double)var15, (double)var15);
++                MovingObjectPosition var17 = var16.calculateIntercept(var6, var8);
+ 
+-                if (var14.canBeCollidedWith())
++                if (var16.isVecInside(var6))
+                 {
+-                    float var15 = var14.getCollisionBorderSize();
+-                    AxisAlignedBB var16 = var14.boundingBox.expand((double)var15, (double)var15, (double)var15);
+-                    MovingObjectPosition var17 = var16.calculateIntercept(var6, var8);
+-
+-                    if (var16.isVecInside(var6))
++                    if (0.0D < var11 || var11 == 0.0D)
+                     {
+-                        if (0.0D < var11 || var11 == 0.0D)
+-                        {
+-                            this.pointedEntity = var14;
+-                            var11 = 0.0D;
+-                        }
++                        this.pointedEntity = var14;
++                        var11 = 0.0D;
+                     }
+-                    else if (var17 != null)
+-                    {
+-                        double var18 = var6.distanceTo(var17.hitVec);
++                }
++                else if (var17 != null)
++                {
++                    double var18 = var6.distanceTo(var17.hitVec);
+ 
+-                        if (var18 < var11 || var11 == 0.0D)
+-                        {
+-                            this.pointedEntity = var14;
+-                            var11 = var18;
+-                        }
++                    if (var18 < var11 || var11 == 0.0D)
++                    {
++                        this.pointedEntity = var14;
++                        var11 = var18;
+                     }
+                 }
+             }
++        }
+ 
+-            if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
+-            {
+-                this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
++        if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
++        {
++            this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
+ 
+-                if (this.pointedEntity instanceof EntityLiving)
+-                {
+-                    this.mc.pointedEntityLiving = (EntityLiving)this.pointedEntity;
+-                }
++            if (this.pointedEntity instanceof EntityLiving)
++            {
++                this.mc.pointedEntityLiving = (EntityLiving)this.pointedEntity;
+             }
+         }
+     }
+@@ -430,7 +436,7 @@
          }
      }
  
@@ -138,7 +229,7 @@
      {
          EntityLiving var2 = this.mc.renderViewEntity;
          float var3 = (float)var2.hurtTime - par1;
-@@ -456,7 +456,7 @@
+@@ -456,7 +462,7 @@
      /**
       * Setups all the GL settings for view bobbing. Args: partialTickTime
       */
@@ -147,7 +238,7 @@
      {
          if (this.mc.renderViewEntity instanceof EntityPlayer)
          {
-@@ -482,7 +482,7 @@
+@@ -482,7 +488,7 @@
          double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
          double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
          double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
@@ -156,7 +247,7 @@
  
          if (var2.isPlayerSleeping())
          {
-@@ -817,7 +817,7 @@
+@@ -817,7 +823,7 @@
          this.lightmapUpdateNeeded = true;
      }
  
@@ -165,7 +256,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
  
-@@ -967,7 +967,45 @@
+@@ -967,7 +973,45 @@
          int var3 = par1EntityPlayer.getActivePotionEffect(Potion.nightVision).getDuration();
          return var3 > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)var3 - par2) * (float)Math.PI * 0.2F) * 0.3F;
      }
@@ -173,7 +264,7 @@
 +    protected void updateCamera( float par1, boolean var14 )
 +    {
 +        this.mc.mcProfiler.startSection("mouse");
- 
++
 +        if (this.mc.inGameHasFocus && var14)
 +        {
 +            this.mc.mouseHelper.mouseXYChange();
@@ -187,7 +278,7 @@
 +            {
 +                var8 = -1;
 +            }
-+
+ 
 +            if (this.mc.gameSettings.smoothCamera)
 +            {
 +                this.smoothCamYaw += var6;
@@ -211,7 +302,7 @@
      /**
       * Will update any inputs that effect the camera angle (mouse) and then render the world and GUI
       */
-@@ -1024,7 +1062,7 @@
+@@ -1024,7 +1068,7 @@
          {
              if (Minecraft.getSystemTime() - this.prevFrameTime > 500L)
              {
@@ -220,7 +311,7 @@
              }
          }
          else
-@@ -1032,129 +1070,103 @@
+@@ -1032,129 +1076,103 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
@@ -339,9 +430,7 @@
 -            if (this.mc.currentScreen != null)
 -            {
 -                GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-+            this.renderEndNanoTime = System.nanoTime();
-+            this.mc.mcProfiler.endStartSection("gui");
- 
+-
 -                try
 -                {
 -                    this.mc.currentScreen.drawScreen(var18, var20, par1);
@@ -355,7 +444,9 @@
 -                    var12.addCrashSectionCallable("Screen size", new CallableScreenSize(this, var15));
 -                    throw new ReportedException(var11);
 -                }
--
++            this.renderEndNanoTime = System.nanoTime();
++            this.mc.mcProfiler.endStartSection("gui");
+ 
 -                if (this.mc.currentScreen != null && this.mc.currentScreen.guiParticles != null)
 -                {
 -                    this.mc.currentScreen.guiParticles.draw(par1);
@@ -365,9 +456,9 @@
 +                this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
              }
 -        }
--
--        this.waitForServerThread();
  
+-        this.waitForServerThread();
+-
 -        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
 -        {
 -            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
@@ -421,7 +512,7 @@
      {
          this.serverWaitTimeCurrent = 0;
  
-@@ -1298,7 +1310,7 @@
+@@ -1298,7 +1316,7 @@
          }
      }
  
@@ -430,7 +521,7 @@
      {
          try
          {
-@@ -1341,7 +1353,7 @@
+@@ -1341,7 +1359,7 @@
          }
      }
  
@@ -439,7 +530,7 @@
      {
          try
          {
-@@ -1711,7 +1723,7 @@
+@@ -1711,7 +1729,7 @@
      /**
       * Render clouds if enabled
       */
@@ -448,7 +539,7 @@
      {
          if (this.mc.gameSettings.shouldRenderClouds())
          {
-@@ -2015,7 +2027,7 @@
+@@ -2015,7 +2033,7 @@
      /**
       * calculates fog and calls glClearColor
       */
@@ -457,7 +548,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLiving var3 = this.mc.renderViewEntity;
-@@ -2224,7 +2236,7 @@
+@@ -2224,7 +2242,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */

@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,29 @@
+@@ -97,7 +97,30 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -26,7 +26,8 @@
 +    DISTORTION_FIT_POINT("Distortion Border", true, false),
 +    HEAD_TRACK_SENSITIVITY("Head Track Sensitivity", true, false),
 +    SUPERSAMPLING("FSAA", false, true),
-+    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false);
++    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
++    DECOUPLEMOVELOOK("Decouple Look/Move", false, true);
 +
      private final boolean enumFloat;
      private final boolean enumBoolean;

@@ -25,6 +25,7 @@ public class GuiMinecriftSettings extends GuiScreen
             EnumOptions.HUD_OPACITY,
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.ALLOW_MOUSE_PITCH_INPUT,
+            EnumOptions.DECOUPLEMOVELOOK,
         };
 
 	private GuiScreen parentGuiScreen;

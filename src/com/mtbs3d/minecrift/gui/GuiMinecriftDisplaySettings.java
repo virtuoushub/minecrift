@@ -15,24 +15,14 @@ import net.minecraft.src.*;
 public class GuiMinecriftDisplaySettings  extends GuiScreen
 {
     static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
-            //EnumOptions.USE_VR,
-            //EnumOptions.PLAYER_HEIGHT,
-            //EnumOptions.EYE_PROTRUSION,
-            //EnumOptions.NECK_LENGTH,
-            //EnumOptions.MOVEMENT_MULTIPLIER,
             EnumOptions.IPD,
             EnumOptions.FOV_SCALE_FACTOR,
             EnumOptions.HEAD_TRACKING,
             EnumOptions.HEAD_TRACK_PREDICTION,
             EnumOptions.HEAD_TRACK_SENSITIVITY,
             EnumOptions.CHROM_AB_CORRECTION,
-//            EnumOptions.HUD_OPACITY,
-//            EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.USE_DISTORTION,
             EnumOptions.DISTORTION_FIT_POINT,
-            //EnumOptions.HUD_SCALE,
-            //EnumOptions.ALLOW_MOUSE_PITCH_INPUT,
-            //EnumOptions.HUD_DISTANCE,
             EnumOptions.SUPERSAMPLING,
             EnumOptions.SUPERSAMPLE_SCALEFACTOR
     };
@@ -75,6 +65,7 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
         this.is64bit = false;
         String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
         String[] var3 = archStrings;
@@ -158,15 +149,43 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen
             {
                 this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
                 par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
-            }
-
-            if (par1GuiButton.id == 200)
+            } 
+            else if (par1GuiButton.id == 200)
             {
                 this.mc.gameSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
+            else if (par1GuiButton.id == 201)
+            {
+            	// Non-display settings
+            	/*
+				this.mc.gameSettings.playerHeight = 1.74f;
+				this.mc.gameSettings.eyeProtrusion = 0.185f;
+				this.mc.gameSettings.neckBaseToEyeHeight = 0.225f;
+			    this.mc.gameSettings.movementSpeedMultiplier = 1.0f;
+			    this.mc.gameSettings.hudScale = 1.0f;
+			    this.mc.gameSettings.allowMousePitchInput = false;
+			    this.mc.gameSettings.hudDistance = 1.0f;
+			    */
 
-	        if (num == EnumOptions.DISTORTION_FIT_POINT ||
+			    this.mc.gameSettings.useHudOpacity = false;
+			    this.mc.gameSettings.renderHeadWear = false;
+			    this.mc.gameSettings.useDistortion = true;
+			    this.mc.gameSettings.useHeadTracking = true;
+			    this.mc.gameSettings.useHeadTrackPrediction = true;
+			    this.mc.gameSettings.ipd = 0.0635F;
+			    this.mc.gameSettings.useChromaticAbCorrection = false;
+			    this.mc.gameSettings.fovScaleFactor = 1.0f;
+			    this.mc.gameSettings.distortionFitPoint = 5;
+			    this.mc.gameSettings.headTrackSensitivity = 1.0f;
+			    this.mc.gameSettings.useSupersample = false;
+			    this.mc.gameSettings.superSampleScaleFactor = 2.0f;
+	            if (vrRenderer != null)
+	                vrRenderer._FBOInitialised = false;
+			    this.mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
+            }
+
+            if (num == EnumOptions.DISTORTION_FIT_POINT ||
 	                num == EnumOptions.USE_DISTORTION ||
 	                num == EnumOptions.SUPERSAMPLING ||
 	                num == EnumOptions.SUPERSAMPLE_SCALEFACTOR ||

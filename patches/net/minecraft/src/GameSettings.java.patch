@@ -8,7 +8,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +134,36 @@
+@@ -133,6 +134,32 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -35,17 +35,13 @@
 +    public boolean useSupersample = false;
 +    public float superSampleScaleFactor = 2.0f;
 +    public boolean useMipMaps = false;
-+
-+    public boolean lockHud = false;
-+    public float lastHudYaw = 1000.0f;
-+    public float lastHudPitch = 1000.0f;
-+    public float lastHudRoll = 1000.0f;
++    public boolean lookMoveDecoupled = false;
 +
 +
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +197,7 @@
+@@ -166,7 +193,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -54,7 +50,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +206,7 @@
+@@ -175,6 +202,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -62,7 +58,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -204,6 +236,7 @@
+@@ -204,6 +232,7 @@
      public String language;
      private File optionsFileOF;
  
@@ -70,7 +66,7 @@
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
          this.renderDistance = 1;
-@@ -211,7 +244,7 @@
+@@ -211,7 +240,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -79,7 +75,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -240,7 +273,7 @@
+@@ -240,7 +269,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -88,7 +84,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +447,62 @@
+@@ -414,6 +443,62 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -151,7 +147,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1251,83 @@
+@@ -1162,12 +1247,88 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -202,6 +198,11 @@
 +            this.useSupersample = !this.useSupersample;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
++        {
++            this.lookMoveDecoupled = !this.lookMoveDecoupled;
++        }
++
          this.saveOptions();
      }
  
@@ -236,7 +237,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1785,117 @@
+@@ -1625,6 +1786,121 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -350,11 +351,15 @@
 +        {
 +            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
 +        }
++        else if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
++        {
++            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
++        }
 +        // End Minecrift
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -1677,6 +1948,103 @@
+@@ -1677,6 +1953,103 @@
                          this.mouseSensitivity = this.parseFloat(var3[1]);
                      }
  
@@ -458,7 +463,7 @@
                      if (var3[0].equals("fov"))
                      {
                          this.fovSetting = this.parseFloat(var3[1]);
-@@ -2365,6 +2733,28 @@
+@@ -2365,6 +2738,28 @@
              var5.println("difficulty:" + this.difficulty);
              var5.println("fancyGraphics:" + this.fancyGraphics);
              var5.println("ao:" + this.ambientOcclusion);
