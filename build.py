@@ -58,7 +58,10 @@ def main(mcp_dir):
     os.chdir(mcp_dir)
 
     reobf = os.path.join(mcp_dir,'reobf','minecraft')
-    shutil.rmtree(reobf)
+    try:
+        shutil.rmtree(reobf)
+    except OSError:
+        pass
 
     print("Recompiling...")
     from runtime.mcp import recompile_side, reobfuscate_side
@@ -80,6 +83,8 @@ def main(mcp_dir):
     with zipfile.ZipFile( out_file,'w') as zipout:
         for abs_path, _, filelist in os.walk(reobf, followlinks=True):
             arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
+            if arc_path[:3] == "cpw":
+                continue
             for cur_file in fnmatch.filter(filelist, '*.class'):
                 in_file= os.path.join(abs_path,cur_file) 
                 arcname =  arc_path + cur_file
