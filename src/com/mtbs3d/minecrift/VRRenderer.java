@@ -522,6 +522,8 @@ public class VRRenderer extends EntityRenderer
 				Reflector.ForgeGuiIngame_renderHelmet.setValue(false);
 			}
 			
+			GL11.glColor3f(0,0,0);//Some things don't set the draw color; black is best
+			GL11.glClearColor(0, 0, 0, 1);
 			//Draw in game GUI
             this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
             guiAchievement.updateAchievementWindow();
@@ -643,7 +645,18 @@ public class VRRenderer extends EntityRenderer
 				GL11.glRotatef(this.totalMousePitchDelta, 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, this.mc.gameSettings.neckBaseToEyeHeight, this.mc.gameSettings.hudDistance*10);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
+				if( this.mc.gameSettings.useHudOpacity )
+				{
+			        GL11.glEnable(GL11.GL_BLEND);
+			        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				}
+				else
+				{
+			        GL11.glDisable(GL11.GL_BLEND);
+					
+				}
 				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*10);
+		        GL11.glDisable(GL11.GL_BLEND);
 		
 		        unbindTexture();
 	        	mc.checkGLError("GUI");
