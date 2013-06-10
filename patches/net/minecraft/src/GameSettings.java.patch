@@ -1,494 +1,494 @@
---- a/net/minecraft/src/GameSettings.java
-+++ b/net/minecraft/src/GameSettings.java
-@@ -28,6 +28,7 @@
-     public float musicVolume = 1.0F;
-     public float soundVolume = 1.0F;
-     public float mouseSensitivity = 0.5F;
-+
-     public boolean invertMouse = false;
-     public int renderDistance = 0;
-     public boolean viewBobbing = true;
-@@ -133,6 +134,32 @@
-     public boolean enableVsync = true;
-     public boolean hideServerAddress = false;
- 
-+    // Minecrift
-+    public boolean useVRRenderer    = false; //default to false
-+    public String vrImplementation = "de.fruitfly.ovr.OculusRift";
-+	public float playerHeight = 1.74f;
-+	public float eyeProtrusion = 0.185f;
-+	public float neckBaseToEyeHeight = 0.225f;
-+    public float movementSpeedMultiplier = 1.0f;
-+    public boolean useDistortion = true;
-+    public boolean useHeadTracking = true;
-+    public boolean useHeadTrackPrediction = true;
-+    public float ipd = 0.0635F;
-+    public boolean useHudOpacity = false;
-+    public boolean renderHeadWear = false;
-+    public boolean useChromaticAbCorrection = false;
-+    public float hudScale = 1.0f;
-+    public boolean allowMousePitchInput = false;
-+    public float hudDistance = 1.0f;
-+    public float fovScaleFactor = 1.0f;
-+    public int distortionFitPoint = 5;
-+    public float headTrackSensitivity = 1.0f;
-+    public boolean useSupersample = false;
-+    public float superSampleScaleFactor = 2.0f;
-+    public boolean useMipMaps = false;
-+    public boolean lookMoveDecoupled = false;
-+
-+
-     /**
-      * Whether to show advanced information on item tooltips, toggled by F3+H
-      */
-@@ -166,7 +193,7 @@
-     public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
-     public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
-     public KeyBinding[] keyBindings;
--    protected Minecraft mc;
-+    public Minecraft mc;
-     private File optionsFile;
-     public int difficulty;
-     public boolean hideGUI;
-@@ -175,6 +202,7 @@
-     /** true if debug info should be displayed instead of version */
-     public boolean showDebugInfo;
-     public boolean showDebugProfilerChart;
-+	public boolean showOculusDebugInfo;
- 
-     /** The lastServer string. */
-     public String lastServer;
-@@ -204,6 +232,7 @@
-     public String language;
-     private File optionsFileOF;
- 
-+
-     public GameSettings(Minecraft par1Minecraft, File par2File)
-     {
-         this.renderDistance = 1;
-@@ -211,7 +240,7 @@
-         this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
-         this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
-         this.difficulty = 2;
--        this.hideGUI = false;
-+        this.hideGUI = true;       // TODO: Default
-         this.thirdPersonView = 0;
-         this.showDebugInfo = false;
-         this.showDebugProfilerChart = false;
-@@ -240,7 +269,7 @@
-         this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
-         this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
-         this.difficulty = 2;
--        this.hideGUI = false;
-+        this.hideGUI = true;     // TODO: Default
-         this.thirdPersonView = 0;
-         this.showDebugInfo = false;
-         this.showDebugProfilerChart = false;
-@@ -414,6 +443,62 @@
-             this.chatScale = par2;
-             this.mc.ingameGUI.getChatGUI().func_96132_b();
-         }
-+
-+        // Minecrift
-+        if (par1EnumOptions == EnumOptions.PLAYER_HEIGHT)
-+        {
-+            this.playerHeight = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
-+        {
-+            this.eyeProtrusion = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.NECK_LENGTH)
-+        {
-+            this.neckBaseToEyeHeight = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER)
-+        {
-+            this.movementSpeedMultiplier = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.IPD)
-+        {
-+            this.ipd = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.HUD_SCALE)
-+        {
-+            this.hudScale = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
-+        {
-+            this.hudDistance = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
-+        {
-+            this.fovScaleFactor = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
-+        {
-+            this.headTrackSensitivity = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-+        {
-+            this.superSampleScaleFactor = par2;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
-+        {
-+            this.distortionFitPoint = (int)Math.floor(par2);
-+        }
-     }
- 
-     private void updateWaterOpacity()
-@@ -1162,12 +1247,88 @@
-             Display.setVSyncEnabled(this.enableVsync);
-         }
- 
-+        // Minecrift
-+        if (par1EnumOptions == EnumOptions.USE_VR)
-+        {
-+            this.useVRRenderer = !this.useVRRenderer;
-+            mc.setUseVRRenderer(useVRRenderer);
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.USE_DISTORTION)
-+        {
-+            this.useDistortion = !this.useDistortion;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.HEAD_TRACKING)
-+        {
-+            this.useHeadTracking = !this.useHeadTracking;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
-+        {
-+            this.renderHeadWear = !this.renderHeadWear;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
-+        {
-+            this.useHeadTrackPrediction = !this.useHeadTrackPrediction;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.HUD_OPACITY)
-+        {
-+            this.useHudOpacity = !this.useHudOpacity;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
-+        {
-+            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.ALLOW_MOUSE_PITCH_INPUT)
-+        {
-+            this.allowMousePitchInput = !this.allowMousePitchInput;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
-+        {
-+            this.useSupersample = !this.useSupersample;
-+        }
-+
-+        if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
-+        {
-+            this.lookMoveDecoupled = !this.lookMoveDecoupled;
-+        }
-+
-         this.saveOptions();
-     }
- 
-     public float getOptionFloatValue(EnumOptions par1EnumOptions)
-     {
--        return par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight : (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel : (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F : (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) : (par1EnumOptions == EnumOptions.FOV ? this.fovSetting : (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting : (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume : (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume : (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused : (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))));
-+        return par1EnumOptions == EnumOptions.PLAYER_HEIGHT ? this.playerHeight :
-+              (par1EnumOptions == EnumOptions.EYE_PROTRUSION ? this.eyeProtrusion :
-+              (par1EnumOptions == EnumOptions.NECK_LENGTH ? this.neckBaseToEyeHeight :
-+              (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER ? this.movementSpeedMultiplier :
-+              (par1EnumOptions == EnumOptions.IPD ? this.ipd :
-+              (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
-+              (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
-+              (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR ? this.fovScaleFactor :
-+              (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY ? this.headTrackSensitivity :
-+              (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR ? this.superSampleScaleFactor :
-+              (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT ? (float)this.distortionFitPoint :
-+              (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight :
-+              (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel :
-+              (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F :
-+              (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) :
-+              (par1EnumOptions == EnumOptions.FOV ? this.fovSetting :
-+              (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting :
-+              (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume :
-+              (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume :
-+              (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity :
-+              (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity :
-+              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused :
-+              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused :
-+              (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale :
-+              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F))))))))))))))))))))))));
-     }
- 
-     public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1786,121 @@
-         {
-             return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
-         }
-+
-+//        public boolean useVR    = true;
-+//        public String vrImplementation = "de.fruitfly.ovr.OculusRift";
-+//        public float playerHeight = 1.74f;
-+//        public float eyeProtrusion = 0.185f;
-+//        public float neckBaseToEyeHeight = 0.225f;
-+//        public float movementSpeedMultiplier = 1.0f;
-+//        public boolean useDistortion = true;
-+//        public boolean useHeadTracking = true;
-+//        public boolean useHeadTrackPrediction = true;
-+//        public float ipd = 0.0635F;
-+//        public boolean useHudOpacity = false;
-+//        public boolean renderHeadWear = false;
-+//        public boolean useChromaticAbCorrection = false;
-+//        public float hudScale = 1.0f;
-+//        public boolean allowMousePitchInput = false;
-+//        public float hudDistance = 1.0f;
-+//        public float fovScaleFactor = 1.0f;
-+//        public int distortionFitPoint = 5;
-+//        public float headTrackSensitivity = 1.0f;
-+//        public boolean useSupersample = false;
-+//        public float superSampleScaleFactor = 2.0f;
-+
-+
-+        // Minecrift
-+        else if (par1EnumOptions == EnumOptions.USE_VR)
-+        {
-+            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.PLAYER_HEIGHT)
-+        {
-+            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.playerHeight) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
-+        {
-+            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.NECK_LENGTH)
-+        {
-+            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.neckBaseToEyeHeight) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER)
-+        {
-+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.movementSpeedMultiplier) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.USE_DISTORTION)
-+        {
-+            return this.useDistortion ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.HEAD_TRACKING)
-+        {
-+            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
-+        {
-+            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.IPD)
-+        {
-+            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(this.ipd * 1000) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.HUD_OPACITY)
-+        {
-+            return this.useHudOpacity ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
-+        {
-+            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
-+        {
-+            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.HUD_SCALE)
-+        {
-+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.ALLOW_MOUSE_PITCH_INPUT)
-+        {
-+            return this.allowMousePitchInput ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
-+        {
-+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
-+        {
-+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
-+        {
-+            if (this.distortionFitPoint < 1)
-+                return var4 + "None";
-+            else if (this.distortionFitPoint > 13)
-+                return var4 + "Large";
-+            else
-+                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
-+        {
-+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.headTrackSensitivity) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
-+        {
-+            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
-+        }
-+        else if (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-+        {
-+            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
-+        }
-+        else if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
-+        {
-+            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
-+        }
-+        // End Minecrift
-         else if (par1EnumOptions.getEnumFloat())
-         {
-             float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -1677,6 +1953,103 @@
-                         this.mouseSensitivity = this.parseFloat(var3[1]);
-                     }
- 
-+                    // TODO: Load oculus settings
-+                    if (var3[0].equals("useVRRenderer"))
-+                    {
-+                        this.useVRRenderer = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("playerHeight"))
-+                    {
-+                        this.playerHeight = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("neckBaseToEyeHeight"))
-+                    {
-+                        this.neckBaseToEyeHeight = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("eyeProtrusion"))
-+                    {
-+                        this.eyeProtrusion = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("ipd"))
-+                    {
-+                        this.ipd = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("vrImplementation"))
-+                    {
-+                        this.vrImplementation = var3[1];
-+                    }
-+
-+                    if (var3[0].equals("hudOpacity"))
-+                    {
-+                        this.useHudOpacity = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("useHeadTrackPrediction"))
-+                    {
-+                        this.useHeadTrackPrediction = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("renderHeadWear"))
-+                    {
-+                        this.renderHeadWear = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("useChromaticAbCorrection"))
-+                    {
-+                        this.useChromaticAbCorrection = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("hudScale"))
-+                    {
-+                        this.hudScale = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("allowMousePitchInput"))
-+                    {
-+                        this.allowMousePitchInput = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("hudDistance"))
-+                    {
-+                        this.hudDistance = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("useSupersample"))
-+                    {
-+                        this.useSupersample = var3[1].equals("true");
-+                    }
-+
-+                    if (var3[0].equals("superSampleScaleFactor"))
-+                    {
-+                        this.superSampleScaleFactor = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("fovScaleFactor"))
-+                    {
-+                        this.fovScaleFactor = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("distortionFitPoint"))
-+                    {
-+                        this.distortionFitPoint = Integer.parseInt(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("headTrackSensitivity"))
-+                    {
-+                        this.headTrackSensitivity = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("movementSpeedMultiplier"))
-+                    {
-+                        this.movementSpeedMultiplier = this.parseFloat(var3[1]);
-+                    }
-+                    //////
-+
-                     if (var3[0].equals("fov"))
-                     {
-                         this.fovSetting = this.parseFloat(var3[1]);
-@@ -2365,6 +2738,28 @@
-             var5.println("difficulty:" + this.difficulty);
-             var5.println("fancyGraphics:" + this.fancyGraphics);
-             var5.println("ao:" + this.ambientOcclusion);
-+
-+            // TODO: Save oculus settings
-+            var5.println("useVRRenderer:"+ this.useVRRenderer );
-+            var5.println("playerHeight:" + this.playerHeight );
-+            var5.println("eyeProtrusion:" + this.eyeProtrusion );
-+            var5.println("neckBaseToEyeHeight:" + this.neckBaseToEyeHeight );
-+            var5.println("vrImplementation:"+ this.vrImplementation );
-+            var5.println("ipd:" + this.ipd);
-+            var5.println("hudOpacity:" + this.useHudOpacity);
-+            var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
-+            var5.println("renderHeadWear:" + this.renderHeadWear);
-+            var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
-+            var5.println("hudScale:" + this.hudScale);
-+            var5.println("allowMousePitchInput:" + this.allowMousePitchInput);
-+            var5.println("hudDistance:" + this.hudDistance);
-+            var5.println("useSupersample:" + this.useSupersample);
-+            var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
-+            var5.println("fovScaleFactor:" + this.fovScaleFactor);
-+            var5.println("distortionFitPoint:" + this.distortionFitPoint);
-+            var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
-+            var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
-+
-             var5.println("clouds:" + this.clouds);
-             var5.println("skin:" + this.skin);
-             var5.println("lastServer:" + this.lastServer);
+--- a/net/minecraft/src/GameSettings.java
++++ b/net/minecraft/src/GameSettings.java
+@@ -28,6 +28,7 @@
+     public float musicVolume = 1.0F;
+     public float soundVolume = 1.0F;
+     public float mouseSensitivity = 0.5F;
++
+     public boolean invertMouse = false;
+     public int renderDistance = 0;
+     public boolean viewBobbing = true;
+@@ -133,6 +134,32 @@
+     public boolean enableVsync = true;
+     public boolean hideServerAddress = false;
+ 
++    // Minecrift
++    public boolean useVRRenderer    = false; //default to false
++    public String vrImplementation = "de.fruitfly.ovr.OculusRift";
++	public float playerHeight = 1.74f;
++	public float eyeProtrusion = 0.185f;
++	public float neckBaseToEyeHeight = 0.225f;
++    public float movementSpeedMultiplier = 1.0f;
++    public boolean useDistortion = true;
++    public boolean useHeadTracking = true;
++    public boolean useHeadTrackPrediction = true;
++    public float ipd = 0.0635F;
++    public boolean useHudOpacity = false;
++    public boolean renderHeadWear = false;
++    public boolean useChromaticAbCorrection = false;
++    public float hudScale = 1.0f;
++    public boolean allowMousePitchInput = false;
++    public float hudDistance = 1.0f;
++    public float fovScaleFactor = 1.0f;
++    public int distortionFitPoint = 5;
++    public float headTrackSensitivity = 1.0f;
++    public boolean useSupersample = false;
++    public float superSampleScaleFactor = 2.0f;
++    public boolean useMipMaps = false;
++    public boolean lookMoveDecoupled = false;
++
++
+     /**
+      * Whether to show advanced information on item tooltips, toggled by F3+H
+      */
+@@ -166,7 +193,7 @@
+     public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
+     public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
+     public KeyBinding[] keyBindings;
+-    protected Minecraft mc;
++    public Minecraft mc;
+     private File optionsFile;
+     public int difficulty;
+     public boolean hideGUI;
+@@ -175,6 +202,7 @@
+     /** true if debug info should be displayed instead of version */
+     public boolean showDebugInfo;
+     public boolean showDebugProfilerChart;
++	public boolean showOculusDebugInfo;
+ 
+     /** The lastServer string. */
+     public String lastServer;
+@@ -204,6 +232,7 @@
+     public String language;
+     private File optionsFileOF;
+ 
++
+     public GameSettings(Minecraft par1Minecraft, File par2File)
+     {
+         this.renderDistance = 1;
+@@ -211,7 +240,7 @@
+         this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
+         this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
+         this.difficulty = 2;
+-        this.hideGUI = false;
++        this.hideGUI = true;       // TODO: Default
+         this.thirdPersonView = 0;
+         this.showDebugInfo = false;
+         this.showDebugProfilerChart = false;
+@@ -240,7 +269,7 @@
+         this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
+         this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
+         this.difficulty = 2;
+-        this.hideGUI = false;
++        this.hideGUI = true;     // TODO: Default
+         this.thirdPersonView = 0;
+         this.showDebugInfo = false;
+         this.showDebugProfilerChart = false;
+@@ -414,6 +443,62 @@
+             this.chatScale = par2;
+             this.mc.ingameGUI.getChatGUI().func_96132_b();
+         }
++
++        // Minecrift
++        if (par1EnumOptions == EnumOptions.PLAYER_HEIGHT)
++        {
++            this.playerHeight = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
++        {
++            this.eyeProtrusion = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.NECK_LENGTH)
++        {
++            this.neckBaseToEyeHeight = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER)
++        {
++            this.movementSpeedMultiplier = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.IPD)
++        {
++            this.ipd = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.HUD_SCALE)
++        {
++            this.hudScale = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
++        {
++            this.hudDistance = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
++        {
++            this.fovScaleFactor = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
++        {
++            this.headTrackSensitivity = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
++        {
++            this.superSampleScaleFactor = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
++        {
++            this.distortionFitPoint = (int)Math.floor(par2);
++        }
+     }
+ 
+     private void updateWaterOpacity()
+@@ -1167,12 +1252,88 @@
+             Display.setVSyncEnabled(this.enableVsync);
+         }
+ 
++        // Minecrift
++        if (par1EnumOptions == EnumOptions.USE_VR)
++        {
++            this.useVRRenderer = !this.useVRRenderer;
++            mc.setUseVRRenderer(useVRRenderer);
++        }
++
++        if (par1EnumOptions == EnumOptions.USE_DISTORTION)
++        {
++            this.useDistortion = !this.useDistortion;
++        }
++
++        if (par1EnumOptions == EnumOptions.HEAD_TRACKING)
++        {
++            this.useHeadTracking = !this.useHeadTracking;
++        }
++
++        if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
++        {
++            this.renderHeadWear = !this.renderHeadWear;
++        }
++
++        if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
++        {
++            this.useHeadTrackPrediction = !this.useHeadTrackPrediction;
++        }
++
++        if (par1EnumOptions == EnumOptions.HUD_OPACITY)
++        {
++            this.useHudOpacity = !this.useHudOpacity;
++        }
++
++        if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
++        {
++            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
++        }
++
++        if (par1EnumOptions == EnumOptions.ALLOW_MOUSE_PITCH_INPUT)
++        {
++            this.allowMousePitchInput = !this.allowMousePitchInput;
++        }
++
++        if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
++        {
++            this.useSupersample = !this.useSupersample;
++        }
++
++        if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
++        {
++            this.lookMoveDecoupled = !this.lookMoveDecoupled;
++        }
++
+         this.saveOptions();
+     }
+ 
+     public float getOptionFloatValue(EnumOptions par1EnumOptions)
+     {
+-        return par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight : (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel : (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F : (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) : (par1EnumOptions == EnumOptions.FOV ? this.fovSetting : (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting : (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume : (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume : (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused : (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))));
++        return par1EnumOptions == EnumOptions.PLAYER_HEIGHT ? this.playerHeight :
++              (par1EnumOptions == EnumOptions.EYE_PROTRUSION ? this.eyeProtrusion :
++              (par1EnumOptions == EnumOptions.NECK_LENGTH ? this.neckBaseToEyeHeight :
++              (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER ? this.movementSpeedMultiplier :
++              (par1EnumOptions == EnumOptions.IPD ? this.ipd :
++              (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
++              (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
++              (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR ? this.fovScaleFactor :
++              (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY ? this.headTrackSensitivity :
++              (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR ? this.superSampleScaleFactor :
++              (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT ? (float)this.distortionFitPoint :
++              (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight :
++              (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel :
++              (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F :
++              (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) :
++              (par1EnumOptions == EnumOptions.FOV ? this.fovSetting :
++              (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting :
++              (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume :
++              (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume :
++              (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity :
++              (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity :
++              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused :
++              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused :
++              (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale :
++              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F))))))))))))))))))))))));
+     }
+ 
+     public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
+@@ -1674,6 +1835,121 @@
+         {
+             return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
+         }
++
++//        public boolean useVR    = true;
++//        public String vrImplementation = "de.fruitfly.ovr.OculusRift";
++//        public float playerHeight = 1.74f;
++//        public float eyeProtrusion = 0.185f;
++//        public float neckBaseToEyeHeight = 0.225f;
++//        public float movementSpeedMultiplier = 1.0f;
++//        public boolean useDistortion = true;
++//        public boolean useHeadTracking = true;
++//        public boolean useHeadTrackPrediction = true;
++//        public float ipd = 0.0635F;
++//        public boolean useHudOpacity = false;
++//        public boolean renderHeadWear = false;
++//        public boolean useChromaticAbCorrection = false;
++//        public float hudScale = 1.0f;
++//        public boolean allowMousePitchInput = false;
++//        public float hudDistance = 1.0f;
++//        public float fovScaleFactor = 1.0f;
++//        public int distortionFitPoint = 5;
++//        public float headTrackSensitivity = 1.0f;
++//        public boolean useSupersample = false;
++//        public float superSampleScaleFactor = 2.0f;
++
++
++        // Minecrift
++        else if (par1EnumOptions == EnumOptions.USE_VR)
++        {
++            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.PLAYER_HEIGHT)
++        {
++            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.playerHeight) });
++        }
++        else if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
++        {
++            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
++        }
++        else if (par1EnumOptions == EnumOptions.NECK_LENGTH)
++        {
++            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.neckBaseToEyeHeight) });
++        }
++        else if (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.movementSpeedMultiplier) });
++        }
++        else if (par1EnumOptions == EnumOptions.USE_DISTORTION)
++        {
++            return this.useDistortion ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.HEAD_TRACKING)
++        {
++            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
++        {
++            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.IPD)
++        {
++            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(this.ipd * 1000) });
++        }
++        else if (par1EnumOptions == EnumOptions.HUD_OPACITY)
++        {
++            return this.useHudOpacity ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
++        {
++            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
++        {
++            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.HUD_SCALE)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
++        }
++        else if (par1EnumOptions == EnumOptions.ALLOW_MOUSE_PITCH_INPUT)
++        {
++            return this.allowMousePitchInput ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
++        }
++        else if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
++        }
++        else if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
++        {
++            if (this.distortionFitPoint < 1)
++                return var4 + "None";
++            else if (this.distortionFitPoint > 13)
++                return var4 + "Large";
++            else
++                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
++        }
++        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.headTrackSensitivity) });
++        }
++        else if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
++        {
++            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
++        {
++            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
++        }
++        else if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
++        {
++            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
++        }
++        // End Minecrift
+         else if (par1EnumOptions.getEnumFloat())
+         {
+             float var10 = this.getOptionFloatValue(par1EnumOptions);
+@@ -1726,6 +2002,103 @@
+                         this.mouseSensitivity = this.parseFloat(var3[1]);
+                     }
+ 
++                    // TODO: Load oculus settings
++                    if (var3[0].equals("useVRRenderer"))
++                    {
++                        this.useVRRenderer = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("playerHeight"))
++                    {
++                        this.playerHeight = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("neckBaseToEyeHeight"))
++                    {
++                        this.neckBaseToEyeHeight = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("eyeProtrusion"))
++                    {
++                        this.eyeProtrusion = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("ipd"))
++                    {
++                        this.ipd = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("vrImplementation"))
++                    {
++                        this.vrImplementation = var3[1];
++                    }
++
++                    if (var3[0].equals("hudOpacity"))
++                    {
++                        this.useHudOpacity = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("useHeadTrackPrediction"))
++                    {
++                        this.useHeadTrackPrediction = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("renderHeadWear"))
++                    {
++                        this.renderHeadWear = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("useChromaticAbCorrection"))
++                    {
++                        this.useChromaticAbCorrection = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("hudScale"))
++                    {
++                        this.hudScale = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("allowMousePitchInput"))
++                    {
++                        this.allowMousePitchInput = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("hudDistance"))
++                    {
++                        this.hudDistance = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("useSupersample"))
++                    {
++                        this.useSupersample = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("superSampleScaleFactor"))
++                    {
++                        this.superSampleScaleFactor = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("fovScaleFactor"))
++                    {
++                        this.fovScaleFactor = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("distortionFitPoint"))
++                    {
++                        this.distortionFitPoint = Integer.parseInt(var3[1]);
++                    }
++
++                    if (var3[0].equals("headTrackSensitivity"))
++                    {
++                        this.headTrackSensitivity = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("movementSpeedMultiplier"))
++                    {
++                        this.movementSpeedMultiplier = this.parseFloat(var3[1]);
++                    }
++                    //////
++
+                     if (var3[0].equals("fov"))
+                     {
+                         this.fovSetting = this.parseFloat(var3[1]);
+@@ -2414,6 +2787,28 @@
+             var5.println("difficulty:" + this.difficulty);
+             var5.println("fancyGraphics:" + this.fancyGraphics);
+             var5.println("ao:" + this.ambientOcclusion);
++
++            // TODO: Save oculus settings
++            var5.println("useVRRenderer:"+ this.useVRRenderer );
++            var5.println("playerHeight:" + this.playerHeight );
++            var5.println("eyeProtrusion:" + this.eyeProtrusion );
++            var5.println("neckBaseToEyeHeight:" + this.neckBaseToEyeHeight );
++            var5.println("vrImplementation:"+ this.vrImplementation );
++            var5.println("ipd:" + this.ipd);
++            var5.println("hudOpacity:" + this.useHudOpacity);
++            var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
++            var5.println("renderHeadWear:" + this.renderHeadWear);
++            var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
++            var5.println("hudScale:" + this.hudScale);
++            var5.println("allowMousePitchInput:" + this.allowMousePitchInput);
++            var5.println("hudDistance:" + this.hudDistance);
++            var5.println("useSupersample:" + this.useSupersample);
++            var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
++            var5.println("fovScaleFactor:" + this.fovScaleFactor);
++            var5.println("distortionFitPoint:" + this.distortionFitPoint);
++            var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
++            var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
++
+             var5.println("clouds:" + this.clouds);
+             var5.println("skin:" + this.skin);
+             var5.println("lastServer:" + this.lastServer);

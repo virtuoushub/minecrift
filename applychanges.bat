@@ -1,3 +1,5 @@
 @echo off
-.\mcp\bin\python\python_mcp applychanges.py
+
+.\mcp\runtime\bin\python\python_mcp applychanges.py
+
 pause

@@ -1,4 +1,4 @@
-import os, os.path, sys
+import os, os.path, sys, tempfile, re
 import shutil, fnmatch
 import subprocess, shlex
 from optparse import OptionParser
@@ -11,8 +11,14 @@ def cmdsplit(args):
         args = args.replace('\\', '\\\\')
     return shlex.split(args)
 
+crlf = re.compile(r"\n(?<!\r)")
 def apply_patch( mcp_dir, patch_file, target_dir ):
     if os.name == 'nt':
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            with open(patch_file,'rb') as patch:
+                temp_file.write( crlf.sub("\r\n", patch.read() ))
+            patch_file = temp_file.name
+
         applydiff = os.path.abspath(os.path.join(mcp_dir, 'runtime', 'bin', 'applydiff.exe'))
         cmd = cmdsplit('"%s" -uf -p1 -i "%s"' % (applydiff, patch_file ))
     else:
@@ -20,6 +26,9 @@ def apply_patch( mcp_dir, patch_file, target_dir ):
 
     process = subprocess.Popen(cmd, cwd=target_dir, bufsize=-1)
     process.communicate()
+
+    if os.name == 'nt':
+        os.unlink(patch_file)
 
 def apply_patches(mcp_dir, patch_dir, target_dir, find=None, rep=None):
     for path, _, filelist in os.walk(patch_dir, followlinks=True):

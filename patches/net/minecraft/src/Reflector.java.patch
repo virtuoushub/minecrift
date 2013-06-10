@@ -1,77 +1,77 @@
---- a/net/minecraft/src/Reflector.java
-+++ b/net/minecraft/src/Reflector.java
-@@ -5,6 +5,8 @@
- import java.lang.reflect.InvocationTargetException;
- import java.lang.reflect.Method;
- 
-+import net.minecraft.client.Minecraft;
-+
- public class Reflector
- {
-     public static ReflectorClass ModLoader = new ReflectorClass("ModLoader");
-@@ -15,6 +17,8 @@
-     public static ReflectorMethod FMLRenderAccessLibrary_renderWorldBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderWorldBlock");
-     public static ReflectorMethod FMLRenderAccessLibrary_renderInventoryBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderInventoryBlock");
-     public static ReflectorMethod FMLRenderAccessLibrary_renderItemAsFull3DBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderItemAsFull3DBlock");
-+    public static ReflectorClass FMLRelauncher = new ReflectorClass("cpw.mods.fml.relauncher.FMLRelauncher");
-+    public static ReflectorMethod FMLRelauncher_handleClientRelaunch = new ReflectorMethod(FMLRelauncher, "handleClientRelaunch");
-     public static ReflectorClass LightCache = new ReflectorClass("LightCache");
-     public static ReflectorField LightCache_cache = new ReflectorField(LightCache, "cache");
-     public static ReflectorMethod LightCache_clear = new ReflectorMethod(LightCache, "clear");
-@@ -32,6 +36,8 @@
-     public static ReflectorMethod ForgeHooks_onLivingFall = new ReflectorMethod(ForgeHooks, "onLivingFall");
-     public static ReflectorMethod ForgeHooks_onLivingJump = new ReflectorMethod(ForgeHooks, "onLivingJump");
-     public static ReflectorMethod ForgeHooks_isLivingOnLadder = new ReflectorMethod(ForgeHooks, "isLivingOnLadder");
-+    public static ReflectorMethod ForgeHooks_getTotalArmorValue = new ReflectorMethod(ForgeHooks, "getTotalArmorValue");
-+    public static ReflectorMethod ForgeHooks_onPickBlock = new ReflectorMethod(ForgeHooks, "onPickBlock");
-     public static ReflectorClass ForgeHooksClient = new ReflectorClass("net.minecraftforge.client.ForgeHooksClient");
-     public static ReflectorMethod ForgeHooksClient_onDrawBlockHighlight = new ReflectorMethod(ForgeHooksClient, "onDrawBlockHighlight");
-     public static ReflectorMethod ForgeHooksClient_orientBedCamera = new ReflectorMethod(ForgeHooksClient, "orientBedCamera");
-@@ -45,9 +51,22 @@
-     public static ReflectorMethod FMLCommonHandler_instance = new ReflectorMethod(FMLCommonHandler, "instance");
-     public static ReflectorMethod FMLCommonHandler_handleServerStarting = new ReflectorMethod(FMLCommonHandler, "handleServerStarting");
-     public static ReflectorMethod FMLCommonHandler_handleServerAboutToStart = new ReflectorMethod(FMLCommonHandler, "handleServerAboutToStart");
-+    public static ReflectorMethod FMLCommonHandler_onRenderTickStart= new ReflectorMethod(FMLCommonHandler, "onRenderTickStart");
-+    public static ReflectorMethod FMLCommonHandler_onRenderTickEnd= new ReflectorMethod(FMLCommonHandler, "onRenderTickEnd");
-+    public static ReflectorMethod FMLCommonHandler_rescheduleTicks= new ReflectorMethod(FMLCommonHandler, "rescheduleTicks");
-+    public static ReflectorMethod FMLCommonHandler_onPreClientTick= new ReflectorMethod(FMLCommonHandler, "onPreClientTick");
-+    public static ReflectorMethod FMLCommonHandler_onPostClientTick= new ReflectorMethod(FMLCommonHandler, "onPostClientTick");
-     public static ReflectorClass FMLClientHandler = new ReflectorClass("cpw.mods.fml.client.FMLClientHandler");
-     public static ReflectorMethod FMLClientHandler_instance = new ReflectorMethod(FMLClientHandler, "instance");
-     public static ReflectorMethod FMLClientHandler_isLoading = new ReflectorMethod(FMLClientHandler, "isLoading");
-+    public static ReflectorMethod FMLClientHandler_beginMinecraftLoading = new ReflectorMethod(FMLClientHandler, "beginMinecraftLoading");
-+    public static ReflectorMethod FMLClientHandler_finishMinecraftLoading = new ReflectorMethod(FMLClientHandler, "finishMinecraftLoading");
-+    public static ReflectorMethod FMLClientHandler_onInitializationComplete = new ReflectorMethod(FMLClientHandler, "onInitializationComplete");
-+    public static ReflectorMethod FMLClientHandler_warnIDMismatch = new ReflectorMethod(FMLClientHandler, "warnIDMismatch");
-+    public static ReflectorClass FMLGameData = new ReflectorClass("cpw.mods.fml.common.registry.GameData");
-+    public static ReflectorMethod FMLGameData_initializeServerGate = new ReflectorMethod(FMLGameData, "initializeServerGate");
-+    public static ReflectorMethod FMLGameData_gateWorldLoadingForValidation = new ReflectorMethod(FMLGameData, "gateWorldLoadingForValidation");
-+    public static ReflectorMethod FMLGameData_releaseGate = new ReflectorMethod(FMLGameData, "releaseGate");
-     public static ReflectorClass ForgeWorldProvider = new ReflectorClass(WorldProvider.class);
-     public static ReflectorMethod ForgeWorldProvider_getSkyRenderer = new ReflectorMethod(ForgeWorldProvider, "getSkyRenderer");
-     public static ReflectorMethod ForgeWorldProvider_getCloudRenderer = new ReflectorMethod(ForgeWorldProvider, "getCloudRenderer");
-@@ -56,7 +75,9 @@
-     public static ReflectorClass DimensionManager = new ReflectorClass("net.minecraftforge.common.DimensionManager");
-     public static ReflectorMethod DimensionManager_getStaticDimensionIDs = new ReflectorMethod(DimensionManager, "getStaticDimensionIDs");
-     public static ReflectorClass WorldEvent_Load = new ReflectorClass("net.minecraftforge.event.world.WorldEvent$Load");
-+    public static ReflectorClass WorldEvent_Unload = new ReflectorClass("net.minecraftforge.event.world.WorldEvent$Load");
-     public static ReflectorConstructor WorldEvent_Load_Constructor = new ReflectorConstructor(WorldEvent_Load, new Class[] {World.class});
-+    public static ReflectorConstructor WorldEvent_Unload_Constructor = new ReflectorConstructor(WorldEvent_Load, new Class[] {World.class});
-     public static ReflectorClass EventBus = new ReflectorClass("net.minecraftforge.event.EventBus");
-     public static ReflectorMethod EventBus_post = new ReflectorMethod(EventBus, "post");
-     public static ReflectorClass ChunkWatchEvent_UnWatch = new ReflectorClass("net.minecraftforge.event.world.ChunkWatchEvent$UnWatch");
-@@ -70,8 +91,14 @@
-     public static ReflectorField ForgeEntity_capturedDrops = new ReflectorField(ForgeEntity, "capturedDrops");
-     public static ReflectorClass ForgeItem = new ReflectorClass(Item.class);
-     public static ReflectorMethod ForgeItem_onEntitySwing = new ReflectorMethod(ForgeItem, "onEntitySwing");
-+    public static ReflectorMethod ForgeItem_getFontRenderer = new ReflectorMethod(ForgeItem, "getFontRenderer");
-+    public static ReflectorMethod ForgeItem_getRenderPasses = new ReflectorMethod(ForgeItem, "getRenderPasses");
-     public static ReflectorClass ForgePotionEffect = new ReflectorClass(PotionEffect.class);
-     public static ReflectorMethod ForgePotionEffect_isCurativeItem = new ReflectorMethod(ForgePotionEffect, "isCurativeItem");
-+    public static ReflectorClass ForgeGuiIngame = new ReflectorClass("net.minecraftforge.client.GuiIngameForge");
-+    public static ReflectorConstructor ForgeGuiIngame_Constructor = new ReflectorConstructor(ForgeGuiIngame, new Class[]{Minecraft.class});
-+    public static ReflectorField ForgeGuiIngame_renderCrosshairs = new ReflectorField(ForgeGuiIngame, "renderCrosshairs");
-+    public static ReflectorField ForgeGuiIngame_renderHelmet = new ReflectorField(ForgeGuiIngame, "renderHelmet");
- 
-     public static void callVoid(ReflectorMethod var0, Object ... var1)
-     {
+--- a/net/minecraft/src/Reflector.java
++++ b/net/minecraft/src/Reflector.java
+@@ -5,6 +5,8 @@
+ import java.lang.reflect.InvocationTargetException;
+ import java.lang.reflect.Method;
+ 
++import net.minecraft.client.Minecraft;
++
+ public class Reflector
+ {
+     public static ReflectorClass ModLoader = new ReflectorClass("ModLoader");
+@@ -15,6 +17,8 @@
+     public static ReflectorMethod FMLRenderAccessLibrary_renderWorldBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderWorldBlock");
+     public static ReflectorMethod FMLRenderAccessLibrary_renderInventoryBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderInventoryBlock");
+     public static ReflectorMethod FMLRenderAccessLibrary_renderItemAsFull3DBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderItemAsFull3DBlock");
++    public static ReflectorClass FMLRelauncher = new ReflectorClass("cpw.mods.fml.relauncher.FMLRelauncher");
++    public static ReflectorMethod FMLRelauncher_handleClientRelaunch = new ReflectorMethod(FMLRelauncher, "handleClientRelaunch");
+     public static ReflectorClass LightCache = new ReflectorClass("LightCache");
+     public static ReflectorField LightCache_cache = new ReflectorField(LightCache, "cache");
+     public static ReflectorMethod LightCache_clear = new ReflectorMethod(LightCache, "clear");
+@@ -32,6 +36,8 @@
+     public static ReflectorMethod ForgeHooks_onLivingFall = new ReflectorMethod(ForgeHooks, "onLivingFall");
+     public static ReflectorMethod ForgeHooks_onLivingJump = new ReflectorMethod(ForgeHooks, "onLivingJump");
+     public static ReflectorMethod ForgeHooks_isLivingOnLadder = new ReflectorMethod(ForgeHooks, "isLivingOnLadder");
++    public static ReflectorMethod ForgeHooks_getTotalArmorValue = new ReflectorMethod(ForgeHooks, "getTotalArmorValue");
++    public static ReflectorMethod ForgeHooks_onPickBlock = new ReflectorMethod(ForgeHooks, "onPickBlock");
+     public static ReflectorClass ForgeHooksClient = new ReflectorClass("net.minecraftforge.client.ForgeHooksClient");
+     public static ReflectorMethod ForgeHooksClient_onDrawBlockHighlight = new ReflectorMethod(ForgeHooksClient, "onDrawBlockHighlight");
+     public static ReflectorMethod ForgeHooksClient_orientBedCamera = new ReflectorMethod(ForgeHooksClient, "orientBedCamera");
+@@ -45,9 +51,22 @@
+     public static ReflectorMethod FMLCommonHandler_instance = new ReflectorMethod(FMLCommonHandler, "instance");
+     public static ReflectorMethod FMLCommonHandler_handleServerStarting = new ReflectorMethod(FMLCommonHandler, "handleServerStarting");
+     public static ReflectorMethod FMLCommonHandler_handleServerAboutToStart = new ReflectorMethod(FMLCommonHandler, "handleServerAboutToStart");
++    public static ReflectorMethod FMLCommonHandler_onRenderTickStart= new ReflectorMethod(FMLCommonHandler, "onRenderTickStart");
++    public static ReflectorMethod FMLCommonHandler_onRenderTickEnd= new ReflectorMethod(FMLCommonHandler, "onRenderTickEnd");
++    public static ReflectorMethod FMLCommonHandler_rescheduleTicks= new ReflectorMethod(FMLCommonHandler, "rescheduleTicks");
++    public static ReflectorMethod FMLCommonHandler_onPreClientTick= new ReflectorMethod(FMLCommonHandler, "onPreClientTick");
++    public static ReflectorMethod FMLCommonHandler_onPostClientTick= new ReflectorMethod(FMLCommonHandler, "onPostClientTick");
+     public static ReflectorClass FMLClientHandler = new ReflectorClass("cpw.mods.fml.client.FMLClientHandler");
+     public static ReflectorMethod FMLClientHandler_instance = new ReflectorMethod(FMLClientHandler, "instance");
+     public static ReflectorMethod FMLClientHandler_isLoading = new ReflectorMethod(FMLClientHandler, "isLoading");
++    public static ReflectorMethod FMLClientHandler_beginMinecraftLoading = new ReflectorMethod(FMLClientHandler, "beginMinecraftLoading");
++    public static ReflectorMethod FMLClientHandler_finishMinecraftLoading = new ReflectorMethod(FMLClientHandler, "finishMinecraftLoading");
++    public static ReflectorMethod FMLClientHandler_onInitializationComplete = new ReflectorMethod(FMLClientHandler, "onInitializationComplete");
++    public static ReflectorMethod FMLClientHandler_warnIDMismatch = new ReflectorMethod(FMLClientHandler, "warnIDMismatch");
++    public static ReflectorClass FMLGameData = new ReflectorClass("cpw.mods.fml.common.registry.GameData");
++    public static ReflectorMethod FMLGameData_initializeServerGate = new ReflectorMethod(FMLGameData, "initializeServerGate");
++    public static ReflectorMethod FMLGameData_gateWorldLoadingForValidation = new ReflectorMethod(FMLGameData, "gateWorldLoadingForValidation");
++    public static ReflectorMethod FMLGameData_releaseGate = new ReflectorMethod(FMLGameData, "releaseGate");
+     public static ReflectorClass ForgeWorldProvider = new ReflectorClass(WorldProvider.class);
+     public static ReflectorMethod ForgeWorldProvider_getSkyRenderer = new ReflectorMethod(ForgeWorldProvider, "getSkyRenderer");
+     public static ReflectorMethod ForgeWorldProvider_getCloudRenderer = new ReflectorMethod(ForgeWorldProvider, "getCloudRenderer");
+@@ -56,7 +75,9 @@
+     public static ReflectorClass DimensionManager = new ReflectorClass("net.minecraftforge.common.DimensionManager");
+     public static ReflectorMethod DimensionManager_getStaticDimensionIDs = new ReflectorMethod(DimensionManager, "getStaticDimensionIDs");
+     public static ReflectorClass WorldEvent_Load = new ReflectorClass("net.minecraftforge.event.world.WorldEvent$Load");
++    public static ReflectorClass WorldEvent_Unload = new ReflectorClass("net.minecraftforge.event.world.WorldEvent$Load");
+     public static ReflectorConstructor WorldEvent_Load_Constructor = new ReflectorConstructor(WorldEvent_Load, new Class[] {World.class});
++    public static ReflectorConstructor WorldEvent_Unload_Constructor = new ReflectorConstructor(WorldEvent_Load, new Class[] {World.class});
+     public static ReflectorClass EventBus = new ReflectorClass("net.minecraftforge.event.EventBus");
+     public static ReflectorMethod EventBus_post = new ReflectorMethod(EventBus, "post");
+     public static ReflectorClass ChunkWatchEvent_UnWatch = new ReflectorClass("net.minecraftforge.event.world.ChunkWatchEvent$UnWatch");
+@@ -70,8 +91,14 @@
+     public static ReflectorField ForgeEntity_capturedDrops = new ReflectorField(ForgeEntity, "capturedDrops");
+     public static ReflectorClass ForgeItem = new ReflectorClass(Item.class);
+     public static ReflectorMethod ForgeItem_onEntitySwing = new ReflectorMethod(ForgeItem, "onEntitySwing");
++    public static ReflectorMethod ForgeItem_getFontRenderer = new ReflectorMethod(ForgeItem, "getFontRenderer");
++    public static ReflectorMethod ForgeItem_getRenderPasses = new ReflectorMethod(ForgeItem, "getRenderPasses");
+     public static ReflectorClass ForgePotionEffect = new ReflectorClass(PotionEffect.class);
+     public static ReflectorMethod ForgePotionEffect_isCurativeItem = new ReflectorMethod(ForgePotionEffect, "isCurativeItem");
++    public static ReflectorClass ForgeGuiIngame = new ReflectorClass("net.minecraftforge.client.GuiIngameForge");
++    public static ReflectorConstructor ForgeGuiIngame_Constructor = new ReflectorConstructor(ForgeGuiIngame, new Class[]{Minecraft.class});
++    public static ReflectorField ForgeGuiIngame_renderCrosshairs = new ReflectorField(ForgeGuiIngame, "renderCrosshairs");
++    public static ReflectorField ForgeGuiIngame_renderHelmet = new ReflectorField(ForgeGuiIngame, "renderHelmet");
+ 
+     public static void callVoid(ReflectorMethod var0, Object ... var1)
+     {
