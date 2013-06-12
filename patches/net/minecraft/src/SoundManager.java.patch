@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/SoundManager.java
++++ b/net/minecraft/src/SoundManager.java
+@@ -16,7 +16,7 @@
+ public class SoundManager
+ {
+     /** A reference to the sound system. */
+-    private static SoundSystem sndSystem;
++    public static SoundSystem sndSystem;
+ 
+     /** Sound pool containing sounds. */
+     private SoundPool soundPoolSounds = new SoundPool();

@@ -1,3 +1,12 @@
+0.27 Alpha 12-06-13
+===================
+- Fully 3D GUI with freelook always enabled.
+- GUI options menu for configuring VR settings.
+- Improved Forge Compatibility.
+- Refactored internal render loop for performance.
+- Fixed mouse cursor "jumpiness"
+- Many rendering bug fixes.
+
 0.26 Alpha 29-05-13
 ===================
 - First open source release.

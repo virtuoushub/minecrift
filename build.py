@@ -73,7 +73,7 @@ def main(mcp_dir):
     commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True, srg_names=False)
     reobfuscate_side( commands, CLIENT )
 
-    version = "0_27a"
+    version = "0_27"
     out_file = os.path.join( base_dir,"releases","minecrift_"+version+"_classes.zip" )
     try:
         os.remove( out_file)
@@ -84,6 +84,8 @@ def main(mcp_dir):
         for abs_path, _, filelist in os.walk(reobf, followlinks=True):
             arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
             for cur_file in fnmatch.filter(filelist, '*.class'):
+                if cur_file=='bkc.class':
+                    continue
                 in_file= os.path.join(abs_path,cur_file) 
                 arcname =  arc_path + cur_file
                 zipout.write(in_file, arcname)

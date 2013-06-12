@@ -1,7 +1,7 @@
 Minecrift Mod for Minecraft
 ===========================
 
-Current Version: 0.26 alpha
+Current Version: 0.27 alpha
 
 StellaArtois, mabrowning 2013
 
@@ -23,12 +23,7 @@ With thanks to:
   installation guide!!
 - Brad Larson and his GPUImage library, for the Lanczos GLSL shader
   implementation for the FSAA.
-- mabrowning for his amazing on-going work to get Optifine and Minecrift
-  integrated. Soon it'll be his name as author, with me as a small credit...
-
-No thanks to:
-
-- My lack of OpenGL experience.
+- All the feedback and support of the folks in the MTBS3D forums!
 
 What is Minecrift?
 ------------------
@@ -36,28 +31,26 @@ What is Minecrift?
 The cheesy name apart, Minecrift attempts to update Minecraft to support the
 Oculus Rift. Initially this means allowing headtracking input and using the
 correct stereo rendering parameters for the Rift. In the future this also means
-updating Minecraft for various control schemes, and updating the GUI to be in
-full 3D. Minecrift is also meant as a kick up the arse to Mojang, so that they
-can add official Oculus support in the near future. As and when Minecraft
-officially supports the Rift, Minecrift development will probably cease (unless
-they make a complete hash of it).
+updating Minecraft for various control schemes. Minecrift is also meant as a
+kick up the arse to Mojang, so that they can add official Oculus support in the
+near future. If and when Minecraft officially supports the Rift, Minecrift
+development might cease (unless they make a complete hash of it).
 
 
 Disclaimer
 ----------
 
 I recommend using a vanila Minecraft.jar file for this. Forge compatibility is
-patially in place, but not copmleted.  BACK UP your original minecraft.jar
-before installing this mod. I make no claims as to the compatibility of this
-mod with other mods other than Optifine!
+mostly in place, but there may be a bugs.  BACK UP your original minecraft.jar
+before installing this mod. I've gotten FTB 1.5.2 to start up and run, but
+haven't tested all the nooks and crannies of the mod. Caveat Modder.
 
 ---
 
 Installation
 ------------
 
-REQUIRES Minecraft 1.5.2 With [Optifine HD D2 or
-D3](http://www.minecraftforum.net/topic/249637-152-optifine-hd-d3-fps-boost-hd-textures-aa-af-and-much-more/)
+REQUIRES Minecraft 1.5.2 With [Optifine HD D3](http://www.minecraftforum.net/topic/249637-152-optifine-hd-d3-fps-boost-hd-textures-aa-af-and-much-more/)
 
 Magic Launcher
 --------------
@@ -73,11 +66,18 @@ which is available for Windows, OSX, and Linux.
 - Add these zips, in order:
   - OptiFine\_1.5.2\_HD\_U\_D3.zip 
   - JRift.jar 
-  - minecrift\_0\_26\_classes.zip 
-- Magic Launcher will complain about 3 errors in minecrift, but this is a false positive.
+  - minecrift\_0\_27\_classes.zip 
 - Click 'Test' to make sure it works.
 - When satisfied, click 'OK' to Save the configuration.
 - From now on, just start Magic Launcher and use the "minecrift" configuration to play!
+
+
+In addition, I *Strongly* recommend you get updated
+[LWJGL](http://sourceforge.net/projects/java-game-lib/files/Official%20Releases/LWJGL%202.9.0/)
+and [OpenAL](http://kcat.strangesoft.net/openal.html) libraries for the best
+possible experience.  Minecrift was developed with LWJGL 2.9.0 and OpenAL
+1.15.1. Using older versions may yield unpleasant results.
+
 
 Manual
 ------
@@ -97,15 +97,17 @@ Minecrift for Windows requires Vista or above and a graphics card & driver capab
 - Select all, and drag and drop in the *entire contents* of the
   OptiFine\_1.5.2\_HD\_U\_D3.zip into the minecraft.jar.
 - Select all, and drag and drop in the *entire contents* of the
-  /minecrift\_0\_26\_classes.zip (but not the zip itself) from the Minecrift
+  /minecrift\_0\_27\_classes.zip (but not the zip itself) from the Minecrift
+  zip into the minecraft.jar archive.
+- Select all, and drag and drop in the *entire contents* of the
+  /JRift.jar (but not the zip itself) from the Minecrift
   zip into the minecraft.jar archive.
 - Make sure to delete the META-INF folder in minecraft.jar. Close 7zip /
   winzip.
-- Copy JRift.jar into<Path to %APPDATA%>\\.minecraft\bin
-- *IMPORTANT*. Install the Microsoft VS2012 C++ redists (both x86
-  and x64) from
+- *IMPORTANT* (but only required once). Install the Microsoft VS2012 C++
+  redists (both x86 and x64) from
   [here](http://www.microsoft.com/visualstudio/11/en-us/downloads/vc-redist#vc-redist)
-- Run up Minecraft and off you go. If you get a black screen on login, trying
+- Start up Minecraft and off you go. If you get a black screen on login, trying
   running an admin command prompt, cd to your minecraft.exe dir and enter the
   command 
 >java -cp Minecraft.exe net.minecraft.LauncherFrame
@@ -123,16 +125,14 @@ Linux
 
 Follow the same steps for Windows, but use ~/.minecraft/ instead of %APPDATA%\\.minecraft.
 
-Controls
+Controls/Usage
 --------
 
-Once in game the dual viewports will kick in. I suggest using Large or Normal
-GUI size for now. Obviously you will want to be at 1280X800 fullscreen for the
-Oculus currently. 
+Obviously you will want to be at 1280X800 fullscreen for the Oculus Rift DK1. 
 
-
+- All Minecrift settings are present in the Options->Minecrift screen, but
+  keyboard shortcuts are also available for convenience
 - F1 to bring up the game HUD / overlay if it isn't already up. 
-- Cycle F3 until the Rift debug info appears. 
 - Ctrl and - / = for IPD adjustment. Hold ALT as well for fine adjustment. The
   IPD setting should be saved between sessions.
 - Ctrl O to attempt to reinitialise the Rift (including head tracking).
@@ -167,23 +167,20 @@ There are (not so) many.
 
 - FSAA (Super Sampling) doens't work on OSX and is disabled.
 - Linux doesn't support Oculus Rift head tracker (yet).
-- The GUI is on it's way to being 3D. It's still going to be a little rough
-  around the edges however, and is in prototype stage.
-- The crosshair isn't exactly pair to the eyes and can move slightly off the
-  center of the screen when close to objects. It is still accurate, however, so
-  trust the crosshairs no matter where they are: that is where you will click.
+- Rarely, water and other effects are misrendered for a few frames.
+- A white line can sometimes be seen at the top or bottom edge of the HUD. No
+  known workaround.
 
 
 Feedback, bug reporting
 -----------------------
 
-Please post feedback, bug reports etc. to the forum thread at MTBS: http://www.mtbs3d.com/phpbb/viewtopic.php?f=140&t=17146
+Please post feedback, bug reports etc. to the [forum thread at
+MTBS](http://www.mtbs3d.com/phpbb/viewtopic.php?f=140&t=17146)
 
 Roadmap
 -------
 
-- Get 3D GUI working well.
-- Add all current keyboard commands to the options menu GUI.
 - Alternate control scheme options; head look separate to body movement etc.
 - Investigate gamepad / Razor Hydra support.
 - Fix bugs.
@@ -193,18 +190,10 @@ Release Notes
 
 The changelist can be seen [here](CHANGES.md)
 
-Known Issues:
--------------
-
-- A white line can sometimes be seen at the top or bottom edge of the HUD. Scaling the HUD down one point should remove it.
-- Sometimes an in-game menu will not appear until another menu has been opened and closed first.
-- A settings menu GUI is needed for all the Minecrift settings!
-
-----
+---
 
 Building
 ========
-
 
 
 The installation process has been tested on Linux, but was written with
@@ -218,11 +207,9 @@ extract into /mcp (only needed once)
 Run install.sh (or install.bat) to download minecraft, download optifine,
 deobfuscate the base system, and apply the patches and new files.
 
-
 Use the MCP environment in /mcp to modify, test, and recompile.
 
-Run build.sh (or build.bat) to create a release .zip. (not currently
-implemented)
+Run build.sh (or build.bat) to create a release classes.zip.
 
 Run getchanges.sh (or getchanges.bat) to diff the modified /mcp/src files into
 version controlled /patches and copy the new classes into the /src/

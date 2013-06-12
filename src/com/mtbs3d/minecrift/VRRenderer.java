@@ -295,7 +295,7 @@ public class VRRenderer extends EntityRenderer
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-            GL11.glTranslatef(0f, 0f, -0.15f);    // TODO: Is this a suspicious addition to the camera transform?
+            //GL11.glTranslatef(0f, 0f, -0.15f);    // TODO: Is this a suspicious addition to the camera transform?
             GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
             GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
             GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
@@ -353,7 +353,9 @@ public class VRRenderer extends EntityRenderer
 		        {
 		        	_soundManagerSndSystemField = SoundManager.class.getDeclaredField("a"); //obfuscated name
 		        }
-		        catch (NoSuchFieldException e1) { };
+		        catch (NoSuchFieldException e1) { 
+		        	sndSystem = SoundManager.sndSystem;
+		        };
 	        }
 	       	if (_soundManagerSndSystemField != null)
 	       		_soundManagerSndSystemField.setAccessible(true);
