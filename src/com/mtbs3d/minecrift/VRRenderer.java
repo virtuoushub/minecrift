@@ -721,6 +721,7 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glDisable(GL11.GL_DEPTH_TEST);
 				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*this.mc.gameSettings.hudDistance);
 		        GL11.glDisable(GL11.GL_BLEND);
+		        GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		        unbindTexture();
 	        	mc.checkGLError("GUI");
