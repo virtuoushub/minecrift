@@ -1,34 +1,34 @@
---- a/net/minecraft/src/EnumOptions.java
-+++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,30 @@
-     HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
-     DROPPED_ITEMS("Dropped Items", false, false),
-     LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
--    CUSTOM_SKY("Custom Sky", false, false);
-+    CUSTOM_SKY("Custom Sky", false, false),
-+    // Minecrift
-+    USE_VR("VR mode", false, true),
-+    PLAYER_HEIGHT("Eye Height", true, false),
-+    EYE_PROTRUSION("Eye Protrusion", true, false),
-+    NECK_LENGTH("Neck Length", true, false),
-+    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
-+    USE_DISTORTION("Distortion", false, true),
-+    HEAD_TRACKING("Head Tracking", false, true),
-+    HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),
-+    IPD("IPD", true, false),
-+    HUD_OPACITY("HUD Opacity", false, true),
-+    RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
-+    CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
-+    HUD_SCALE("HUD Scale", true, false),
-+    FOV_SCALE_FACTOR("FOV Scale", true, false),
-+    ALLOW_MOUSE_PITCH_INPUT("Mouse Pitch Input", false, true),
-+    HUD_DISTANCE("HUD Distance", true, false),
-+    DISTORTION_FIT_POINT("Distortion Border", true, false),
-+    HEAD_TRACK_SENSITIVITY("Head Track Sensitivity", true, false),
-+    SUPERSAMPLING("FSAA", false, true),
-+    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
-+    DECOUPLEMOVELOOK("Decouple Look/Move", false, true);
-+
-     private final boolean enumFloat;
-     private final boolean enumBoolean;
-     private final String enumString;
+--- a/net/minecraft/src/EnumOptions.java
++++ b/net/minecraft/src/EnumOptions.java
+@@ -97,7 +97,30 @@
+     HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
+     DROPPED_ITEMS("Dropped Items", false, false),
+     LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
+-    CUSTOM_SKY("Custom Sky", false, false);
++    CUSTOM_SKY("Custom Sky", false, false),
++    // Minecrift
++    USE_VR("VR mode", false, true),
++    PLAYER_HEIGHT("Eye Height", true, false),
++    EYE_PROTRUSION("Eye Protrusion", true, false),
++    NECK_LENGTH("Neck Length", true, false),
++    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
++    USE_DISTORTION("Distortion", false, true),
++    HEAD_TRACKING("Head Tracking", false, true),
++    HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),
++    IPD("IPD", true, false),
++    HUD_OPACITY("HUD Opacity", false, true),
++    RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
++    CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
++    HUD_SCALE("HUD Scale", true, false),
++    FOV_SCALE_FACTOR("FOV Scale", true, false),
++    ALLOW_MOUSE_PITCH_INPUT("Mouse Pitch Input", false, true),
++    HUD_DISTANCE("HUD Distance", true, false),
++    DISTORTION_FIT_POINT("Distortion Border", true, false),
++    HEAD_TRACK_SENSITIVITY("Head Track Sensitivity", true, false),
++    SUPERSAMPLING("FSAA", false, true),
++    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
++    DECOUPLEMOVELOOK("Decouple Look/Move", false, true);
++
+     private final boolean enumFloat;
+     private final boolean enumBoolean;
+     private final String enumString;

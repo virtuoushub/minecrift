@@ -1,559 +1,559 @@
---- a/net/minecraft/src/EntityRenderer.java
-+++ b/net/minecraft/src/EntityRenderer.java
-@@ -25,12 +25,12 @@
-     public static int anaglyphField;
- 
-     /** A reference to the Minecraft object. */
--    private Minecraft mc;
--    private float farPlaneDistance = 0.0F;
-+    protected Minecraft mc;
-+    protected float farPlaneDistance = 0.0F;
-     public ItemRenderer itemRenderer;
- 
-     /** Entity renderer update count */
--    private int rendererUpdateCount;
-+    protected int rendererUpdateCount;
- 
-     /** Pointed entity */
-     private Entity pointedEntity = null;
-@@ -48,33 +48,31 @@
- 
-     /** Mouse filter dummy 4 */
-     private MouseFilter mouseFilterDummy4 = new MouseFilter();
--    private float thirdPersonDistance = 4.0F;
-+    protected float thirdPersonDistance = 4.0F;
- 
-     /** Third person distance temp */
--    private float thirdPersonDistanceTemp = 4.0F;
--    private float debugCamYaw = 0.0F;
--    private float prevDebugCamYaw = 0.0F;
--    private float debugCamPitch = 0.0F;
--    private float prevDebugCamPitch = 0.0F;
-+    protected float thirdPersonDistanceTemp = 4.0F;
-+    protected float debugCamYaw = 0.0F;
-+    protected float prevDebugCamYaw = 0.0F;
-+    protected float debugCamPitch = 0.0F;
-+    protected float prevDebugCamPitch = 0.0F;
- 
-     /** Smooth cam yaw */
--    private float smoothCamYaw;
-+    protected float smoothCamYaw;
- 
-     /** Smooth cam pitch */
-     private float smoothCamPitch;
- 
-     /** Smooth cam filter X */
--    private float smoothCamFilterX;
-+    protected float smoothCamFilterX;
- 
-     /** Smooth cam filter Y */
--    private float smoothCamFilterY;
-+    protected float smoothCamFilterY;
- 
-     /** Smooth cam partial ticks */
--    private float smoothCamPartialTicks;
-+    protected float smoothCamPartialTicks;
-     private float debugCamFOV = 0.0F;
-     private float prevDebugCamFOV = 0.0F;
--    private float camRoll = 0.0F;
--    private float prevCamRoll = 0.0F;
- 
-     /**
-      * The texture id of the blocklight/skylight texture used for lighting effects
-@@ -98,10 +96,12 @@
-     private float field_82832_V;
- 
-     /** Cloud fog mode */
--    private boolean cloudFog = false;
--    private double cameraZoom = 1.0D;
--    private double cameraYaw = 0.0D;
--    private double cameraPitch = 0.0D;
-+    protected boolean cloudFog = false;
-+    protected double cameraZoom = 1.0D;
-+    protected float cameraYaw = 0.0F;
-+    protected float cameraPitch = 0.0F;
-+    protected float cameraRoll = 0.0F;
-+    protected float prevCamRoll = 0.0F;
- 
-     /** Previous frame time in milliseconds */
-     private long prevFrameTime = Minecraft.getSystemTime();
-@@ -112,7 +112,7 @@
-     /**
-      * Is set, updateCameraAndRender() calls updateLightmap(); set by updateTorchFlicker()
-      */
--    private boolean lightmapUpdateNeeded = false;
-+    protected boolean lightmapUpdateNeeded = false;
- 
-     /** Torch flicker X */
-     float torchFlickerX = 0.0F;
-@@ -142,13 +142,13 @@
-     FloatBuffer fogColorBuffer = GLAllocation.createDirectFloatBuffer(16);
- 
-     /** red component of the fog color */
--    float fogColorRed;
-+    protected float fogColorRed;
- 
-     /** green component of the fog color */
--    float fogColorGreen;
-+    protected float fogColorGreen;
- 
-     /** blue component of the fog color */
--    float fogColorBlue;
-+    protected float fogColorBlue;
- 
-     /** Fog color 2 */
-     private float fogColor2;
-@@ -160,13 +160,13 @@
-      * Debug view direction (0=OFF, 1=Front, 2=Right, 3=Back, 4=Left, 5=TiltLeft, 6=TiltRight)
-      */
-     public int debugViewDirection;
--    private World updatedWorld = null;
-+    protected World updatedWorld = null;
-     private boolean showDebugInfo = false;
-     private boolean fullscreenModeChecked = false;
-     private boolean desktopModeChecked = false;
-     private String lastTexturePack = null;
--    private long lastServerTime = 0L;
--    private int lastServerTicks = 0;
-+    protected long lastServerTime = 0L;
-+    protected int lastServerTicks = 0;
-     private int serverWaitTime = 0;
-     private int serverWaitTimeCurrent = 0;
-     private float avgServerTimeDiff = 0.0F;
-@@ -200,7 +200,7 @@
-         this.prevDebugCamYaw = this.debugCamYaw;
-         this.prevDebugCamPitch = this.debugCamPitch;
-         this.prevDebugCamFOV = this.debugCamFOV;
--        this.prevCamRoll = this.camRoll;
-+        this.prevCamRoll = this.cameraRoll;
-         float var1;
-         float var2;
- 
-@@ -280,51 +280,57 @@
-             }
- 
-             Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
--            Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
--            this.pointedEntity = null;
--            float var9 = 1.0F;
--            List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
--            double var11 = var4;
-+            getPointedEntity(var6, var7, var2, var4);
-+        }
-+    }
-+
-+    protected void getPointedEntity( Vec3 var6, Vec3 var7, double var2, double var4 )
-+    {
-+        Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
-+
-+        this.pointedEntity = null;
-+        float var9 = 1.0F;
-+        List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
-+        double var11 = var4;
- 
--            for (int var13 = 0; var13 < var10.size(); ++var13)
-+        for (int var13 = 0; var13 < var10.size(); ++var13)
-+        {
-+            Entity var14 = (Entity)var10.get(var13);
-+
-+            if (var14.canBeCollidedWith())
-             {
--                Entity var14 = (Entity)var10.get(var13);
-+                float var15 = var14.getCollisionBorderSize();
-+                AxisAlignedBB var16 = var14.boundingBox.expand((double)var15, (double)var15, (double)var15);
-+                MovingObjectPosition var17 = var16.calculateIntercept(var6, var8);
- 
--                if (var14.canBeCollidedWith())
-+                if (var16.isVecInside(var6))
-                 {
--                    float var15 = var14.getCollisionBorderSize();
--                    AxisAlignedBB var16 = var14.boundingBox.expand((double)var15, (double)var15, (double)var15);
--                    MovingObjectPosition var17 = var16.calculateIntercept(var6, var8);
--
--                    if (var16.isVecInside(var6))
-+                    if (0.0D < var11 || var11 == 0.0D)
-                     {
--                        if (0.0D < var11 || var11 == 0.0D)
--                        {
--                            this.pointedEntity = var14;
--                            var11 = 0.0D;
--                        }
-+                        this.pointedEntity = var14;
-+                        var11 = 0.0D;
-                     }
--                    else if (var17 != null)
--                    {
--                        double var18 = var6.distanceTo(var17.hitVec);
-+                }
-+                else if (var17 != null)
-+                {
-+                    double var18 = var6.distanceTo(var17.hitVec);
- 
--                        if (var18 < var11 || var11 == 0.0D)
--                        {
--                            this.pointedEntity = var14;
--                            var11 = var18;
--                        }
-+                    if (var18 < var11 || var11 == 0.0D)
-+                    {
-+                        this.pointedEntity = var14;
-+                        var11 = var18;
-                     }
-                 }
-             }
-+        }
- 
--            if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
--            {
--                this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
-+        if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
-+        {
-+            this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
- 
--                if (this.pointedEntity instanceof EntityLiving)
--                {
--                    this.mc.pointedEntityLiving = (EntityLiving)this.pointedEntity;
--                }
-+            if (this.pointedEntity instanceof EntityLiving)
-+            {
-+                this.mc.pointedEntityLiving = (EntityLiving)this.pointedEntity;
-             }
-         }
-     }
-@@ -430,7 +436,7 @@
-         }
-     }
- 
--    private void hurtCameraEffect(float par1)
-+    protected void hurtCameraEffect(float par1)
-     {
-         EntityLiving var2 = this.mc.renderViewEntity;
-         float var3 = (float)var2.hurtTime - par1;
-@@ -456,7 +462,7 @@
-     /**
-      * Setups all the GL settings for view bobbing. Args: partialTickTime
-      */
--    private void setupViewBobbing(float par1)
-+    protected void setupViewBobbing(float par1)
-     {
-         if (this.mc.renderViewEntity instanceof EntityPlayer)
-         {
-@@ -482,7 +488,7 @@
-         double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
-         double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
-         double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
--        GL11.glRotatef(this.prevCamRoll + (this.camRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
-+        GL11.glRotatef(this.prevCamRoll + (this.cameraRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
- 
-         if (var2.isPlayerSleeping())
-         {
-@@ -817,7 +823,7 @@
-         this.lightmapUpdateNeeded = true;
-     }
- 
--    private void updateLightmap(float par1)
-+    protected void updateLightmap(float par1)
-     {
-         WorldClient var2 = this.mc.theWorld;
- 
-@@ -967,7 +973,45 @@
-         int var3 = par1EntityPlayer.getActivePotionEffect(Potion.nightVision).getDuration();
-         return var3 > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)var3 - par2) * (float)Math.PI * 0.2F) * 0.3F;
-     }
-+    
-+    protected void updateCamera( float par1, boolean var14 )
-+    {
-+        this.mc.mcProfiler.startSection("mouse");
-+
-+        if (this.mc.inGameHasFocus && var14)
-+        {
-+            this.mc.mouseHelper.mouseXYChange();
-+            float var4 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
-+            float var5 = var4 * var4 * var4 * 8.0F;
-+            float var6 = (float)this.mc.mouseHelper.deltaX * var5;
-+            float var7 = (float)this.mc.mouseHelper.deltaY * var5;
-+            byte var8 = 1;
-+
-+            if (this.mc.gameSettings.invertMouse)
-+            {
-+                var8 = -1;
-+            }
- 
-+            if (this.mc.gameSettings.smoothCamera)
-+            {
-+                this.smoothCamYaw += var6;
-+                this.smoothCamPitch += var7;
-+                float var9 = par1 - this.smoothCamPartialTicks;
-+                this.smoothCamPartialTicks = par1;
-+                var6 = this.smoothCamFilterX * var9;
-+                var7 = this.smoothCamFilterY * var9;
-+                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
-+            }
-+            else
-+            {
-+                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
-+            }
-+        }
-+
-+        this.mc.mcProfiler.endSection();
-+
-+    }
-+    
-     /**
-      * Will update any inputs that effect the camera angle (mouse) and then render the world and GUI
-      */
-@@ -1024,7 +1068,7 @@
-         {
-             if (Minecraft.getSystemTime() - this.prevFrameTime > 500L)
-             {
--                this.mc.displayInGameMenu();
-+            	this.mc.displayInGameMenu();
-             }
-         }
-         else
-@@ -1032,129 +1076,103 @@
-             this.prevFrameTime = Minecraft.getSystemTime();
-         }
- 
--        this.mc.mcProfiler.startSection("mouse");
-+        updateCamera( par1, var14 );
- 
--        if (this.mc.inGameHasFocus && var14)
-+        if (!this.mc.skipRenderWorld)
-         {
--            this.mc.mouseHelper.mouseXYChange();
--            float var4 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
--            float var5 = var4 * var4 * var4 * 8.0F;
--            float var6 = (float)this.mc.mouseHelper.deltaX * var5;
--            float var7 = (float)this.mc.mouseHelper.deltaY * var5;
--            byte var8 = 1;
--
--            if (this.mc.gameSettings.invertMouse)
--            {
--                var8 = -1;
--            }
--
--            if (this.mc.gameSettings.smoothCamera)
--            {
--                this.smoothCamYaw += var6;
--                this.smoothCamPitch += var7;
--                float var9 = par1 - this.smoothCamPartialTicks;
--                this.smoothCamPartialTicks = par1;
--                var6 = this.smoothCamFilterX * var9;
--                var7 = this.smoothCamFilterY * var9;
--                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
--            }
--            else
--            {
--                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
--            }
-+        	renderGUIandWorld(par1);
-         }
- 
--        this.mc.mcProfiler.endSection();
-+        this.waitForServerThread();
- 
--        if (!this.mc.skipRenderWorld)
-+        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
-         {
--            anaglyphEnable = this.mc.gameSettings.anaglyph;
--            ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
--            int var16 = var15.getScaledWidth();
--            int var17 = var15.getScaledHeight();
--            int var18 = Mouse.getX() * var16 / this.mc.displayWidth;
--            int var20 = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
--            int var19 = performanceToFps(this.mc.gameSettings.limitFramerate);
--
--            if (this.mc.theWorld != null)
--            {
--                this.mc.mcProfiler.startSection("level");
-+            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
-+            this.lastShowDebugInfo = this.mc.gameSettings.showDebugInfo;
-+        }
- 
--                if (this.mc.gameSettings.limitFramerate == 0)
--                {
--                    this.renderWorld(par1, 0L);
--                }
--                else
--                {
--                    this.renderWorld(par1, this.renderEndNanoTime + (long)(1000000000 / var19));
--                }
-+        if (this.mc.gameSettings.showDebugInfo)
-+        {
-+            this.showLagometer(this.mc.mcProfiler.timeTickNano, this.mc.mcProfiler.timeUpdateChunksNano);
-+        }
- 
--                this.renderEndNanoTime = System.nanoTime();
--                this.mc.mcProfiler.endStartSection("gui");
-+        if (this.mc.gameSettings.ofProfiler)
-+        {
-+            this.mc.gameSettings.showDebugProfilerChart = true;
-+        }
-+    }
-+    
-+    protected void renderGUIandWorld(float par1)
-+    {
-+        anaglyphEnable = this.mc.gameSettings.anaglyph;
-+        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-+        int var16 = var15.getScaledWidth();
-+        int var17 = var15.getScaledHeight();
-+        int var18 = Mouse.getX() * var16 / this.mc.displayWidth;
-+        int var20 = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
-+        int var19 = performanceToFps(this.mc.gameSettings.limitFramerate);
- 
--                if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
--                {
--                    this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
--                }
-+        if (this.mc.theWorld != null)
-+        {
-+            this.mc.mcProfiler.startSection("level");
- 
--                this.mc.mcProfiler.endSection();
-+            if (this.mc.gameSettings.limitFramerate == 0)
-+            {
-+                this.renderWorld(par1, 0L);
-             }
-             else
-             {
--                GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
--                GL11.glMatrixMode(GL11.GL_PROJECTION);
--                GL11.glLoadIdentity();
--                GL11.glMatrixMode(GL11.GL_MODELVIEW);
--                GL11.glLoadIdentity();
--                this.setupOverlayRendering();
--                this.renderEndNanoTime = System.nanoTime();
-+                this.renderWorld(par1, this.renderEndNanoTime + (long)(1000000000 / var19));
-             }
- 
--            if (this.mc.currentScreen != null)
--            {
--                GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
--
--                try
--                {
--                    this.mc.currentScreen.drawScreen(var18, var20, par1);
--                }
--                catch (Throwable var13)
--                {
--                    CrashReport var11 = CrashReport.makeCrashReport(var13, "Rendering screen");
--                    CrashReportCategory var12 = var11.makeCategory("Screen render details");
--                    var12.addCrashSectionCallable("Screen name", new CallableScreenName(this));
--                    var12.addCrashSectionCallable("Mouse location", new CallableMouseLocation(this, var18, var20));
--                    var12.addCrashSectionCallable("Screen size", new CallableScreenSize(this, var15));
--                    throw new ReportedException(var11);
--                }
-+            this.renderEndNanoTime = System.nanoTime();
-+            this.mc.mcProfiler.endStartSection("gui");
- 
--                if (this.mc.currentScreen != null && this.mc.currentScreen.guiParticles != null)
--                {
--                    this.mc.currentScreen.guiParticles.draw(par1);
--                }
-+            if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
-+            {
-+                this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
-             }
--        }
- 
--        this.waitForServerThread();
--
--        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
--        {
--            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
--            this.lastShowDebugInfo = this.mc.gameSettings.showDebugInfo;
-+            this.mc.mcProfiler.endSection();
-         }
--
--        if (this.mc.gameSettings.showDebugInfo)
-+        else
-         {
--            this.showLagometer(this.mc.mcProfiler.timeTickNano, this.mc.mcProfiler.timeUpdateChunksNano);
-+            GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
-+            GL11.glMatrixMode(GL11.GL_PROJECTION);
-+            GL11.glLoadIdentity();
-+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
-+            GL11.glLoadIdentity();
-+            this.setupOverlayRendering();
-+            this.renderEndNanoTime = System.nanoTime();
-         }
- 
--        if (this.mc.gameSettings.ofProfiler)
-+        if (this.mc.currentScreen != null)
-         {
--            this.mc.gameSettings.showDebugProfilerChart = true;
-+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-+
-+            try
-+            {
-+                this.mc.currentScreen.drawScreen(var18, var20, par1);
-+                GL11.glDisable(GL11.GL_LIGHTING);
-+            }
-+            catch (Throwable var13)
-+            {
-+                CrashReport var11 = CrashReport.makeCrashReport(var13, "Rendering screen");
-+                CrashReportCategory var12 = var11.makeCategory("Screen render details");
-+                var12.addCrashSectionCallable("Screen name", new CallableScreenName(this));
-+                var12.addCrashSectionCallable("Mouse location", new CallableMouseLocation(this, var18, var20));
-+                var12.addCrashSectionCallable("Screen size", new CallableScreenSize(this, var15));
-+                throw new ReportedException(var11);
-+            }
-+
-+            if (this.mc.currentScreen != null && this.mc.currentScreen.guiParticles != null)
-+            {
-+                this.mc.currentScreen.guiParticles.draw(par1);
-+            }
-         }
-     }
- 
--    private void waitForServerThread()
-+    protected void waitForServerThread()
-     {
-         this.serverWaitTimeCurrent = 0;
- 
-@@ -1298,7 +1316,7 @@
-         }
-     }
- 
--    private void updateMainMenu(GuiMainMenu var1)
-+    protected void updateMainMenu(GuiMainMenu var1)
-     {
-         try
-         {
-@@ -1341,7 +1359,7 @@
-         }
-     }
- 
--    private void checkDisplayMode()
-+    protected void checkDisplayMode()
-     {
-         try
-         {
-@@ -1711,7 +1729,7 @@
-     /**
-      * Render clouds if enabled
-      */
--    private void renderCloudsCheck(RenderGlobal par1RenderGlobal, float par2)
-+    protected void renderCloudsCheck(RenderGlobal par1RenderGlobal, float par2)
-     {
-         if (this.mc.gameSettings.shouldRenderClouds())
-         {
-@@ -2015,7 +2033,7 @@
-     /**
-      * calculates fog and calls glClearColor
-      */
--    private void updateFogColor(float par1)
-+    protected void updateFogColor(float par1)
-     {
-         WorldClient var2 = this.mc.theWorld;
-         EntityLiving var3 = this.mc.renderViewEntity;
-@@ -2227,7 +2245,7 @@
-      * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
-      * distance and is used for sky rendering.
-      */
--    private void setupFog(int par1, float par2)
-+    protected void setupFog(int par1, float par2)
-     {
-         EntityLiving var3 = this.mc.renderViewEntity;
-         boolean var4 = false;
+--- a/net/minecraft/src/EntityRenderer.java
++++ b/net/minecraft/src/EntityRenderer.java
+@@ -25,12 +25,12 @@
+     public static int anaglyphField;
+ 
+     /** A reference to the Minecraft object. */
+-    private Minecraft mc;
+-    private float farPlaneDistance = 0.0F;
++    protected Minecraft mc;
++    protected float farPlaneDistance = 0.0F;
+     public ItemRenderer itemRenderer;
+ 
+     /** Entity renderer update count */
+-    private int rendererUpdateCount;
++    protected int rendererUpdateCount;
+ 
+     /** Pointed entity */
+     private Entity pointedEntity = null;
+@@ -48,33 +48,31 @@
+ 
+     /** Mouse filter dummy 4 */
+     private MouseFilter mouseFilterDummy4 = new MouseFilter();
+-    private float thirdPersonDistance = 4.0F;
++    protected float thirdPersonDistance = 4.0F;
+ 
+     /** Third person distance temp */
+-    private float thirdPersonDistanceTemp = 4.0F;
+-    private float debugCamYaw = 0.0F;
+-    private float prevDebugCamYaw = 0.0F;
+-    private float debugCamPitch = 0.0F;
+-    private float prevDebugCamPitch = 0.0F;
++    protected float thirdPersonDistanceTemp = 4.0F;
++    protected float debugCamYaw = 0.0F;
++    protected float prevDebugCamYaw = 0.0F;
++    protected float debugCamPitch = 0.0F;
++    protected float prevDebugCamPitch = 0.0F;
+ 
+     /** Smooth cam yaw */
+-    private float smoothCamYaw;
++    protected float smoothCamYaw;
+ 
+     /** Smooth cam pitch */
+     private float smoothCamPitch;
+ 
+     /** Smooth cam filter X */
+-    private float smoothCamFilterX;
++    protected float smoothCamFilterX;
+ 
+     /** Smooth cam filter Y */
+-    private float smoothCamFilterY;
++    protected float smoothCamFilterY;
+ 
+     /** Smooth cam partial ticks */
+-    private float smoothCamPartialTicks;
++    protected float smoothCamPartialTicks;
+     private float debugCamFOV = 0.0F;
+     private float prevDebugCamFOV = 0.0F;
+-    private float camRoll = 0.0F;
+-    private float prevCamRoll = 0.0F;
+ 
+     /**
+      * The texture id of the blocklight/skylight texture used for lighting effects
+@@ -98,10 +96,12 @@
+     private float field_82832_V;
+ 
+     /** Cloud fog mode */
+-    private boolean cloudFog = false;
+-    private double cameraZoom = 1.0D;
+-    private double cameraYaw = 0.0D;
+-    private double cameraPitch = 0.0D;
++    protected boolean cloudFog = false;
++    protected double cameraZoom = 1.0D;
++    protected float cameraYaw = 0.0F;
++    protected float cameraPitch = 0.0F;
++    protected float cameraRoll = 0.0F;
++    protected float prevCamRoll = 0.0F;
+ 
+     /** Previous frame time in milliseconds */
+     private long prevFrameTime = Minecraft.getSystemTime();
+@@ -112,7 +112,7 @@
+     /**
+      * Is set, updateCameraAndRender() calls updateLightmap(); set by updateTorchFlicker()
+      */
+-    private boolean lightmapUpdateNeeded = false;
++    protected boolean lightmapUpdateNeeded = false;
+ 
+     /** Torch flicker X */
+     float torchFlickerX = 0.0F;
+@@ -142,13 +142,13 @@
+     FloatBuffer fogColorBuffer = GLAllocation.createDirectFloatBuffer(16);
+ 
+     /** red component of the fog color */
+-    float fogColorRed;
++    protected float fogColorRed;
+ 
+     /** green component of the fog color */
+-    float fogColorGreen;
++    protected float fogColorGreen;
+ 
+     /** blue component of the fog color */
+-    float fogColorBlue;
++    protected float fogColorBlue;
+ 
+     /** Fog color 2 */
+     private float fogColor2;
+@@ -160,13 +160,13 @@
+      * Debug view direction (0=OFF, 1=Front, 2=Right, 3=Back, 4=Left, 5=TiltLeft, 6=TiltRight)
+      */
+     public int debugViewDirection;
+-    private World updatedWorld = null;
++    protected World updatedWorld = null;
+     private boolean showDebugInfo = false;
+     private boolean fullscreenModeChecked = false;
+     private boolean desktopModeChecked = false;
+     private String lastTexturePack = null;
+-    private long lastServerTime = 0L;
+-    private int lastServerTicks = 0;
++    protected long lastServerTime = 0L;
++    protected int lastServerTicks = 0;
+     private int serverWaitTime = 0;
+     private int serverWaitTimeCurrent = 0;
+     private float avgServerTimeDiff = 0.0F;
+@@ -200,7 +200,7 @@
+         this.prevDebugCamYaw = this.debugCamYaw;
+         this.prevDebugCamPitch = this.debugCamPitch;
+         this.prevDebugCamFOV = this.debugCamFOV;
+-        this.prevCamRoll = this.camRoll;
++        this.prevCamRoll = this.cameraRoll;
+         float var1;
+         float var2;
+ 
+@@ -280,51 +280,57 @@
+             }
+ 
+             Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
+-            Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
+-            this.pointedEntity = null;
+-            float var9 = 1.0F;
+-            List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
+-            double var11 = var4;
++            getPointedEntity(var6, var7, var2, var4);
++        }
++    }
++
++    protected void getPointedEntity( Vec3 var6, Vec3 var7, double var2, double var4 )
++    {
++        Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
++
++        this.pointedEntity = null;
++        float var9 = 1.0F;
++        List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
++        double var11 = var4;
+ 
+-            for (int var13 = 0; var13 < var10.size(); ++var13)
++        for (int var13 = 0; var13 < var10.size(); ++var13)
++        {
++            Entity var14 = (Entity)var10.get(var13);
++
++            if (var14.canBeCollidedWith())
+             {
+-                Entity var14 = (Entity)var10.get(var13);
++                float var15 = var14.getCollisionBorderSize();
++                AxisAlignedBB var16 = var14.boundingBox.expand((double)var15, (double)var15, (double)var15);
++                MovingObjectPosition var17 = var16.calculateIntercept(var6, var8);
+ 
+-                if (var14.canBeCollidedWith())
++                if (var16.isVecInside(var6))
+                 {
+-                    float var15 = var14.getCollisionBorderSize();
+-                    AxisAlignedBB var16 = var14.boundingBox.expand((double)var15, (double)var15, (double)var15);
+-                    MovingObjectPosition var17 = var16.calculateIntercept(var6, var8);
+-
+-                    if (var16.isVecInside(var6))
++                    if (0.0D < var11 || var11 == 0.0D)
+                     {
+-                        if (0.0D < var11 || var11 == 0.0D)
+-                        {
+-                            this.pointedEntity = var14;
+-                            var11 = 0.0D;
+-                        }
++                        this.pointedEntity = var14;
++                        var11 = 0.0D;
+                     }
+-                    else if (var17 != null)
+-                    {
+-                        double var18 = var6.distanceTo(var17.hitVec);
++                }
++                else if (var17 != null)
++                {
++                    double var18 = var6.distanceTo(var17.hitVec);
+ 
+-                        if (var18 < var11 || var11 == 0.0D)
+-                        {
+-                            this.pointedEntity = var14;
+-                            var11 = var18;
+-                        }
++                    if (var18 < var11 || var11 == 0.0D)
++                    {
++                        this.pointedEntity = var14;
++                        var11 = var18;
+                     }
+                 }
+             }
++        }
+ 
+-            if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
+-            {
+-                this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
++        if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
++        {
++            this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
+ 
+-                if (this.pointedEntity instanceof EntityLiving)
+-                {
+-                    this.mc.pointedEntityLiving = (EntityLiving)this.pointedEntity;
+-                }
++            if (this.pointedEntity instanceof EntityLiving)
++            {
++                this.mc.pointedEntityLiving = (EntityLiving)this.pointedEntity;
+             }
+         }
+     }
+@@ -430,7 +436,7 @@
+         }
+     }
+ 
+-    private void hurtCameraEffect(float par1)
++    protected void hurtCameraEffect(float par1)
+     {
+         EntityLiving var2 = this.mc.renderViewEntity;
+         float var3 = (float)var2.hurtTime - par1;
+@@ -456,7 +462,7 @@
+     /**
+      * Setups all the GL settings for view bobbing. Args: partialTickTime
+      */
+-    private void setupViewBobbing(float par1)
++    protected void setupViewBobbing(float par1)
+     {
+         if (this.mc.renderViewEntity instanceof EntityPlayer)
+         {
+@@ -482,7 +488,7 @@
+         double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
+         double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
+         double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
+-        GL11.glRotatef(this.prevCamRoll + (this.camRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
++        GL11.glRotatef(this.prevCamRoll + (this.cameraRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
+ 
+         if (var2.isPlayerSleeping())
+         {
+@@ -817,7 +823,7 @@
+         this.lightmapUpdateNeeded = true;
+     }
+ 
+-    private void updateLightmap(float par1)
++    protected void updateLightmap(float par1)
+     {
+         WorldClient var2 = this.mc.theWorld;
+ 
+@@ -967,7 +973,45 @@
+         int var3 = par1EntityPlayer.getActivePotionEffect(Potion.nightVision).getDuration();
+         return var3 > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)var3 - par2) * (float)Math.PI * 0.2F) * 0.3F;
+     }
++    
++    protected void updateCamera( float par1, boolean var14 )
++    {
++        this.mc.mcProfiler.startSection("mouse");
++
++        if (this.mc.inGameHasFocus && var14)
++        {
++            this.mc.mouseHelper.mouseXYChange();
++            float var4 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
++            float var5 = var4 * var4 * var4 * 8.0F;
++            float var6 = (float)this.mc.mouseHelper.deltaX * var5;
++            float var7 = (float)this.mc.mouseHelper.deltaY * var5;
++            byte var8 = 1;
++
++            if (this.mc.gameSettings.invertMouse)
++            {
++                var8 = -1;
++            }
+ 
++            if (this.mc.gameSettings.smoothCamera)
++            {
++                this.smoothCamYaw += var6;
++                this.smoothCamPitch += var7;
++                float var9 = par1 - this.smoothCamPartialTicks;
++                this.smoothCamPartialTicks = par1;
++                var6 = this.smoothCamFilterX * var9;
++                var7 = this.smoothCamFilterY * var9;
++                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
++            }
++            else
++            {
++                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
++            }
++        }
++
++        this.mc.mcProfiler.endSection();
++
++    }
++    
+     /**
+      * Will update any inputs that effect the camera angle (mouse) and then render the world and GUI
+      */
+@@ -1024,7 +1068,7 @@
+         {
+             if (Minecraft.getSystemTime() - this.prevFrameTime > 500L)
+             {
+-                this.mc.displayInGameMenu();
++            	this.mc.displayInGameMenu();
+             }
+         }
+         else
+@@ -1032,129 +1076,103 @@
+             this.prevFrameTime = Minecraft.getSystemTime();
+         }
+ 
+-        this.mc.mcProfiler.startSection("mouse");
++        updateCamera( par1, var14 );
+ 
+-        if (this.mc.inGameHasFocus && var14)
++        if (!this.mc.skipRenderWorld)
+         {
+-            this.mc.mouseHelper.mouseXYChange();
+-            float var4 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
+-            float var5 = var4 * var4 * var4 * 8.0F;
+-            float var6 = (float)this.mc.mouseHelper.deltaX * var5;
+-            float var7 = (float)this.mc.mouseHelper.deltaY * var5;
+-            byte var8 = 1;
+-
+-            if (this.mc.gameSettings.invertMouse)
+-            {
+-                var8 = -1;
+-            }
+-
+-            if (this.mc.gameSettings.smoothCamera)
+-            {
+-                this.smoothCamYaw += var6;
+-                this.smoothCamPitch += var7;
+-                float var9 = par1 - this.smoothCamPartialTicks;
+-                this.smoothCamPartialTicks = par1;
+-                var6 = this.smoothCamFilterX * var9;
+-                var7 = this.smoothCamFilterY * var9;
+-                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
+-            }
+-            else
+-            {
+-                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
+-            }
++        	renderGUIandWorld(par1);
+         }
+ 
+-        this.mc.mcProfiler.endSection();
++        this.waitForServerThread();
+ 
+-        if (!this.mc.skipRenderWorld)
++        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
+         {
+-            anaglyphEnable = this.mc.gameSettings.anaglyph;
+-            ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+-            int var16 = var15.getScaledWidth();
+-            int var17 = var15.getScaledHeight();
+-            int var18 = Mouse.getX() * var16 / this.mc.displayWidth;
+-            int var20 = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
+-            int var19 = performanceToFps(this.mc.gameSettings.limitFramerate);
+-
+-            if (this.mc.theWorld != null)
+-            {
+-                this.mc.mcProfiler.startSection("level");
++            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
++            this.lastShowDebugInfo = this.mc.gameSettings.showDebugInfo;
++        }
+ 
+-                if (this.mc.gameSettings.limitFramerate == 0)
+-                {
+-                    this.renderWorld(par1, 0L);
+-                }
+-                else
+-                {
+-                    this.renderWorld(par1, this.renderEndNanoTime + (long)(1000000000 / var19));
+-                }
++        if (this.mc.gameSettings.showDebugInfo)
++        {
++            this.showLagometer(this.mc.mcProfiler.timeTickNano, this.mc.mcProfiler.timeUpdateChunksNano);
++        }
+ 
+-                this.renderEndNanoTime = System.nanoTime();
+-                this.mc.mcProfiler.endStartSection("gui");
++        if (this.mc.gameSettings.ofProfiler)
++        {
++            this.mc.gameSettings.showDebugProfilerChart = true;
++        }
++    }
++    
++    protected void renderGUIandWorld(float par1)
++    {
++        anaglyphEnable = this.mc.gameSettings.anaglyph;
++        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
++        int var16 = var15.getScaledWidth();
++        int var17 = var15.getScaledHeight();
++        int var18 = Mouse.getX() * var16 / this.mc.displayWidth;
++        int var20 = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
++        int var19 = performanceToFps(this.mc.gameSettings.limitFramerate);
+ 
+-                if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
+-                {
+-                    this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
+-                }
++        if (this.mc.theWorld != null)
++        {
++            this.mc.mcProfiler.startSection("level");
+ 
+-                this.mc.mcProfiler.endSection();
++            if (this.mc.gameSettings.limitFramerate == 0)
++            {
++                this.renderWorld(par1, 0L);
+             }
+             else
+             {
+-                GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
+-                GL11.glMatrixMode(GL11.GL_PROJECTION);
+-                GL11.glLoadIdentity();
+-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+-                GL11.glLoadIdentity();
+-                this.setupOverlayRendering();
+-                this.renderEndNanoTime = System.nanoTime();
++                this.renderWorld(par1, this.renderEndNanoTime + (long)(1000000000 / var19));
+             }
+ 
+-            if (this.mc.currentScreen != null)
+-            {
+-                GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+-
+-                try
+-                {
+-                    this.mc.currentScreen.drawScreen(var18, var20, par1);
+-                }
+-                catch (Throwable var13)
+-                {
+-                    CrashReport var11 = CrashReport.makeCrashReport(var13, "Rendering screen");
+-                    CrashReportCategory var12 = var11.makeCategory("Screen render details");
+-                    var12.addCrashSectionCallable("Screen name", new CallableScreenName(this));
+-                    var12.addCrashSectionCallable("Mouse location", new CallableMouseLocation(this, var18, var20));
+-                    var12.addCrashSectionCallable("Screen size", new CallableScreenSize(this, var15));
+-                    throw new ReportedException(var11);
+-                }
++            this.renderEndNanoTime = System.nanoTime();
++            this.mc.mcProfiler.endStartSection("gui");
+ 
+-                if (this.mc.currentScreen != null && this.mc.currentScreen.guiParticles != null)
+-                {
+-                    this.mc.currentScreen.guiParticles.draw(par1);
+-                }
++            if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
++            {
++                this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
+             }
+-        }
+ 
+-        this.waitForServerThread();
+-
+-        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
+-        {
+-            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
+-            this.lastShowDebugInfo = this.mc.gameSettings.showDebugInfo;
++            this.mc.mcProfiler.endSection();
+         }
+-
+-        if (this.mc.gameSettings.showDebugInfo)
++        else
+         {
+-            this.showLagometer(this.mc.mcProfiler.timeTickNano, this.mc.mcProfiler.timeUpdateChunksNano);
++            GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
++            GL11.glMatrixMode(GL11.GL_PROJECTION);
++            GL11.glLoadIdentity();
++            GL11.glMatrixMode(GL11.GL_MODELVIEW);
++            GL11.glLoadIdentity();
++            this.setupOverlayRendering();
++            this.renderEndNanoTime = System.nanoTime();
+         }
+ 
+-        if (this.mc.gameSettings.ofProfiler)
++        if (this.mc.currentScreen != null)
+         {
+-            this.mc.gameSettings.showDebugProfilerChart = true;
++            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
++
++            try
++            {
++                this.mc.currentScreen.drawScreen(var18, var20, par1);
++                GL11.glDisable(GL11.GL_LIGHTING);
++            }
++            catch (Throwable var13)
++            {
++                CrashReport var11 = CrashReport.makeCrashReport(var13, "Rendering screen");
++                CrashReportCategory var12 = var11.makeCategory("Screen render details");
++                var12.addCrashSectionCallable("Screen name", new CallableScreenName(this));
++                var12.addCrashSectionCallable("Mouse location", new CallableMouseLocation(this, var18, var20));
++                var12.addCrashSectionCallable("Screen size", new CallableScreenSize(this, var15));
++                throw new ReportedException(var11);
++            }
++
++            if (this.mc.currentScreen != null && this.mc.currentScreen.guiParticles != null)
++            {
++                this.mc.currentScreen.guiParticles.draw(par1);
++            }
+         }
+     }
+ 
+-    private void waitForServerThread()
++    protected void waitForServerThread()
+     {
+         this.serverWaitTimeCurrent = 0;
+ 
+@@ -1298,7 +1316,7 @@
+         }
+     }
+ 
+-    private void updateMainMenu(GuiMainMenu var1)
++    protected void updateMainMenu(GuiMainMenu var1)
+     {
+         try
+         {
+@@ -1341,7 +1359,7 @@
+         }
+     }
+ 
+-    private void checkDisplayMode()
++    protected void checkDisplayMode()
+     {
+         try
+         {
+@@ -1711,7 +1729,7 @@
+     /**
+      * Render clouds if enabled
+      */
+-    private void renderCloudsCheck(RenderGlobal par1RenderGlobal, float par2)
++    protected void renderCloudsCheck(RenderGlobal par1RenderGlobal, float par2)
+     {
+         if (this.mc.gameSettings.shouldRenderClouds())
+         {
+@@ -2015,7 +2033,7 @@
+     /**
+      * calculates fog and calls glClearColor
+      */
+-    private void updateFogColor(float par1)
++    protected void updateFogColor(float par1)
+     {
+         WorldClient var2 = this.mc.theWorld;
+         EntityLiving var3 = this.mc.renderViewEntity;
+@@ -2224,7 +2242,7 @@
+      * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
+      * distance and is used for sky rendering.
+      */
+-    private void setupFog(int par1, float par2)
++    protected void setupFog(int par1, float par2)
+     {
+         EntityLiving var3 = this.mc.renderViewEntity;
+         boolean var4 = false;

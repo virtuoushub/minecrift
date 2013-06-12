@@ -1,5 +1,6 @@
 package com.mtbs3d.minecrift;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
@@ -12,6 +13,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
 import net.minecraft.src.*;
+import paulscode.sound.SoundSystem;
 
 import static java.lang.Math.ceil;
 
@@ -35,7 +37,10 @@ public class VRRenderer extends EntityRenderer
     FBOParams preDistortionFBO; //This is where the world is rendered  
     FBOParams postDistortionFBO; 
     FBOParams postSuperSampleFBO;
-    
+
+    // Sound system
+    Field _soundManagerSndSystemField = null;
+
     /*
      * MC:    the minecraft world rendering code, below
      * GUI:   the guiFBO, with GUI rendered into it
@@ -180,9 +185,11 @@ public class VRRenderer extends EntityRenderer
             GL11.glMultMatrix(rightEyeTransform);
         }
 
-        //Next, possible neck-model transformation
-	    float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
-	    GL11.glTranslatef(0.0f, -this.mc.gameSettings.neckBaseToEyeHeight, this.mc.gameSettings.eyeProtrusion);
+        // Camera height offset
+        float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
+
+        // Neck-model transformation
+        GL11.glTranslatef(0.0f, -this.mc.gameSettings.neckBaseToEyeHeight, this.mc.gameSettings.eyeProtrusion);
 
         EntityLiving entity = this.mc.renderViewEntity;
         if( entity != null )
@@ -288,12 +295,11 @@ public class VRRenderer extends EntityRenderer
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-            GL11.glTranslatef(0f, 0f, -0.15f);
+            GL11.glTranslatef(0f, 0f, -0.15f);    // TODO: Is this a suspicious addition to the camera transform?
             GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
             GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
             GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
         }
-
 
         GL11.glTranslatef(0.0F, cameraYOffset,  0.00F);
 
@@ -327,10 +333,65 @@ public class VRRenderer extends EntityRenderer
             }
         }
     }
+
+    /**
+    * Sets the listener of sounds
+    */
+    public void setSoundListenerOrientation()
+    {
+        SoundSystem sndSystem = null;
+
+        // Use reflection to get the sndManager
+        if (_soundManagerSndSystemField == null)
+        {
+	        try
+	        {
+	        	_soundManagerSndSystemField = SoundManager.class.getDeclaredField("sndSystem");
+	        }
+	        catch (NoSuchFieldException e) {
+		        try
+		        {
+		        	_soundManagerSndSystemField = SoundManager.class.getDeclaredField("a"); //obfuscated name
+		        }
+		        catch (NoSuchFieldException e1) { };
+	        }
+	       	if (_soundManagerSndSystemField != null)
+	       		_soundManagerSndSystemField.setAccessible(true);
+        }
+        
+        
+        if (_soundManagerSndSystemField != null && this.mc.sndManager != null)
+        {
+			try 
+        	{
+				sndSystem = (SoundSystem)_soundManagerSndSystemField.get(null);
+			} 
+        	catch (IllegalArgumentException e) { } 
+        	catch (IllegalAccessException e) { };
+        }
+
+        if ( sndSystem != null && this.mc.gameSettings.soundVolume != 0.0F)
+        {
+            sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
+	        float PIOVER180 = (float)(Math.PI/180);
+
+	        Vec3 look = Vec3.fakePool.getVecFromPool(0, 0, 1);
+	        look.rotateAroundX(-cameraPitch* PIOVER180);
+	        look.rotateAroundY(-cameraYaw  * PIOVER180);
+	        Vec3 up = Vec3.fakePool.getVecFromPool(0, 1, 0);
+	        up.rotateAroundZ(-cameraRoll * PIOVER180);
+	        up.rotateAroundX(-cameraPitch* PIOVER180);
+	        up.rotateAroundY(-cameraYaw  * PIOVER180);
+
+            sndSystem.setListenerOrientation((float)look.xCoord, (float)look.yCoord, (float)look.zCoord, 
+            								(float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
+        }
+    }
     
     protected void updateCamera( float renderPartialTicks, boolean displayActive )
-    
     {
+        EntityLiving entity = this.mc.renderViewEntity;
+
         if (oculusRift.isInitialized() && this.mc.gameSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
@@ -409,7 +470,6 @@ public class VRRenderer extends EntityRenderer
         else
         {
             super.updateCamera(renderPartialTicks, displayActive);
-            EntityLiving entity = this.mc.renderViewEntity;
             if( entity != null )
             {
 	            this.cameraPitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * renderPartialTicks;
@@ -426,10 +486,9 @@ public class VRRenderer extends EntityRenderer
 	            this.totalMousePitchDelta = 0;
             }
         }
-        //Do head/neck model in non-GL math so we can use camera location(between eyes)
-        
-        Vec3 cameraOffset = Vec3.fakePool.getVecFromPool(0, this.mc.gameSettings.neckBaseToEyeHeight, -this.mc.gameSettings.eyeProtrusion);
 
+        //Do head/neck model in non-GL math so we can use camera location(between eyes)
+        Vec3 cameraOffset = Vec3.fakePool.getVecFromPool(0, this.mc.gameSettings.neckBaseToEyeHeight, -this.mc.gameSettings.eyeProtrusion);
         float PIOVER180 = (float)(Math.PI/180);
         cameraOffset.rotateAroundZ(-cameraRoll * PIOVER180);
         cameraOffset.rotateAroundX(-cameraPitch* PIOVER180);
@@ -546,6 +605,7 @@ public class VRRenderer extends EntityRenderer
 	          this.mc.currentScreen.guiParticles.draw(renderPartialTicks);
 	        }
 	        GL11.glDisable(GL11.GL_LIGHTING); //inventory messes up fog color sometimes... This fixes
+	        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	        drawMouseQuad( mouseX, mouseY );
         }
       
@@ -593,6 +653,10 @@ public class VRRenderer extends EntityRenderer
 	        renderOriginZ = renderViewEntity.lastTickPosZ + (renderViewEntity.posZ - renderViewEntity.lastTickPosZ) * (double)renderPartialTicks;
 
 	        getPointedBlock(renderPartialTicks);
+
+	        // Update sound engine
+	        setSoundListenerOrientation();
+
         }
 
         //Update gui Yaw
@@ -621,7 +685,6 @@ public class VRRenderer extends EntityRenderer
 
 		        GL11.glMatrixMode(GL11.GL_MODELVIEW );
         		GL11.glPopMatrix();
-	            GL11.glClear (GL11.GL_DEPTH_BUFFER_BIT);            // Clear Screen And Depth Buffer on the framebuffer to black
         	}
         	else
         	{
@@ -643,7 +706,7 @@ public class VRRenderer extends EntityRenderer
 		        	guiYaw = guiHeadYaw + totalMouseYawDelta;
 				GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
 				GL11.glRotatef(this.totalMousePitchDelta, 1f, 0f, 0f);
-				GL11.glTranslatef (0.0f, this.mc.gameSettings.neckBaseToEyeHeight, this.mc.gameSettings.hudDistance*10);
+				GL11.glTranslatef (0.0f, 0.0f, this.mc.gameSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
 				if( this.mc.gameSettings.useHudOpacity )
 				{
@@ -655,7 +718,8 @@ public class VRRenderer extends EntityRenderer
 			        GL11.glDisable(GL11.GL_BLEND);
 					
 				}
-				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*10);
+		        GL11.glDisable(GL11.GL_DEPTH_TEST);
+				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*this.mc.gameSettings.hudDistance);
 		        GL11.glDisable(GL11.GL_BLEND);
 		
 		        unbindTexture();
@@ -1140,6 +1204,7 @@ public class VRRenderer extends EntityRenderer
             {
                 GL11.glShadeModel(GL11.GL_SMOOTH);
             }
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             int var17 = renderGlobal.renderAllSortedRenderers(1, (double)renderPartialTicks);
 

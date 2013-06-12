@@ -123,13 +123,13 @@ public class GuiMinecriftSettings extends GuiScreen
                 }
                 if (var8 == EnumOptions.HUD_SCALE)
                 {
-                    minValue = 0.25f;
+                    minValue = 0.5f;
                     maxValue = 1.5f;
                 }
                 if (var8 == EnumOptions.HUD_DISTANCE)
                 {
-                    minValue = 0.25f;
-                    maxValue = 1.5f;
+                    minValue = 0.5f;
+                    maxValue = 3.0f;
                 }
 
                 this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, this.guiGameSettings.getOptionFloatValue(var8)));
