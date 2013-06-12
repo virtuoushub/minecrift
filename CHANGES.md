@@ -3,8 +3,9 @@
 - Fully 3D GUI with freelook always enabled.
 - GUI options menu for configuring VR settings.
 - Improved Forge Compatibility.
-- Refactored internal render loop for performance.
 - Fixed mouse cursor "jumpiness"
+- Added full-3D audio: head pitch, yaw, and roll help you pinpoint sounds!
+- Refactored internal render loop for performance.
 - Many rendering bug fixes.
 
 0.26 Alpha 29-05-13
