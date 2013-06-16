@@ -5,36 +5,60 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.EnumOptions;
 import org.lwjgl.opengl.GL11;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class GuiSliderEx extends GuiButtonEx
 {
     /** The relative value of this slider control. */
-    public float sliderValue = 1.0F;
+    private float sliderValue = 1.0F;
 
     /** Is this slider control being dragged. */
-    public boolean dragging = false;
+    private boolean dragging = false;
 
     /** Additional ID for this slider control. */
     private EnumOptions idFloat = null;
 
     /** The maximum actual value of this slider control. */
-    public float maxValue = 1.0f;
+    private float maxValue = 1.0f;
 
     /** The minimum actual value of this slider control. */
-    public float minValue = 0.0f;
+    private float minValue = 0.0f;
 
-    public GuiSliderEx(int par1, int par2, int par3, EnumOptions par4EnumOptions, String par5Str, float minValue, float maxValue, float currentValue)
+    /** The allowable increment of the actual value of this slider control. */
+    private float increment;
+
+    /** The last actual value of this slider control */
+    private float lastValue;
+
+    /** The last known value x position of the mouse pointer */
+    private int lastMouseX = -1;
+
+    GuiEventEx _eventHandler = null;
+
+    public GuiSliderEx(int par1, int par2, int par3,
+                       EnumOptions par4EnumOptions, String par5Str,
+                       float minValue, float maxValue, float increment, float currentValue)
     {
         super(par1, par2, par3, 150, 20, par5Str);
         this.idFloat = par4EnumOptions;
+        this.increment = increment;
+        this.lastValue = Math.round(currentValue / this.increment) * this.increment;
+
         this.minValue = minValue;
         this.maxValue = maxValue;
-        if (currentValue > this.maxValue)
-            currentValue = this.maxValue;
-        else if (currentValue < this.minValue)
-            currentValue = this.minValue;
+        if (this.lastValue > this.maxValue)
+            this.lastValue = this.maxValue;
+        else if (this.lastValue < this.minValue)
+            this.lastValue = this.minValue;
 
         float range = this.maxValue - this.minValue;
-        this.sliderValue = (currentValue - this.minValue) / range;
+        this.sliderValue = (this.lastValue - this.minValue) / range;
+    }
+
+    void setEventHandler(GuiEventEx eventHandler)
+    {
+        _eventHandler = eventHandler;
     }
 
     /**
@@ -53,8 +77,9 @@ public class GuiSliderEx extends GuiButtonEx
     {
         if (this.drawButton)
         {
-            if (this.dragging)
+            if (this.dragging && par2 != this.lastMouseX)
             {
+                this.lastMouseX = -1;
                 this.sliderValue = (float)(par2 - (this.xPosition + 4)) / (float)(this.width - 8);
 
                 if (this.sliderValue < 0.0F)
@@ -68,9 +93,13 @@ public class GuiSliderEx extends GuiButtonEx
                 }
 
                 float range = this.maxValue - this.minValue;
-                float value = this.minValue + (this.sliderValue * range);
-                par1Minecraft.gameSettings.setOptionFloatValue(this.idFloat, value);
+                this.lastValue = this.minValue + (this.sliderValue * range);
+                this.lastValue = Math.round(this.lastValue / this.increment) * this.increment;
+                par1Minecraft.gameSettings.setOptionFloatValue(this.idFloat, this.lastValue);
                 this.displayString = par1Minecraft.gameSettings.getKeyBinding(this.idFloat);
+
+                if (_eventHandler != null)
+                    _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, this.idFloat);
             }
 
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -87,21 +116,44 @@ public class GuiSliderEx extends GuiButtonEx
     {
         if (super.mousePressed(par1Minecraft, par2, par3))
         {
-            this.sliderValue = (float)(par2 - (this.xPosition + 4)) / (float)(this.width - 8);
+            float tempSliderValue = (float)(par2 - (this.xPosition + 4)) / (float)(this.width - 8);
 
-            if (this.sliderValue < 0.0F)
+            if (tempSliderValue < 0.0F)
             {
-                this.sliderValue = 0.0F;
+                tempSliderValue = 0.0F;
             }
 
-            if (this.sliderValue > 1.0F)
+            if (tempSliderValue > 1.0F)
             {
-                this.sliderValue = 1.0F;
+                tempSliderValue = 1.0F;
             }
 
-            par1Minecraft.gameSettings.setOptionFloatValue(this.idFloat, this.sliderValue);
+            float range = this.maxValue - this.minValue;
+            float tempValue = this.minValue + (tempSliderValue * range);
+            tempValue = Math.round(tempValue / this.increment) * this.increment;
+
+            // For a mouse press only (before the mouse is dragged), we want a single
+            // increment increase or decrease, if possible.
+            if (tempValue > this.lastValue)
+                this.lastValue += increment;
+            else if (tempValue < this.lastValue)
+                this.lastValue -= increment;
+
+            if (this.lastValue > this.maxValue)
+                this.lastValue = this.maxValue;
+            else if (this.lastValue < this.minValue)
+                this.lastValue = this.minValue;
+
+            this.sliderValue = (this.lastValue - this.minValue) / range;
+            par1Minecraft.gameSettings.setOptionFloatValue(this.idFloat, this.lastValue);
             this.displayString = par1Minecraft.gameSettings.getKeyBinding(this.idFloat);
+            this.lastMouseX = par2;
             this.dragging = true;
+
+
+            if (_eventHandler != null)
+                _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, this.idFloat);
+
             return true;
         }
         else
@@ -115,6 +167,9 @@ public class GuiSliderEx extends GuiButtonEx
      */
     public void mouseReleased(int par1, int par2)
     {
+        this.lastMouseX = -1;
+        float range = this.maxValue - this.minValue;
+        this.sliderValue = (this.lastValue - this.minValue) / range;  // Sync slider pos with last (actual) value
         this.dragging = false;
     }
 }

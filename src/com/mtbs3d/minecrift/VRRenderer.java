@@ -1,16 +1,19 @@
 package com.mtbs3d.minecrift;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.HMDInfo;
-import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
+
+import com.mtbs3d.minecrift.api.BasePlugin;
+import com.mtbs3d.minecrift.api.IOrientationProvider;
 
 import net.minecraft.src.*;
 import paulscode.sound.SoundSystem;
@@ -102,27 +105,41 @@ public class VRRenderer extends EntityRenderer
     private int vboiId = 0;
     private int indicesCount = 0;
 
-    IOculusRift oculusRift;
     GuiAchievement guiAchievement;
     EyeRenderParams eyeRenderParams;
+
+    protected float headYaw = 0.0F;
+    protected float headPitch = 0.0F;
+
 	double renderOriginX;
 	double renderOriginY;
 	double renderOriginZ;
+
 	float camRelX;
 	float camRelY;
 	float camRelZ;
+
 	float crossX;
 	float crossY;
 	float crossZ;
+	
+	float lookX; //In world coordinates
+	float lookY;
+	float lookZ;
+	
+	float aimX; //In world coordinates
+	float aimY;
+	float aimZ;
     
     boolean superSampleSupported;
 	private boolean guiShowingLastFrame = false; //Used for detecting when UI is shown, fixing the guiYaw 
-	float guiHeadYaw = 0.0f; //Not including mouse
 
-    public VRRenderer(Minecraft par1Minecraft, IOculusRift rift, GuiAchievement guiAchiv )
+	float guiHeadYaw = 0.0f; //Not including mouse
+	private String debugMessage = "";
+
+    public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv )
     {
     	super( par1Minecraft );
-    	this.oculusRift = rift;
     	this.guiAchievement = guiAchiv;
     	
     	try
@@ -134,8 +151,8 @@ public class VRRenderer extends EntityRenderer
     	catch( IllegalStateException e )
     	{
     		superSampleSupported = false;
-    		
     	}
+    	this.mc.gameSettings.positionalTrackMethod = GameSettings.POS_TRACK_1HYDRA;
     }
 
     /**
@@ -171,7 +188,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
 
-        //First, IPD transformation (and possible toe-in)
+        //First, IPD transformation
         if (renderSceneNumber == 0)
         {
             // Left eye
@@ -188,24 +205,24 @@ public class VRRenderer extends EntityRenderer
         // Camera height offset
         float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
 
-        // Neck-model transformation
-        GL11.glTranslatef(0.0f, -this.mc.gameSettings.neckBaseToEyeHeight, this.mc.gameSettings.eyeProtrusion);
-
         EntityLiving entity = this.mc.renderViewEntity;
         if( entity != null )
         {
         	//Do in-game camera adjustments if renderViewEntity exists
 	        //A few game effects
+        	//Disable view bobbing and other camera effects
+        	/*
 	        this.hurtCameraEffect(renderPartialTicks);
 	
 	        if (this.mc.gameSettings.viewBobbing)
 	        {
 	            this.setupViewBobbing(renderPartialTicks);
 	        }
+	        */
 	        
 	        //For doing camera collision detection
 	        double camX = renderOriginX + camRelX;
-	        double camY = renderOriginY + camRelY;
+	        double camY = renderOriginY + camRelY - cameraYOffset;
 	        double camZ = renderOriginZ + camRelZ;
 	      
 	        var5 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * renderPartialTicks;
@@ -293,15 +310,16 @@ public class VRRenderer extends EntityRenderer
 	        }
         }
 
+
         if (!this.mc.gameSettings.debugCamEnable)
         {
-            //GL11.glTranslatef(0f, 0f, -0.15f);    // TODO: Is this a suspicious addition to the camera transform?
+        	//TODO: get rotation matrix instead of pitch/yaw/roll
             GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
             GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
             GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
         }
 
-        GL11.glTranslatef(0.0F, cameraYOffset,  0.00F);
+        GL11.glTranslated(-camRelX, cameraYOffset-camRelY, -camRelZ);
 
         if (this.debugViewDirection > 0)
         {
@@ -377,29 +395,30 @@ public class VRRenderer extends EntityRenderer
             sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
 	        float PIOVER180 = (float)(Math.PI/180);
 
-	        Vec3 look = Vec3.fakePool.getVecFromPool(0, 0, 1);
-	        look.rotateAroundX(-cameraPitch* PIOVER180);
-	        look.rotateAroundY(-cameraYaw  * PIOVER180);
 	        Vec3 up = Vec3.fakePool.getVecFromPool(0, 1, 0);
 	        up.rotateAroundZ(-cameraRoll * PIOVER180);
 	        up.rotateAroundX(-cameraPitch* PIOVER180);
 	        up.rotateAroundY(-cameraYaw  * PIOVER180);
 
-            sndSystem.setListenerOrientation((float)look.xCoord, (float)look.yCoord, (float)look.zCoord, 
+            sndSystem.setListenerOrientation(lookX, lookY, lookZ, 
             								(float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
         }
     }
     
     protected void updateCamera( float renderPartialTicks, boolean displayActive )
     {
+        float PIOVER180 = (float)(Math.PI/180);
         EntityLiving entity = this.mc.renderViewEntity;
 
-        if (oculusRift.isInitialized() && this.mc.gameSettings.useHeadTracking)
+        BasePlugin.pollAll();
+        debugMessage = mc.headTracker.getInitializationStatus()+"\n"+mc.positionTracker.getInitializationStatus();
+        if (mc.headTracker.isInitialized() && this.mc.gameSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
-
-            // Read head tracker orientation
-            oculusRift.poll();
+                                                         // Roll multiplier is a one-way trip to barf-ville!
+            cameraRoll  = mc.headTracker.getRollDegrees_LH()  * this.mc.gameSettings.headTrackSensitivity;
+            headPitch   = mc.headTracker.getPitchDegrees_LH() * this.mc.gameSettings.headTrackSensitivity;
+            headYaw     = mc.headTracker.getYawDegrees_LH()   * this.mc.gameSettings.headTrackSensitivity;
 
             if (this.mc.inGameHasFocus && displayActive)
             {
@@ -427,36 +446,29 @@ public class VRRenderer extends EntityRenderer
                 totalMouseYawDelta += adjustedMouseDeltaX*0.15;
                 totalMouseYawDelta %= 360;
 
-                if(mc.gameSettings.allowMousePitchInput)
-                {
-                    // Allow mouse pitch delta
-                    totalMousePitchDelta += (adjustedMouseDeltaY * (float)yDirection*0.15);
-                    if (totalMousePitchDelta > 180.0f)
-                        totalMousePitchDelta = 180.0f;
-                    else if (totalMousePitchDelta < -180.0f)
-                        totalMousePitchDelta = -180.f;
-                }
-                else
-                {
-                	totalMousePitchDelta = 0f;
-                }
+                // Allow mouse pitch delta
+                totalMousePitchDelta += (adjustedMouseDeltaY * (float)yDirection*0.15);
+                //170degrees works about right, but nothing scientific about it.
+                if (totalMousePitchDelta > 170.0f-cameraPitch)
+                    totalMousePitchDelta = 170.0f-cameraPitch;
+                else if (totalMousePitchDelta < -170.0f - cameraPitch)
+                    totalMousePitchDelta = -170.f - cameraPitch;
             }
-
-                                                         // Roll multiplier is a one-way trip to barf-ville!
-            cameraRoll  =                          oculusRift.getRollDegrees_LH()  * this.mc.gameSettings.headTrackSensitivity;
-            cameraPitch = (totalMousePitchDelta + (oculusRift.getPitchDegrees_LH() * this.mc.gameSettings.headTrackSensitivity)) ;
-            cameraYaw   = (totalMouseYawDelta   + (oculusRift.getYawDegrees_LH()   * this.mc.gameSettings.headTrackSensitivity)) % 360;
+            cameraPitch = headPitch ;
+            if( mc.gameSettings.allowMousePitchInput )
+            	cameraPitch += totalMousePitchDelta;
+            cameraYaw   = (totalMouseYawDelta  + headYaw ) % 360;
             
             // Correct for gimbal lock prevention
-            if (cameraPitch > IOculusRift.MAXPITCH)
-                cameraPitch = IOculusRift.MAXPITCH;
-            else if (cameraPitch < -IOculusRift.MAXPITCH)
-                cameraPitch = -IOculusRift.MAXPITCH;
+            if (cameraPitch > IOrientationProvider.MAXPITCH)
+                cameraPitch = IOrientationProvider.MAXPITCH;
+            else if (cameraPitch < -IOrientationProvider.MAXPITCH)
+                cameraPitch = -IOrientationProvider.MAXPITCH;
 
-            if (cameraRoll > IOculusRift.MAXROLL)
-                cameraRoll = IOculusRift.MAXROLL;
-            else if (cameraRoll < -IOculusRift.MAXROLL)
-                cameraRoll = -IOculusRift.MAXROLL;
+            if (cameraRoll > IOrientationProvider.MAXROLL)
+                cameraRoll = IOrientationProvider.MAXROLL;
+            else if (cameraRoll < -IOrientationProvider.MAXROLL)
+                cameraRoll = -IOrientationProvider.MAXROLL;
 
             if (this.mc.thePlayer != null)
             {
@@ -471,6 +483,7 @@ public class VRRenderer extends EntityRenderer
         }
         else
         {
+        	//TODO: pull this out to support hydra free-aim if no oculus?
             super.updateCamera(renderPartialTicks, displayActive);
             if( entity != null )
             {
@@ -489,17 +502,39 @@ public class VRRenderer extends EntityRenderer
             }
         }
 
+        mc.positionTracker.update(headYaw, cameraPitch, cameraRoll);
         //Do head/neck model in non-GL math so we can use camera location(between eyes)
-        Vec3 cameraOffset = Vec3.fakePool.getVecFromPool(0, this.mc.gameSettings.neckBaseToEyeHeight, -this.mc.gameSettings.eyeProtrusion);
-        float PIOVER180 = (float)(Math.PI/180);
-        cameraOffset.rotateAroundZ(-cameraRoll * PIOVER180);
-        cameraOffset.rotateAroundX(-cameraPitch* PIOVER180);
-        cameraOffset.rotateAroundY(-cameraYaw  * PIOVER180);
+        Vec3 cameraOffset = mc.positionTracker.getHeadPosition();
+
+        if (this.mc.gameSettings.resetPositionalTrackPos)
+        {
+        	mc.positionTracker.resetOrigin();
+            this.mc.gameSettings.resetPositionalTrackPos = false;
+        }
+        
+        cameraOffset.rotateAroundY((180-cameraYaw) * PIOVER180 );
 
         //The worldOrigin is at player "eye height" (1.62) above foot position
         camRelX = (float)cameraOffset.xCoord;
-        camRelY = (float)(cameraOffset.yCoord + (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight) - 1.62);
+        camRelY = (float)cameraOffset.yCoord;
         camRelZ = (float)cameraOffset.zCoord;
+
+        Vec3 look = Vec3.fakePool.getVecFromPool(0, 0, 1);
+        look.rotateAroundX(-cameraPitch* PIOVER180);
+        look.rotateAroundY(-cameraYaw  * PIOVER180);
+        lookX = (float)look.xCoord; lookY = (float)look.yCoord; lookZ = (float)look.zCoord;
+        if( !mc.gameSettings.allowMousePitchInput )
+        {
+	        Vec3 aim = Vec3.fakePool.getVecFromPool(0, 0, 1);
+	        aim.rotateAroundX((-cameraPitch -totalMousePitchDelta) * PIOVER180);
+	        aim.rotateAroundY(-cameraYaw  * PIOVER180);
+	        aimX = (float)aim.xCoord; aimY = (float)aim.yCoord; aimZ = (float)aim.zCoord;
+        }
+        else
+        {
+        	//Lock aim/look
+        	aimX = lookX; aimY = lookY; aimZ = lookZ;
+        }
     } 
 
     protected void renderGUIandWorld(float renderPartialTicks)
@@ -519,7 +554,7 @@ public class VRRenderer extends EntityRenderer
         //Setup eye render params
         if ( superSampleSupported && this.mc.gameSettings.useSupersample)
         {
-            eyeRenderParams = oculusRift.getEyeRenderParams(0,
+            eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
                     0,
                     (int)ceil(this.mc.displayFBWidth  * this.mc.gameSettings.superSampleScaleFactor),
                     (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor),
@@ -531,7 +566,7 @@ public class VRRenderer extends EntityRenderer
         }
         else
         {
-            eyeRenderParams = oculusRift.getEyeRenderParams(0,
+            eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
                     0,
                     this.mc.displayFBWidth,
                     this.mc.displayFBHeight,
@@ -588,6 +623,12 @@ public class VRRenderer extends EntityRenderer
 			//Draw in game GUI
             this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
             guiAchievement.updateAchievementWindow();
+            if( !mc.headTracker.isInitialized() )
+	        	mc.fontRenderer.drawStringWithShadow("Trkr:" + mc.headTracker.getInitializationStatus(), 200, 100, /*white*/16777215);
+            if( mc.hmdInfo != mc.headTracker && !mc.hmdInfo.isInitialized() )
+	        	mc.fontRenderer.drawStringWithShadow("HMD:"+mc.hmdInfo.getInitializationStatus(), 200, 90, /*white*/16777215);
+            if( mc.positionTracker != mc.headTracker && !mc.positionTracker.isInitialized() )
+	        	mc.fontRenderer.drawStringWithShadow("HeadPos:"+mc.positionTracker.getInitializationStatus(), 200, 110, /*white*/16777215);
         }
 
         if( this.mc.currentScreen != null )
@@ -631,7 +672,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glClearColor(0, 0, 0, 1);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
-        //setup camera (polls rift, reads mouse inputs, etc). Sets cameraPitch, cameraYaw, and cameraRoll, compute neck-model camera position
+        //setup camera (polls rift, reads mouse inputs, etc). Sets cameraPitch, cameraYaw, and cameraRoll, compute neck-model camera position, sets look vector
         updateCamera(renderPartialTicks, Display.isActive());
 
         if (this.mc.theWorld != null)
@@ -644,8 +685,6 @@ public class VRRenderer extends EntityRenderer
 	            this.mc.renderViewEntity = this.mc.thePlayer;
 	        }
 	
-	        this.mc.mcProfiler.endStartSection("pick");
-	        this.getMouseOver(renderPartialTicks);
 	        EntityLiving renderViewEntity = this.mc.renderViewEntity;
 	        this.mc.mcProfiler.endStartSection("center");
 
@@ -654,7 +693,11 @@ public class VRRenderer extends EntityRenderer
 	        renderOriginY = renderViewEntity.lastTickPosY + (renderViewEntity.posY - renderViewEntity.lastTickPosY) * (double)renderPartialTicks;
 	        renderOriginZ = renderViewEntity.lastTickPosZ + (renderViewEntity.posZ - renderViewEntity.lastTickPosZ) * (double)renderPartialTicks;
 
-	        getPointedBlock(renderPartialTicks);
+	        if( this.mc.currentScreen == null )
+	        {
+		        this.mc.mcProfiler.endStartSection("pick");
+		        getPointedBlock(renderPartialTicks);
+	        }
 
 	        // Update sound engine
 	        setSoundListenerOrientation();
@@ -707,7 +750,8 @@ public class VRRenderer extends EntityRenderer
 		        else
 		        	guiYaw = guiHeadYaw + totalMouseYawDelta;
 				GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
-				GL11.glRotatef(this.totalMousePitchDelta, 1f, 0f, 0f);
+				if( false ) //TODO: allow if HUD folllows mouse pitch
+					GL11.glRotatef(this.totalMousePitchDelta, 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.gameSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
 				if( this.mc.gameSettings.useHudOpacity )
@@ -896,7 +940,7 @@ public class VRRenderer extends EntityRenderer
             // Set the distortion shader as in use
             ARBShaderObjects.glUseProgramObjectARB(_shaderProgramId);
 
-            HMDInfo hmdInfo = oculusRift.getHMDInfo();
+            HMDInfo hmdInfo = mc.hmdInfo.getHMDInfo();
 
             float lw = eyeRenderParams._leftViewPortW  / (float)FBWidth;
             float lh = eyeRenderParams._leftViewPortH  / (float)FBHeight;
@@ -1285,7 +1329,7 @@ public class VRRenderer extends EntityRenderer
 	            GL11.glPushMatrix();
             	GL11.glTranslatef(crossX, crossY, crossZ);
 	            GL11.glRotatef(-this.cameraYaw, 0.0F, 1.0F, 0.0F);
-	            GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
+	            GL11.glRotatef(this.cameraPitch+this.totalMousePitchDelta, 1.0F, 0.0F, 0.0F);
 	            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
 	            GL11.glScalef(-scale, -scale, scale);
 	            GL11.glDisable(GL11.GL_LIGHTING);
@@ -1307,6 +1351,18 @@ public class VRRenderer extends EntityRenderer
 		        mc.checkGLError("crosshair");
         	}
         }
+        
+        GL11.glPointSize(10f);
+        GL11.glColor4f(0, 1, 1,1);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glPushMatrix();
+        GL11.glBegin(GL11.GL_POINTS);
+        GL11.glVertex3d(camRelX,camRelY, camRelZ);
+        GL11.glEnd();
+        GL11.glColor3f(1, 1, 1);
+        GL11.glPopMatrix();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        
         this.mc.mcProfiler.endSection();
     }
 
@@ -1924,23 +1980,8 @@ public class VRRenderer extends EntityRenderer
             this.mc.pointedEntityLiving = null;
             double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
             double entityReachDistance = blockReachDistance;
-            if (this.mc.playerController.extendedReach())
-            {
-                blockReachDistance = 6.0D;
-                entityReachDistance = 6.0D;
-            }
-            else
-            {
-                if (blockReachDistance > 3.0D)
-                {
-                    entityReachDistance = 3.0D;
-                }
-
-                blockReachDistance = entityReachDistance;
-            }
-
             Vec3 pos = Vec3.fakePool.getVecFromPool(renderOriginX+camRelX,renderOriginY+camRelY, renderOriginZ+camRelZ); 
-            Vec3 aim = this.mc.renderViewEntity.getLook(1.0f);
+            Vec3 aim = Vec3.fakePool.getVecFromPool(aimX,aimY,aimZ);
             Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
 
             this.mc.objectMouseOver = this.mc.theWorld.rayTraceBlocks(pos, endPos);
@@ -1960,6 +2001,21 @@ public class VRRenderer extends EntityRenderer
 	            {
 	            	crossDistance = crossPos.hitVec.distanceTo(pos);
 	            }
+            }
+
+            if (this.mc.playerController.extendedReach())
+            {
+                blockReachDistance = 6.0D;
+                entityReachDistance = 6.0D;
+            }
+            else
+            {
+                if (blockReachDistance > 3.0D)
+                {
+                    entityReachDistance = 3.0D;
+                }
+
+                blockReachDistance = entityReachDistance;
             }
 
             crossX = (float)(aim.xCoord * crossDistance + pos.xCoord - renderOriginX);

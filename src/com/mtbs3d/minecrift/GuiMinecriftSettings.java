@@ -1,15 +1,11 @@
 package com.mtbs3d.minecrift;
 
-import com.mtbs3d.minecrift.gui.GuiButtonEx;
-import com.mtbs3d.minecrift.gui.GuiMinecriftDisplaySettings;
-import com.mtbs3d.minecrift.gui.GuiSliderEx;
-import com.mtbs3d.minecrift.gui.GuiSmallButtonEx;
+import com.mtbs3d.minecrift.gui.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.EnumOptions;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiOptions;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.StringTranslate;
 
@@ -26,6 +22,7 @@ public class GuiMinecriftSettings extends GuiScreen
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.ALLOW_MOUSE_PITCH_INPUT,
             EnumOptions.DECOUPLEMOVELOOK,
+            //EnumOptions.POSITIONAL_TRACK_METHOD,
         };
 
 	private GuiScreen parentGuiScreen;
@@ -68,6 +65,7 @@ public class GuiMinecriftSettings extends GuiScreen
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Oculus Settings..."));
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Hydra Settings..."));
         this.is64bit = false;
         String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
         String[] var3 = archStrings;
@@ -100,39 +98,46 @@ public class GuiMinecriftSettings extends GuiScreen
             {
                 float minValue = 0.0f;
                 float maxValue = 1.0f;
+                float increment = 0.01f;
 
                 if (var8 == EnumOptions.PLAYER_HEIGHT)
                 {
                     minValue = 1.62f;
                     maxValue = 1.85f;
+                    increment = 0.01f;
                 }
                 if (var8 == EnumOptions.EYE_PROTRUSION)
                 {
                     minValue = 0.12f;
                     maxValue = 0.25f;
+                    increment = 0.001f;
                 }
                 if (var8 == EnumOptions.NECK_LENGTH)
                 {
                     minValue = 0.15f;
                     maxValue = 0.25f;
+                    increment = 0.001f;
                 }
                 if (var8 == EnumOptions.MOVEMENT_MULTIPLIER)
                 {
                     minValue = 0.15f;
                     maxValue = 1.0f;
+                    increment = 0.01f;
                 }
                 if (var8 == EnumOptions.HUD_SCALE)
                 {
                     minValue = 0.5f;
                     maxValue = 1.5f;
+                    increment = 0.01f;
                 }
                 if (var8 == EnumOptions.HUD_DISTANCE)
                 {
                     minValue = 0.5f;
                     maxValue = 3.0f;
+                    increment = 0.02f;
                 }
 
-                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, this.guiGameSettings.getOptionFloatValue(var8)));
+                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8)));
             }
             else
             {
@@ -167,8 +172,20 @@ public class GuiMinecriftSettings extends GuiScreen
 
             if (par1GuiButton.id == 201)
             {
-                this.mc.gameSettings.saveOptions();
-                this.mc.displayGuiScreen(new GuiMinecriftDisplaySettings(this, this.guiGameSettings));
+            	if( mc.headTracker != null && mc.hmdInfo != null && mc.positionTracker != null )
+            	{
+	                this.mc.gameSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiMinecriftDisplaySettings(this, this.guiGameSettings));
+            	}
+            }
+
+            if (par1GuiButton.id == 202)
+            {
+            	if( mc.positionTracker != null )
+            	{
+	                this.mc.gameSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiHydraSettings(this, this.guiGameSettings));
+            	}
             }
 
             if (par1GuiButton.id == 200)

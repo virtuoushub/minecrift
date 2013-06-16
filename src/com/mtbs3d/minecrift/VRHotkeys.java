@@ -2,6 +2,8 @@ package com.mtbs3d.minecrift;
 
 import org.lwjgl.input.Keyboard;
 
+import com.mtbs3d.minecrift.api.BasePlugin;
+
 import net.minecraft.client.Minecraft;
 
 public class VRHotkeys {
@@ -10,12 +12,17 @@ public class VRHotkeys {
 	{                                
 		// TODO: Capture oculus key events
 	
+    	if( mc.headTracker == null || mc.hmdInfo == null )
+    	{
+    		return;
+    	}
 	    //  Reinitialise head tracking
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.oculusRift.destroy();
-	        mc.oculusRift.init();
-	        mc.oculusRift.setIPD(mc.gameSettings.ipd);
+	    	BasePlugin.destroyAll();
+	    	BasePlugin.initAll();
+	        mc.hmdInfo.setIPD(mc.gameSettings.ipd);
+            mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeMs, mc.gameSettings.useHeadTrackPrediction);
 	    }
 	
 	    // Distortion on / off
@@ -62,12 +69,7 @@ public class VRHotkeys {
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
 	            mc.gameSettings.useHeadTrackPrediction = !mc.gameSettings.useHeadTrackPrediction;
-	
-	            if (mc.gameSettings.useHeadTrackPrediction)
-	                mc.oculusRift.setPrediction(0.03f, true);
-	            else
-	                mc.oculusRift.setPrediction(0.03f, false);
-	
+                mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeMs, mc.gameSettings.useHeadTrackPrediction);
 	            mc.gameSettings.saveOptions();
 	        }
 	        else
@@ -185,7 +187,7 @@ public class VRHotkeys {
 	        {
 	            newIpd = mc.gameSettings.ipd + 0.0005f;
 	        }
-	        mc.oculusRift.setIPD(newIpd);
+	        mc.hmdInfo.setIPD(newIpd);
 	        mc.gameSettings.ipd = newIpd;
 	        mc.gameSettings.saveOptions();
 	    }
@@ -202,7 +204,7 @@ public class VRHotkeys {
 	        {
 	            newIpd = mc.gameSettings.ipd - 0.0005f;
 	        }
-	        mc.oculusRift.setIPD(newIpd);
+	        mc.hmdInfo.setIPD(newIpd);
 	        mc.gameSettings.ipd = newIpd;
 	        mc.gameSettings.saveOptions();
 	    }

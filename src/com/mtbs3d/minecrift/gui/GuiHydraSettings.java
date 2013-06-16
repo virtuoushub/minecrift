@@ -1,36 +1,24 @@
 package com.mtbs3d.minecrift.gui;
 
-import org.lwjgl.opengl.Display;
-
 import com.mtbs3d.minecrift.VRRenderer;
 import net.minecraft.src.*;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Engineer
- * Date: 6/6/13
- * Time: 9:56 PM
+ * Date: 6/11/13
+ * Time: 4:23 PM
  * To change this template use File | Settings | File Templates.
  */
-public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventEx
+public class GuiHydraSettings extends GuiScreen
 {
-    static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
-            EnumOptions.IPD,
-            EnumOptions.FOV_SCALE_FACTOR,
-            EnumOptions.HEAD_TRACKING,
-            EnumOptions.HEAD_TRACK_PREDICTION,
-            EnumOptions.HEAD_TRACK_SENSITIVITY,
-            EnumOptions.CHROM_AB_CORRECTION,
-            EnumOptions.USE_DISTORTION,
-            EnumOptions.DISTORTION_FIT_POINT,
-            EnumOptions.SUPERSAMPLING,
-            EnumOptions.SUPERSAMPLE_SCALEFACTOR
+    static EnumOptions[] hydraOptions = new EnumOptions[] {
     };
 
     private GuiScreen parentGuiScreen;
 
     /** The title string that is displayed in the top-center of the screen. */
-    protected String screenTitle = "Oculus Settings";
+    protected String screenTitle = "Hydra Settings";
 
     /** GUI game settings */
     private GameSettings guiGameSettings;
@@ -48,8 +36,8 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
 
     /** An array of all of EnumOption's video options. */
 
-    public GuiMinecriftDisplaySettings(GuiScreen par1GuiScreen,
-                                       GameSettings par2GameSettings)
+    public GuiHydraSettings(GuiScreen par1GuiScreen,
+                            GameSettings par2GameSettings)
     {
         this.parentGuiScreen = par1GuiScreen;
         this.guiGameSettings = par2GameSettings;
@@ -65,7 +53,8 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
+        //this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 108, "Reset Origin Point"));
         this.is64bit = false;
         String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
         String[] var3 = archStrings;
@@ -85,7 +74,7 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
 
         int var9 = 0;
         var4 = this.is64bit ? 0 : -15;
-        EnumOptions[] var10 = minecriftDisplayOptions;
+        EnumOptions[] var10 = hydraOptions;
         int var11 = var10.length;
 
         for (int var12 = 0; var12 < var11; ++var12)
@@ -98,42 +87,16 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
             {
                 float minValue = 0.0f;
                 float maxValue = 1.0f;
-                float increment = 0.001f;
+                int precision = 2;
 
-                if (var8 == EnumOptions.IPD)
-                {
-                    minValue = 0.055f;
-                    maxValue = 0.075f;
-                    increment = 0.0001f;
-                }
-                if (var8 == EnumOptions.FOV_SCALE_FACTOR)
-                {
-                    minValue = 0.5f;
-                    maxValue = 1.5f;
-                    increment = 0.01f;
-                }
-                if (var8 == EnumOptions.HEAD_TRACK_SENSITIVITY)
-                {
-                    minValue = 0.5f;
-                    maxValue = 3.0f;
-                    increment = 0.01f;
-                }
-                if (var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-                {
-                    minValue = 1.5f;
-                    maxValue = 4.0f;
-                    increment = 0.5f;
-                }
-                if (var8 == EnumOptions.DISTORTION_FIT_POINT)
-                {
-                    minValue = 0.0f;
-                    maxValue = 14.0f;
-                    increment = 1.0f;
-                }
+//                if (var8 == EnumOptions.IPD)
+//                {
+//                    minValue = 0.055f;
+//                    maxValue = 0.075f;
+//                }
 
-                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
-                slider.setEventHandler(this);
-                this.buttonList.add(slider);
+
+                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, precision, this.guiGameSettings.getOptionFloatValue(var8)));
             }
             else
             {
@@ -157,75 +120,20 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
             {
                 this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
                 par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
-
-                if (num == EnumOptions.HEAD_TRACK_PREDICTION)
-                {
-                    mc.headTracker.setPrediction(this.mc.gameSettings.headTrackPredictionTimeMs, this.mc.gameSettings.useHeadTrackPrediction);
-                }
             }
             else if (par1GuiButton.id == 200)
             {
                 this.mc.gameSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
-            else if (par1GuiButton.id == 201)
+            else if (par1GuiButton.id == 201) // Reset all
             {
-            	// Non-display settings
-            	/*
-				this.mc.gameSettings.playerHeight = 1.74f;
-				this.mc.gameSettings.eyeProtrusion = 0.185f;
-				this.mc.gameSettings.neckBaseToEyeHeight = 0.225f;
-			    this.mc.gameSettings.movementSpeedMultiplier = 1.0f;
-			    this.mc.gameSettings.hudScale = 1.0f;
-			    this.mc.gameSettings.allowMousePitchInput = false;
-			    this.mc.gameSettings.hudDistance = 1.0f;
-			    */
 
-			    this.mc.gameSettings.useHudOpacity = false;
-			    this.mc.gameSettings.renderHeadWear = false;
-			    this.mc.gameSettings.useDistortion = true;
-			    this.mc.gameSettings.useHeadTracking = true;
-			    this.mc.gameSettings.useHeadTrackPrediction = true;
-                mc.headTracker.setPrediction(this.mc.gameSettings.headTrackPredictionTimeMs, this.mc.gameSettings.useHeadTrackPrediction);
-			    this.mc.gameSettings.ipd = 0.0635F;
-                mc.hmdInfo.setIPD(this.mc.gameSettings.ipd);
-			    this.mc.gameSettings.useChromaticAbCorrection = false;
-			    this.mc.gameSettings.fovScaleFactor = 1.0f;
-			    this.mc.gameSettings.distortionFitPoint = 5;
-			    this.mc.gameSettings.headTrackSensitivity = 1.0f;
-			    this.mc.gameSettings.useSupersample = false;
-			    this.mc.gameSettings.superSampleScaleFactor = 2.0f;
-	            if (vrRenderer != null)
-	                vrRenderer._FBOInitialised = false;
-			    this.mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
             }
-
-            if (num == EnumOptions.USE_DISTORTION ||
-	            num == EnumOptions.SUPERSAMPLING ||
-	            num == EnumOptions.IPD ||
-	            num == EnumOptions.CHROM_AB_CORRECTION)
-	        {
-	            if (vrRenderer != null)
-	                vrRenderer._FBOInitialised = false;
-	            //TODO: need to do something else for dragging Distortion Border and Render Scale while the options are enabled...
-	            //this.mc.resize(mc.displayFBWidth,mc.displayFBHeight);
-	            //Display.update();
-	        }
-        }
-    }
-
-    @Override
-    public void event(int id, EnumOptions enumm)
-    {
-        if (enumm == EnumOptions.IPD)
-        {
-            mc.hmdInfo.setIPD(this.mc.gameSettings.ipd);
-        }
-        if (enumm == EnumOptions.DISTORTION_FIT_POINT ||
-            enumm == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-        {
-            if (vrRenderer != null)
-                vrRenderer._FBOInitialised = false;
+            else if (par1GuiButton.id == 202) // Reset origin
+            {
+                this.guiGameSettings.resetPositionalTrackPos = true;
+            }
         }
     }
 
@@ -287,8 +195,8 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
     private String[] getTooltipLines(String var1)
     {
         return var1.equals("Chrom. Ab. Correction") ? new String[] {"Chromatic aberration correction", "  OFF - no correction", "  ON - correction applied"} :
-              (var1.equals("Chrom. Ab. Correction") ? new String[] {"Chromatic aberration correction", "  OFF - no correction", "  ON - correction applied"} :
-               null);
+                (var1.equals("Chrom. Ab. Correction") ? new String[] {"Chromatic aberration correction", "  OFF - no correction", "  ON - correction applied"} :
+                        null);
     }
 
     private String getButtonName(String var1)
