@@ -248,7 +248,7 @@
  
          if (this.gameSettings.language != null)
          {
-@@ -413,13 +347,24 @@
+@@ -413,13 +347,22 @@
  
          ColorizerGrass.setGrassBiomeColorizer(this.renderEngine.getTextureContents("/misc/grasscolor.png"));
          ColorizerFoliage.setFoliageBiomeColorizer(this.renderEngine.getTextureContents("/misc/foliagecolor.png"));
@@ -263,10 +263,8 @@
 +        try {
 +			Class.forName("com.mtbs3d.minecrift.MCHydra").newInstance();//creates and registers MCHydra if it can be (if the libraries are found) 
 +		} catch (Exception e1) { }
-+        MCHydra newHydra = new MCHydra();
 +        MCOculus newOculus = new MCOculus();
 +        BasePlugin.register(newOculus);
-+        BasePlugin.register(newHydra);
 +
 +        //uses mouseHelper
 +        setUseVRRenderer( gameSettings.useVRRenderer );
@@ -274,7 +272,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -436,8 +381,14 @@
+@@ -436,8 +379,14 @@
          this.sndManager.loadSoundSettings(this.gameSettings);
          this.renderGlobal = new RenderGlobal(this, this.renderEngine);
          this.renderEngine.refreshTextureMaps();
@@ -290,7 +288,7 @@
  
          try
          {
-@@ -450,12 +401,35 @@
+@@ -450,12 +399,35 @@
          }
  
          this.checkGLError("Post startup");
@@ -327,7 +325,7 @@
          else
          {
              this.displayGuiScreen(new GuiMainMenu());
-@@ -467,6 +441,11 @@
+@@ -467,6 +439,11 @@
          {
              this.toggleFullscreen();
          }
@@ -339,7 +337,7 @@
      }
  
      /**
-@@ -628,21 +607,28 @@
+@@ -628,21 +605,28 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -372,7 +370,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -700,6 +686,8 @@
+@@ -700,6 +684,8 @@
              this.sndManager.closeMinecraft();
              Mouse.destroy();
              Keyboard.destroy();
@@ -381,7 +379,7 @@
          }
          finally
          {
-@@ -830,7 +818,8 @@
+@@ -830,7 +816,8 @@
              this.checkGLError("Pre render");
              RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;
              this.mcProfiler.endStartSection("sound");
@@ -391,7 +389,7 @@
  
              if (!this.isGamePaused)
              {
-@@ -856,9 +845,39 @@
+@@ -856,9 +843,39 @@
  
              if (!this.skipRenderWorld)
              {
@@ -431,7 +429,7 @@
              }
  
              GL11.glFlush();
-@@ -869,7 +888,7 @@
+@@ -869,7 +886,7 @@
                  this.toggleFullscreen();
              }
  
@@ -440,7 +438,7 @@
              {
                  if (!this.mcProfiler.profilingEnabled)
                  {
-@@ -885,7 +904,7 @@
+@@ -885,7 +902,7 @@
                  this.prevFrameTime = System.nanoTime();
              }
  
@@ -449,7 +447,7 @@
              this.mcProfiler.startSection("root");
              Thread.yield();
  
-@@ -896,22 +915,21 @@
+@@ -896,22 +913,21 @@
  
              this.screenshotListener();
  
@@ -480,7 +478,7 @@
              }
  
              this.checkGLError("Post render");
-@@ -999,7 +1017,7 @@
+@@ -999,7 +1015,7 @@
              if (!this.isTakingScreenshot)
              {
                  this.isTakingScreenshot = true;
@@ -489,7 +487,7 @@
              }
          }
          else
-@@ -1188,15 +1206,31 @@
+@@ -1188,15 +1204,31 @@
      }
  
      /**
@@ -526,7 +524,7 @@
          }
      }
  
-@@ -1207,6 +1241,7 @@
+@@ -1207,6 +1239,7 @@
      {
          if (this.currentScreen == null)
          {
@@ -534,7 +532,7 @@
              this.displayGuiScreen(new GuiIngameMenu());
  
              if (this.isSingleplayer() && !this.theIntegratedServer.getPublic())
-@@ -1346,48 +1381,20 @@
+@@ -1346,48 +1379,20 @@
              if (this.fullscreen)
              {
                  Display.setDisplayMode(Display.getDesktopDisplayMode());
@@ -586,7 +584,7 @@
              Display.setFullscreen(this.fullscreen);
              Display.setVSyncEnabled(this.gameSettings.enableVsync);
              Display.update();
-@@ -1401,17 +1408,34 @@
+@@ -1401,17 +1406,34 @@
      /**
       * Called to resize the current screen.
       */
@@ -627,7 +625,7 @@
          }
      }
  
-@@ -1420,10 +1444,23 @@
+@@ -1420,10 +1442,23 @@
       */
      public void runTick()
      {
@@ -651,7 +649,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1451,21 +1488,24 @@
+@@ -1451,21 +1486,24 @@
              this.renderEngine.updateDynamicTextures();
          }
  
@@ -685,7 +683,7 @@
  
          if (this.currentScreen != null)
          {
-@@ -1565,7 +1605,7 @@
+@@ -1565,7 +1603,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -694,7 +692,7 @@
                      }
                  }
              }
-@@ -1623,6 +1663,11 @@
+@@ -1623,6 +1661,11 @@
                                  this.displayInGameMenu();
                              }
  
@@ -706,7 +704,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.forceReload();
-@@ -1667,10 +1712,11 @@
+@@ -1667,10 +1710,11 @@
                                  this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
                              }
  
@@ -719,7 +717,7 @@
                              }
  
                              if (Keyboard.getEventKey() == 63)
-@@ -1795,6 +1841,13 @@
+@@ -1795,6 +1839,13 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
@@ -733,7 +731,7 @@
  
          if (this.theWorld != null)
          {
-@@ -1881,6 +1934,11 @@
+@@ -1881,6 +1932,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -745,7 +743,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1925,8 +1983,43 @@
+@@ -1925,8 +1981,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -789,7 +787,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(StatCollector.translateToLocal("menu.loadingLevel"));
  
-@@ -1980,6 +2073,11 @@
+@@ -1980,6 +2071,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -801,7 +799,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -2021,6 +2119,7 @@
+@@ -2021,6 +2117,7 @@
  
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -809,7 +807,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2178,6 +2277,31 @@
+@@ -2178,6 +2275,31 @@
  
      public static void main(String[] par0ArrayOfStr)
      {
@@ -841,7 +839,7 @@
          HashMap var1 = new HashMap();
          boolean var2 = false;
          boolean var3 = true;
-@@ -2319,103 +2443,110 @@
+@@ -2319,103 +2441,110 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1047,7 +1045,7 @@
  
              if (var1)
              {
-@@ -2507,8 +2638,13 @@
+@@ -2507,8 +2636,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1061,7 +1059,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2516,6 +2652,7 @@
+@@ -2516,6 +2650,7 @@
  
              if (var1 != 0)
              {
@@ -1069,7 +1067,7 @@
                  return var0;
              }
          }
-@@ -2609,4 +2746,104 @@
+@@ -2609,4 +2744,104 @@
      {
          return this.field_94139_O;
      }
