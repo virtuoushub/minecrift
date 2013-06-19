@@ -10,15 +10,23 @@ import net.minecraft.src.*;
  * Time: 4:23 PM
  * To change this template use File | Settings | File Templates.
  */
-public class GuiHydraSettings extends GuiScreen
+public class GuiHydraSettings extends GuiScreen implements GuiEventEx
 {
     static EnumOptions[] hydraOptions = new EnumOptions[] {
+        EnumOptions.POS_TRACK_HYDRALOC,
+        EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE,
+        EnumOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE,
+        EnumOptions.POS_TRACK_HYDRA_OFFSET_X,
+        EnumOptions.DUMMY,
+        EnumOptions.POS_TRACK_HYDRA_OFFSET_Y,
+        EnumOptions.DUMMY,
+        EnumOptions.POS_TRACK_HYDRA_OFFSET_Z,
     };
 
     private GuiScreen parentGuiScreen;
 
     /** The title string that is displayed in the top-center of the screen. */
-    protected String screenTitle = "Hydra Settings";
+    protected String screenTitle = "Positional Tracking Configuration";
 
     /** GUI game settings */
     private GameSettings guiGameSettings;
@@ -26,6 +34,9 @@ public class GuiHydraSettings extends GuiScreen
     private int lastMouseX = 0;
     private int lastMouseY = 0;
     private long mouseStillTime = 0L;
+
+    protected boolean reinit = false;
+    protected boolean reinitOffsetDefaults = false;
 
     private VRRenderer vrRenderer;
 
@@ -49,12 +60,26 @@ public class GuiHydraSettings extends GuiScreen
      */
     public void initGui()
     {
+        if (this.reinitOffsetDefaults)
+        {
+            setHydraLocOffsetDefaults();
+            this.reinitOffsetDefaults = false;
+        }
+
         StringTranslate stringTranslate = StringTranslate.getInstance();
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+
+        GuiSmallButtonEx posMethodButton = new GuiSmallButtonEx(EnumOptions.POS_TRACK_METHOD.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.POS_TRACK_METHOD, this.guiGameSettings.getKeyBinding(EnumOptions.POS_TRACK_METHOD));
+        posMethodButton.setEventHandler(this);
+        this.buttonList.add(posMethodButton);
+
         //this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
-        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 108, "Reset Origin Point"));
+        GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 108, "Reset Origin Point");
+        resetPosButton.enabled = this.guiGameSettings.posTrackMethod == GameSettings.POS_TRACK_HYDRA ? true : false;
+        this.buttonList.add(resetPosButton);
+
         this.is64bit = false;
         String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
         String[] var3 = archStrings;
@@ -77,34 +102,74 @@ public class GuiHydraSettings extends GuiScreen
         EnumOptions[] var10 = hydraOptions;
         int var11 = var10.length;
 
-        for (int var12 = 0; var12 < var11; ++var12)
+        for (int var12 = 2; var12 < var11 + 2; ++var12)
         {
-            EnumOptions var8 = var10[var12];
+            EnumOptions var8 = var10[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
-            if (var8.getEnumFloat())
+            if (var8 != EnumOptions.DUMMY)
             {
-                float minValue = 0.0f;
-                float maxValue = 1.0f;
-                int precision = 2;
+                if (var8.getEnumFloat())
+                {
+                    float minValue = 0.0f;
+                    float maxValue = 1.0f;
+                    float increment = 0.01f;
 
-//                if (var8 == EnumOptions.IPD)
-//                {
-//                    minValue = 0.055f;
-//                    maxValue = 0.075f;
-//                }
+                    if (var8 == EnumOptions.POS_TRACK_HYDRA_OFFSET_X || var8 == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y)
+                    {
+                        minValue = -0.30f;
+                        maxValue = 0.30f;
+                        increment = 0.001f;
+                    }
+                    else if (var8 == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
+                    {
+                        minValue = -0.30f;
+                        maxValue = 0.30f;
+                        increment = 0.001f;
+                    }
+                    else if (var8 == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
+                    {
+                        minValue = 0.8f;
+                        maxValue = 1.2f;
+                        increment = 0.001f;
+                    }
 
-
-                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, precision, this.guiGameSettings.getOptionFloatValue(var8)));
-            }
-            else
-            {
-                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
+                    GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
+                    slider.setEventHandler(this);
+                    slider.enabled = getEnabledState(var8);
+                    this.buttonList.add(slider);
+                }
+                else
+                {
+                    GuiSmallButtonEx smallButton = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8));
+                    smallButton.setEventHandler(this);
+                    smallButton.enabled = getEnabledState(var8);
+                    this.buttonList.add(smallButton);
+                }
             }
 
             ++var9;
         }
+    }
+
+    private boolean getEnabledState(EnumOptions var8)
+    {
+        boolean enabled = false;
+        String s = var8.getEnumString();
+
+        if (this.guiGameSettings.posTrackMethod != GameSettings.POS_TRACK_HYDRA)
+        {
+            return false;
+        }
+
+        if (var8 == EnumOptions.POS_TRACK_HYDRALOC || var8 == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
+            return true;
+
+        if (this.guiGameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
+            return false;
+
+        return true;
     }
 
     /**
@@ -132,7 +197,7 @@ public class GuiHydraSettings extends GuiScreen
             }
             else if (par1GuiButton.id == 202) // Reset origin
             {
-                this.guiGameSettings.resetPositionalTrackPos = true;
+                this.guiGameSettings.posTrackResetPosition = true;
             }
         }
     }
@@ -142,6 +207,12 @@ public class GuiHydraSettings extends GuiScreen
      */
     public void drawScreen(int par1, int par2, float par3)
     {
+        if (reinit)
+        {
+            initGui();
+            reinit = false;
+        }
+
         this.drawDefaultBackground();
         this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 20, 16777215);
         super.drawScreen(par1, par2, par3);
@@ -219,5 +290,47 @@ public class GuiHydraSettings extends GuiScreen
         }
 
         return null;
+    }
+
+    @Override
+    public void event(int id, EnumOptions enumm)
+    {
+        if (enumm == EnumOptions.POS_TRACK_HYDRALOC)
+        {
+            this.reinitOffsetDefaults = true;
+        }
+
+        if (enumm == EnumOptions.POS_TRACK_METHOD ||
+            enumm == EnumOptions.POS_TRACK_HYDRALOC)
+        {
+            this.reinit = true;
+        }
+    }
+
+    private void setHydraLocOffsetDefaults()
+    {
+        switch (this.guiGameSettings.posTrackHydraLoc)
+        {
+            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
+                this.guiGameSettings.posTrackHydraOffsetX = 0.108f;
+                this.guiGameSettings.posTrackHydraOffsetY = 0.0f;
+                this.guiGameSettings.posTrackHydraOffsetZ = 0.0f;
+                break;
+            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
+                this.guiGameSettings.posTrackHydraOffsetX = 0.0f;
+                this.guiGameSettings.posTrackHydraOffsetY = -0.085f;
+                this.guiGameSettings.posTrackHydraOffsetZ = 0.0f;
+                break;
+            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
+                this.guiGameSettings.posTrackHydraOffsetX = -0.108f;
+                this.guiGameSettings.posTrackHydraOffsetY = 0.0f;
+                this.guiGameSettings.posTrackHydraOffsetZ = 0.0f;
+                break;
+            default:
+                this.guiGameSettings.posTrackHydraOffsetX = 0.0f;
+                this.guiGameSettings.posTrackHydraOffsetY = 0.0f;
+                this.guiGameSettings.posTrackHydraOffsetZ = 0.0f;
+                break;
+        }
     }
 }

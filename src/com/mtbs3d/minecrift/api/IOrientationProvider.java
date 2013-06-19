@@ -43,4 +43,10 @@ public interface IOrientationProvider extends IBasePlugin {
      * @return The Roll degrees 
      */
     public float getRollDegrees_LH();
+
+	void beginAutomaticCalibration();
+
+	void updateAutomaticCalibration();
+
+	boolean isCalibrated();
 }

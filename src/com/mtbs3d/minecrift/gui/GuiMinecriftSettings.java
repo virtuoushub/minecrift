@@ -1,5 +1,6 @@
-package com.mtbs3d.minecrift;
+package com.mtbs3d.minecrift.gui;
 
+import com.mtbs3d.minecrift.VRRenderer;
 import com.mtbs3d.minecrift.gui.*;
 
 import net.minecraft.client.Minecraft;
@@ -28,7 +29,7 @@ public class GuiMinecriftSettings extends GuiScreen
 	private GuiScreen parentGuiScreen;
 
     /** The title string that is displayed in the top-center of the screen. */
-    protected String screenTitle = "Minecrift Settings";
+    protected String screenTitle = "VR Settings";
 
     /** GUI game settings */
     private GameSettings guiGameSettings;
@@ -65,7 +66,7 @@ public class GuiMinecriftSettings extends GuiScreen
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Oculus Settings..."));
-        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Hydra Settings..."));
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Positional Tracking..."));
         this.is64bit = false;
         String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
         String[] var3 = archStrings;

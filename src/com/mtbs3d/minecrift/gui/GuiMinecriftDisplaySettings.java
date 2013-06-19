@@ -66,6 +66,7 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
         this.is64bit = false;
         String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
         String[] var3 = archStrings;
@@ -198,6 +199,11 @@ public class GuiMinecriftDisplaySettings  extends GuiScreen implements GuiEventE
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
 			    this.mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
+            }
+            else if (par1GuiButton.id == 202)
+            {
+	            if (vrRenderer != null)
+	            	vrRenderer.startCalibration();
             }
 
             if (num == EnumOptions.USE_DISTORTION ||
