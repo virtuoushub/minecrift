@@ -1,1 +1,2 @@
-* eol=crlf
+*.java eol=crlf
+*.patch eol=crlf
