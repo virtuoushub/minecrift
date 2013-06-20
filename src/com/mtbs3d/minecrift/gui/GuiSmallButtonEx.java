@@ -1,5 +1,6 @@
 package com.mtbs3d.minecrift.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.src.EnumOptions;
 
 /**
@@ -12,6 +13,7 @@ import net.minecraft.src.EnumOptions;
 public class GuiSmallButtonEx extends GuiButtonEx
 {
     private final EnumOptions enumOptions;
+    GuiEventEx _eventHandler = null;
 
     public GuiSmallButtonEx(int par1, int par2, int par3, String par4Str)
     {
@@ -33,5 +35,20 @@ public class GuiSmallButtonEx extends GuiButtonEx
     public EnumOptions returnEnumOptions()
     {
         return this.enumOptions;
+    }
+
+    void setEventHandler(GuiEventEx eventHandler)
+    {
+        _eventHandler = eventHandler;
+    }
+
+    public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3)
+    {
+        boolean result = super.mousePressed(par1Minecraft, par2, par3);
+
+        if (_eventHandler != null && result)
+            _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, enumOptions);
+
+        return result;
     }
 }

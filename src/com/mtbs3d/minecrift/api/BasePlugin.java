@@ -17,7 +17,7 @@ public abstract class BasePlugin implements IBasePlugin {
 	static public List<IBasePlugin> allPlugins = new ArrayList<IBasePlugin>();
 	static public List<IHMDInfo> hmdInfoPlugins = new ArrayList<IHMDInfo>();
 	static public List<IOrientationProvider> orientPlugins = new ArrayList<IOrientationProvider>();
-	static public List<IHeadPositionProvider> positionPlugins = new ArrayList<IHeadPositionProvider>();
+	static public List<ICenterEyePositionProvider> positionPlugins = new ArrayList<ICenterEyePositionProvider>();
 
 	@Override
 	public String getID() { return pluginID; };
@@ -37,13 +37,12 @@ public abstract class BasePlugin implements IBasePlugin {
 	
 	public static void register( IBasePlugin that )
 	{
-		
 		if( that instanceof IHMDInfo )
 			hmdInfoPlugins.add((IHMDInfo) that);
 		if( that instanceof IOrientationProvider )
 			orientPlugins.add((IOrientationProvider) that);
-		if( that instanceof IHeadPositionProvider )
-			positionPlugins.add((IHeadPositionProvider) that);
+		if( that instanceof ICenterEyePositionProvider )
+			positionPlugins.add((ICenterEyePositionProvider) that);
 		allPlugins.add(that);
 	}
 
@@ -60,14 +59,8 @@ public abstract class BasePlugin implements IBasePlugin {
 	{
 		for( IBasePlugin p : allPlugins )
 		{
-			p.destroy();
-		}
-	}
-	public static void initAll() 
-	{
-		for( IBasePlugin p : allPlugins )
-		{
-			p.init();
+			if( p.isInitialized() )
+				p.destroy();
 		}
 	}
 }

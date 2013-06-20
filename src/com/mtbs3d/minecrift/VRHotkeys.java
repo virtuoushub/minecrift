@@ -20,8 +20,8 @@ public class VRHotkeys {
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
 	    	BasePlugin.destroyAll();
-	    	BasePlugin.initAll();
-	        mc.hmdInfo.setIPD(mc.gameSettings.ipd);
+	    	mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
+	    	mc.hmdInfo.setIPD(mc.gameSettings.ipd);
             mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeMs, mc.gameSettings.useHeadTrackPrediction);
 	    }
 	
@@ -208,5 +208,11 @@ public class VRHotkeys {
 	        mc.gameSettings.ipd = newIpd;
 	        mc.gameSettings.saveOptions();
 	    }
+
+        // Reset positional track origin
+        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        {
+            mc.gameSettings.posTrackResetPosition = true;
+        }
 	}
 }

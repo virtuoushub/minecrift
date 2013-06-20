@@ -75,7 +75,7 @@ public class GuiSliderEx extends GuiButtonEx
      */
     protected void mouseDragged(Minecraft par1Minecraft, int par2, int par3)
     {
-        if (this.drawButton)
+        if (this.enabled && this.drawButton)
         {
             if (this.dragging && par2 != this.lastMouseX)
             {
@@ -114,7 +114,7 @@ public class GuiSliderEx extends GuiButtonEx
      */
     public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3)
     {
-        if (super.mousePressed(par1Minecraft, par2, par3))
+        if (this.enabled && super.mousePressed(par1Minecraft, par2, par3))
         {
             float tempSliderValue = (float)(par2 - (this.xPosition + 4)) / (float)(this.width - 8);
 
@@ -167,9 +167,12 @@ public class GuiSliderEx extends GuiButtonEx
      */
     public void mouseReleased(int par1, int par2)
     {
-        this.lastMouseX = -1;
-        float range = this.maxValue - this.minValue;
-        this.sliderValue = (this.lastValue - this.minValue) / range;  // Sync slider pos with last (actual) value
-        this.dragging = false;
+        if (this.enabled)
+        {
+            this.lastMouseX = -1;
+            float range = this.maxValue - this.minValue;
+            this.sliderValue = (this.lastValue - this.minValue) / range;  // Sync slider pos with last (actual) value
+            this.dragging = false;
+        }
     }
 }
