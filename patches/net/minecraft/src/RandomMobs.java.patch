@@ -1,0 +1,23 @@
+--- a/net/minecraft/src/RandomMobs.java
++++ b/net/minecraft/src/RandomMobs.java
+@@ -81,14 +81,14 @@
+ 
+                 Entity var1 = renderGlobal.renderedEntity;
+ 
+-                if (var1 != null)
++                if (var1 == null)
+                 {
+-                    if (!(var1 instanceof EntityLiving))
+-                    {
+-                        var2 = var0;
+-                        return var2;
+-                    }
++                    var2 = var0;
++                    return var2;
++                }
+ 
++                if (var1 instanceof EntityLiving)
++                {
+                     EntityLiving var8 = (EntityLiving)var1;
+                     String var3;
+ 

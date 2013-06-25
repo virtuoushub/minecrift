@@ -1,3 +1,9 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ * 
+ * Contains code from Minecraft, copyright Mojang AB
+ */
 package com.mtbs3d.minecrift;
 
 import java.lang.reflect.Field;
@@ -21,19 +27,14 @@ import static java.lang.Math.ceil;
 
 public class VRRenderer extends EntityRenderer
 {
-    public float totalMouseYawDelta = 0.0f;
-    public float totalMousePitchDelta = 0.0f;
-    
-    public float aimYawKeyholeWidth = 40f; //degrees on either side of "forward"
-	private float aimYawKeyholePos = 0; //difference in yaw between "look" and "aim"
-
-    
     // FBO stuff
 
     //Status & initialization
     int _previousDisplayWidth = 0;
     int _previousDisplayHeight = 0;
     public boolean _FBOInitialised = false;
+    
+    boolean initialOrientationSet = false;
 
     // Shader Programs
     int _shaderProgramId = -1;
@@ -111,12 +112,13 @@ public class VRRenderer extends EntityRenderer
     GuiAchievement guiAchievement;
     EyeRenderParams eyeRenderParams;
 
-    protected float headYaw = 0.0F;
-    protected float headPitch = 0.0F;
-
 	double renderOriginX;
 	double renderOriginY;
 	double renderOriginZ;
+
+    float headYaw = 0.0F; //relative to head tracker reference frame, absolute
+    float headPitch = 0.0F;
+	float guiHeadYaw = 0.0f; //Not including mouse
 
 	float camRelX;
 	float camRelY;
@@ -133,17 +135,15 @@ public class VRRenderer extends EntityRenderer
 	float aimX; //In world coordinates
 	float aimY;
 	float aimZ;
+	
+	float aimYaw;
+	float aimPitch;
     
     boolean superSampleSupported;
 	private boolean guiShowingLastFrame = false; //Used for detecting when UI is shown, fixing the guiYaw 
 
-	float guiHeadYaw = 0.0f; //Not including mouse
-	private String debugMessage = "";
-	
 	// Calibration
-	boolean isCalibrating = false;
-	boolean isCalibrated  = false;
-	private float bodyYaw;
+	private CalibrationHelper calibrationHelper;
 
     public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv )
     {
@@ -160,6 +160,8 @@ public class VRRenderer extends EntityRenderer
     	{
     		superSampleSupported = false;
     	}
+    	
+    	calibrationHelper = new CalibrationHelper(par1Minecraft);
     }
 
 
@@ -403,7 +405,7 @@ public class VRRenderer extends EntityRenderer
             sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
 	        float PIOVER180 = (float)(Math.PI/180);
 
-	        Vec3 up = Vec3.fakePool.getVecFromPool(0, 1, 0);
+	        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
 	        up.rotateAroundZ(-cameraRoll * PIOVER180);
 	        up.rotateAroundX(-cameraPitch* PIOVER180);
 	        up.rotateAroundY(-cameraYaw  * PIOVER180);
@@ -415,78 +417,33 @@ public class VRRenderer extends EntityRenderer
     
     protected void updateCamera( float renderPartialTicks, boolean displayActive )
     {
-        float headRoll = 0.0f;
         float PIOVER180 = (float)(Math.PI/180);
         EntityLiving entity = this.mc.renderViewEntity;
         
-        if(!this.isCalibrated)
+        //runs a step of calibration
+        if(calibrationHelper != null &&  calibrationHelper.allPluginsCalibrated())
         {
-        	if(!this.isCalibrating)
-        	{
-        		mc.headTracker.beginAutomaticCalibration();
-        		this.isCalibrating = true;
-        	}
-        	mc.headTracker.updateAutomaticCalibration();
-        	this.isCalibrated = mc.headTracker.isCalibrated();
+    		calibrationHelper = null;
         }
 
         BasePlugin.pollAll();
-        debugMessage = mc.headTracker.getInitializationStatus()+"\n"+mc.positionTracker.getInitializationStatus();
-        if(entity != null)
-	        this.bodyYaw   = entity.prevRotationYaw   + (entity.rotationYaw   - entity.prevRotationYaw  ) * renderPartialTicks;
+        
+        float lookYawOffset   = mc.lookaimController.getLookYawOffset();
+        float lookPitchOffset = mc.lookaimController.getLookPitchOffset(); 
+        
+        aimYaw    = mc.lookaimController.getAimYaw();
+        aimPitch  = mc.lookaimController.getAimPitch();
+        
         if (mc.headTracker.isInitialized() && this.mc.gameSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
                                                          // Roll multiplier is a one-way trip to barf-ville!
-            headRoll = cameraRoll = mc.headTracker.getRollDegrees_LH()  * this.mc.gameSettings.headTrackSensitivity;
-            headPitch             = mc.headTracker.getPitchDegrees_LH() * this.mc.gameSettings.headTrackSensitivity;
-            headYaw               = mc.headTracker.getYawDegrees_LH()   * this.mc.gameSettings.headTrackSensitivity;
+            cameraRoll = mc.headTracker.getRollDegrees_LH()  * this.mc.gameSettings.headTrackSensitivity;
+            headPitch  = mc.headTracker.getPitchDegrees_LH() * this.mc.gameSettings.headTrackSensitivity;
+            headYaw    = mc.headTracker.getYawDegrees_LH()   * this.mc.gameSettings.headTrackSensitivity;
 
-            if (this.mc.inGameHasFocus && displayActive)
-            {
-                this.mc.mouseHelper.mouseXYChange();
-                float mouseSensitivityMultiplier1 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
-                float mouseSensitivityMultiplier2 = mouseSensitivityMultiplier1 * mouseSensitivityMultiplier1 * mouseSensitivityMultiplier1 * 8.0F;
-                float adjustedMouseDeltaX = (float)this.mc.mouseHelper.deltaX * mouseSensitivityMultiplier2;
-                float adjustedMouseDeltaY = (float)this.mc.mouseHelper.deltaY * mouseSensitivityMultiplier2;
-                byte yDirection = -1;
-
-                if (this.mc.gameSettings.invertMouse)
-                {
-                    yDirection = 1;
-                }
-
-                if (this.mc.gameSettings.smoothCamera)
-                {
-                    this.smoothCamYaw += adjustedMouseDeltaX;
-                    float smoothTicks = renderPartialTicks - this.smoothCamPartialTicks;
-                    this.smoothCamPartialTicks = renderPartialTicks;
-                    adjustedMouseDeltaX = this.smoothCamFilterX * smoothTicks * 0.15f;
-                    adjustedMouseDeltaY = this.smoothCamFilterY * smoothTicks * (float)yDirection * 0.15f;
-                }
-
-                if( Math.abs(aimYawKeyholePos + adjustedMouseDeltaX/4) > aimYawKeyholeWidth )
-                {
-	                totalMouseYawDelta += adjustedMouseDeltaX ;
-	                totalMouseYawDelta %= 360;
-                }
-                else
-                {
-                	aimYawKeyholePos += adjustedMouseDeltaX/4;
-                }
-
-                // Allow mouse pitch delta
-                totalMousePitchDelta += (adjustedMouseDeltaY * (float)yDirection)/4;
-                //170degrees works about right, but nothing scientific about it.
-                if (totalMousePitchDelta > 170.0f-cameraPitch)
-                    totalMousePitchDelta = 170.0f-cameraPitch;
-                else if (totalMousePitchDelta < -170.0f - cameraPitch)
-                    totalMousePitchDelta = -170.f - cameraPitch;
-            }
-            cameraPitch = headPitch ;
-            if( mc.gameSettings.allowMousePitchInput )
-            	cameraPitch += totalMousePitchDelta;
-            cameraYaw   = (totalMouseYawDelta  + headYaw ) % 360;
+            cameraPitch = (lookPitchOffset + headPitch )%180;
+            cameraYaw   = (lookYawOffset   + headYaw ) % 360;
             
             // Correct for gimbal lock prevention
             if (cameraPitch > IOrientationProvider.MAXPITCH)
@@ -504,7 +461,7 @@ public class VRRenderer extends EntityRenderer
             	this.mc.thePlayer.rotationPitch = cameraPitch;
 
             	if( this.mc.gameSettings.lookMoveDecoupled )
-            		this.mc.thePlayer.rotationYaw = totalMouseYawDelta;
+            		this.mc.thePlayer.rotationYaw = lookYawOffset;
             	else
                 	this.mc.thePlayer.rotationYaw = cameraYaw;
             }
@@ -512,70 +469,61 @@ public class VRRenderer extends EntityRenderer
         }
         else
         {
-        	//TODO: pull this out to support hydra free-aim if no oculus?
-            super.updateCamera(renderPartialTicks, displayActive);
-            if( entity != null )
-            {
-	            this.cameraPitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * renderPartialTicks;
-	            this.cameraYaw = bodyYaw;
-	            this.totalMouseYawDelta = this.cameraYaw;
-	            this.totalMousePitchDelta = this.cameraPitch;
-            }
-            else
-            {
-            	//Perhaps in a menu?
-            	this.cameraPitch = 0;
-            	this.cameraYaw = 0;
-	            this.totalMouseYawDelta = 0;
-	            this.totalMousePitchDelta = 0;
-            }
+        	cameraRoll = 0;
+        	cameraPitch = lookPitchOffset;
+        	cameraYaw = lookYawOffset;
         }
-
-        mc.positionTracker.update(headYaw, cameraPitch, cameraRoll, totalMouseYawDelta, 0.0f, 0.0f);
+        
+        //if(aimPitch > cameraPitch + 45 )
+        //	aimPitch = cameraPitch + 45;
+        
+        if( entity != null )
+        {
+        	//set movement direction
+        	if( this.mc.gameSettings.lookMoveDecoupled )
+	        	entity.rotationYaw = lookYawOffset;
+        	else
+        		entity.rotationYaw = cameraYaw;
+        	entity.rotationYawHead = cameraYaw;
+        	entity.rotationPitch = cameraPitch;
+        	
+        }
 
         if (this.mc.gameSettings.posTrackResetPosition)
         {
             mc.positionTracker.resetOrigin();
+            mc.headTracker.resetOrigin();
             this.mc.gameSettings.posTrackResetPosition = false;
         }
 
+        //TODO: not sure if headPitch or cameraPitch is better here... they really should be the same; silly
+        //people with their "pitch affects camera" settings.
+        //At any rate, using cameraPitch makes the UI look less silly
+        mc.positionTracker.update(headYaw, cameraPitch, cameraRoll, lookYawOffset, 0.0f, 0.0f);
+
         //Do head/neck model in non-GL math so we can use camera location(between eyes)
         Vec3 cameraOffset = mc.positionTracker.getCenterEyePosition();
-        //System.out.println(String.format("Centre Eye pos:   (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf((float)cameraOffset.xCoord * 100.0f), Float.valueOf((float)cameraOffset.yCoord * 100.0f), Float.valueOf((float)cameraOffset.zCoord * 100.0f)}));
-
-        cameraOffset.rotateAroundY( 180 * PIOVER180 ); //TODO: this seems hacky.
+        cameraOffset.rotateAroundY((float)Math.PI);
 
         //The worldOrigin is at player "eye height" (1.62) above foot position
-        camRelX = (float)cameraOffset.xCoord;
-        camRelY = (float)cameraOffset.yCoord;
-        camRelZ = (float)cameraOffset.zCoord;
+        camRelX = (float)cameraOffset.xCoord; camRelY = (float)cameraOffset.yCoord; camRelZ = (float)cameraOffset.zCoord;
 
-        Vec3 look = Vec3.fakePool.getVecFromPool(0, 0, 1);
+        Vec3 look = Vec3.createVectorHelper(0, 0, 1);
         look.rotateAroundX(-cameraPitch* PIOVER180);
         look.rotateAroundY(-cameraYaw  * PIOVER180);
         lookX = (float)look.xCoord; lookY = (float)look.yCoord; lookZ = (float)look.zCoord;
         
-        boolean decoupleLookAim = true;
-        
-        Vec3 aim = Vec3.fakePool.getVecFromPool(0, 0, 1);
-        if( decoupleLookAim && !mc.gameSettings.allowMousePitchInput )
-        {
-	        aim.rotateAroundX((-totalMousePitchDelta) * PIOVER180);
-        }
-        else
-        {
-	        look.rotateAroundX(-cameraPitch* PIOVER180);
-        }
-        
-        if( decoupleLookAim )
-        {
-        	aim.rotateAroundY(- (bodyYaw + aimYawKeyholePos) * PIOVER180);
-        }
-        else
-        {
-        	aim.rotateAroundY(-cameraYaw  * PIOVER180);
-        }
+        Vec3 aim = Vec3.createVectorHelper(0, 0, 1);
+        aim.rotateAroundX(-aimPitch * PIOVER180);
+    	aim.rotateAroundY(-aimYaw   * PIOVER180);
         aimX = (float)aim.xCoord; aimY = (float)aim.yCoord; aimZ = (float)aim.zCoord;
+        
+        if( calibrationHelper == null && !initialOrientationSet )
+        {
+        	//Hit once at startup after calibration completes
+        	guiHeadYaw = cameraYaw;
+        	initialOrientationSet = true;
+        }
     } 
 
     protected void renderGUIandWorld(float renderPartialTicks)
@@ -624,7 +572,7 @@ public class VRRenderer extends EntityRenderer
         boolean guiShowingThisFrame = false;
         int mouseX = 0;
         int mouseY = 0;
-        if ( (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI) || this.mc.currentScreen != null )
+        if ( (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI && this.mc.thePlayer.getSleepTimer() == 0) || this.mc.currentScreen != null )
         {
 
 	    	//Render all UI elements into guiFBO
@@ -639,7 +587,6 @@ public class VRRenderer extends EntityRenderer
 	        GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
 	    	GL11.glClearColor(0, 0, 0, 0);
 	    	GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
-	        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 	        GL11.glMatrixMode(GL11.GL_PROJECTION);
 	        GL11.glLoadIdentity();
 	        GL11.glOrtho(0.0D, var15.getScaledWidth_double(), var15.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
@@ -658,18 +605,9 @@ public class VRRenderer extends EntityRenderer
 				Reflector.ForgeGuiIngame_renderCrosshairs.setValue(false);
 				Reflector.ForgeGuiIngame_renderHelmet.setValue(false);
 			}
-			
-			GL11.glColor3f(0,0,0);//Some things don't set the draw color; black is best
-			GL11.glClearColor(0, 0, 0, 1);
 			//Draw in game GUI
             this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
             guiAchievement.updateAchievementWindow();
-            if( !mc.headTracker.isInitialized() )
-	        	mc.fontRenderer.drawStringWithShadow(mc.headTracker.getName()+": " + mc.headTracker.getInitializationStatus(), 200, 100, /*white*/16777215);
-            if( mc.hmdInfo != mc.headTracker && !mc.hmdInfo.isInitialized() )
-	        	mc.fontRenderer.drawStringWithShadow(mc.hmdInfo.getName()+": "+mc.hmdInfo.getInitializationStatus(), 200, 90, /*white*/16777215);
-            if( mc.positionTracker != mc.headTracker && !mc.positionTracker.isInitialized() )
-	        	mc.fontRenderer.drawStringWithShadow(mc.positionTracker.getName()+": "+mc.positionTracker.getInitializationStatus(), 200, 110, /*white*/16777215);
         }
 
         if( this.mc.currentScreen != null )
@@ -714,7 +652,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
         //setup camera (polls rift, reads mouse inputs, etc). Sets cameraPitch, cameraYaw, and cameraRoll, compute neck-model camera position, sets look vector
-        updateCamera(renderPartialTicks, Display.isActive());
+        //updateCamera(renderPartialTicks, Display.isActive());
 
         if (this.mc.theWorld != null)
         {
@@ -748,8 +686,8 @@ public class VRRenderer extends EntityRenderer
         //Update gui Yaw
         if( guiShowingThisFrame && !guiShowingLastFrame )
         {
-        	guiHeadYaw = this.cameraYaw - this.totalMouseYawDelta;
-        }
+        	guiHeadYaw = this.cameraYaw - this.mc.lookaimController.getLookYawOffset();
+        } 
         guiShowingLastFrame = guiShowingThisFrame;
         
 
@@ -781,18 +719,26 @@ public class VRRenderer extends EntityRenderer
         	if( guiShowingThisFrame )
         	{
 
+        		GL11.glPushMatrix();
 		        GL11.glEnable(GL11.GL_TEXTURE_2D);
 		        guiFBO.bindTexture();
 
 		        
-		        float guiYaw;
-		        if( this.mc.gameSettings.lookMoveDecoupled )
-		        	guiYaw = totalMouseYawDelta;
+		        if( initialOrientationSet )
+		        {
+			        float guiYaw;
+			        if( this.mc.theWorld != null && this.mc.gameSettings.lookMoveDecoupled)
+			        	guiYaw = this.mc.lookaimController.getLookYawOffset();
+			        else
+				        guiYaw = guiHeadYaw + this.mc.lookaimController.getLookYawOffset();
+					GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
+		        }
 		        else
-		        	guiYaw = guiHeadYaw + totalMouseYawDelta;
-				GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
-				if( false ) //TODO: allow if HUD folllows mouse pitch
-					GL11.glRotatef(this.totalMousePitchDelta, 1f, 0f, 0f);
+		        {
+					GL11.glRotatef(-cameraYaw, 0f, 1f, 0f);
+		        }
+				if( this.mc.gameSettings.pitchInputAffectsCamera)
+		        	GL11.glRotatef( this.mc.lookaimController.getLookPitchOffset(), 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.gameSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
 				if( this.mc.gameSettings.useHudOpacity )
@@ -809,10 +755,29 @@ public class VRRenderer extends EntityRenderer
 				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*this.mc.gameSettings.hudDistance);
 		        GL11.glDisable(GL11.GL_BLEND);
 		        GL11.glEnable(GL11.GL_DEPTH_TEST);
+		        GL11.glPopMatrix();
 		
 		        unbindTexture();
+		        this.mc.renderEngine.resetBoundTexture();
 	        	mc.checkGLError("GUI");
         	}
+
+	    	if( calibrationHelper != null )
+	    	{
+		        GL11.glDisable(GL11.GL_DEPTH_TEST);
+	            GL11.glPushMatrix();
+	            GL11.glTranslatef(lookX*mc.gameSettings.hudDistance,lookY*mc.gameSettings.hudDistance,lookZ*mc.gameSettings.hudDistance);
+	            GL11.glRotatef(-this.cameraYaw, 0.0F, 1.0F, 0.0F);
+	            GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
+	            GL11.glRotatef(180+this.cameraRoll, 0.0F, 0.0F, 1.0F);
+	            GL11.glScaled(0.02, 0.02, 0.02);
+	            String calibrating = "Calibrating "+calibrationHelper.currentPlugin.getName()+"...";
+	        	mc.fontRenderer.drawStringWithShadow(calibrating, -mc.fontRenderer.getStringWidth(calibrating)/2, -8, /*white*/16777215);
+	        	String calibrationStep = calibrationHelper.calibrationStep;
+	        	mc.fontRenderer.drawStringWithShadow(calibrationStep, -mc.fontRenderer.getStringWidth(calibrationStep)/2, 8, /*white*/16777215);
+		        GL11.glPopMatrix();
+		        GL11.glEnable(GL11.GL_DEPTH_TEST);
+	    	}
 	    }
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
@@ -1284,6 +1249,7 @@ public class VRRenderer extends EntityRenderer
         this.mc.renderEngine.bindTexture("/terrain.png");
         WrUpdates.resumeBackgroundUpdates();
 
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         if (Config.isWaterFancy())
         {
             this.mc.mcProfiler.endStartSection("water");
@@ -1292,7 +1258,6 @@ public class VRRenderer extends EntityRenderer
             {
                 GL11.glShadeModel(GL11.GL_SMOOTH);
             }
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             int var17 = renderGlobal.renderAllSortedRenderers(1, (double)renderPartialTicks);
 
@@ -1314,7 +1279,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
                                                                                     // TODO: Always render selection boxes?
-        if (this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && !this.mc.gameSettings.hideGUI && this.mc.objectMouseOver != null && !renderViewEntity.isInsideOfMaterial(Material.water))
+        if (this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && this.mc.objectMouseOver != null && !renderViewEntity.isInsideOfMaterial(Material.water))
         {
             var18 = (EntityPlayer)renderViewEntity;
             GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -1324,10 +1289,7 @@ public class VRRenderer extends EntityRenderer
             {
                 renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
 
-                if (!this.mc.gameSettings.hideGUI)
-                {
-                    renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
-                }
+                renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
             }
             GL11.glEnable(GL11.GL_ALPHA_TEST);
         }
@@ -1357,67 +1319,38 @@ public class VRRenderer extends EntityRenderer
         }
 
 	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); //white crosshair, with blending
-        // Draw GUI element (as real world object)
-        if (!this.mc.gameSettings.hideGUI )
-        {
-        	//Draw crosshair
-	    	if( this.mc.gameSettings.thirdPersonView == 0 )
-	    	{
-	    		this.mc.mcProfiler.endStartSection("crosshair");
-	            float crossDepth = (float)Math.sqrt((crossX*crossX + crossY*crossY + crossZ*crossZ));
-	            float scale = 0.025f*crossDepth;
+    	//Draw crosshair
+    	if( this.mc.gameSettings.thirdPersonView == 0 )
+    	{
+    		this.mc.mcProfiler.endStartSection("crosshair");
+            float crossDepth = (float)Math.sqrt((crossX*crossX + crossY*crossY + crossZ*crossZ));
+            float scale = 0.025f*crossDepth;
 
-	            GL11.glPushMatrix();
-            	GL11.glTranslatef(crossX, crossY, crossZ);
-	            GL11.glRotatef(-this.cameraYaw, 0.0F, 1.0F, 0.0F);
-	            GL11.glRotatef(this.cameraPitch+this.totalMousePitchDelta, 1.0F, 0.0F, 0.0F);
-	            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
-	            GL11.glScalef(-scale, -scale, scale);
-	            GL11.glDisable(GL11.GL_LIGHTING);
-	            GL11.glDisable(GL11.GL_DEPTH_TEST);
-	            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glPushMatrix();
+        	GL11.glTranslatef(crossX, crossY, crossZ);
+            GL11.glRotatef(-this.aimYaw, 0.0F, 1.0F, 0.0F);
+            GL11.glRotatef(this.aimPitch, 1.0F, 0.0F, 0.0F);
+            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
+            GL11.glScalef(-scale, -scale, scale);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_BLEND);
 
-		        this.mc.renderEngine.bindTexture("/gui/icons.png");
+	        this.mc.renderEngine.bindTexture("/gui/icons.png");
 
-		        float var7 = 0.00390625F;
-		        float var8 = 0.00390625F;
-		        Tessellator.instance.startDrawingQuads();
-		        Tessellator.instance.addVertexWithUV(- 1, + 1, 0,  0     , 16* var8);
-		        Tessellator.instance.addVertexWithUV(+ 1, + 1, 0, 16*var7, 16* var8);
-		        Tessellator.instance.addVertexWithUV(+ 1, - 1, 0, 16*var7, 0       );
-		        Tessellator.instance.addVertexWithUV(- 1, - 1, 0, 0      , 0       );
-		        Tessellator.instance.draw();
-		        GL11.glDisable(GL11.GL_BLEND);
-		        GL11.glPopMatrix();
-		        mc.checkGLError("crosshair");
-        	}
-	    	
-	    	if( !this.isCalibrated )
-	    	{
-	            GL11.glPushMatrix();
-	            GL11.glTranslatef(lookX*mc.gameSettings.hudDistance,lookY*mc.gameSettings.hudDistance,lookZ*mc.gameSettings.hudDistance);
-	            GL11.glRotatef(-this.cameraYaw, 0.0F, 1.0F, 0.0F);
-	            GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
-	            GL11.glRotatef(180-this.cameraRoll, 0.0F, 0.0F, 1.0F);
-	            GL11.glScaled(0.02, 0.02, 0.02);
-	        	mc.fontRenderer.drawStringWithShadow("Calibrating...", -mc.fontRenderer.getStringWidth("Calibrating...")/2, -8, /*white*/16777215);
-	        	mc.fontRenderer.drawStringWithShadow("Look left, right, and up", -mc.fontRenderer.getStringWidth("Look left, right, and up")/2, 8, /*white*/16777215);
-		        GL11.glPopMatrix();
-	    	}
+	        float var7 = 0.00390625F;
+	        float var8 = 0.00390625F;
+	        Tessellator.instance.startDrawingQuads();
+	        Tessellator.instance.addVertexWithUV(- 1, + 1, 0,  0     , 16* var8);
+	        Tessellator.instance.addVertexWithUV(+ 1, + 1, 0, 16*var7, 16* var8);
+	        Tessellator.instance.addVertexWithUV(+ 1, - 1, 0, 16*var7, 0       );
+	        Tessellator.instance.addVertexWithUV(- 1, - 1, 0, 0      , 0       );
+	        Tessellator.instance.draw();
+	        GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+	        GL11.glPopMatrix();
+	        mc.checkGLError("crosshair");
         }
-        
-        /*
-        GL11.glPointSize(10f);
-        GL11.glColor4f(0, 1, 1,1);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glPushMatrix();
-        GL11.glBegin(GL11.GL_POINTS);
-        GL11.glVertex3d(camRelX,camRelY, camRelZ);
-        GL11.glEnd();
-        GL11.glColor3f(1, 1, 1);
-        GL11.glPopMatrix();
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        */
         
         this.mc.mcProfiler.endSection();
     }
@@ -2036,8 +1969,8 @@ public class VRRenderer extends EntityRenderer
             this.mc.pointedEntityLiving = null;
             double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
             double entityReachDistance = blockReachDistance;
-            Vec3 pos = Vec3.fakePool.getVecFromPool(renderOriginX+camRelX,renderOriginY+camRelY, renderOriginZ+camRelZ); 
-            Vec3 aim = Vec3.fakePool.getVecFromPool(aimX,aimY,aimZ);
+            Vec3 pos = Vec3.createVectorHelper(renderOriginX+camRelX,renderOriginY+camRelY, renderOriginZ+camRelZ); 
+            Vec3 aim = Vec3.createVectorHelper(aimX,aimY,aimZ);
             Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
 
             this.mc.objectMouseOver = this.mc.theWorld.rayTraceBlocks(pos, endPos);
@@ -2091,7 +2024,6 @@ public class VRRenderer extends EntityRenderer
     
     public void startCalibration()
     {
-    	this.isCalibrated = false;
-    	this.isCalibrating = false;
+    	calibrationHelper = new CalibrationHelper(mc);
     }
 }

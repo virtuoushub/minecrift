@@ -9,7 +9,7 @@
  import java.nio.ByteBuffer;
  import java.text.DecimalFormat;
  import java.util.ArrayList;
-@@ -16,105 +18,10 @@
+@@ -16,105 +18,11 @@
  import java.util.Iterator;
  import java.util.List;
  import javax.swing.JPanel;
@@ -114,18 +114,20 @@
 -import net.minecraft.src.WorldSettings;
 +
 +import com.mtbs3d.minecrift.*;
++
 +import net.minecraft.src.*;
 +
  import org.lwjgl.LWJGLException;
  import org.lwjgl.Sys;
  import org.lwjgl.input.Keyboard;
-@@ -128,6 +35,16 @@
+@@ -128,6 +36,17 @@
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
  
 +import com.mtbs3d.minecrift.api.BasePlugin;
 +import com.mtbs3d.minecrift.api.IHMDInfo;
 +import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
++import com.mtbs3d.minecrift.api.ILookAimController;
 +import com.mtbs3d.minecrift.api.IOrientationProvider;
 +import com.mtbs3d.minecrift.gui.GuiMinecriftSettings;
 +
@@ -136,7 +138,7 @@
  public abstract class Minecraft implements Runnable, IPlayerUsage
  {
      /** A 10MiB preallocation to ensure the heap is reasonably sized. */
-@@ -145,8 +62,15 @@
+@@ -145,8 +64,15 @@
  
      /** Instance of CrashReport. */
      private CrashReport crashReporter;
@@ -152,7 +154,7 @@
      private Timer timer = new Timer(20.0F);
  
      /** Instance of PlayerUsageSnooper. */
-@@ -183,6 +107,7 @@
+@@ -183,6 +109,7 @@
      public GuiScreen currentScreen = null;
      public LoadingScreenRenderer loadingScreen;
      public EntityRenderer entityRenderer;
@@ -160,7 +162,7 @@
  
      /** Reference to the download resources thread. */
      private ThreadDownloadResources downloadResourcesThread;
-@@ -226,7 +151,7 @@
+@@ -226,7 +153,7 @@
       * This is set to fpsCounter every debug screen update, and is shown on the debug screen. It's also sent as part of
       * the usage snooping.
       */
@@ -169,7 +171,7 @@
  
      /**
       * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
-@@ -284,6 +209,16 @@
+@@ -284,6 +211,19 @@
  
      /** Profiler currently displayed in the debug screen pie chart */
      private String debugProfilerName = "root";
@@ -182,11 +184,14 @@
 +
 +    /** Active VR Eye Position Tracker Plugin **/
 +    public ICenterEyePositionProvider  positionTracker;
++    
++    /** Active VR view/aim/move controller Plugin **/
++	public ILookAimController lookaimController;
 +
  
      public Minecraft(Canvas par1Canvas, MinecraftApplet par2MinecraftApplet, int par3, int par4, boolean par5)
      {
-@@ -294,8 +229,7 @@
+@@ -294,8 +234,7 @@
          Packet3Chat.maxChatLength = 32767;
          this.startTimerHackThread();
          this.mcCanvas = par1Canvas;
@@ -196,7 +201,7 @@
          this.fullscreen = par5;
          theMinecraft = this;
          TextureManager.init();
-@@ -344,7 +278,7 @@
+@@ -344,7 +283,7 @@
              if (var1 != null)
              {
                  var1.setColor(Color.BLACK);
@@ -205,7 +210,7 @@
                  var1.dispose();
              }
  
-@@ -353,22 +287,11 @@
+@@ -353,22 +292,11 @@
          else if (this.fullscreen)
          {
              Display.setFullscreen(true);
@@ -230,7 +235,7 @@
          }
  
          Display.setTitle("Minecraft Minecraft 1.5.2");
-@@ -403,6 +326,17 @@
+@@ -403,6 +331,17 @@
          this.loadScreen();
          this.fontRenderer = new FontRenderer(this.gameSettings, "/font/default.png", this.renderEngine, false);
          this.standardGalacticFontRenderer = new FontRenderer(this.gameSettings, "/font/alternate.png", this.renderEngine, false);
@@ -248,7 +253,7 @@
  
          if (this.gameSettings.language != null)
          {
-@@ -413,13 +347,22 @@
+@@ -413,13 +352,32 @@
  
          ColorizerGrass.setGrassBiomeColorizer(this.renderEngine.getTextureContents("/misc/grasscolor.png"));
          ColorizerFoliage.setFoliageBiomeColorizer(this.renderEngine.getTextureContents("/misc/foliagecolor.png"));
@@ -262,9 +267,19 @@
 +        
 +        try {
 +			Class.forName("com.mtbs3d.minecrift.MCHydra").newInstance();//creates and registers MCHydra if it can be (if the libraries are found) 
-+		} catch (Exception e1) { }
-+        MCOculus newOculus = new MCOculus();
-+        BasePlugin.register(newOculus);
++		} catch (NoClassDefFoundError e1) { 
++			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
++		} catch( Exception e1) {
++			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
++		}
++        new MCMouse(); //create and register mouse ILookAimMoveController plugin
++        new NullCenterEyePosition(); //create and register "None" head position plugin
++        BasePlugin.register(new MCOculus()); // create and register new plugin
++
++    	hmdInfo           = BasePlugin.configureHMD(this.gameSettings.hmdPluginID);
++    	headTracker       = BasePlugin.configureOrientation(this.gameSettings.headTrackerPluginID);
++    	positionTracker   = BasePlugin.configurePosition(this.gameSettings.headPositionPluginID);
++    	lookaimController = BasePlugin.configureController(this.gameSettings.controllerPluginID);
 +
 +        //uses mouseHelper
 +        setUseVRRenderer( gameSettings.useVRRenderer );
@@ -272,7 +287,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -436,8 +379,14 @@
+@@ -436,8 +394,14 @@
          this.sndManager.loadSoundSettings(this.gameSettings);
          this.renderGlobal = new RenderGlobal(this, this.renderEngine);
          this.renderEngine.refreshTextureMaps();
@@ -288,7 +303,7 @@
  
          try
          {
-@@ -450,12 +399,35 @@
+@@ -450,12 +414,35 @@
          }
  
          this.checkGLError("Post startup");
@@ -325,7 +340,7 @@
          else
          {
              this.displayGuiScreen(new GuiMainMenu());
-@@ -467,6 +439,11 @@
+@@ -467,6 +454,11 @@
          {
              this.toggleFullscreen();
          }
@@ -337,7 +352,7 @@
      }
  
      /**
-@@ -628,21 +605,28 @@
+@@ -628,21 +620,28 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -370,7 +385,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -700,6 +684,8 @@
+@@ -700,6 +699,8 @@
              this.sndManager.closeMinecraft();
              Mouse.destroy();
              Keyboard.destroy();
@@ -379,7 +394,7 @@
          }
          finally
          {
-@@ -830,7 +816,8 @@
+@@ -830,7 +831,8 @@
              this.checkGLError("Pre render");
              RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;
              this.mcProfiler.endStartSection("sound");
@@ -389,7 +404,7 @@
  
              if (!this.isGamePaused)
              {
-@@ -856,9 +843,39 @@
+@@ -856,9 +858,39 @@
  
              if (!this.skipRenderWorld)
              {
@@ -429,7 +444,7 @@
              }
  
              GL11.glFlush();
-@@ -869,7 +886,7 @@
+@@ -869,7 +901,7 @@
                  this.toggleFullscreen();
              }
  
@@ -438,7 +453,7 @@
              {
                  if (!this.mcProfiler.profilingEnabled)
                  {
-@@ -885,7 +902,7 @@
+@@ -885,7 +917,7 @@
                  this.prevFrameTime = System.nanoTime();
              }
  
@@ -447,7 +462,7 @@
              this.mcProfiler.startSection("root");
              Thread.yield();
  
-@@ -896,22 +913,21 @@
+@@ -896,22 +928,21 @@
  
              this.screenshotListener();
  
@@ -478,7 +493,7 @@
              }
  
              this.checkGLError("Post render");
-@@ -999,7 +1015,7 @@
+@@ -999,7 +1030,7 @@
              if (!this.isTakingScreenshot)
              {
                  this.isTakingScreenshot = true;
@@ -487,7 +502,7 @@
              }
          }
          else
-@@ -1188,15 +1204,31 @@
+@@ -1188,15 +1219,31 @@
      }
  
      /**
@@ -524,7 +539,7 @@
          }
      }
  
-@@ -1207,6 +1239,7 @@
+@@ -1207,6 +1254,7 @@
      {
          if (this.currentScreen == null)
          {
@@ -532,7 +547,16 @@
              this.displayGuiScreen(new GuiIngameMenu());
  
              if (this.isSingleplayer() && !this.theIntegratedServer.getPublic())
-@@ -1346,48 +1379,20 @@
+@@ -1249,7 +1297,7 @@
+      * Called whenever the mouse is clicked. Button clicked is 0 for left clicking and 1 for right clicking. Args:
+      * buttonClicked
+      */
+-    private void clickMouse(int par1)
++    public void clickMouse(int par1)
+     {
+         if (par1 != 0 || this.leftClickCounter <= 0)
+         {
+@@ -1346,48 +1394,20 @@
              if (this.fullscreen)
              {
                  Display.setDisplayMode(Display.getDesktopDisplayMode());
@@ -584,7 +608,7 @@
              Display.setFullscreen(this.fullscreen);
              Display.setVSyncEnabled(this.gameSettings.enableVsync);
              Display.update();
-@@ -1401,17 +1406,34 @@
+@@ -1401,17 +1421,34 @@
      /**
       * Called to resize the current screen.
       */
@@ -625,7 +649,7 @@
          }
      }
  
-@@ -1420,10 +1442,23 @@
+@@ -1420,10 +1457,23 @@
       */
      public void runTick()
      {
@@ -649,7 +673,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1451,21 +1486,24 @@
+@@ -1451,21 +1501,24 @@
              this.renderEngine.updateDynamicTextures();
          }
  
@@ -683,7 +707,7 @@
  
          if (this.currentScreen != null)
          {
-@@ -1565,7 +1603,7 @@
+@@ -1565,7 +1618,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -692,7 +716,7 @@
                      }
                  }
              }
-@@ -1623,6 +1661,11 @@
+@@ -1623,6 +1676,11 @@
                                  this.displayInGameMenu();
                              }
  
@@ -704,7 +728,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.forceReload();
-@@ -1667,10 +1710,11 @@
+@@ -1667,10 +1725,11 @@
                                  this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
                              }
  
@@ -717,7 +741,7 @@
                              }
  
                              if (Keyboard.getEventKey() == 63)
-@@ -1795,6 +1839,13 @@
+@@ -1795,6 +1854,13 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
@@ -731,7 +755,7 @@
  
          if (this.theWorld != null)
          {
-@@ -1881,6 +1932,11 @@
+@@ -1881,6 +1947,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -743,7 +767,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1925,8 +1981,43 @@
+@@ -1925,8 +1996,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -787,7 +811,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(StatCollector.translateToLocal("menu.loadingLevel"));
  
-@@ -1980,6 +2071,11 @@
+@@ -1980,6 +2086,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -799,7 +823,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -2021,6 +2117,7 @@
+@@ -2021,6 +2132,7 @@
  
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -807,7 +831,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2178,6 +2275,31 @@
+@@ -2178,6 +2290,31 @@
  
      public static void main(String[] par0ArrayOfStr)
      {
@@ -839,7 +863,7 @@
          HashMap var1 = new HashMap();
          boolean var2 = false;
          boolean var3 = true;
-@@ -2319,103 +2441,110 @@
+@@ -2319,103 +2456,110 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1045,7 +1069,7 @@
  
              if (var1)
              {
-@@ -2507,8 +2636,13 @@
+@@ -2507,8 +2651,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1059,7 +1083,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2516,6 +2650,7 @@
+@@ -2516,6 +2665,7 @@
  
              if (var1 != 0)
              {
@@ -1067,7 +1091,7 @@
                  return var0;
              }
          }
-@@ -2609,4 +2744,104 @@
+@@ -2609,4 +2759,46 @@
      {
          return this.field_94139_O;
      }
@@ -1076,76 +1100,18 @@
 +    {
 +        if( useVRRenderer )
 +        {
-+        	hmdInfo = null;
-+        	headTracker = null;
-+        	positionTracker = null;
-+        	
-+        	//HMD Info
-+        	
-+        	for( IHMDInfo hmd : BasePlugin.hmdInfoPlugins )
-+        	{
-+        		if( hmd.getID().equals(this.gameSettings.hmdPluginID) )
-+        		{
-+        			hmdInfo = hmd;
-+        			break;
-+        		}
-+        	}
-+        	//If we still don't have one
-+        	if( hmdInfo == null && BasePlugin.hmdInfoPlugins.size() > 0 )
-+        	{
-+        		hmdInfo = BasePlugin.hmdInfoPlugins.get(0);
-+        	}
-+        	
-+        	//Head orientation
-+
-+        	for( IOrientationProvider tracker: BasePlugin.orientPlugins )
-+        	{
-+        		if( tracker.getID().equals(this.gameSettings.headTrackerPluginID) )
-+        		{
-+        			headTracker = tracker;
-+        			break;
-+        		}
-+        	}
-+        	//If we still don't have one, try to use the first in the list
-+        	if( headTracker == null && BasePlugin.orientPlugins.size() > 0 )
-+        	{
-+        		headTracker = BasePlugin.orientPlugins.get(0);
-+        	}
-+        	
-+        	//Head position
-+
-+        	for( ICenterEyePositionProvider posTracker: BasePlugin.positionPlugins )
-+        	{
-+        		if( posTracker.getID().equals(this.gameSettings.headPositionPluginID) )
-+        		{
-+        			positionTracker = posTracker;
-+        			break;
-+        		}
-+        	}
-+        	//If we still don't have one, try to use the first in the list
-+        	if( positionTracker == null && BasePlugin.positionPlugins.size() > 0 )
-+        	{
-+        		positionTracker = BasePlugin.positionPlugins.get(0);
-+        	}
-+			
 +        	//Need HMDInfo, OrientationProvider and HeadPositionProvider
-+			if( hmdInfo != null && headTracker != null && positionTracker != null )
++			if( hmdInfo != null && headTracker != null && positionTracker != null && lookaimController != null )
 +			{
++                // Set configured hmdInfo parameters
++                hmdInfo.setIPD(this.gameSettings.ipd);
 +
-+				if( !hmdInfo.isInitialized() && !hmdInfo.init(new File(new File(Minecraft.getMinecraftDir(),"bin"),"natives")) )
-+				{
-+					System.err.println("Error! Couldn't load "+ hmdInfo.getName()+": "+hmdInfo.getInitializationStatus() );
-+				}
++                // Set configured headtracker parameters
++                headTracker.setPrediction(this.gameSettings.headTrackPredictionTimeSecs, this.gameSettings.useHeadTrackPrediction);
++                //headTracker.setMagRefDistance(this.gameSettings.magRefDistance);
 +
-+				if( !headTracker.isInitialized() && !headTracker.init(new File(new File(Minecraft.getMinecraftDir(),"bin"),"natives")) )
-+				{
-+					System.err.println("Error! Couldn't load "+ headTracker.getName()+": "+headTracker.getInitializationStatus() );
-+				}
-+
-+				if( !positionTracker.isInitialized() && !positionTracker.init(new File(new File(Minecraft.getMinecraftDir(),"bin"),"natives")) )
-+				{
-+					System.err.println("Error! Couldn't load "+ positionTracker.getName()+": "+positionTracker.getInitializationStatus() );
-+				}
++                // Set configured position tracker parameters
++                positionTracker.setPrediction(0.0f, this.gameSettings.hydraUseFilter); // TODO: Need a more generic param
 +
 +				if( this.vrRenderer == null )
 +				{

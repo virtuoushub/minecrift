@@ -1,3 +1,7 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift;
 
 import org.lwjgl.input.Keyboard;
@@ -21,8 +25,6 @@ public class VRHotkeys {
 	    {
 	    	BasePlugin.destroyAll();
 	    	mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
-	    	mc.hmdInfo.setIPD(mc.gameSettings.ipd);
-            mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeMs, mc.gameSettings.useHeadTrackPrediction);
 	    }
 	
 	    // Distortion on / off
@@ -69,7 +71,7 @@ public class VRHotkeys {
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
 	            mc.gameSettings.useHeadTrackPrediction = !mc.gameSettings.useHeadTrackPrediction;
-                mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeMs, mc.gameSettings.useHeadTrackPrediction);
+                mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeSecs, mc.gameSettings.useHeadTrackPrediction);
 	            mc.gameSettings.saveOptions();
 	        }
 	        else
@@ -120,7 +122,7 @@ public class VRHotkeys {
 	    // Allow mouse pitch
 	    if (Keyboard.getEventKey() == Keyboard.KEY_N && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.gameSettings.allowMousePitchInput = !mc.gameSettings.allowMousePitchInput;
+	        mc.gameSettings.pitchInputAffectsCamera = !mc.gameSettings.pitchInputAffectsCamera;
 	        mc.gameSettings.saveOptions();
 	    }
 	

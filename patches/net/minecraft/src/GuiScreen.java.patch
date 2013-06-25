@@ -1,6 +1,36 @@
 --- a/net/minecraft/src/GuiScreen.java
 +++ b/net/minecraft/src/GuiScreen.java
-@@ -183,8 +183,8 @@
+@@ -177,14 +177,38 @@
+             this.handleKeyboardInput();
+         }
+     }
++    
++    public void mouseDown( int rawX, int rawY, int button )
++    {
++        int var1 = rawX * this.width / this.mc.displayFBWidth;
++        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
++        this.eventButton = button;
++        this.field_85043_c = Minecraft.getSystemTime();
++        mouseClicked(var1, var2, button);
++    }
++    
++    public void mouseUp( int rawX, int rawY, int button )
++    {
++        int var1 = rawX * this.width / this.mc.displayFBWidth;
++        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
++        mouseMovedOrUp(var1, var2, button);
++    }
++    
++    public void mouseDrag( int rawX, int rawY )
++    {
++        int var1 = rawX * this.width / this.mc.displayFBWidth;
++        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
++        long var3 = Minecraft.getSystemTime() - this.field_85043_c;
++        this.func_85041_a(var1, var2, this.eventButton, var3);
++    }
+ 
+     /**
+      * Handles mouse input.
       */
      public void handleMouseInput()
      {
@@ -11,7 +41,7 @@
  
          if (Mouse.getEventButtonState())
          {
-@@ -261,7 +261,7 @@
+@@ -261,7 +285,7 @@
      {
          if (this.mc.theWorld != null)
          {

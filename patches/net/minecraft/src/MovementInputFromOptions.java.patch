@@ -1,0 +1,22 @@
+--- a/net/minecraft/src/MovementInputFromOptions.java
++++ b/net/minecraft/src/MovementInputFromOptions.java
+@@ -3,16 +3,15 @@
+ public class MovementInputFromOptions extends MovementInput
+ {
+     private GameSettings gameSettings;
+-
+-    public MovementInputFromOptions(GameSettings par1GameSettings)
++	public MovementInputFromOptions(GameSettings par1GameSettings)
+     {
+         this.gameSettings = par1GameSettings;
+     }
+ 
+     public void updatePlayerMoveState()
+     {
+-        this.moveStrafe = 0.0F;
+-        this.moveForward = 0.0F;
++        this.moveStrafe = baseMoveStrafe;
++        this.moveForward = baseMoveForward;
+ 
+         if (this.gameSettings.keyBindForward.pressed)
+         {

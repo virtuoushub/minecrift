@@ -1,58 +1,34 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.gui;
 
-import com.mtbs3d.minecrift.VRRenderer;
-import com.mtbs3d.minecrift.gui.*;
-
-import net.minecraft.client.Minecraft;
+import de.fruitfly.ovr.EyeRenderParams;
 import net.minecraft.src.EnumOptions;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.StringTranslate;
 
-public class GuiMinecriftSettings extends GuiScreen
+public class GuiMinecriftSettings extends BaseGuiSettings
 {
 	static EnumOptions[] minecriftOptions = new EnumOptions[] {
             EnumOptions.PLAYER_HEIGHT,
             EnumOptions.EYE_PROTRUSION,
             EnumOptions.NECK_LENGTH,
-            EnumOptions.MOVEMENT_MULTIPLIER,
+            EnumOptions.HUD_OPACITY,
             EnumOptions.HUD_SCALE,
             EnumOptions.HUD_DISTANCE,
-            EnumOptions.HUD_OPACITY,
-            EnumOptions.RENDER_OWN_HEADWEAR,
-            EnumOptions.ALLOW_MOUSE_PITCH_INPUT,
-            EnumOptions.DECOUPLEMOVELOOK,
-            //EnumOptions.POSITIONAL_TRACK_METHOD,
         };
-
-	private GuiScreen parentGuiScreen;
-
-    /** The title string that is displayed in the top-center of the screen. */
-    protected String screenTitle = "VR Settings";
-
-    /** GUI game settings */
-    private GameSettings guiGameSettings;
-
-    private int lastMouseX = 0;
-    private int lastMouseY = 0;
-    private long mouseStillTime = 0L;
-
-    private VRRenderer vrRenderer;
-
-    /**
-     * True if the system is 64-bit (using a simple indexOf test on a system property)
-     */
-    private boolean is64bit = false;
 
     /** An array of all of EnumOption's video options. */
 
     public GuiMinecriftSettings( GuiScreen par1GuiScreen,
                                 GameSettings par2GameSettings)
     {
-		this.parentGuiScreen = par1GuiScreen;
-        this.guiGameSettings = par2GameSettings;
-        this.vrRenderer = Minecraft.getMinecraft().vrRenderer;
+    	super( par1GuiScreen, par2GameSettings );
+    	screenTitle = "VR Settings";
     }
 
     /**
@@ -61,37 +37,14 @@ public class GuiMinecriftSettings extends GuiScreen
     public void initGui()
     {
         StringTranslate stringTranslate = StringTranslate.getInstance();
-       // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Oculus Settings..."));
-        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Positional Tracking..."));
-        this.is64bit = false;
-        String[] archStrings = new String[] {"sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch"};
-        String[] var3 = archStrings;
-        int var4 = archStrings.length;
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        EnumOptions[] buttons = minecriftOptions;
 
-        for (int var5 = 0; var5 < var4; ++var5)
+        for (int var12 = 2; var12 < buttons.length + 2; ++var12)
         {
-            String var6 = var3[var5];
-            String var7 = System.getProperty(var6);
-
-            if (var7 != null && var7.contains("64"))
-            {
-                this.is64bit = true;
-                break;
-            }
-        }
-
-        int var9 = 0;
-        var4 = this.is64bit ? 0 : -15;
-        EnumOptions[] var10 = minecriftOptions;
-        int var11 = var10.length;
-
-        for (int var12 = 2; var12 < var11 + 2; ++var12)
-        {
-            EnumOptions var8 = var10[var12 - 2];
+            EnumOptions var8 = buttons[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
@@ -109,21 +62,15 @@ public class GuiMinecriftSettings extends GuiScreen
                 }
                 if (var8 == EnumOptions.EYE_PROTRUSION)
                 {
-                    minValue = 0.12f;
+                    minValue = 0.00f;
                     maxValue = 0.25f;
                     increment = 0.001f;
                 }
                 if (var8 == EnumOptions.NECK_LENGTH)
                 {
-                    minValue = 0.15f;
+                    minValue = 0.00f;
                     maxValue = 0.25f;
                     increment = 0.001f;
-                }
-                if (var8 == EnumOptions.MOVEMENT_MULTIPLIER)
-                {
-                    minValue = 0.15f;
-                    maxValue = 1.0f;
-                    increment = 0.01f;
                 }
                 if (var8 == EnumOptions.HUD_SCALE)
                 {
@@ -144,8 +91,23 @@ public class GuiMinecriftSettings extends GuiScreen
             {
                 this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
             }
-
-            ++var9;
+        }
+        for( int i = 0; i < 4; ++i )
+        {
+        	int var12 = buttons.length + 2 + i;
+            int width = this.width / 2 - 155 + var12 % 2 * 160;
+            int height = this.height / 6 + 21 * (var12 / 2) - 10;
+            String buttonText [] =
+        	{
+        		"Head Orientation Tracking...",
+        		"Optics/Rendering...",
+        		"Head Position Tracking...",
+        		"Move/Aim Control...",
+        	};
+            
+            GuiSmallButtonEx btn = new GuiSmallButtonEx(201+i, width, height, buttonText[i] ); 
+            //btn.enabled = this.guiGameSettings.useVRRenderer; //TODO: could be good, maybe not yet
+        	this.buttonList.add(btn);
         }
     }
 
@@ -156,8 +118,6 @@ public class GuiMinecriftSettings extends GuiScreen
     {
         if (par1GuiButton.enabled)
         {
-            int var2 = this.guiGameSettings.guiScale;
-
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
                 EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
@@ -169,27 +129,40 @@ public class GuiMinecriftSettings extends GuiScreen
                     if (vrRenderer != null)
                         vrRenderer._FBOInitialised = false;
                 }
-            }
-
-            if (par1GuiButton.id == 201)
+            } 
+            else if (par1GuiButton.id == 201)
+            {
+            	if( mc.headTracker != null )
+            	{
+	                this.mc.gameSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiHeadOrientationSettings(this, this.guiGameSettings));
+            	}
+            } 
+            else if (par1GuiButton.id == 202)
             {
             	if( mc.headTracker != null && mc.hmdInfo != null && mc.positionTracker != null )
             	{
 	                this.mc.gameSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiMinecriftDisplaySettings(this, this.guiGameSettings));
+	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guiGameSettings));
             	}
-            }
-
-            if (par1GuiButton.id == 202)
+            } 
+            else if (par1GuiButton.id == 203)
             {
             	if( mc.positionTracker != null )
             	{
 	                this.mc.gameSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiHydraSettings(this, this.guiGameSettings));
+	                this.mc.displayGuiScreen(new GuiHeadPositionSettings(this, this.guiGameSettings));
             	}
-            }
-
-            if (par1GuiButton.id == 200)
+            } 
+            else if (par1GuiButton.id == 204)
+            {
+            	if( mc.lookaimController != null )
+            	{
+	                this.mc.gameSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiMoveAimSettings(this, this.guiGameSettings));
+            	}
+            } 
+            else if (par1GuiButton.id == 200)
             {
                 this.mc.gameSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
@@ -197,85 +170,101 @@ public class GuiMinecriftSettings extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
-    public void drawScreen(int par1, int par2, float par3)
+    @Override
+    protected String[] getTooltipLines(String displayString, int buttonId)
     {
-        this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 20, 16777215);
-        super.drawScreen(par1, par2, par3);
-
-        if (Math.abs(par1 - this.lastMouseX) <= 5 && Math.abs(par2 - this.lastMouseY) <= 5)
-        {
-            short var4 = 700;
-
-            if (System.currentTimeMillis() >= this.mouseStillTime + (long)var4)
-            {
-                int var5 = this.width / 2 - 150;
-                int var6 = this.height / 6 - 5;
-
-                if (par2 <= var6 + 98)
-                {
-                    var6 += 105;
-                }
-
-                int var7 = var5 + 150 + 150;
-                int var8 = var6 + 84 + 10;
-                GuiButton var9 = this.getSelectedButton(par1, par2);
-
-                if (var9 != null)
-                {
-                    String var10 = this.getButtonName(var9.displayString);
-                    String[] var11 = this.getTooltipLines(var10);
-
-                    if (var11 == null)
-                    {
-                        return;
-                    }
-
-                    this.drawGradientRect(var5, var6, var7, var8, -536870912, -536870912);
-
-                    for (int var12 = 0; var12 < var11.length; ++var12)
-                    {
-                        String var13 = var11[var12];
-                        this.fontRenderer.drawStringWithShadow(var13, var5 + 5, var6 + 5 + var12 * 11, 14540253);
-                    }
-                }
-            }
-        }
-        else
-        {
-            this.lastMouseX = par1;
-            this.lastMouseY = par2;
-            this.mouseStillTime = System.currentTimeMillis();
-        }
+    	EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+    	if( e != null )
+    	switch(e)
+    	{
+    	case PLAYER_HEIGHT:
+    		return new String[] {
+				"Your real-world Eye Height when standing (in meters)",
+				"  Setting this value isn't required, but you should",
+				"  strive to get it as close as possible for an accurate",
+				"  experience"
+    		};
+    	case EYE_PROTRUSION:
+    		return new String[] {
+				"Distance from \"head-center\" to your eyes (in meters)",
+				"  Not required, but get it close for the best experience",
+				" (\"X\" distance below)     ____  ",
+				"                              /      \\ ",
+				"                              |    XXo ",
+				"                              |      _\\",
+				"                               \\   /",
+				"                                 | |"
+    		};
+    	case NECK_LENGTH:
+    		return new String[] {
+				"Distance from \"head-center\" to your shoulders",
+				"  Not required, but get it close for the best experience",
+				" (\"Y\" distance below)     ____  ",
+				"                              /      \\ ",
+				"                              |   Y  o ",
+				"                              |   Y  _\\",
+				"                               \\ Y /",
+				"                                 |Y|"
+    		};
+    	case HUD_OPACITY:
+    		return new String[] {
+				"Whether the HUD and UI are slightly transparent",
+				"  ON: HUD and UI are transparent",
+				"  OFF: HUD and UI are opaque"
+    		};
+    	case HUD_SCALE:
+    		return new String[] {
+				"Relative size HUD takes up in field-of-view",
+				"  The units are just relative, not in degrees",
+				"  or a fraction of FOV or anything"
+    		};
+    	case HUD_DISTANCE:
+    		return new String[] {
+				"Distance the floating HUD is drawn in front of your body",
+				"  The relative size of the HUD is unchanged by this",
+				"  Distance is in meters (though isn't obstructed by blocks)"
+    		};
+    	case USE_VR:
+    		return new String[] {
+				"Whether to enable all the fun new Virtual Reality features",
+				"  ON: Yay Fun!",
+				"  OFF: Sad vanilla panda: gameplay unchanged"
+    		};
+    	default:
+    		return null;
+    	}
+    	else
+    	switch(buttonId)
+    	{
+	    	case 201:
+	    		return new String[] {
+	    			"Open this configuration screen to adjust the Head",
+	    			"  Tracker orientation (direction) settings. ",
+	    			"  Ex: Head Tracking Selection (Hydra/Oculus), Prediction"
+	    		};
+	    	case 202:
+	    		return new String[] {
+	    			"Open this configuration screen to adjust the Head ",
+	    			"  Mounted Display optics or other rendering features.",
+	    			"  Ex: IPD, FOV, Distortion, FSAA, Chromatic Abberation"
+	    		};
+	    	case 203:
+	    		return new String[] {
+	    			"Open this configuration screen to adjust the Head",
+	    			"  Tracker position settings. ",
+	    			"  Ex: Head Position Selection (Hydra/None), " ,
+	    			"       Hydra head placement (left, right, top etc)"
+	    		};
+	    	case 204:
+	    		return new String[] {
+	    			"Open this configuration screen to adjust how the ",
+	    			"  character is controlled. ",
+	    			"  Ex: Look/move/aim decouple, joystick sensitivty, " ,
+	    			"     Keyhole width, Mouse-pitch-affects camera" ,
+	    		};
+    		default:
+    			return null;
+    	}
     }
 
-    private String[] getTooltipLines(String var1)
-    {
-        return var1.equals("Chrom. Ab. Correction") ? new String[] {"Chromatic aberration correction", "  OFF - no correction", "  ON - correction applied"} : null;
-    }
-
-    private String getButtonName(String var1)
-    {
-        int var2 = var1.indexOf(58);
-        return var2 < 0 ? var1 : var1.substring(0, var2);
-    }
-
-    private GuiButton getSelectedButton(int var1, int var2)
-    {
-        for (int var3 = 0; var3 < this.buttonList.size(); ++var3)
-        {
-            GuiButtonEx var4 = (GuiButtonEx)this.buttonList.get(var3);
-            boolean var5 = var1 >= var4.xPosition && var2 >= var4.yPosition && var1 < var4.xPosition + var4.getWidth() && var2 < var4.yPosition + var4.getHeight();
-
-            if (var5)
-            {
-                return var4;
-            }
-        }
-
-        return null;
-    }
 }

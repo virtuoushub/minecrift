@@ -1,3 +1,7 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.api;
 
 import java.io.File;
@@ -29,4 +33,8 @@ public interface IBasePlugin {
 	public void poll();
 
 	public void destroy();
+
+	public boolean isCalibrated();
+	
+	public String getCalibrationStep();
 }

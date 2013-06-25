@@ -48,5 +48,8 @@ public interface IOrientationProvider extends IBasePlugin {
 
 	void updateAutomaticCalibration();
 
-	boolean isCalibrated();
+    /**
+     * Resets the current position/orientation to the origin
+     */
+    public void resetOrigin();
 }

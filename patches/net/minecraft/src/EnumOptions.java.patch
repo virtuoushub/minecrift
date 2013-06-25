@@ -1,41 +1,57 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,38 @@
+@@ -97,7 +97,54 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
 -    CUSTOM_SKY("Custom Sky", false, false);
 +    CUSTOM_SKY("Custom Sky", false, false),
-+    // Minecrift
++    // Minecrift below here
++    
++    //General
 +    USE_VR("VR mode", false, true),
 +    PLAYER_HEIGHT("Eye Height", true, false),
 +    EYE_PROTRUSION("Eye Protrusion", true, false),
 +    NECK_LENGTH("Neck Length", true, false),
-+    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
-+    USE_DISTORTION("Distortion", false, true),
-+    HEAD_TRACKING("Head Tracking", false, true),
-+    HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),
-+    IPD("IPD", true, false),
-+    HUD_OPACITY("HUD Opacity", false, true),
-+    RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
-+    CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
 +    HUD_SCALE("HUD Scale", true, false),
-+    FOV_SCALE_FACTOR("FOV Scale", true, false),
-+    ALLOW_MOUSE_PITCH_INPUT("Mouse Pitch Input", false, true),
 +    HUD_DISTANCE("HUD Distance", true, false),
++    HUD_OPACITY("HUD Opacity", false, true),
++    HEAD_TRACKING("Head Tracking", false, true),
++    RENDER_OWN_HEADWEAR("Render Own Headwear", false, true), //Not anywhere, currently
++    DUMMY("Dummy", false, true),
++
++    //HMD/render
++    IPD("IPD", true, false),
++    USE_DISTORTION("Distortion", false, true),
++    CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
++    FOV_SCALE_FACTOR("FOV Scale", true, false),
 +    DISTORTION_FIT_POINT("Distortion Border", true, false),
-+    HEAD_TRACK_SENSITIVITY("Head Track Sensitivity", true, false),
 +    SUPERSAMPLING("FSAA", false, true),
 +    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
-+    DECOUPLEMOVELOOK("Decouple Look/Move", false, true),
-+    POS_TRACK_METHOD("Mode", false, false),
++
++    //Head orientation tracking
++    HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),
++    HEAD_TRACK_SENSITIVITY("Head Track Sensitivity", true, false),
++    HEAD_TRACK_PREDICTION_TIME("Prediction time", true, false),
++
++    //eye center position tracking
 +    POS_TRACK_HYDRALOC("Position", false, false),
-+    POS_TRACK_HYDRA_OFFSET_X("Hydra X Offset", true, false),
-+    POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
-+    POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
++    POS_TRACK_HYDRA_OFFSET_X("Hydra->Center L/R", true, false),
++    POS_TRACK_HYDRA_OFFSET_Y("Hydra->Ctr DWN/UP", true, false),
++    POS_TRACK_HYDRA_OFFSET_Z("Hydra->Ctr IN/OUT", true, false),
++    POS_TRACK_HYDRA_OFFSET_SET_DEFAULT("Default Offsets", false, true),
 +    POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
 +    POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
-+    DUMMY("Dummy", false, true);
++    HYDRA_USE_FILTER("Filter", false, true),
++    POS_TRACK_Y_AXIS_DISTANCE_SKEW("Distance Skew Angle", true, false),
++
++    //Movement/aiming controls
++    DECOUPLEMOVELOOK("Decouple Look/Move", false, true),
++    DECOUPLEAIMLOOK("Decouple Look/Aim", false, true),
++    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
++    PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true),
++    JOYSTICK_SENSITIVITY("Joystick Sensitivity",true,false),
++    KEYHOLE_WIDTH("Keyhole Width",true,false);
 +
      private final boolean enumFloat;
      private final boolean enumBoolean;

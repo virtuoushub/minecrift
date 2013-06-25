@@ -33,8 +33,19 @@ public interface ICenterEyePositionProvider extends IBasePlugin {
 
 
     /**
-     * Resets the current position/orientation to the origin
+     * Resets the current origin position
      */
     public void resetOrigin();
+    
+    /**
+     * Resets the current origin rotation 
+     */
+    public void resetOriginRotation();
 
+    /**
+     * Enables prediction/filtering
+     * @param delta
+     * @param enable
+     */
+    public void setPrediction(float delta, boolean enable);
 }
