@@ -741,21 +741,20 @@
                              }
  
                              if (Keyboard.getEventKey() == 63)
-@@ -1795,6 +1854,13 @@
+@@ -1795,6 +1854,12 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
 +        else if( this.gameSettings.useVRRenderer )
 +        {
-+        	while(Keyboard.next())
-+        	{
-+        		VRHotkeys.handleKeyboardInputs(this);
-+        	}
++            // TODO: No way to go back to the first buffered keyboard event e.g. Keyboard.first()?
++            // Don't bother with buffered events, just read the current keyboard state
++            VRHotkeys.handleKeyboardInputs(this);
 +        }
  
          if (this.theWorld != null)
          {
-@@ -1881,6 +1947,11 @@
+@@ -1881,6 +1946,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -767,7 +766,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1925,8 +1996,43 @@
+@@ -1925,8 +1995,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -811,7 +810,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(StatCollector.translateToLocal("menu.loadingLevel"));
  
-@@ -1980,6 +2086,11 @@
+@@ -1980,6 +2085,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -823,7 +822,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -2021,6 +2132,7 @@
+@@ -2021,6 +2131,7 @@
  
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -831,7 +830,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2178,6 +2290,31 @@
+@@ -2178,6 +2289,31 @@
  
      public static void main(String[] par0ArrayOfStr)
      {
@@ -863,7 +862,7 @@
          HashMap var1 = new HashMap();
          boolean var2 = false;
          boolean var3 = true;
-@@ -2319,103 +2456,110 @@
+@@ -2319,103 +2455,110 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1069,7 +1068,7 @@
  
              if (var1)
              {
-@@ -2507,8 +2651,13 @@
+@@ -2507,8 +2650,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1083,7 +1082,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2516,6 +2665,7 @@
+@@ -2516,6 +2664,7 @@
  
              if (var1 != 0)
              {
@@ -1091,7 +1090,7 @@
                  return var0;
              }
          }
-@@ -2609,4 +2759,46 @@
+@@ -2609,4 +2758,46 @@
      {
          return this.field_94139_O;
      }

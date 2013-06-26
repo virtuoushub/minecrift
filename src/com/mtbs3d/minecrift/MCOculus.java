@@ -18,10 +18,15 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     public static final int CALIBRATE_AWAITING_ORIGIN = 1;
     public static final int CALIBRATE_AT_ORIGIN = 2;
     public static final int CALIBRATE_AWAITING_MAG_CAL = 3;
-    public static final int CALIBRATE_MAG_CAL_COOLDOWN = 4;
+    public static final int CALIBRATE_MAG_CAL_WAIT = 4;
+    public static final int CALIBRATE_MAG_CAL_COOLDOWN = 5;
+
+    public static final long COOLDOWNTIME_MS = 1000L;
+    public static final long MAG_CAL_REPOLL_TIME_MS = 200L;
 
     private boolean isCalibrated = false;
-    private long coolDownStart = 0;
+    private long coolDownStart = 0L;
+    private long lastUpdateAt = 0L;
     private int calibrationStep = NOT_CALIBRATING;
 
 	@Override
@@ -73,6 +78,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             }
             case CALIBRATE_AT_ORIGIN:
             case CALIBRATE_AWAITING_MAG_CAL:
+            case CALIBRATE_MAG_CAL_WAIT:
             {
                 step = "Slowly look left, right, up";
                 break;
@@ -92,9 +98,9 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     {
         if (eventId == IOrientationProvider.EVENT_SET_ORIGIN)
         {
-            resetOrigin();
             if (calibrationStep == CALIBRATE_AWAITING_ORIGIN)
             {
+                resetOrigin();
                 calibrationStep = CALIBRATE_AT_ORIGIN;
                 processCalibration();
             }
@@ -107,6 +113,8 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         {
             case NOT_CALIBRATING:
             {
+                lastUpdateAt = 0;
+                coolDownStart = 0;
                 calibrationStep = CALIBRATE_AWAITING_ORIGIN;
                 isCalibrated = false;
                 break;
@@ -125,11 +133,25 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                     coolDownStart = System.currentTimeMillis();
                     calibrationStep = CALIBRATE_MAG_CAL_COOLDOWN;
                 }
+                else
+                {
+                    lastUpdateAt = System.currentTimeMillis();
+                    calibrationStep = CALIBRATE_MAG_CAL_WAIT;
+                }
+                break;
+            }
+            case CALIBRATE_MAG_CAL_WAIT:
+            {
+                if ((System.currentTimeMillis() - lastUpdateAt) > MAG_CAL_REPOLL_TIME_MS)
+                {
+                    lastUpdateAt = 0;
+                    calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
+                }
                 break;
             }
             case CALIBRATE_MAG_CAL_COOLDOWN:
             {
-                if ((System.currentTimeMillis() - coolDownStart) > 1000L)
+                if ((System.currentTimeMillis() - coolDownStart) > COOLDOWNTIME_MS)
                 {
                     calibrationStep = NOT_CALIBRATING;
                     isCalibrated = true;
