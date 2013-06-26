@@ -46,6 +46,21 @@ before installing this mod. I've gotten FTB 1.5.2 to start up and run, but
 haven't tested all the nooks and crannies of the mod. Caveat Modder.
 
 ---
+Where to get it?
+----------------
+
+We make regular releases and update the MTBS3D forum thread when a release is 
+ready for general use. However, if you can't wait that long, we do have a 
+continuous integration serivce generously provided by 
+[CloudBees](http://www.cloudbees.com). 
+
+Click the button below to go to our Jenkins page where you can download the
+latest build hot-off-the-presses.
+
+[![Powered By CloudBees](http://www.cloudbees.com/sites/default/files/Button-Powered-by-CB.png)
+](https://minecraftvr.ci.cloudbees.com/job/minecrift/)
+
+---
 
 Installation
 ------------
