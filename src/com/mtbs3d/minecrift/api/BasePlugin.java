@@ -166,6 +166,15 @@ public abstract class BasePlugin implements IBasePlugin {
 				p.poll();
 		}
 	}
+
+    public static void notifyAll(int eventId)
+    {
+        for( IBasePlugin p : allPlugins )
+        {
+            if( p.isInitialized() )
+                p.eventNotification(eventId);
+        }
+    }
 	
 	public static void destroyAll()
 	{

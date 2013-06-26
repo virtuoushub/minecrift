@@ -684,4 +684,13 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		return a.addVector(b.xCoord, b.yCoord, b.zCoord);
 	}
 
+    @Override
+    public void eventNotification(int eventId)
+    {
+        if (eventId == IOrientationProvider.EVENT_SET_ORIGIN)
+        {
+            resetOrigin();
+            resetOriginRotation();
+        }
+    }
 }

@@ -104,4 +104,7 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
 	public void resetOriginRotation() {
 	}
 
+    @Override
+    public void eventNotification(int eventId) {
+    }
 }

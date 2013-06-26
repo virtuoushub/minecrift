@@ -8,7 +8,10 @@ import java.io.File;
 
 public interface IBasePlugin {
 
-	float PIOVER180 = (float)(Math.PI/180); 
+	float PIOVER180 = (float)(Math.PI/180);
+
+    static final int EVENT_SET_ORIGIN = 0;
+    static final int EVENT_CALIBRATION_ABORT = 1;
 
 	/** 
 	 * Plugin ID: should be fixed per plugin! Used in optionsvr.txt
@@ -37,4 +40,6 @@ public interface IBasePlugin {
 	public boolean isCalibrated();
 	
 	public String getCalibrationStep();
+
+    public void eventNotification(int eventId);
 }

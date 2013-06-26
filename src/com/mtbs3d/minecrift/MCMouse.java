@@ -150,4 +150,8 @@ public class MCMouse extends BasePlugin implements ILookAimController {
 	public String getCalibrationStep() {
 		return "";
 	}
+
+    @Override
+    public void eventNotification(int eventId) {
+    }
 }

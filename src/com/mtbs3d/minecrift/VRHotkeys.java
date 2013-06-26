@@ -4,6 +4,7 @@
  */
 package com.mtbs3d.minecrift;
 
+import com.mtbs3d.minecrift.api.IBasePlugin;
 import org.lwjgl.input.Keyboard;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
@@ -26,7 +27,7 @@ public class VRHotkeys {
 	    	BasePlugin.destroyAll();
 	    	mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
 	    }
-	
+
 	    // Distortion on / off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_P && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
@@ -212,9 +213,15 @@ public class VRHotkeys {
 	    }
 
         // Reset positional track origin
-        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
         {
             mc.gameSettings.posTrackResetPosition = true;
+        }
+
+        // If a plugin is performing calibration, space also sets the origin
+        if (Keyboard.getEventKey() == Keyboard.KEY_SPACE)
+        {
+            BasePlugin.notifyAll(IBasePlugin.EVENT_SET_ORIGIN);
         }
 	}
 }
