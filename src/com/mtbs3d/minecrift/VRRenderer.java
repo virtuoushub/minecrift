@@ -220,15 +220,12 @@ public class VRRenderer extends EntityRenderer
         {
         	//Do in-game camera adjustments if renderViewEntity exists
 	        //A few game effects
-        	//Disable view bobbing and other camera effects
-        	/*
 	        this.hurtCameraEffect(renderPartialTicks);
 	
 	        if (this.mc.gameSettings.viewBobbing)
 	        {
 	            this.setupViewBobbing(renderPartialTicks);
 	        }
-	        */
 	        
 	        //For doing camera collision detection
 	        double camX = renderOriginX + camRelX;
@@ -474,9 +471,6 @@ public class VRRenderer extends EntityRenderer
         	cameraYaw = lookYawOffset;
         }
         
-        //if(aimPitch > cameraPitch + 45 )
-        //	aimPitch = cameraPitch + 45;
-        
         if( entity != null )
         {
         	//set movement direction
@@ -650,9 +644,6 @@ public class VRRenderer extends EntityRenderer
         
         GL11.glClearColor(0, 0, 0, 1);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
-        //setup camera (polls rift, reads mouse inputs, etc). Sets cameraPitch, cameraYaw, and cameraRoll, compute neck-model camera position, sets look vector
-        //updateCamera(renderPartialTicks, Display.isActive());
 
         if (this.mc.theWorld != null)
         {
