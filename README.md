@@ -1,7 +1,7 @@
 Minecrift Mod for Minecraft
 ===========================
 
-Current Version: 0.27 alpha
+Current Version: 0.28 alpha
 
 StellaArtois, mabrowning 2013
 
@@ -59,32 +59,27 @@ launcher](http://www.minecraftforum.net/topic/939149-launcher-magic-launcher-114
 which is available for Windows, OSX, and Linux.
 
 - Download Optifine HD D3, but don't extract.
-- Extract the minecrift\_0\_26.zip
+- Extract the minecrift\_0\_28.zip
 - Open the Magic Launcher.
 - Click the 'Setup' configuration button.
 - Create a new Configuration and call it "minecrift" (or whatever you prefer)
 - Add these zips, in order:
   - OptiFine\_1.5.2\_HD\_U\_D3.zip 
   - JRift.jar 
-  - minecrift\_0\_27\_classes.zip 
+  - minecrift\_0\_28\_classes.zip 
 - Click 'Test' to make sure it works.
 - When satisfied, click 'OK' to Save the configuration.
 - From now on, just start Magic Launcher and use the "minecrift" configuration to play!
 
 
-In addition, I *Strongly* recommend you get updated
-[LWJGL](http://sourceforge.net/projects/java-game-lib/files/Official%20Releases/LWJGL%202.9.0/)
-and [OpenAL](http://kcat.strangesoft.net/openal.html) libraries for the best
-possible experience.  Minecrift was developed with LWJGL 2.9.0 and OpenAL
-1.15.1. Using older versions may yield unpleasant results.
-
+In addition, you will need to [update LWJGL to the latest version](http://www.minecraftwiki.net/wiki/LWJGL). Older versions are unsupported.
 
 Manual
 ------
 
 It is possible to install Minecrift without using the Magic launcher, but this
 way hasn't been tested as well. Use the steps below according to your operating
-system.
+system. You'll still need to update LWJGL accordig to the tutorial linked above.
 
 Windows
 -------
@@ -97,7 +92,7 @@ Minecrift for Windows requires Vista or above and a graphics card & driver capab
 - Select all, and drag and drop in the *entire contents* of the
   OptiFine\_1.5.2\_HD\_U\_D3.zip into the minecraft.jar.
 - Select all, and drag and drop in the *entire contents* of the
-  /minecrift\_0\_27\_classes.zip (but not the zip itself) from the Minecrift
+  /minecrift\_0\_28\_classes.zip (but not the zip itself) from the Minecrift
   zip into the minecraft.jar archive.
 - Select all, and drag and drop in the *entire contents* of the
   /JRift.jar (but not the zip itself) from the Minecrift
@@ -163,11 +158,8 @@ Obviously you will want to be at 1280X800 fullscreen for the Oculus Rift DK1.
 Known Issues
 ------------
 
-There are (not so) many.
-
 - FSAA (Super Sampling) doens't work on OSX and is disabled.
 - Linux doesn't support Oculus Rift head tracker (yet).
-- Rarely, water and other effects are misrendered for a few frames.
 - A white line can sometimes be seen at the top or bottom edge of the HUD. No
   known workaround.
 
@@ -175,14 +167,19 @@ There are (not so) many.
 Feedback, bug reporting
 -----------------------
 
-Please post feedback, bug reports etc. to the [forum thread at
+Please post feedback, bug reports etc. to the [GitHub issue
+tracker](https://github.com/mabrowning/minecrift/issues). Please search before
+posting to see if the issue has already been reported
+
+There is als discussion happening at this [forum thread at
 MTBS](http://www.mtbs3d.com/phpbb/viewtopic.php?f=140&t=17146)
 
 Roadmap
 -------
 
-- Alternate control scheme options; head look separate to body movement etc.
-- Investigate gamepad / Razor Hydra support.
+- Investigate gamepad support.
+- Make contols remappable.
+- Add more natural VR interfaces.
 - Fix bugs.
 
 Release Notes

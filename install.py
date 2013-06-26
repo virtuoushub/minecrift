@@ -157,6 +157,7 @@ def main(mcp_dir):
 
     try:
         symlink( os.path.join( base_dir, "JRift","JRift.jar"), os.path.join( mcp_dir, "lib" ,"JRift.jar") )
+        symlink( os.path.join( base_dir, "Sixense-Java","SixenseJava.jar"), os.path.join( mcp_dir, "lib" ,"SixenseJava.jar") )
     except WindowsError:
         pass
     
