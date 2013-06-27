@@ -30,20 +30,21 @@ What is Minecrift?
 
 The cheesy name apart, Minecrift attempts to update Minecraft to support the
 Oculus Rift. Initially this means allowing head-tracking input and using the
-correct stereo rendering parameters for the Rift. In the future this also means
-updating Minecraft for various control schemes. Minecrift is also meant as a
-kick up the arse to Mojang, so that they can add official Oculus support in the
-near future. If and when Minecraft officially supports the Rift, Minecrift
-development might cease (unless they make a complete hash of it).
-
+correct stereo rendering parameters for the Rift. We also are in the progress
+of supporting different control schemes and positional head tracking. Minecraft
+for various control schemes. Minecrift is also meant as a kick up the arse to
+Mojang, so that they can add official Oculus support in the near future. If and
+when Minecraft officially supports the Rift, Minecrift development might cease
+(unless they make a complete hash of it), but probably not.
 
 Disclaimer
 ----------
 
 I recommend using a vanilla Minecraft.jar file for this. Forge compatibility is
 mostly in place, but there may be a bugs.  BACK UP your original minecraft.jar
-before installing this mod. I've gotten FTB 1.5.2 to start up and run, but
-haven't tested all the nooks and crannies of the mod. Caveat Modder.
+and any maps you care about before installing this mod. I've gotten FTB 1.5.2
+to start up and run, but haven't tested all the nooks and crannies of the mod.
+Caveat Modder.
 
 ---
 Where to get it?
@@ -81,6 +82,7 @@ which is available for Windows, OSX, and Linux.
 - Add these zips, in order:
   - OptiFine\_1.5.2\_HD\_U\_D3.zip 
   - JRift.jar 
+  - SixenseJava.jar (if you have a Razer Hydra)
   - minecrift\_1.0\_beta\_classes.zip 
 - Click 'Test' to make sure it works.
 - When satisfied, click 'OK' to Save the configuration.
@@ -112,6 +114,9 @@ Minecrift for Windows requires Vista or above and a graphics card & driver capab
 - Select all, and drag and drop in the *entire contents* of the
   /JRift.jar (but not the zip itself) from the Minecrift
   zip into the minecraft.jar archive.
+- If you have a Razer Hydra and would like to use it, Select all, and drag and
+  drop in the *entire contents* of the /SixenseJava.jar (but not the zip
+  itself) from the Minecrift zip into the minecraft.jar archive.
 - Make sure to delete the META-INF folder in minecraft.jar. Close 7zip /
   winzip.
 - *IMPORTANT* (but only required once). Install the Microsoft VS2012 C++
