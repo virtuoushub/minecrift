@@ -160,9 +160,10 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public void poll() {
         // Poll hydras, get position information in metres
         Sixense.getAllNewestData(newData);
+        Minecraft mc = Minecraft.getMinecraft();
 
         ControllerData cont1, cont2;
-        if (Minecraft.getMinecraft().gameSettings.posTrackHydraUseController1)
+        if (mc.gameSettings.posTrackHydraUseController1)
         {
         	cont1 = newData[0];
         	cont2 = newData[1];
@@ -201,7 +202,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 			cont2Pitch = cont2.pitch;
 			cont2Roll  = cont2.roll;
 	
-	        userScale = SCALE * Minecraft.getMinecraft().gameSettings.posTrackHydraDistanceScale;
+	        userScale = SCALE * mc.gameSettings.posTrackHydraDistanceScale;
 	
 	        cont1PosX = userScale * cont1.pos[0] * XDIRECTION;
 	        cont1PosY = userScale * cont1.pos[1] * YDIRECTION;
@@ -231,18 +232,6 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         }
 
 	        
-        if( resetOriginRotation )
-        {
-        	float prevTotal = lookYaw + cont1Yaw - yawOffset;
-        	yawOffset = cont1Yaw;
-        	if( Minecraft.getMinecraft().thePlayer == null )
-        		//Reset lookYaw for main menu
-        		lookYaw = 0;
-        	else
-        		lookYaw = prevTotal;
-        }
-
-        Minecraft mc = Minecraft.getMinecraft();
         if( mc.lookaimController != this) return;
         if( mc.theWorld != null )
         {
@@ -255,7 +244,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        if((cont2.buttons & EnumButton.START.mask())>0 &&
 	        	(lastcont2Buttons & EnumButton.START.mask()) == 0)
 	        {
-	        	if(Minecraft.getMinecraft().currentScreen != null)
+	        	if(mc.currentScreen != null)
 		        	thePlayer.closeScreen();
 	        	else
 		        	settings.keyBindInventory.pressTime=1;
@@ -264,10 +253,10 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        if((cont1.buttons & EnumButton.START.mask())>0 &&
 	        	(lastcont1Buttons & EnumButton.START.mask()) == 0)
 	        {
-	        	if(Minecraft.getMinecraft().currentScreen != null)
+	        	if(mc.currentScreen != null)
 		        	thePlayer.closeScreen();
 	        	else
-		        	Minecraft.getMinecraft().displayInGameMenu();
+		        	mc.displayInGameMenu();
 	        }
 	       
 	        if( mc.currentScreen == null )
@@ -276,8 +265,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        	hydraMouseY = 0;
 	
 		        //Now, do aim/look/move 
-				lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
-				aimYaw = lookYaw + cont2Yaw ;
+                lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
+                aimYaw = lookYaw + cont2Yaw ;
 		        
 		        if( thePlayer != null )
 		        {
@@ -559,6 +548,19 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	@Override
 	public void resetOriginRotation() {
 		resetOriginRotation = true;
+
+        Minecraft mc = Minecraft.getMinecraft();
+        if( resetOriginRotation && mc.headTracker == this )
+        {
+        	float prevTotalYaw = mc.lookaimController.getLookYawOffset() + getYawDegrees_LH();
+        	yawOffset = cont1Yaw;
+        	if( mc.thePlayer == null )
+        		//Reset lookYaw for main menu
+        		mc.lookaimController.setLookYawOffset(0);
+        	else
+        		mc.lookaimController.setLookYawOffset(prevTotalYaw);
+        }
+
 	}
 
 	@Override
@@ -679,6 +681,11 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	@Override
 	public float getLookYawOffset() {
 		return lookYaw;
+	}
+
+	@Override
+	public void setLookYawOffset(float yawOffset) {
+		lookYaw = yawOffset;
 	}
 
 	@Override

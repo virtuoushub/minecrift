@@ -16,6 +16,10 @@ public interface ILookAimController extends IBasePlugin {
 	 */
 	public float getLookYawOffset();
 	/**
+	 * Sets the "look" yaw. Used in conjunction with origin setting.
+	 */
+	public void setLookYawOffset(float yawOffset);
+	/**
 	 * Gets the "look" pitch. This is the direction the player will "look" or the camera will face. Head pitch is added to this.
 	 * @return Pitch, in absolute world space degrees
 	 */

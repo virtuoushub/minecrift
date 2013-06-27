@@ -76,44 +76,52 @@ public class MCMouse extends BasePlugin implements ILookAimController {
 
             //Pitch
             if( this.mc.gameSettings.pitchInputAffectsCamera )
+            {
             	lookPitch  += (adjustedMouseDeltaY * (float)yDirection);
+	            if( lookPitch > 90 )
+	            	lookPitch = 90;
+	            if( lookPitch < -90 )
+	            	lookPitch = -90;
+            }
             else
             	lookPitch = 0;
 
-            if( lookPitch > 90 )
-            	lookPitch = 90;
-            if( lookPitch < -90 )
-            	lookPitch = -90;
-
-            if( this.mc.gameSettings.lookAimDecoupled )
+            if( !this.mc.gameSettings.pitchInputAffectsCamera )
             {
             	aimPitch += (adjustedMouseDeltaY * (float)yDirection);
+	            if( aimPitch > 90 )
+	            	aimPitch = 90;
+	            if( aimPitch < -90 )
+	            	aimPitch = -90;
             }
             else
             {
             	aimPitch = lookPitch;
             }
 
-            if( aimPitch > 90 )
-            	aimPitch = 90;
-            if( aimPitch < -90 )
-            	aimPitch = -90;
-            
-            if( aimPitch != 90 && aimPitch != -90 )
+        	float headYaw = this.mc.headTracker.getYawDegrees_LH();
+        	float keyholeYaw = this.mc.gameSettings.aimKeyholeWidthDegrees;
+            if( aimPitch != 90 && aimPitch != -90 && adjustedMouseDeltaX != 0 )
             {
-	            
+                aimYaw += adjustedMouseDeltaX;
+
 	            //Yaw
-	            if( !this.mc.gameSettings.lookAimDecoupled || Math.abs(aimYaw - lookYaw + adjustedMouseDeltaX) > this.mc.gameSettings.aimKeyholeWidthDegrees/2 )
-	            {
-	                lookYaw += adjustedMouseDeltaX ;
-	                lookYaw %= 360;
-	            }
 	            if( !this.mc.gameSettings.lookAimDecoupled )
-	            	aimYaw = lookYaw;
-	            else
-	                aimYaw += adjustedMouseDeltaX;
-	                aimYaw %= 360;
-	
+	                lookYaw = aimYaw;
+	            else if( aimYaw > (headYaw + lookYaw + keyholeYaw/2) )
+	            	lookYaw += adjustedMouseDeltaX;
+	            else if( aimYaw < (headYaw + lookYaw - keyholeYaw/2))
+	            	lookYaw += adjustedMouseDeltaX;
+                aimYaw %= 360;
+                lookYaw %= 360;
+            }
+            else if( this.mc.gameSettings.lookAimDecoupled )//maybe head moved? drag aim along
+            {
+	            if( aimYaw > (headYaw + lookYaw + keyholeYaw/2) )
+	            	aimYaw = headYaw + lookYaw + keyholeYaw/2;
+	            else if( aimYaw < (headYaw + lookYaw - keyholeYaw/2))
+	            	aimYaw = headYaw + lookYaw - keyholeYaw/2;
+            	
             }
 		}
 	}
@@ -124,6 +132,11 @@ public class MCMouse extends BasePlugin implements ILookAimController {
 	@Override
 	public float getLookYawOffset() {
 		return lookYaw;
+	}
+
+	@Override
+	public void setLookYawOffset( float yawOffset ) {
+		lookYaw = yawOffset;
 	}
 
 	@Override

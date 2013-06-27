@@ -7,24 +7,25 @@ package com.mtbs3d.minecrift.gui;
 import java.util.List;
 
 import com.mtbs3d.minecrift.MCHydra;
-import com.mtbs3d.minecrift.VRRenderer;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
-import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
 import net.minecraft.src.*;
 
 public class GuiMoveAimSettings extends BaseGuiSettings
 {
-    /** An array of all of EnumOption's movement options. */
-    static EnumOptions[] moveAimOptions = new EnumOptions[] {
-        EnumOptions.DECOUPLEAIMLOOK,
-        EnumOptions.DECOUPLEMOVELOOK,
-        EnumOptions.MOVEMENT_MULTIPLIER,
+    /** An array of all of EnumOption's movement options relevant to the hydra. */
+    static EnumOptions[] hydraMoveAimOptions = new EnumOptions[] {
         EnumOptions.JOYSTICK_SENSITIVITY,
-        EnumOptions.PITCH_AFFECTS_CAMERA,
+        EnumOptions.DECOUPLEMOVELOOK,
+    };
+    /** An array of all of EnumOption's movement options relevant to the mouse. */
+    static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
+        EnumOptions.DECOUPLEMOVELOOK,
+        EnumOptions.PITCH_AFFECTS_CAMERA,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
+	private boolean reinit;
 
     public GuiMoveAimSettings(GuiScreen par1GuiScreen,
                             GameSettings par2GameSettings)
@@ -45,7 +46,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>)BasePlugin.controllerPlugins, this.guiGameSettings.controllerPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
-        EnumOptions[] var10 = moveAimOptions;
+        EnumOptions[] var10 = guiGameSettings.controllerPluginID.equals(MCHydra.pluginID)?hydraMoveAimOptions:mouseMoveAimOptions ;
         int var11 = var10.length;
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
@@ -92,6 +93,19 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     }
 
     /**
+     * Draws the screen and all the components in it.
+     */
+    public void drawScreen(int par1, int par2, float par3)
+    {
+        if (reinit)
+        {
+            initGui();
+            reinit = false;
+        }
+        super.drawScreen(par1,par2,par3);
+    }
+
+    /**
      * Fired when a control is clicked. This is the equivalent of ActionListener.actionPerformed(ActionEvent e).
      */
     protected void actionPerformed(GuiButton par1GuiButton)
@@ -115,7 +129,65 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             	this.mc.gameSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
                 this.mc.gameSettings.saveOptions();
             	this.mc.lookaimController = BasePlugin.configureController(this.mc.gameSettings.controllerPluginID);
+            	this.reinit = true;
             }
         }
+    }
+
+    @Override
+    protected String[] getTooltipLines(String displayString, int buttonId)
+    {
+    	/*
+        EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.DECOUPLEMOVELOOK,
+        EnumOptions.KEYHOLE_WIDTH,
+        EnumOptions.PITCH_AFFECTS_CAMERA,
+    	 */
+        EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        if( e != null )
+            switch(e)
+            {
+                case JOYSTICK_SENSITIVITY:
+                    return new String[] {
+                            "Joystick Sensitivity",
+                            "The higher the value, the more you turn.",
+                            "  Doesn't affect forward/backward speed",
+                            "  Recommended value: 4.0" } ;
+                case DECOUPLEMOVELOOK:
+                    return new String[] {
+                            "Decouple Movement from Looking - \"Tank mode\"",
+                            "  OFF: You always move in the direction you are facing",
+                            "  ON: You move in the direction of the GUI - turning",
+                            "     your head will not affect movement direction",
+                            "  Recommended value: ON" } ;
+                case KEYHOLE_WIDTH:
+                    return new String[] {
+                            "Allows the mouse some flexbility within a \"keyhole\"",
+                            "  that doesn't turn the player.",
+                            "If set to \"Fully Coupled\", any mouse movement will",
+                            "  turn the camera.",
+                            "Otherwise, this value is the horizontal width (in degrees)",
+                            "  of the keyhole in which the cursor can freely move.",
+                            "  Recommended value: > 60°"} ;
+                case PITCH_AFFECTS_CAMERA:
+                    return new String[] {
+                            "Adjusts whether the mouse can control the camera pitch",
+                            "  OFF: No, the only way to control pitch is your head",
+                            "  ON: Yes, moving the mouse up and down will move the",
+                            "     camera up and down", };
+                default:
+                    return null;
+            }
+        else
+            switch(buttonId)
+            {
+                case 201:
+                    return new String[] {
+                            "Changes the method for controlling aiming, looking, ",
+                            "  and movement."
+                    };
+                default:
+                    return null;
+            }
     }
 }

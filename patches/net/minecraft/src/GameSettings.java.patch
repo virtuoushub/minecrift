@@ -149,7 +149,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +487,144 @@
+@@ -414,6 +487,148 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -193,6 +193,10 @@
 +        if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
 +        {
 +            this.aimKeyholeWidthDegrees = par2;
++            if( par2 < 5 )
++            	this.lookAimDecoupled = false;
++            else
++            	this.lookAimDecoupled = true;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.HUD_SCALE)
@@ -294,7 +298,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1373,128 @@
+@@ -1162,12 +1377,124 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -348,10 +352,6 @@
 +        if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
 +        {
 +            this.lookMoveDecoupled = !this.lookMoveDecoupled;
-+        }
-+        if (par1EnumOptions == EnumOptions.DECOUPLEAIMLOOK)
-+        {
-+            this.lookAimDecoupled = !this.lookAimDecoupled;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
@@ -424,7 +424,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1952,232 @@
+@@ -1625,6 +1952,231 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -547,17 +547,16 @@
 +        {
 +            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
 +        }
-+        else if (par1EnumOptions == EnumOptions.DECOUPLEAIMLOOK)
-+        {
-+            return this.lookAimDecoupled? var4 + "ON" : var4 + "OFF";
-+        }
 +        else if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
 +        {
 +            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.joystickSensitivity) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
 +        {
-+            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.aimKeyholeWidthDegrees) });
++        	if(this.aimKeyholeWidthDegrees>=5)
++	            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.aimKeyholeWidthDegrees) });
++        	else
++        		return var4 + "Fully Coupled";
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
 +        {
@@ -657,7 +656,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2872,276 @@
+@@ -2319,6 +2871,276 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -934,7 +933,7 @@
      }
  
      /**
-@@ -2479,6 +3302,63 @@
+@@ -2479,6 +3301,63 @@
              var3.printStackTrace();
          }
  
@@ -998,7 +997,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3537,74 @@
+@@ -2657,4 +3536,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

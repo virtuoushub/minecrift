@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,54 @@
+@@ -97,7 +97,53 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -47,7 +47,6 @@
 +
 +    //Movement/aiming controls
 +    DECOUPLEMOVELOOK("Decouple Look/Move", false, true),
-+    DECOUPLEAIMLOOK("Decouple Look/Aim", false, true),
 +    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
 +    PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true),
 +    JOYSTICK_SENSITIVITY("Joystick Sensitivity",true,false),
