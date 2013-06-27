@@ -5,7 +5,7 @@
 - Razer Hydra free-aim controls.
 - Razer Hydra joystick/button controls.
 - Oculus Rift magnetic yaw calibration.
-- Calibration messags.
+- Calibration messages.
 - Orientation adjustment with 'SPACEBAR'.
 - New GUI organization.
 - GUI Tooltips for ease-of-use!

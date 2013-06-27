@@ -86,7 +86,8 @@ which is available for Windows, OSX, and Linux.
   - minecrift\_1.0\_beta\_classes.zip 
 - Click 'Test' to make sure it works.
 - When satisfied, click 'OK' to Save the configuration.
-- From now on, just start Magic Launcher and use the "minecrift" configuration to play!
+- From now on, just start Magic Launcher and use the "minecrift" configuration
+  to play!
 
 
 In addition, you will need to [update LWJGL to the latest version](http://www.minecraftwiki.net/wiki/LWJGL). Older versions are unsupported.
@@ -157,28 +158,29 @@ include SixenseJava.jar in your modlist to enable the functionality.
  - Controller: Use the right controller to turn the view left/right, move
    forward and backwards, place blocks, mine, select item, jump, sneak, access
    your inventory and navigate menus. The controls are currently hardcoded:
-     Joystick X: Turn left/right
-	 Joystick Y: Move forward/back
-	 1: Drop item
-	 2: Jump
-	 3: Select next left item (mousewheel up)
-	 4: Select next right item (mousewheel down)
-	 JOYSTICK: Sneak
-	 Bumper: Place block/use item/interact (right mouse)
-	 Trigger: Mine block (left mouse)
-	 Start: Access Inventory
+ - In game:
+   - Joystick X: Turn left/right
+   - Joystick Y: Move forward/back
+   - 1: Drop item
+   - 2: Jump
+   - 3: Select next left item (mousewheel up)
+   - 4: Select next right item (mousewheel down)
+   - JOYSTICK: Sneak
+   - Bumper: Place block/use item/interact (right mouse)
+   - Trigger: Mine block (left mouse)
+   - Start: Access Inventory
 
-	 In Menus/Inventories:
-	 Joystick: mouse mouse up/down/left/right (don't use the actual mouse at
+ -  In Menus/Inventories:
+   - Joystick: mouse up/down/left/right (don't use the actual mouse at
 			   the same time: known issue)
-	 Trigger: Left Click
-	 Bumper: Right Click
-	 JOYSTICK: "Shift"
+   - Trigger: Left Click
+   - Bumper: Right Click
+   - JOYSTICK: "Shift"
 
-	 You should be able to take advantage of the new 1.5 inventory management
+ - You should be able to take advantage of the new 1.5 inventory management
 	 controls with this joystick mapping.
 
-	 Joystick sensitivity can be set in VR Options.
+Joystick sensitivity can be set in VR Options.
 
 Controls/Usage
 --------
