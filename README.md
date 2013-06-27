@@ -142,13 +142,57 @@ Linux
 Follow the same steps for MacOS, but use ~/.minecraft/ instead of
 ~/Library/Application Support/minecraft.
 
+----
+
+Razer Hydra
+-----------
+Version 1.0 is the first to include full Razer Hydra support. If you have one, 
+include SixenseJava.jar in your modlist to enable the functionality.
+ - OrientationTracker: If you don't have an Oculus Rift, you can use the left
+   controler for head orientation (direction).
+ - PositionTracker: This makes a huge immersion difference. The Hydra can feed
+   position data the game engine to allow you to look up, down, around corners,
+   squat, and generally move around. Use one or two controllers attached to
+   your head and adjust the offsets from your eye center on the VR Options.
+ - Controller: Use the right controller to turn the view left/right, move
+   forward and backwards, place blocks, mine, select item, jump, sneak, access
+   your inventory and navigate menus. The controls are currently hardcoded:
+     Joystick X: Turn left/right
+	 Joystick Y: Move forward/back
+	 1: Drop item
+	 2: Jump
+	 3: Select next left item (mousewheel up)
+	 4: Select next right item (mousewheel down)
+	 JOYSTICK: Sneak
+	 Bumper: Place block/use item/interact (right mouse)
+	 Trigger: Mine block (left mouse)
+	 Start: Access Inventory
+
+	 In Menus/Inventories:
+	 Joystick: mouse mouse up/down/left/right (don't use the actual mouse at
+			   the same time: known issue)
+	 Trigger: Left Click
+	 Bumper: Right Click
+	 JOYSTICK: "Shift"
+
+	 You should be able to take advantage of the new 1.5 inventory management
+	 controls with this joystick mapping.
+
+	 Joystick sensitivity can be set in VR Options.
+
 Controls/Usage
 --------
 
-Obviously you will want to be at 1280X800 full screen for the Oculus Rift DK1. 
+Here are some other hotkeys that allow quick access to changing VR settings.
 
 - All Minecrift settings are present in the Options->Minecrift screen, but
   keyboard shortcuts are also available for convenience
+- Make sure to read the tool-tips on each setting in VR Options to get an
+  understanding for what it is adjusting. VR is best when you tune the experience
+  to your setup.
+- Pressing space-bar while in a menu will reset the orientation of the head tracker 
+  to make the current direction "forward"
+
 - F1 to bring up the game HUD / overlay if it isn't already up. 
 - Ctrl and - / = for IPD adjustment. Hold ALT as well for fine adjustment. The
   IPD setting should be saved between sessions.
@@ -176,12 +220,6 @@ Obviously you will want to be at 1280X800 full screen for the Oculus Rift DK1.
   This can be used to improve rendering speed, at a potential loss of FOV.
 - Ctrl V cycles through head track sensitivity multipliers. Try this at your
   own risk!
-- Pressing space-bar while in a menu will reset the orientation of the head tracker 
-  to make the current direction "forward"
-
-- Make sure to read the tool-tips on each setting in VR Options to get an
-  understanding for what it is adjusting. VR is best when you tune the experience
-  to your setup.
 
 Known Issues
 ------------

@@ -1,3 +1,16 @@
+1.0 Beta  27-06-13
+==================
+- Positional head tracking with Razer Hydra.
+- Mouse free-look with keyhole adjustment.
+- Razer Hydra free-aim controls.
+- Razer Hydra joystick/button controls.
+- Oculus Rift magnetic yaw calibration.
+- Calibration messags.
+- Orientation adjustment with 'SPACEBAR'.
+- New GUI organization.
+- GUI Tooltips for ease-of-use!
+- A few rendering bug fixes.
+
 0.27 Alpha 12-06-13
 ===================
 - Fully 3D GUI with freelook always enabled.
