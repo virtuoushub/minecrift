@@ -75,14 +75,14 @@
 +    public float posTrackHydraLROffsetX = 0.0f;
 +    public float posTrackHydraLROffsetY = 0.0f;
 +    public float posTrackHydraLROffsetZ = 0.0f;
-+    public float posTrackHydraLOffsetX = 0.108f;
++    public float posTrackHydraLOffsetX = -0.108f;
 +    public float posTrackHydraLOffsetY = 0.0f;
 +    public float posTrackHydraLOffsetZ = 0.0f;
-+    public float posTrackHydraROffsetX = -0.108f;
++    public float posTrackHydraROffsetX = 0.108f;
 +    public float posTrackHydraROffsetY = 0.0f;
 +    public float posTrackHydraROffsetZ = 0.0f;
 +    public float posTrackHydraTOffsetX = 0.0f;
-+    public float posTrackHydraTOffsetY = -0.085f;
++    public float posTrackHydraTOffsetY = 0.085f;
 +    public float posTrackHydraTOffsetZ = 0.0f;
 +    public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 +	public float joystickSensitivity = 3f;
@@ -647,7 +647,7 @@
 +            if (this.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
 +                return var4 + "Both";
 +
-+            return this.posTrackHydraUseController1? var4 + "1" : var4 + "2";
++            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
 +        }
 +        else if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
 +        {

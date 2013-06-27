@@ -187,7 +187,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     	case DISTORTION_FIT_POINT:
     		return new String[] {
     				"The amount of space around the peripheral to leave empty",
-    				"  Lower values render more peripherial view. Going too" ,
+    				"  Lower values render more peripheral view. Going too" ,
     				"    low negatively impacts performance.",
     				"  Higher values limit the amount of rendering if the FOV",
     				"    is constrained for some reason (e.g. wearing glasses)"

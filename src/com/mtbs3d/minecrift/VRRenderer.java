@@ -34,7 +34,7 @@ public class VRRenderer extends EntityRenderer
     int _previousDisplayHeight = 0;
     public boolean _FBOInitialised = false;
     
-    boolean initialOrientationSet = false;
+    boolean guiYawOrientationResetRequested = true;
 
     // Shader Programs
     int _shaderProgramId = -1;
@@ -512,11 +512,12 @@ public class VRRenderer extends EntityRenderer
     	aim.rotateAroundY(-aimYaw   * PIOVER180);
         aimX = (float)aim.xCoord; aimY = (float)aim.yCoord; aimZ = (float)aim.zCoord;
         
-        if( calibrationHelper == null && !initialOrientationSet )
+        if(guiYawOrientationResetRequested)
         {
-        	//Hit once at startup after calibration completes
+        	//Hit once at startup and if reset requested (usually during calibration when an origin
+            //has been set)
         	guiHeadYaw = cameraYaw;
-        	initialOrientationSet = true;
+            guiYawOrientationResetRequested = false;
         }
     } 
 
@@ -714,20 +715,13 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glEnable(GL11.GL_TEXTURE_2D);
 		        guiFBO.bindTexture();
 
-		        
-		        if( initialOrientationSet )
-		        {
-			        float guiYaw;
-			        if( this.mc.theWorld != null && this.mc.gameSettings.lookMoveDecoupled)
-			        	guiYaw = this.mc.lookaimController.getLookYawOffset();
-			        else
-				        guiYaw = guiHeadYaw + this.mc.lookaimController.getLookYawOffset();
-					GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
-		        }
-		        else
-		        {
-					GL11.glRotatef(-cameraYaw, 0f, 1f, 0f);
-		        }
+                float guiYaw;
+                if( this.mc.theWorld != null && this.mc.gameSettings.lookMoveDecoupled)
+                    guiYaw = this.mc.lookaimController.getLookYawOffset();
+                else
+                    guiYaw = guiHeadYaw + this.mc.lookaimController.getLookYawOffset();
+                GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
+
 				if( this.mc.gameSettings.pitchInputAffectsCamera)
 		        	GL11.glRotatef( this.mc.lookaimController.getLookPitchOffset(), 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.gameSettings.hudDistance);
@@ -1960,8 +1954,8 @@ public class VRRenderer extends EntityRenderer
             this.mc.pointedEntityLiving = null;
             double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
             double entityReachDistance = blockReachDistance;
-            Vec3 pos = Vec3.createVectorHelper(renderOriginX+camRelX,renderOriginY+camRelY, renderOriginZ+camRelZ); 
-            Vec3 aim = Vec3.createVectorHelper(aimX,aimY,aimZ);
+            Vec3 pos = Vec3.createVectorHelper(renderOriginX + camRelX, renderOriginY + camRelY, renderOriginZ + camRelZ); 
+            Vec3 aim = Vec3.createVectorHelper(aimX, aimY, aimZ);
             Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
 
             this.mc.objectMouseOver = this.mc.theWorld.rayTraceBlocks(pos, endPos);
@@ -2016,5 +2010,10 @@ public class VRRenderer extends EntityRenderer
     public void startCalibration()
     {
     	calibrationHelper = new CalibrationHelper(mc);
+    }
+
+    public void resetGuiYawOrientation()
+    {
+        guiYawOrientationResetRequested = true;
     }
 }

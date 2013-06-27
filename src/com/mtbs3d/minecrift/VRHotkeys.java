@@ -222,6 +222,8 @@ public class VRHotkeys {
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {
             BasePlugin.notifyAll(IBasePlugin.EVENT_SET_ORIGIN);
+            if (mc.vrRenderer != null)
+                mc.vrRenderer.resetGuiYawOrientation();
         }
 	}
 }

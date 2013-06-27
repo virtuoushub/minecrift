@@ -188,6 +188,8 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             else if (par1GuiButton.id == 202) // Reset origin
             {
                 this.guiGameSettings.posTrackResetPosition = true;
+                if (vrRenderer != null)
+                    vrRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 203)
             {
@@ -241,20 +243,127 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 this.guiGameSettings.posTrackHydraLROffsetZ = 0.0f;
                 break;
             case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                this.guiGameSettings.posTrackHydraLOffsetX = 0.108f;
+                this.guiGameSettings.posTrackHydraLOffsetX = -0.108f;
                 this.guiGameSettings.posTrackHydraLOffsetY = 0.0f;
                 this.guiGameSettings.posTrackHydraLOffsetZ = 0.0f;
                 break;
             case GameSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
                 this.guiGameSettings.posTrackHydraTOffsetX = 0.0f;
-                this.guiGameSettings.posTrackHydraTOffsetY = -0.085f;
+                this.guiGameSettings.posTrackHydraTOffsetY = 0.085f;
                 this.guiGameSettings.posTrackHydraTOffsetZ = 0.0f;
                 break;
             case GameSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                this.guiGameSettings.posTrackHydraROffsetX = -0.108f;
+                this.guiGameSettings.posTrackHydraROffsetX = 0.108f;
                 this.guiGameSettings.posTrackHydraROffsetY = 0.0f;
                 this.guiGameSettings.posTrackHydraROffsetZ = 0.0f;
                 break;
         }
+    }
+
+    @Override
+    protected String[] getTooltipLines(String displayString, int buttonId)
+    {
+        EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        if( e != null )
+            switch(e)
+            {
+                case POS_TRACK_HYDRALOC:
+                    return new String[] {
+                            "Sets the location(s) of the Hydra controller(s) used",
+                            "for positional tracking.",
+                            "  L&R - One hydra is mounted to the left side of the ",
+                            "        HMD, one to the right side. The Hydra center",
+                            "        point is the average of the two reported locations.",
+                            "  L   - One Hydra is mounted to the left side of the HMD.",
+                            "  R   - One Hydra is mounted to the right side of the HMD.",
+                            "  T   - One Hydra is mounted to the top of the HMD."} ;
+                case POS_TRACK_HYDRA_DISTANCE_SCALE:
+                    return new String[] {
+                            "Sets the distance scale factor.",
+                            "  Allows adjustment of your perceived body movement",
+                            " in-game by the selected factor. Adjust this if the",
+                            " distance moved in game does not seem to match actual",
+                            " body distance travelled."
+                            } ;
+                case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
+                    return new String[] {
+                            "Sets the controller used for positional tracking.",
+                            "  If only one Hydra is used for positional tracking, sets",
+                            "  which controller is used. Left / right are as set during",
+                            "  the Hydra calibration process."
+                    } ;
+                case POS_TRACK_HYDRA_OFFSET_X:
+                    return new String[] {
+                            "Sets the left/right offset in mm of the Hydra center point",
+                            "from the HMD center (eye) point. Adjust these offsets if ",
+                            "rotational movement in-game does not quite match actual",
+                            "bodily rotation.",
+                            "  Negative values - The Hydra center is x mm to the left",
+                            "                    of the HMD (eye) center point.",
+                            "  Positive values - The Hydra center is x mm to the right",
+                            "                    of the HMD (eye) center point."
+                    };
+                case POS_TRACK_HYDRA_OFFSET_Y:
+                    return new String[] {
+                            "Sets the above/below offset in mm of the Hydra center",
+                            "point from the HMD center (eye) point. Adjust these",
+                            "offsets if rotational movement in-game does not quite",
+                            "match actual bodily rotation.",
+                            "  Negative values - The Hydra center point is y mm below",
+                            "                    the HMD (eye) center point.",
+                            "  Positive values - The Hydra center point is y mm above",
+                            "                    the HMD (eye) center."
+                    };
+                case POS_TRACK_HYDRA_OFFSET_Z:
+                    return new String[] {
+                            "Sets the towards head/away from head offset in mm of",
+                            "the Hydra center point from the HMD (eye) center point.",
+                            "Adjust these offsets if rotational movement in-game does",
+                            "not quite match actual bodily rotation.",
+                            "  Negative values - The Hydra center point is z mm behind",
+                            "                    the HMD center (eye) point.",
+                            "  Positive values - The Hydra center point is z mm in front",
+                            "                    of the HMD center (eye) point."
+                    };
+                case HYDRA_USE_FILTER:
+                    return new String[] {
+                            "Use the Hydra positional filter.",
+                            "  OFF - No filter is used; less latency but more positional",
+                            "        'jitter' may be noticed, especially at a greater",
+                            "        distance from the Hydra base unit.",
+                            "  ON  - Filter used. Less positional 'jitter', more latency."
+                    };
+                case POS_TRACK_HYDRA_OFFSET_SET_DEFAULT:
+                    return new String[] {
+                            "Set offset defaults for the selected Hydra location."
+                    };
+//                case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
+//                    return new String[] {
+//                            "Explain this! Good luck!"
+//                    };
+                default:
+                    return null;
+            }
+        else
+            switch(buttonId)
+            {
+                case 201:
+                    return new String[] {
+                            "Changes the method used for positional tracking."
+                    };
+                case 202:
+                    return new String[] {
+                            "Resets the origin point of the positional tracking",
+                            "to your current head position."
+                    };
+                case 203:
+                    return new String[] {
+                            "Starts calibration of the Oculus Rift headset",
+                            "  Press this button then follow the on screen",
+                            "  instructions."
+                    };
+                default:
+                    return null;
+            }
     }
 }

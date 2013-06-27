@@ -457,10 +457,11 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         rel.rotateAroundY(baseStationYawOffset*PIOVER180);
         
         
-        //Now, compute the offset from the hydra controller to the camera location. Straight from the settings
-        float hydraXOffset = gameSettings.getPosTrackHydraOffsetX();
-        float hydraYOffset = gameSettings.getPosTrackHydraOffsetY();
-        float hydraZOffset = gameSettings.getPosTrackHydraOffsetZ();
+        //Now, compute the offset from the hydra controller to the camera location. Straight from the settings (although negated -
+        //gameSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
+        float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
+        float hydraYOffset = -gameSettings.getPosTrackHydraOffsetY();
+        float hydraZOffset = -gameSettings.getPosTrackHydraOffsetZ();
 
         if (gameSettings.posTrackHydraDebugCentreEyePos)
         {

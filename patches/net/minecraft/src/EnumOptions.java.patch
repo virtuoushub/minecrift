@@ -36,9 +36,9 @@
 +
 +    //eye center position tracking
 +    POS_TRACK_HYDRALOC("Position", false, false),
-+    POS_TRACK_HYDRA_OFFSET_X("Hydra->Center L/R", true, false),
-+    POS_TRACK_HYDRA_OFFSET_Y("Hydra->Ctr DWN/UP", true, false),
-+    POS_TRACK_HYDRA_OFFSET_Z("Hydra->Ctr IN/OUT", true, false),
++    POS_TRACK_HYDRA_OFFSET_X("Hydra X Offset", true, false),
++    POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
++    POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
 +    POS_TRACK_HYDRA_OFFSET_SET_DEFAULT("Default Offsets", false, true),
 +    POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
 +    POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
