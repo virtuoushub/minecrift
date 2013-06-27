@@ -423,6 +423,13 @@ public class VRRenderer extends EntityRenderer
     		calibrationHelper = null;
         }
 
+        if (this.mc.gameSettings.posTrackResetPosition)
+        {
+            mc.positionTracker.resetOrigin();
+            mc.headTracker.resetOrigin();
+            this.mc.gameSettings.posTrackResetPosition = false;
+        }
+
         BasePlugin.pollAll();
         
         float lookYawOffset   = mc.lookaimController.getLookYawOffset();
@@ -453,15 +460,6 @@ public class VRRenderer extends EntityRenderer
             else if (cameraRoll < -IOrientationProvider.MAXROLL)
                 cameraRoll = -IOrientationProvider.MAXROLL;
 
-            if (this.mc.thePlayer != null)
-            {
-            	this.mc.thePlayer.rotationPitch = cameraPitch;
-
-            	if( this.mc.gameSettings.lookMoveDecoupled )
-            		this.mc.thePlayer.rotationYaw = lookYawOffset;
-            	else
-                	this.mc.thePlayer.rotationYaw = cameraYaw;
-            }
             this.mc.mcProfiler.endSection();
         }
         else
@@ -483,12 +481,6 @@ public class VRRenderer extends EntityRenderer
         	
         }
 
-        if (this.mc.gameSettings.posTrackResetPosition)
-        {
-            mc.positionTracker.resetOrigin();
-            mc.headTracker.resetOrigin();
-            this.mc.gameSettings.posTrackResetPosition = false;
-        }
 
         //TODO: not sure if headPitch or cameraPitch is better here... they really should be the same; silly
         //people with their "pitch affects camera" settings.

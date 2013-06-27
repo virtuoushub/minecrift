@@ -67,6 +67,9 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	private float cont2Yaw;
 	private float cont2Pitch;
 	private float cont2Roll; 
+	
+	//For IOrientationProvider implementation; allows setting origin to set yaw offset as well
+	private float yawOffset = 0;
 
 
     private final float SCALE = 0.001f; //mm -> m
@@ -82,7 +85,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
     private float aimYaw;
 
     //Input/controller
-	int lastButtons = 0;
+	int lastcont1Buttons = 0;
+	int lastcont2Buttons = 0;
 	private int hydraMouseX = 0;
 	private int hydraMouseY = 0;
 	private boolean leftMouseClicked = false;
@@ -226,6 +230,9 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        cont2PosZ = 0;
         }
 
+	        
+        if( resetOriginRotation )
+        	yawOffset = cont1Yaw;
 
         Minecraft mc = Minecraft.getMinecraft();
         if( mc.lookaimController != this) return;
@@ -238,12 +245,21 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        GameSettings settings = mc.gameSettings;
 	
 	        if((cont2.buttons & EnumButton.START.mask())>0 &&
-	        	(lastButtons & EnumButton.START.mask()) == 0)
+	        	(lastcont2Buttons & EnumButton.START.mask()) == 0)
 	        {
 	        	if(Minecraft.getMinecraft().currentScreen != null)
 		        	thePlayer.closeScreen();
 	        	else
 		        	settings.keyBindInventory.pressTime=1;
+	        }
+
+	        if((cont1.buttons & EnumButton.START.mask())>0 &&
+	        	(lastcont1Buttons & EnumButton.START.mask()) == 0)
+	        {
+	        	if(Minecraft.getMinecraft().currentScreen != null)
+		        	thePlayer.closeScreen();
+	        	else
+		        	Minecraft.getMinecraft().displayInGameMenu();
 	        }
 	       
 	        if( mc.currentScreen == null )
@@ -253,7 +269,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	
 		        //Now, do aim/look/move 
 		        lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
-		        aimYaw = lookYaw + cont2Yaw;
+		        aimYaw = lookYaw + cont2Yaw ;
 		        
 		        if( thePlayer != null )
 		        {
@@ -278,7 +294,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        }
 		        	
 		        if((cont2.buttons & EnumButton.BUMPER.mask()) >0 && 
-		        	 (lastButtons & EnumButton.BUMPER.mask()) == 0)
+		        	 (lastcont2Buttons & EnumButton.BUMPER.mask()) == 0)
 		        {
 		        	mc.clickMouse(1);
 		        }
@@ -286,41 +302,41 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        	mc.gameSettings.keyBindUseItem.pressed = (cont2.buttons & EnumButton.BUMPER.mask()) >0 ;
 		        
 		        if((cont2.buttons & EnumButton.JOYSTICK.mask())>0 &&
-		        	 (lastButtons & EnumButton.JOYSTICK.mask()) == 0)
+		        	 (lastcont2Buttons & EnumButton.JOYSTICK.mask()) == 0)
 		        {
 		        	settings.keyBindSneak.pressed = true;
 		        }
-		        if(( lastButtons   & EnumButton.JOYSTICK.mask())>0 &&
+		        if(( lastcont2Buttons   & EnumButton.JOYSTICK.mask())>0 &&
 		        	(cont2.buttons & EnumButton.JOYSTICK.mask()) == 0)
 		        {
 		        	settings.keyBindSneak.pressed = false;
 		        }
 	
 		        if((cont2.buttons & EnumButton.BUTTON_1.mask())>0 &&
-		        	(lastButtons & EnumButton.BUTTON_1.mask()) == 0)
+		        	(lastcont2Buttons & EnumButton.BUTTON_1.mask()) == 0)
 		        {
 		        	settings.keyBindDrop.pressTime++;
 		        }
 	
 		        if((cont2.buttons & EnumButton.BUTTON_2.mask())>0 &&
-		        	(lastButtons & EnumButton.BUTTON_2.mask()) == 0)
+		        	(lastcont2Buttons & EnumButton.BUTTON_2.mask()) == 0)
 		        {
 		        	settings.keyBindJump.pressed = true;
 		        }
-		        if((lastButtons & EnumButton.BUTTON_2.mask())>0 &&
+		        if((lastcont2Buttons & EnumButton.BUTTON_2.mask())>0 &&
 		        	(cont2.buttons & EnumButton.BUTTON_2.mask()) == 0)
 		        {
 		        	settings.keyBindJump.pressed = false;
 		        }
 		        
 		        if((cont2.buttons & EnumButton.BUTTON_3.mask())>0 &&
-		        	(lastButtons & EnumButton.BUTTON_3.mask()) == 0)
+		        	(lastcont2Buttons & EnumButton.BUTTON_3.mask()) == 0)
 		        {
 		        	thePlayer.inventory.changeCurrentItem(1);
 		        }
 		
 		        if((cont2.buttons & EnumButton.BUTTON_4.mask())>0 &&
-		        	(lastButtons & EnumButton.BUTTON_4.mask()) == 0)
+		        	(lastcont2Buttons & EnumButton.BUTTON_4.mask()) == 0)
 		        {
 		        	thePlayer.inventory.changeCurrentItem(-1);
 		        }
@@ -369,19 +385,20 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
 	        if((cont2.buttons & EnumButton.BUMPER.mask())>0 )
 	        {
-	        	if ((lastButtons & EnumButton.BUMPER.mask()) == 0)
+	        	if ((lastcont2Buttons & EnumButton.BUMPER.mask()) == 0)
 	        		mc.currentScreen.mouseDown(mouseX,mouseY,1);
 	        	else
 	        		mc.currentScreen.mouseDrag(mouseX, mouseY);
 	        }
-	        else if( ( lastButtons & EnumButton.BUMPER.mask())>0 )
+	        else if( ( lastcont2Buttons & EnumButton.BUMPER.mask())>0 )
 	        {
         		mc.currentScreen.mouseUp(mouseX,mouseY,1);
 	        }
 	        
         }
 
-        lastButtons = cont2.buttons;
+        lastcont1Buttons = cont1.buttons;
+        lastcont2Buttons = cont2.buttons;
 	}
 
 	@Override
@@ -407,6 +424,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         {
         	//TODO: this might be backwards: with only a razer to test the yawHeadDegrees, its always the same!
         	baseStationYawOffset = cont1Yaw - yawHeadDegrees;
+        	lookYaw = 0;
         	resetOriginRotation = false;
         }
         
@@ -543,7 +561,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
 	@Override
 	public float getYawDegrees_LH() {
-		return cont1Yaw;
+		return cont1Yaw - yawOffset;
 	}
 
 	@Override
