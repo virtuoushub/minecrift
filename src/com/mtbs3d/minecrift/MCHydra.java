@@ -232,7 +232,15 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
 	        
         if( resetOriginRotation )
+        {
+        	float prevTotal = lookYaw + cont1Yaw - yawOffset;
         	yawOffset = cont1Yaw;
+        	if( Minecraft.getMinecraft().thePlayer == null )
+        		//Reset lookYaw for main menu
+        		lookYaw = 0;
+        	else
+        		lookYaw = prevTotal;
+        }
 
         Minecraft mc = Minecraft.getMinecraft();
         if( mc.lookaimController != this) return;
@@ -268,8 +276,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        	hydraMouseY = 0;
 	
 		        //Now, do aim/look/move 
-		        lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
-		        aimYaw = lookYaw + cont2Yaw ;
+				lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
+				aimYaw = lookYaw + cont2Yaw ;
 		        
 		        if( thePlayer != null )
 		        {
@@ -424,7 +432,6 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         {
         	//TODO: this might be backwards: with only a razer to test the yawHeadDegrees, its always the same!
         	baseStationYawOffset = cont1Yaw - yawHeadDegrees;
-        	lookYaw = 0;
         	resetOriginRotation = false;
         }
         

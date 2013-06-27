@@ -13,6 +13,8 @@ import net.minecraft.client.Minecraft;
 
 public class VRHotkeys {
 	
+	private static boolean setOrigin = false;
+
 	public static void handleKeyboardInputs(Minecraft mc)
 	{                                
 		// TODO: Capture oculus key events
@@ -221,9 +223,15 @@ public class VRHotkeys {
         // If a plugin is performing calibration, space also sets the origin
         if ( (mc.theWorld == null || mc.currentScreen != null ) && Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {
-            BasePlugin.notifyAll(IBasePlugin.EVENT_SET_ORIGIN);
-            if (mc.vrRenderer != null)
-                mc.vrRenderer.resetGuiYawOrientation();
+        	if( !setOrigin )
+        	{
+	            BasePlugin.notifyAll(IBasePlugin.EVENT_SET_ORIGIN);
+	            if (mc.vrRenderer != null)
+	                mc.vrRenderer.resetGuiYawOrientation();
+	            setOrigin = true;
+        	}
         }
+        else
+        	setOrigin = false;
 	}
 }
