@@ -2,7 +2,7 @@
 
 import os, os.path, sys
 import shutil, glob, fnmatch
-import subprocess, logging, shlex
+import subprocess, logging, shlex, re
 from optparse import OptionParser
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +12,7 @@ def cmdsplit(args):
         args = args.replace('\\', '\\\\')
     return shlex.split(args)
 
+crlf = re.compile(r"\n(?<!\r)")
 def create_patch( target_dir, src_file, mod_file, label, patch_file ):
     
     if os.name == 'nt':
@@ -25,7 +26,7 @@ def create_patch( target_dir, src_file, mod_file, label, patch_file ):
     stdout, stderr = process.communicate()
     if stdout:
         with open( patch_file, 'w') as out:
-            out.write(stdout)
+            out.write( crlf.sub("\r\n", stdout ))
 
 def main(mcp_dir):
     new_src_dir    = os.path.join( base_dir , "src" )
