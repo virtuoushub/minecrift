@@ -23,7 +23,7 @@ def apply_patch( mcp_dir, patch_file, target_dir ):
     else:
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             with open(patch_file,'rb') as patch:
-                temp_file.write( patch.read().replace("\r\n","\n"))
+                temp_file.write( patch.read())
             patch_file = temp_file.name
         cmd = cmdsplit('patch -p1 -i "%s" ' % patch_file )
 
