@@ -35,8 +35,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
-        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset to defaults"));
+        //this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
         int var9 = 0;
         EnumOptions[] var10 = minecriftDisplayOptions;
         int var11 = var10.length;
@@ -124,11 +124,6 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 			    this.mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
 			    this.guiGameSettings.saveOptions();
             }
-            else if (par1GuiButton.id == 202)
-            {
-	            if (vrRenderer != null)
-	            	vrRenderer.startCalibration();
-            }
 
             if (num == EnumOptions.USE_DISTORTION ||
 	            num == EnumOptions.SUPERSAMPLING ||
@@ -211,7 +206,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     	{
 	    	case 201:
 	    		return new String[] {
-	    			"Resets all values to default"
+	    			"Resets all values on this screen to their defaults"
 	    		};
 	    	case 202:
 	    		return new String[] {

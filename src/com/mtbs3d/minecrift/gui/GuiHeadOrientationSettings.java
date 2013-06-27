@@ -36,7 +36,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset"));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset to defaults"));
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
         pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>)BasePlugin.orientPlugins, this.guiGameSettings.headTrackerPluginID );
         this.buttonList.add(pluginModeChangeutton);
@@ -132,5 +132,57 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         {
             mc.headTracker.setPrediction(this.mc.gameSettings.headTrackPredictionTimeSecs, this.mc.gameSettings.useHeadTrackPrediction);
         }
+    }
+
+    @Override
+    protected String[] getTooltipLines(String displayString, int buttonId)
+    {
+    	EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+    	if( e != null )
+    	switch(e)
+    	{
+    	case HEAD_TRACKING:
+    		return new String[] {
+    				"If head tracking should be enabled or not", 
+    				"  OFF: No head tracking",
+    				"  ON: Head tracking enabled",
+    				"  Recommended: ON"} ;
+    	case HEAD_TRACK_PREDICTION:
+    		return new String[] {
+    				"For the Oculus Rift, enable Prediction?", 
+    				" OFF: Prediction disabled",
+    				" ON:  Prediction enabled",
+    				" Recommended value: ON" } ;
+    	case HEAD_TRACK_SENSITIVITY:
+    		return new String[] {
+    				"In-game camera orientation multiplied by this value.", 
+    				"  Recommended value: 1.0"} ;   		
+    	case HEAD_TRACK_PREDICTION_TIME:
+    		return new String[] {
+    				"Number of seconds to predict motion. Higher values will",
+    				"enhance the perceived precision of slow movements, but ",
+    				"cause issues with sudden movements",
+    				"  Recommended value: 0.015"};
+    	default:
+    		return null;
+    	}
+    	else
+    	switch(buttonId)
+    	{
+	    	case 201:
+	    		return new String[] {
+	    			"Resets all values on this screen to their defaults"
+	    		};
+	    	case 202:
+	    		return new String[] {
+	    			"Starts calibration of the Oculus Rift headset",
+	    			"  Press this button while facing forward.",
+	    			"  Then, look to the left.",
+	    			"  Then, look to the right.",
+	    			"  Then, look up."
+	    		};
+    		default:
+    			return null;
+    	}
     }
 }
