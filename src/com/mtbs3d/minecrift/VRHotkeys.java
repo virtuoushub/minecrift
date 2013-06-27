@@ -223,7 +223,7 @@ public class VRHotkeys {
         // If a plugin is performing calibration, space also sets the origin
         if ( (mc.theWorld == null || mc.currentScreen != null ) && Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {
-        	if( !setOrigin )
+        	if( true )
         	{
 	            BasePlugin.notifyAll(IBasePlugin.EVENT_SET_ORIGIN);
 	            if (mc.vrRenderer != null)
