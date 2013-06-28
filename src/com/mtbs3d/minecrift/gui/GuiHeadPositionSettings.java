@@ -11,6 +11,7 @@ import com.mtbs3d.minecrift.VRRenderer;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
+import com.mtbs3d.minecrift.api.PluginManager;
 import net.minecraft.src.*;
 
 public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEventEx
@@ -56,7 +57,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
 
-        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>)BasePlugin.positionPlugins, this.guiGameSettings.headPositionPluginID );
+        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.positionPlugins, this.guiGameSettings.headPositionPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
         GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
@@ -182,7 +183,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             {
             	this.mc.gameSettings.headPositionPluginID = pluginModeChangeutton.getSelectedID();
                 this.mc.gameSettings.saveOptions();
-            	this.mc.positionTracker = BasePlugin.configurePosition(this.mc.gameSettings.headPositionPluginID);
+            	this.mc.positionTracker = PluginManager.configurePosition(this.mc.gameSettings.headPositionPluginID);
             	this.reinit = true;
             }
             else if (par1GuiButton.id == 202) // Reset origin

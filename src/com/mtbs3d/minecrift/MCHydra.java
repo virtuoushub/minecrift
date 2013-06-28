@@ -8,6 +8,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+import com.mtbs3d.minecrift.api.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -23,16 +24,11 @@ import net.minecraft.src.GameSettings;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.Vec3;
 
-import com.mtbs3d.minecrift.api.BasePlugin;
-import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
-import com.mtbs3d.minecrift.api.ILookAimController;
-import com.mtbs3d.minecrift.api.IOrientationProvider;
-
 /**
  * @author Mark Browning
  *
  */
-public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, ILookAimController {
+public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, ILookAimController, IEventListener {
 
     ControllerManager cm;
     public static ControllerData[] newData = {new ControllerData(), new ControllerData(), new ControllerData(), new ControllerData()};
@@ -720,7 +716,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
     @Override
     public void eventNotification(int eventId)
     {
-        if (eventId == IOrientationProvider.EVENT_SET_ORIGIN)
+        if (eventId == IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN)
         {
             resetOrigin();
             resetOriginRotation();

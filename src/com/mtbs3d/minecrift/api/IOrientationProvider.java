@@ -15,6 +15,8 @@ public interface IOrientationProvider extends IBasePlugin {
     public final float MAXPITCH = (90 * 0.98f);
     public final float MAXROLL = (180 * 0.98f);
 
+    public static final int EVENT_ORIENTATION_AT_ORIGIN = 0;
+
 	/**
 	 * Enables/Disables prediction. On the Oculus Rift, this improves performance significantly.
 	 * 

@@ -5,21 +5,21 @@
 package com.mtbs3d.minecrift;
 
 
-import com.mtbs3d.minecrift.api.IBasePlugin;
-import com.mtbs3d.minecrift.api.IHMDInfo;
-import com.mtbs3d.minecrift.api.IOrientationProvider;
+import com.mtbs3d.minecrift.api.*;
 
 import de.fruitfly.ovr.OculusRift;
 
 public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting 
-	implements IOrientationProvider, IBasePlugin, IHMDInfo {
+	implements IOrientationProvider, IBasePlugin, IHMDInfo, IEventNotifier, IEventListener {
 
     public static final int NOT_CALIBRATING = 0;
-    public static final int CALIBRATE_AWAITING_ORIGIN = 1;
-    public static final int CALIBRATE_AT_ORIGIN = 2;
+    public static final int CALIBRATE_AWAITING_FIRST_ORIGIN = 1;
+    public static final int CALIBRATE_AT_FIRST_ORIGIN = 2;
     public static final int CALIBRATE_AWAITING_MAG_CAL = 3;
     public static final int CALIBRATE_MAG_CAL_WAIT = 4;
-    public static final int CALIBRATE_MAG_CAL_COOLDOWN = 5;
+    public static final int CALIBRATE_AWAITING_SECOND_ORIGIN = 5;
+    public static final int CALIBRATE_AT_SECOND_ORIGIN = 6;
+    public static final int CALIBRATE_COOLDOWN = 7;
 
     public static final long COOLDOWNTIME_MS = 1000L;
     public static final long MAG_CAL_REPOLL_TIME_MS = 200L;
@@ -41,7 +41,8 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	
 	@Override
 	public void resetOrigin() {
-        _setCalibrationReference();
+        if (isInitialized() && _isCalibrated())
+            _setCalibrationReference();
     }
 
     @Override
@@ -71,19 +72,20 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
         switch (calibrationStep)
         {
-            case CALIBRATE_AWAITING_ORIGIN:
+            case CALIBRATE_AWAITING_FIRST_ORIGIN:
+            case CALIBRATE_AWAITING_SECOND_ORIGIN:
             {
                 step = "Look ahead and press SPACEBAR";
                 break;
             }
-            case CALIBRATE_AT_ORIGIN:
+            case CALIBRATE_AT_FIRST_ORIGIN:
             case CALIBRATE_AWAITING_MAG_CAL:
             case CALIBRATE_MAG_CAL_WAIT:
             {
                 step = "Slowly look left, right, up";
                 break;
             }
-            case CALIBRATE_MAG_CAL_COOLDOWN:
+            case CALIBRATE_COOLDOWN:
             {
                 step = "Done!";
                 break;
@@ -96,14 +98,42 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     @Override
     public void eventNotification(int eventId)
     {
-        if (eventId == IOrientationProvider.EVENT_SET_ORIGIN)
+        switch (eventId)
         {
-            if (calibrationStep == CALIBRATE_AWAITING_ORIGIN)
+            case IOrientationProvider.EVENT_ORIENTATION_AT_ORIGIN:
+            {
+                if (calibrationStep == CALIBRATE_AWAITING_FIRST_ORIGIN)
+                {
+                    calibrationStep = CALIBRATE_AT_FIRST_ORIGIN;
+                    processCalibration();
+                }
+                else if (calibrationStep == CALIBRATE_AWAITING_SECOND_ORIGIN)
+                {
+                    calibrationStep = CALIBRATE_AT_SECOND_ORIGIN;
+                    processCalibration();
+                }
+                break;
+            }
+            case IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN:
             {
                 resetOrigin();
-                calibrationStep = CALIBRATE_AT_ORIGIN;
-                processCalibration();
             }
+        }
+    }
+
+    @Override
+    public synchronized void registerListener(IEventListener listener)
+    {
+        listeners.add(listener);
+    }
+
+    @Override
+    public synchronized void notifyListeners(int eventId)
+    {
+        for (IEventListener listener : listeners)
+        {
+            if (listener != null)
+                listener.eventNotification(eventId);
         }
     }
 
@@ -113,13 +143,11 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         {
             case NOT_CALIBRATING:
             {
-                lastUpdateAt = 0;
-                coolDownStart = 0;
-                calibrationStep = CALIBRATE_AWAITING_ORIGIN;
+                calibrationStep = CALIBRATE_AWAITING_FIRST_ORIGIN;
                 isCalibrated = false;
                 break;
             }
-            case CALIBRATE_AT_ORIGIN:
+            case CALIBRATE_AT_FIRST_ORIGIN:
             {
                 _beginAutomaticCalibration();
                 calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
@@ -130,8 +158,8 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 _updateAutomaticCalibration();
                 if (_isCalibrated())
                 {
-                    coolDownStart = System.currentTimeMillis();
-                    calibrationStep = CALIBRATE_MAG_CAL_COOLDOWN;
+                    lastUpdateAt = 0;
+                    calibrationStep = CALIBRATE_AWAITING_SECOND_ORIGIN;
                 }
                 else
                 {
@@ -149,10 +177,19 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 }
                 break;
             }
-            case CALIBRATE_MAG_CAL_COOLDOWN:
+            case CALIBRATE_AT_SECOND_ORIGIN:
+            {
+                coolDownStart = System.currentTimeMillis();
+                calibrationStep = CALIBRATE_COOLDOWN;
+                resetOrigin();
+                notifyListeners(IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN);
+                break;
+            }
+            case CALIBRATE_COOLDOWN:
             {
                 if ((System.currentTimeMillis() - coolDownStart) > COOLDOWNTIME_MS)
                 {
+                    coolDownStart = 0;
                     calibrationStep = NOT_CALIBRATING;
                     isCalibrated = true;
                 }

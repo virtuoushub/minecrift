@@ -9,6 +9,7 @@ import java.util.List;
 import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
+import com.mtbs3d.minecrift.api.PluginManager;
 import net.minecraft.src.*;
 
 public class GuiMoveAimSettings extends BaseGuiSettings
@@ -43,7 +44,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         
-        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>)BasePlugin.controllerPlugins, this.guiGameSettings.controllerPluginID );
+        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.controllerPlugins, this.guiGameSettings.controllerPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
         EnumOptions[] var10 = guiGameSettings.controllerPluginID.equals(MCHydra.pluginID)?hydraMoveAimOptions:mouseMoveAimOptions ;
@@ -128,7 +129,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             {
             	this.mc.gameSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
                 this.mc.gameSettings.saveOptions();
-            	this.mc.lookaimController = BasePlugin.configureController(this.mc.gameSettings.controllerPluginID);
+            	this.mc.lookaimController = PluginManager.configureController(this.mc.gameSettings.controllerPluginID);
             	this.reinit = true;
             }
         }

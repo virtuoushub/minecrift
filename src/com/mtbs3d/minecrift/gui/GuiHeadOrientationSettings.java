@@ -9,6 +9,7 @@ import java.util.List;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
+import com.mtbs3d.minecrift.api.PluginManager;
 import net.minecraft.src.*;
 
 public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiEventEx
@@ -38,7 +39,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset to defaults"));
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
-        pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>)BasePlugin.orientPlugins, this.guiGameSettings.headTrackerPluginID );
+        pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.orientPlugins, this.guiGameSettings.headTrackerPluginID );
         this.buttonList.add(pluginModeChangeutton);
         EnumOptions[] var10 = headOrientationOptions;
         int var11 = var10.length;
@@ -120,7 +121,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
             {
             	this.mc.gameSettings.headTrackerPluginID = pluginModeChangeutton.getSelectedID();
                 this.mc.gameSettings.saveOptions();
-            	this.mc.headTracker = BasePlugin.configureOrientation(this.mc.gameSettings.headTrackerPluginID);
+            	this.mc.headTracker = PluginManager.configureOrientation(this.mc.gameSettings.headTrackerPluginID);
             }
         }
     }

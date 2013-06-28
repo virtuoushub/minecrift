@@ -5,15 +5,16 @@
 package com.mtbs3d.minecrift.api;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface IBasePlugin {
 
 	float PIOVER180 = (float)(Math.PI/180);
 
-    static final int EVENT_SET_ORIGIN = 0;
-    static final int EVENT_CALIBRATION_ABORT = 1;
+    public static final int EVENT_CALIBRATION_SET_ORIGIN = 1;
 
-	/** 
+	/**
 	 * Plugin ID: should be fixed per plugin! Used in optionsvr.txt
 	 */
 	public String getID();
@@ -40,6 +41,4 @@ public interface IBasePlugin {
 	public boolean isCalibrated();
 	
 	public String getCalibrationStep();
-
-    public void eventNotification(int eventId);
 }

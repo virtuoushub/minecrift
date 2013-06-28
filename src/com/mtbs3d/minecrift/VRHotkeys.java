@@ -5,6 +5,8 @@
 package com.mtbs3d.minecrift;
 
 import com.mtbs3d.minecrift.api.IBasePlugin;
+import com.mtbs3d.minecrift.api.IOrientationProvider;
+import com.mtbs3d.minecrift.api.PluginManager;
 import org.lwjgl.input.Keyboard;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
@@ -12,8 +14,6 @@ import com.mtbs3d.minecrift.api.BasePlugin;
 import net.minecraft.client.Minecraft;
 
 public class VRHotkeys {
-	
-	private static boolean setOrigin = false;
 
 	public static void handleKeyboardInputs(Minecraft mc)
 	{                                
@@ -26,7 +26,7 @@ public class VRHotkeys {
 	    //  Reinitialise head tracking
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	    	BasePlugin.destroyAll();
+            PluginManager.destroyAll();
 	    	mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
 	    }
 
@@ -220,18 +220,10 @@ public class VRHotkeys {
             mc.gameSettings.posTrackResetPosition = true;
         }
 
-        // If a plugin is performing calibration, space also sets the origin
-        if ( (mc.theWorld == null || mc.currentScreen != null ) && Keyboard.isKeyDown(Keyboard.KEY_SPACE))
+        // If an orientation plugin is performing calibration, space also sets the origin
+        if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {
-        	if( true )
-        	{
-	            BasePlugin.notifyAll(IBasePlugin.EVENT_SET_ORIGIN);
-	            if (mc.vrRenderer != null)
-	                mc.vrRenderer.resetGuiYawOrientation();
-	            setOrigin = true;
-        	}
+            PluginManager.notifyAll(IOrientationProvider.EVENT_ORIENTATION_AT_ORIGIN);
         }
-        else
-        	setOrigin = false;
 	}
 }
