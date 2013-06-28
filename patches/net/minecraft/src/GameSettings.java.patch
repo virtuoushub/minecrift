@@ -149,7 +149,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +487,148 @@
+@@ -414,6 +487,145 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -193,10 +193,7 @@
 +        if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
 +        {
 +            this.aimKeyholeWidthDegrees = par2;
-+            if( par2 < 5 )
-+            	this.lookAimDecoupled = false;
-+            else
-+            	this.lookAimDecoupled = true;
++            this.lookAimDecoupled = par2 >= 5;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.HUD_SCALE)
@@ -298,7 +295,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1377,124 @@
+@@ -1162,12 +1374,124 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -424,7 +421,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1952,231 @@
+@@ -1625,6 +1949,231 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -656,7 +653,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2871,276 @@
+@@ -2319,6 +2868,277 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -901,6 +898,7 @@
 +                    if (var3[0].equals("keyholeWidth"))
 +                    {
 +                        this.aimKeyholeWidthDegrees = this.parseFloat(var3[1]);
++                    	this.lookAimDecoupled =  this.aimKeyholeWidthDegrees >= 5;
 +                    }
 +
 +                    if (var3[0].equals("posTrackHydraYAxisDistanceSkewAngleDeg"))
@@ -933,7 +931,7 @@
      }
  
      /**
-@@ -2479,6 +3301,63 @@
+@@ -2479,6 +3299,63 @@
              var3.printStackTrace();
          }
  
@@ -997,7 +995,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3536,74 @@
+@@ -2657,4 +3534,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
