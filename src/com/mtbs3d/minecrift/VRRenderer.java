@@ -181,7 +181,7 @@ public class VRRenderer extends EntityRenderer
             		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX + var21, camY + var22, camZ + var23), 
             		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX - camXOffset + var21, camY - camYOffset + var22, camZ - camZOffset + var23));
 
-            if (var24 != null)
+            if (var24 != null && this.mc.theWorld.isBlockOpaqueCube(var24.blockX, var24.blockY, var24.blockZ))
             {
                 double var25 = var24.hitVec.distanceTo(this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX, camY, camZ));
 
@@ -243,7 +243,11 @@ public class VRRenderer extends EntityRenderer
 
         // Camera height offset
         float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
-
+        
+        float transX = -camRelX;
+        float transY = -camRelY;
+        float transZ = -camRelZ;
+        
         EntityLiving entity = this.mc.renderViewEntity;
         if( entity != null )
         {
@@ -256,11 +260,6 @@ public class VRRenderer extends EntityRenderer
 	            this.setupViewBobbing(renderPartialTicks);
 	        }
 	        
-	        //For doing camera collision detection
-	        double camX = renderOriginX + camRelX;
-	        double camY = renderOriginY + camRelY - cameraYOffset;
-	        double camZ = renderOriginZ + camRelZ;
-	      
 	        var5 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * renderPartialTicks;
 	
 	        if (var5 > 0.0F)
@@ -304,10 +303,17 @@ public class VRRenderer extends EntityRenderer
 	                }
 	
 	                float PIOVER180 = (float)(Math.PI/180);
+
+			        //For doing camera collision detection
+			        double camX = renderOriginX + camRelX;
+			        double camY = renderOriginY + camRelY - cameraYOffset;
+			        double camZ = renderOriginZ + camRelZ;
+	      
 	                float camXOffset = -MathHelper.sin(thirdPersonYaw    * PIOVER180) * MathHelper.cos(thirdPersonPitch * PIOVER180 ) * thirdPersonCameraDist;
 	                float camZOffset =  MathHelper.cos(thirdPersonYaw    * PIOVER180) * MathHelper.cos(thirdPersonPitch * PIOVER180 ) * thirdPersonCameraDist;
 	                float camYOffset = -MathHelper.sin(thirdPersonPitch  * PIOVER180) * thirdPersonCameraDist;
 	                
+	                thirdPersonCameraDist = checkCameraCollision(camX, camY, camZ, camXOffset, camYOffset, camZOffset, thirdPersonCameraDist);
 	
 	                if (this.mc.gameSettings.thirdPersonView == 2)
 	                {
@@ -321,8 +327,21 @@ public class VRRenderer extends EntityRenderer
 	                GL11.glRotatef(thirdPersonPitch - cameraPitch, 1.0F, 0.0F, 0.0F);
 	            }
 	        }
+	        else
+	        {
+	        	float fulldist = (float)(Math.sqrt( camRelX * camRelX + camRelY * camRelY + camRelZ * camRelZ ));
+                
+                float colldist = checkCameraCollision(renderOriginX, renderOriginY - cameraYOffset, renderOriginZ, 
+                		-camRelX, -camRelY, -camRelZ, fulldist );
+                if( colldist != fulldist )
+                {
+               	float scale = 0.9f*colldist/fulldist;
+                	transX *= scale;
+                	transY *= scale;
+                	transZ *= scale;
+                }
+	        }
         }
-
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
@@ -332,7 +351,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
         }
 
-        GL11.glTranslated(-camRelX, cameraYOffset-camRelY, -camRelZ);
+        GL11.glTranslated(transX, cameraYOffset + transY, transZ);
 
         if (this.debugViewDirection > 0)
         {
