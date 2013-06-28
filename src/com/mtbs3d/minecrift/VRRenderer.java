@@ -164,6 +164,35 @@ public class VRRenderer extends EntityRenderer
     	calibrationHelper = new CalibrationHelper(par1Minecraft);
     }
 
+    private float checkCameraCollision(
+    		double camX,       double camY,       double camZ,
+    		double camXOffset, double camYOffset, double camZOffset, float distance )
+    {
+        //This loop offsets at [-.1, -.1, -.1], [.1,-.1,-.1], [.1,.1,-.1] etc... for all 8 directions
+        for (int var20 = 0; var20 < 8; ++var20)
+        {
+            float var21 = (float)((var20 & 1) * 2 - 1);
+            float var22 = (float)((var20 >> 1 & 1) * 2 - 1);
+            float var23 = (float)((var20 >> 2 & 1) * 2 - 1);
+            var21 *= 0.1F;
+            var22 *= 0.1F;
+            var23 *= 0.1F;
+            MovingObjectPosition var24 = this.mc.theWorld.rayTraceBlocks(
+            		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX + var21, camY + var22, camZ + var23), 
+            		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX - camXOffset + var21, camY - camYOffset + var22, camZ - camZOffset + var23));
+
+            if (var24 != null)
+            {
+                double var25 = var24.hitVec.distanceTo(this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX, camY, camZ));
+
+                if (var25 < distance )
+                {
+                    distance = (float)var25;
+                }
+            }
+        }
+    	return distance;
+    }
 
     /**
      * sets up projection, view effects, camera position/rotation
@@ -279,29 +308,6 @@ public class VRRenderer extends EntityRenderer
 	                float camZOffset =  MathHelper.cos(thirdPersonYaw    * PIOVER180) * MathHelper.cos(thirdPersonPitch * PIOVER180 ) * thirdPersonCameraDist;
 	                float camYOffset = -MathHelper.sin(thirdPersonPitch  * PIOVER180) * thirdPersonCameraDist;
 	                
-	                //This loop offsets at [-.1, -.1, -.1], [.1,-.1,-.1], [.1,.1,-.1] etc... for all 8 directions
-	                for (int var20 = 0; var20 < 8; ++var20)
-	                {
-	                    float var21 = (float)((var20 & 1) * 2 - 1);
-	                    float var22 = (float)((var20 >> 1 & 1) * 2 - 1);
-	                    float var23 = (float)((var20 >> 2 & 1) * 2 - 1);
-	                    var21 *= 0.1F;
-	                    var22 *= 0.1F;
-	                    var23 *= 0.1F;
-	                    MovingObjectPosition var24 = this.mc.theWorld.rayTraceBlocks(
-	                    		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX + var21, camY + var22, camZ + var23), 
-	                    		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX - camXOffset + var21 + var23, camY - camYOffset + var22, camZ - camZOffset + var23));
-	
-	                    if (var24 != null)
-	                    {
-	                        double var25 = var24.hitVec.distanceTo(this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX, camY, camZ));
-	
-	                        if (var25 < thirdPersonCameraDist)
-	                        {
-	                            thirdPersonCameraDist = (float)var25;
-	                        }
-	                    }
-	                }
 	
 	                if (this.mc.gameSettings.thirdPersonView == 2)
 	                {
@@ -847,8 +853,6 @@ public class VRRenderer extends EntityRenderer
 
             _FBOInitialised = true;
         }
-
-
     }
     
     private void setupEyeViewport( int renderSceneNumber )
