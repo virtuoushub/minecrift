@@ -104,7 +104,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
         {
         	int var12 = buttons.length + 2 + i;
             int width = this.width / 2 - 155 + var12 % 2 * 160;
-            int height = this.height / 6 + 21 * (var12 / 2) - 10;
+            int height = (this.height / 6 + 21 * (var12 / 2) - 10) + 20;
             String buttonText [] =
         	{
         		"Head Orientation Tracking...",
