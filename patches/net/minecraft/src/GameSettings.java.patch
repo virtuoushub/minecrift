@@ -38,7 +38,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,59 @@
+@@ -133,6 +150,60 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -55,6 +55,7 @@
 +    public float ipd = 0.0635F;
 +    public boolean useHudOpacity = false;
 +    public boolean renderHeadWear = false;
++    public float renderPlayerOffset = 0.25f;
 +    public boolean useChromaticAbCorrection = false;
 +    public float hudScale = 1.0f;
 +    public boolean pitchInputAffectsCamera = false;
@@ -98,7 +99,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +236,7 @@
+@@ -166,7 +237,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -107,7 +108,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +245,7 @@
+@@ -175,6 +246,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -115,7 +116,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +274,7 @@
+@@ -203,6 +275,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -123,7 +124,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +283,7 @@
+@@ -211,7 +284,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -132,7 +133,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +301,7 @@
+@@ -229,6 +302,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -140,7 +141,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +313,7 @@
+@@ -240,7 +314,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -149,7 +150,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +487,145 @@
+@@ -414,6 +488,150 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -199,6 +200,11 @@
 +        if (par1EnumOptions == EnumOptions.HUD_SCALE)
 +        {
 +            this.hudScale = par2;
++        }
++
++        if (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET)
++        {
++            this.renderPlayerOffset = par2;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
@@ -295,7 +301,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1374,124 @@
+@@ -1162,12 +1380,125 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -385,6 +391,7 @@
 +              (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY) ? this.joystickSensitivity:
 +              (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
 +              (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
++              (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET ? this.renderPlayerOffset :
 +              (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
 +              (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR ? this.fovScaleFactor :
 +              (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY ? this.headTrackSensitivity :
@@ -417,36 +424,14 @@
 +              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused :
 +              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused :
 +              (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale :
-+              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F))))))))))))))))))))))))))))))))))))));
++              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))))))))))))))))))))))))))))));
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1949,231 @@
+@@ -1625,6 +1956,216 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
-+
-+//        public boolean useVR    = true;
-+//        public float playerHeight = 1.74f;
-+//        public float eyeProtrusion = 0.185f;
-+//        public float neckBaseToEyeHeight = 0.225f;
-+//        public float movementSpeedMultiplier = 1.0f;
-+//        public boolean useDistortion = true;
-+//        public boolean useHeadTracking = true;
-+//        public boolean useHeadTrackPrediction = true;
-+//        public float ipd = 0.0635F;
-+//        public boolean useHudOpacity = false;
-+//        public boolean renderHeadWear = false;
-+//        public boolean useChromaticAbCorrection = false;
-+//        public float hudScale = 1.0f;
-+//        public boolean allowMousePitchInput = false;
-+//        public float hudDistance = 1.0f;
-+//        public float fovScaleFactor = 1.0f;
-+//        public int distortionFitPoint = 5;
-+//        public float headTrackSensitivity = 1.0f;
-+//        public boolean useSupersample = false;
-+//        public float superSampleScaleFactor = 2.0f;
-+
 +
 +        // Minecrift
 +        else if (par1EnumOptions == EnumOptions.USE_VR)
@@ -504,6 +489,13 @@
 +        else if (par1EnumOptions == EnumOptions.HUD_SCALE)
 +        {
 +            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
++        }
++        else if (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET)
++        {
++            if (this.renderPlayerOffset < 0.01f)
++                return var4 + "None";
++            else
++                return var4 + String.format("%.2fcm", new Object[] { Float.valueOf(this.renderPlayerOffset) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.PITCH_AFFECTS_CAMERA)
 +        {
@@ -653,7 +645,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2868,277 @@
+@@ -2319,6 +2860,282 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -763,6 +755,11 @@
 +                    if (var3[0].equals("hudScale"))
 +                    {
 +                        this.hudScale = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("renderPlayerOffset"))
++                    {
++                        this.renderPlayerOffset = this.parseFloat(var3[1]);
 +                    }
 +
 +                    if (var3[0].equals("allowMousePitchInput"))
@@ -931,7 +928,7 @@
      }
  
      /**
-@@ -2479,6 +3299,63 @@
+@@ -2479,6 +3296,64 @@
              var3.printStackTrace();
          }
  
@@ -955,6 +952,7 @@
 +            var5.println("renderHeadWear:" + this.renderHeadWear);
 +            var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
 +            var5.println("hudScale:" + this.hudScale);
++            var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
 +            var5.println("allowMousePitchInput:" + this.pitchInputAffectsCamera);
 +            var5.println("hudDistance:" + this.hudDistance);
 +            var5.println("useSupersample:" + this.useSupersample);
@@ -995,7 +993,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3534,74 @@
+@@ -2657,4 +3532,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

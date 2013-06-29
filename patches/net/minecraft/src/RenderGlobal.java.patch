@@ -26,7 +26,7 @@
 +
 +                    if (var7 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping() )
 +                    {
-+                    	renderPlayer.setVR(true,this.mc.gameSettings.renderHeadWear);
++                    	renderPlayer.setVR(true,this.mc.gameSettings.renderHeadWear, this.mc.gameSettings.renderPlayerOffset);
 +                    }
 +
                      ++this.countEntitiesRendered;
@@ -39,7 +39,7 @@
 +
 +                    if (var7 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping() )
 +                    {
-+                    	renderPlayer.setVR(false,true);
++                    	renderPlayer.setVR(false,true,0.0F);
 +                    }
                  }
              }

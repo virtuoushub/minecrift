@@ -16,9 +16,9 @@
          this.modelArmor = new ModelBiped(0.5F);
      }
  
-+	public void setVR(boolean vrMode, boolean renderHeadWear) {
++	public void setVR(boolean vrMode, boolean renderHeadWear, float offset) {
 +		
-+		vrOffset = vrMode? 0.25F : 0.0F;
++		vrOffset = vrMode? offset : 0.0F;
 +		this.modelBipedMain.vrOffset = this.modelArmorChestplate.vrOffset = this.modelArmor.vrOffset = vrOffset;
 +        this.modelBipedMain._renderHead = this.modelArmorChestplate._renderHead = this.modelArmor._renderHead = !vrMode;
 +        this.modelBipedMain._renderHeadWear = this.modelArmorChestplate._renderHeadWear = this.modelArmor._renderHeadWear = renderHeadWear;

@@ -20,6 +20,8 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             EnumOptions.HUD_OPACITY,
             EnumOptions.HUD_SCALE,
             EnumOptions.HUD_DISTANCE,
+            EnumOptions.RENDER_OWN_HEADWEAR,
+            EnumOptions.RENDER_PLAYER_OFFSET,
         };
 
     /** An array of all of EnumOption's video options. */
@@ -83,6 +85,12 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                     minValue = 0.5f;
                     maxValue = 3.0f;
                     increment = 0.02f;
+                }
+                if (var8 == EnumOptions.RENDER_PLAYER_OFFSET)
+                {
+                    minValue = 0.0f;
+                    maxValue = 0.25f;
+                    increment = 0.01f;
                 }
 
                 this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8)));
@@ -224,6 +232,22 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 				"  The relative size of the HUD is unchanged by this",
 				"  Distance is in meters (though isn't obstructed by blocks)"
     		};
+        case RENDER_OWN_HEADWEAR:
+            return new String[] {
+                    "Whether to render the player's own head-ware or not",
+                    "  ON: The head-ware is rendered. May obscure your view!",
+                    "  OFF: Not rendered."
+            };
+        case RENDER_PLAYER_OFFSET:
+            return new String[] {
+                    "Distance your body is rendered back from the normal",
+                    "position.",
+                    "  The current Steve player model can obscure your",
+                    "  peripheral view when rendered at the normal",
+                    "  Minecraft position. This setting moves the render",
+                    "  position of body backwards by the desired distance,",
+                    "  in cm."
+            };
     	case USE_VR:
     		return new String[] {
 				"Whether to enable all the fun new Virtual Reality features",
