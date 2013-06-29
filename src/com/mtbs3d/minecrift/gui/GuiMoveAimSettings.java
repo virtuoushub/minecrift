@@ -17,13 +17,14 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     /** An array of all of EnumOption's movement options relevant to the hydra. */
     static EnumOptions[] hydraMoveAimOptions = new EnumOptions[] {
         EnumOptions.JOYSTICK_SENSITIVITY,
-        EnumOptions.DECOUPLEMOVELOOK,
+        EnumOptions.DECOUPLE_LOOK_MOVE,
     };
     /** An array of all of EnumOption's movement options relevant to the mouse. */
     static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.DECOUPLEMOVELOOK,
+        EnumOptions.DECOUPLE_LOOK_AIM_PITCH,
         EnumOptions.PITCH_AFFECTS_CAMERA,
+        EnumOptions.DECOUPLE_LOOK_MOVE,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
 	private boolean reinit;
@@ -138,12 +139,6 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-    	/*
-        EnumOptions.JOYSTICK_SENSITIVITY,
-        EnumOptions.DECOUPLEMOVELOOK,
-        EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.PITCH_AFFECTS_CAMERA,
-    	 */
         EnumOptions e = EnumOptions.getEnumOptions(buttonId);
         if( e != null )
             switch(e)
@@ -154,7 +149,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "The higher the value, the more you turn.",
                             "  Doesn't affect forward/backward speed",
                             "  Recommended value: 4.0" } ;
-                case DECOUPLEMOVELOOK:
+                case DECOUPLE_LOOK_MOVE:
                     return new String[] {
                             "Decouple Movement from Looking - \"Tank mode\"",
                             "  OFF: You always move in the direction you are facing",
@@ -176,6 +171,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  OFF: No, the only way to control pitch is your head",
                             "  ON: Yes, moving the mouse up and down will move the",
                             "     camera up and down", };
+                case DECOUPLE_LOOK_AIM_PITCH:
+                    return new String[] {
+                            "Adjusts whether the crosshair is fixed to your head",
+                            "  vertically (tilt up and down)",
+                            "  OFF: No, the crosshair is free to move",
+                            "  ON: Yes, the only way to aim is with your head"};
                 default:
                     return null;
             }

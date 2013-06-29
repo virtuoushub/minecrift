@@ -245,10 +245,6 @@ public class VRRenderer extends EntityRenderer
         // Camera height offset
         float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
         
-        float transX = -camRelX;
-        float transY = -camRelY;
-        float transZ = -camRelZ;
-        
         EntityLiving entity = this.mc.renderViewEntity;
         if( entity != null )
         {
@@ -328,20 +324,6 @@ public class VRRenderer extends EntityRenderer
 	                GL11.glRotatef(thirdPersonPitch - cameraPitch, 1.0F, 0.0F, 0.0F);
 	            }
 	        }
-	        else
-	        {
-	        	float fulldist = (float)(Math.sqrt( camRelX * camRelX + camRelY * camRelY + camRelZ * camRelZ ));
-                
-                float colldist = checkCameraCollision(renderOriginX, renderOriginY - cameraYOffset, renderOriginZ, 
-                		-camRelX, -camRelY, -camRelZ, fulldist );
-                if( colldist != fulldist )
-                {
-               	float scale = 0.9f*colldist/fulldist;
-                	transX *= scale;
-                	transY *= scale;
-                	transZ *= scale;
-                }
-	        }
         }
 
         if (!this.mc.gameSettings.debugCamEnable)
@@ -352,7 +334,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
         }
 
-        GL11.glTranslated(transX, cameraYOffset + transY, transZ);
+        GL11.glTranslated(-camRelX, cameraYOffset - camRelY, -camRelZ);
 
         if (this.debugViewDirection > 0)
         {
@@ -462,9 +444,6 @@ public class VRRenderer extends EntityRenderer
         float lookYawOffset   = mc.lookaimController.getLookYawOffset();
         float lookPitchOffset = mc.lookaimController.getLookPitchOffset(); 
         
-        aimYaw    = mc.lookaimController.getAimYaw();
-        aimPitch  = mc.lookaimController.getAimPitch();
-        
         if (mc.headTracker.isInitialized() && this.mc.gameSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
@@ -508,6 +487,16 @@ public class VRRenderer extends EntityRenderer
         	
         }
 
+        if( this.mc.gameSettings.lookAimYawDecoupled )
+        	aimYaw    = mc.lookaimController.getAimYaw();
+        else
+        	aimYaw = cameraYaw;
+
+        if( this.mc.gameSettings.lookAimPitchDecoupled )
+	        aimPitch  = mc.lookaimController.getAimPitch();
+        else 
+        	aimPitch = cameraPitch;
+        
 
         //TODO: not sure if headPitch or cameraPitch is better here... they really should be the same; silly
         //people with their "pitch affects camera" settings.
@@ -520,6 +509,22 @@ public class VRRenderer extends EntityRenderer
 
         //The worldOrigin is at player "eye height" (1.62) above foot position
         camRelX = (float)cameraOffset.xCoord; camRelY = (float)cameraOffset.yCoord; camRelZ = (float)cameraOffset.zCoord;
+
+        if(this.mc.theWorld != null && this.mc.gameSettings.thirdPersonView == 0)
+        {
+        	float fulldist = (float)(Math.sqrt( camRelX * camRelX + camRelY * camRelY + camRelZ * camRelZ ));
+            
+        	float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
+            float colldist = checkCameraCollision(renderOriginX, renderOriginY - cameraYOffset, renderOriginZ, 
+            		-camRelX, -camRelY, -camRelZ, fulldist );
+            if( colldist != fulldist )
+            {
+           	float scale = 0.9f*colldist/fulldist;
+            	camRelX *= scale;
+            	camRelY *= scale;
+            	camRelZ *= scale;
+            }
+        }
 
         Vec3 look = Vec3.createVectorHelper(0, 0, 1);
         look.rotateAroundX(-cameraPitch* PIOVER180);

@@ -38,7 +38,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,60 @@
+@@ -133,6 +150,61 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -67,7 +67,8 @@
 +    public float superSampleScaleFactor = 2.0f;
 +    public boolean useMipMaps = false;
 +    public boolean lookMoveDecoupled = false;
-+	public boolean lookAimDecoupled = false;
++	public boolean lookAimYawDecoupled = false;
++	public boolean lookAimPitchDecoupled = false;
 +    public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
 +    public boolean posTrackHydraUseController1 = true;
 +    public boolean posTrackHydraDebugCentreEyePos = false;
@@ -99,7 +100,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +237,7 @@
+@@ -166,7 +238,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -108,7 +109,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +246,7 @@
+@@ -175,6 +247,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -116,7 +117,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +275,7 @@
+@@ -203,6 +276,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -124,7 +125,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +284,7 @@
+@@ -211,7 +285,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -133,7 +134,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +302,7 @@
+@@ -229,6 +303,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -141,7 +142,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +314,7 @@
+@@ -240,7 +315,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -150,7 +151,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +488,150 @@
+@@ -414,6 +489,150 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -194,7 +195,7 @@
 +        if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
 +        {
 +            this.aimKeyholeWidthDegrees = par2;
-+            this.lookAimDecoupled = par2 >= 5;
++            this.lookAimYawDecoupled = par2 >= 5;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.HUD_SCALE)
@@ -301,7 +302,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1380,125 @@
+@@ -1162,12 +1381,130 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -352,9 +353,14 @@
 +            this.useSupersample = !this.useSupersample;
 +        }
 +
-+        if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
++        if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_MOVE)
 +        {
 +            this.lookMoveDecoupled = !this.lookMoveDecoupled;
++        }
++
++        if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_AIM_PITCH)
++        {
++            this.lookAimPitchDecoupled = !this.lookAimPitchDecoupled;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
@@ -428,7 +434,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1956,216 @@
+@@ -1625,6 +1962,220 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -532,9 +538,13 @@
 +        {
 +            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
 +        }
-+        else if (par1EnumOptions == EnumOptions.DECOUPLEMOVELOOK)
++        else if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_MOVE)
 +        {
 +            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_AIM_PITCH)
++        {
++            return this.lookAimPitchDecoupled? var4 + "ON" : var4 + "OFF";
 +        }
 +        else if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
 +        {
@@ -645,7 +655,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2860,282 @@
+@@ -2319,6 +2870,287 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -807,6 +817,11 @@
 +                        this.lookMoveDecoupled = var3[1].equals("true");
 +                    }
 +
++                    if (var3[0].equals("lookAimPitchDecoupled"))
++                    {
++                        this.lookAimPitchDecoupled = var3[1].equals("true");
++                    }
++
 +                    if (var3[0].equals("posTrackHydraLoc"))
 +                    {
 +                        this.posTrackHydraLoc = Integer.parseInt(var3[1]);
@@ -895,7 +910,7 @@
 +                    if (var3[0].equals("keyholeWidth"))
 +                    {
 +                        this.aimKeyholeWidthDegrees = this.parseFloat(var3[1]);
-+                    	this.lookAimDecoupled =  this.aimKeyholeWidthDegrees >= 5;
++                    	this.lookAimYawDecoupled =  this.aimKeyholeWidthDegrees >= 5;
 +                    }
 +
 +                    if (var3[0].equals("posTrackHydraYAxisDistanceSkewAngleDeg"))
@@ -928,7 +943,7 @@
      }
  
      /**
-@@ -2479,6 +3296,64 @@
+@@ -2479,6 +3311,65 @@
              var3.printStackTrace();
          }
  
@@ -962,6 +977,7 @@
 +            var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
 +            var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
 +            var5.println("lookMoveDecoupled:" + this.lookMoveDecoupled);
++            var5.println("lookAimPitchDecoupled:" + this.lookAimPitchDecoupled);
 +            var5.println("posTrackHydraLoc:" + this.posTrackHydraLoc);
 +            var5.println("posTrackHydraLROffsetX:" + this.posTrackHydraLROffsetX);
 +            var5.println("posTrackHydraLROffsetY:" + this.posTrackHydraLROffsetY);
@@ -993,7 +1009,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3532,74 @@
+@@ -2657,4 +3548,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
