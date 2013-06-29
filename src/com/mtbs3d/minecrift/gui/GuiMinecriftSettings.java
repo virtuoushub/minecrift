@@ -234,8 +234,8 @@ public class GuiMinecriftSettings extends BaseGuiSettings
     		};
         case RENDER_OWN_HEADWEAR:
             return new String[] {
-                    "Whether to render the player's own head-ware or not",
-                    "  ON: The head-ware is rendered. May obscure your view!",
+                    "Whether to render the player's own headwear or not",
+                    "  ON:  Headwear is rendered. May obscure your view!",
                     "  OFF: Not rendered."
             };
         case RENDER_PLAYER_OFFSET:
