@@ -80,4 +80,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp'))
+        main(os.path.abspath('mcp147'))

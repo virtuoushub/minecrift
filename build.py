@@ -70,7 +70,7 @@ def main(mcp_dir):
     recompile_side( commands, CLIENT)
 
     print("Reobfuscating...")
-    commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True, srg_names=False)
+    commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True)
     reobfuscate_side( commands, CLIENT )
 
     version = "1.0_beta"
@@ -105,4 +105,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp'))	
+        main(os.path.abspath('mcp147'))	
