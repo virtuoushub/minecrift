@@ -1,6 +1,15 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,55 @@
+@@ -47,7 +47,7 @@
+     ANIMATED_LAVA("Lava Animated", false, false),
+     ANIMATED_FIRE("Fire Animated", false, false),
+     ANIMATED_PORTAL("Portal Animated", false, false),
+-    AO_LEVEL("Smooth Lighting", true, false),
++    AO_LEVEL("Smooth Lighting Level", true, false),
+     LAGOMETER("Lagometer", false, false),
+     AUTOSAVE_TICKS("Autosave", false, false),
+     BETTER_GRASS("Better Grass", false, false),
+@@ -92,7 +92,55 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),

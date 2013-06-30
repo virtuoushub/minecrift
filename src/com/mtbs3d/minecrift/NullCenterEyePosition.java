@@ -80,7 +80,7 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees)
     {
         float cameraYaw = (worldYawOffsetDegrees + yawHeadDegrees ) % 360;
-        headPos = Vec3.fakePool.getVecFromPool(0, Minecraft.getMinecraft().gameSettings.neckBaseToEyeHeight, -Minecraft.getMinecraft().gameSettings.eyeProtrusion);
+        headPos = Vec3.createVectorHelper( 0, Minecraft.getMinecraft().gameSettings.neckBaseToEyeHeight, -Minecraft.getMinecraft().gameSettings.eyeProtrusion);
 		headPos.rotateAroundZ( rollHeadDegrees  * PIOVER180 );
 		headPos.rotateAroundX( pitchHeadDegrees * PIOVER180 );
         headPos.rotateAroundY( -cameraYaw * PIOVER180 );

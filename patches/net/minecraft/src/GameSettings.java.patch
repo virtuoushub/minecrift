@@ -1,14 +1,13 @@
 --- a/net/minecraft/src/GameSettings.java
 +++ b/net/minecraft/src/GameSettings.java
-@@ -7,6 +7,7 @@
+@@ -7,12 +7,26 @@
  import java.io.PrintWriter;
  import java.util.Arrays;
  import java.util.List;
 +
  import net.minecraft.client.Minecraft;
  import org.lwjgl.input.Keyboard;
- import org.lwjgl.input.Mouse;
-@@ -14,6 +15,19 @@
+ import org.lwjgl.opengl.Display;
  
  public class GameSettings
  {
@@ -28,7 +27,7 @@
      private static final String[] RENDER_DISTANCES = new String[] {"options.renderDistance.far", "options.renderDistance.normal", "options.renderDistance.short", "options.renderDistance.tiny"};
      private static final String[] DIFFICULTIES = new String[] {"options.difficulty.peaceful", "options.difficulty.easy", "options.difficulty.normal", "options.difficulty.hard"};
  
-@@ -28,6 +42,7 @@
+@@ -26,6 +40,7 @@
      public float musicVolume = 1.0F;
      public float soundVolume = 1.0F;
      public float mouseSensitivity = 0.5F;
@@ -36,7 +35,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +148,64 @@
+@@ -130,6 +145,64 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -101,7 +100,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +239,7 @@
+@@ -159,7 +232,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -110,7 +109,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +248,7 @@
+@@ -168,6 +241,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -118,7 +117,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +277,7 @@
+@@ -196,6 +270,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -126,7 +125,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +286,7 @@
+@@ -204,7 +279,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -135,7 +134,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +304,7 @@
+@@ -222,6 +297,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -143,7 +142,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +316,7 @@
+@@ -233,7 +309,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -152,9 +151,9 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +490,159 @@
-             this.chatScale = par2;
-             this.mc.ingameGUI.getChatGUI().func_96132_b();
+@@ -375,6 +451,159 @@
+         {
+             this.chatOpacity = par2;
          }
 +
 +        // Minecrift
@@ -312,7 +311,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1391,133 @@
+@@ -1117,12 +1346,152 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -397,59 +396,78 @@
  
      public float getOptionFloatValue(EnumOptions par1EnumOptions)
      {
--        return par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight : (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel : (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F : (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) : (par1EnumOptions == EnumOptions.FOV ? this.fovSetting : (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting : (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume : (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume : (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused : (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))));
-+        return par1EnumOptions == EnumOptions.PLAYER_HEIGHT ? this.playerHeight :
-+              (par1EnumOptions == EnumOptions.EYE_PROTRUSION ? this.eyeProtrusion :
-+              (par1EnumOptions == EnumOptions.NECK_LENGTH ? this.neckBaseToEyeHeight :
-+              (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER ? this.movementSpeedMultiplier :
-+              (par1EnumOptions == EnumOptions.IPD ? this.ipd :
-+              (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME) ? this.headTrackPredictionTimeSecs :
-+              (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY) ? this.joystickSensitivity:
-+              (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
-+              (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
-+              (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET ? this.renderPlayerOffset :
-+              (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
-+              (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR ? this.fovScaleFactor :
-+              (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY ? this.headTrackSensitivity :
-+              (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR ? this.superSampleScaleFactor :
-+              (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT ? (float)this.distortionFitPoint :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetX :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetX :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetX :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetX :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD ? this.posTrackHydraBOffsetX :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetY :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetY :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetY :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetY :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD ? this.posTrackHydraBOffsetY :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetZ :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetZ :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetZ :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetZ :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD ? this.posTrackHydraBOffsetZ :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg :
-+              (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight :
-+              (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel :
-+              (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F :
-+              (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) :
-+              (par1EnumOptions == EnumOptions.FOV ? this.fovSetting :
-+              (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting :
-+              (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume :
-+              (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume :
-+              (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity :
-+              (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity :
-+              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused :
-+              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused :
-+              (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale :
-+              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F))))))))))))))))))))))))))))))))))))))))));
+-        return par1EnumOptions == EnumOptions.FOV ? this.fovSetting : (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting : (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume : (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume : (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity : (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight : (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel : (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F : (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity : 0.0F)))))))));
++    	switch(par1EnumOptions)
++    	{
++        	  case PLAYER_HEIGHT : return this.playerHeight ;
++              case EYE_PROTRUSION : return this.eyeProtrusion ;
++              case NECK_LENGTH : return this.neckBaseToEyeHeight ;
++              case MOVEMENT_MULTIPLIER : return this.movementSpeedMultiplier ;
++              case IPD : return this.ipd ;
++              case HEAD_TRACK_PREDICTION_TIME : return this.headTrackPredictionTimeSecs ;
++              case JOYSTICK_SENSITIVITY : return this.joystickSensitivity;
++              case KEYHOLE_WIDTH : return this.aimKeyholeWidthDegrees;
++              case HUD_SCALE : return this.hudScale ;
++              case RENDER_PLAYER_OFFSET : return this.renderPlayerOffset ;
++              case HUD_DISTANCE : return this.hudDistance ;
++              case FOV_SCALE_FACTOR : return this.fovScaleFactor ;
++              case HEAD_TRACK_SENSITIVITY : return this.headTrackSensitivity ;
++              case SUPERSAMPLE_SCALEFACTOR : return this.superSampleScaleFactor ;
++              case DISTORTION_FIT_POINT : return (float)this.distortionFitPoint ;
++              case POS_TRACK_HYDRA_OFFSET_X:
++            	  switch(this.posTrackHydraLoc)
++            	  {
++            	  	case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT : return this.posTrackHydraLROffsetX ;
++            	  	case POS_TRACK_HYDRA_LOC_HMD_LEFT : return this.posTrackHydraLOffsetX ;
++            	  	case POS_TRACK_HYDRA_LOC_HMD_RIGHT : return this.posTrackHydraROffsetX ;
++            	  	case POS_TRACK_HYDRA_LOC_HMD_TOP : return this.posTrackHydraTOffsetX ;
++            	  	case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD : return this.posTrackHydraBOffsetX ;
++            	  };
++              case POS_TRACK_HYDRA_OFFSET_Y:
++            	  switch(this.posTrackHydraLoc)
++            	  {
++            	  case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT : return this.posTrackHydraLROffsetY ;
++            	  case POS_TRACK_HYDRA_LOC_HMD_LEFT : return this.posTrackHydraLOffsetY ;
++            	  case POS_TRACK_HYDRA_LOC_HMD_RIGHT : return this.posTrackHydraROffsetY ;
++            	  case POS_TRACK_HYDRA_LOC_HMD_TOP : return this.posTrackHydraTOffsetY ;
++            	  case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD : return this.posTrackHydraBOffsetY ;
++            	  };
++              case POS_TRACK_HYDRA_OFFSET_Z:
++            	  switch(this.posTrackHydraLoc )
++            	  {
++            	  case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT : return this.posTrackHydraLROffsetZ ;
++            	  case POS_TRACK_HYDRA_LOC_HMD_LEFT : return this.posTrackHydraLOffsetZ ;
++            	  case POS_TRACK_HYDRA_LOC_HMD_RIGHT : return this.posTrackHydraROffsetZ ;
++            	  case POS_TRACK_HYDRA_LOC_HMD_TOP : return this.posTrackHydraTOffsetZ ;
++            	  case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD : return this.posTrackHydraBOffsetZ ;
++            	  };
++              case POS_TRACK_HYDRA_DISTANCE_SCALE : return this.posTrackHydraDistanceScale ;
++              case POS_TRACK_Y_AXIS_DISTANCE_SKEW : return this.posTrackHydraYAxisDistanceSkewAngleDeg ;
++              case CLOUD_HEIGHT : return this.ofCloudsHeight ;
++              case AO_LEVEL : return this.ofAoLevel ;
++              case RENDER_DISTANCE_FINE : return (float)(this.ofRenderDistanceFine - 32) / 480.0F ;
++              case FRAMERATE_LIMIT_FINE : {
++            	if( this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ) 
++            		return (float)this.ofLimitFramerateFine / 200.0F ; 
++            	else if( this.enableVsync )
++            		return 0.0F ; 
++            	else 
++            		return 1.0F ;
++              }
++              case FOV : return this.fovSetting ;
++              case GAMMA : return this.gammaSetting ;
++              case MUSIC : return this.musicVolume ;
++              case SOUND : return this.soundVolume ;
++              case SENSITIVITY : return this.mouseSensitivity ;
++              case CHAT_OPACITY : return this.chatOpacity ; 
++    	}
++    	return 0.0f;
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1975,229 @@
-         {
-             return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
+@@ -1512,6 +1881,229 @@
+                     return var4 + "OFF";
+             }
          }
 +
 +        // Minecrift
@@ -674,11 +692,11 @@
 +            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
 +        }
 +        // End Minecrift
-         else if (par1EnumOptions.getEnumFloat())
+         else
          {
-             float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2892,302 @@
-             Config.dbg("Failed to load options");
+             return par1EnumOptions == EnumOptions.WEATHER ? (this.ofWeather ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SKY ? (this.ofSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.STARS ? (this.ofStars ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SUN_MOON ? (this.ofSunMoon ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CHUNK_UPDATES ? var4 + this.ofChunkUpdates : (par1EnumOptions == EnumOptions.CHUNK_LOADING ? (this.ofChunkLoading == 1 ? var4 + "Smooth" : (this.ofChunkLoading == 2 ? var4 + "Multi-Core" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CHUNK_UPDATES_DYNAMIC ? (this.ofChunkUpdatesDynamic ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.TIME ? (this.ofTime == 1 ? var4 + "Day Only" : (this.ofTime == 3 ? var4 + "Night Only" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CLEAR_WATER ? (this.ofClearWater ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.DEPTH_FOG ? (this.ofDepthFog ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.AA_LEVEL ? (this.ofAaLevel == 0 ? var4 + "OFF" : var4 + this.ofAaLevel) : (par1EnumOptions == EnumOptions.AF_LEVEL ? (this.ofAfLevel == 1 ? var4 + "OFF" : var4 + this.ofAfLevel) : (par1EnumOptions == EnumOptions.PROFILER ? (this.ofProfiler ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.BETTER_SNOW ? (this.ofBetterSnow ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SWAMP_COLORS ? (this.ofSwampColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.RANDOM_MOBS ? (this.ofRandomMobs ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SMOOTH_BIOMES ? (this.ofSmoothBiomes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_FONTS ? (this.ofCustomFonts ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_COLORS ? (this.ofCustomColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_SKY ? (this.ofCustomSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SHOW_CAPES ? (this.ofShowCapes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.NATURAL_TEXTURES ? (this.ofNaturalTextures ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING ? (this.ofLazyChunkLoading ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.FULLSCREEN_MODE ? var4 + this.ofFullscreenMode : (par1EnumOptions == EnumOptions.HELD_ITEM_TOOLTIPS ? (this.field_92117_D ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") : var4 + var2.translateKey("options.graphics.fast")) : var4)))))))))))))))))))))))));
+@@ -2169,6 +2761,302 @@
+             System.out.println("Failed to load options");
              var6.printStackTrace();
          }
 +
@@ -964,7 +982,7 @@
 +                }
 +                catch (Exception var7)
 +                {
-+                    this.mc.getLogAgent().logWarning("Skipping bad VR option: " + var2);
++                    System.out.println("Skipping bad VR option: " + var2);
 +                    var7.printStackTrace();
 +                }
 +            }
@@ -974,13 +992,13 @@
 +        }
 +        catch (Exception var8)
 +        {
-+            this.mc.getLogAgent().logWarning("Failed to load VR options!");
++            System.out.println("Failed to load VR options!");
 +            var8.printStackTrace();
 +        }
      }
  
      /**
-@@ -2479,6 +3348,68 @@
+@@ -2324,6 +3212,68 @@
              var3.printStackTrace();
          }
  
@@ -1049,7 +1067,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3588,74 @@
+@@ -2510,4 +3460,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

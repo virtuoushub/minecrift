@@ -219,7 +219,7 @@ public class VRRenderer extends EntityRenderer
         }
         float var5;
 
-        if (this.mc.playerController != null && this.mc.playerController.enableEverythingIsScrewedUpMode())
+        if (this.mc.playerController != null && this.mc.playerController.func_78747_a())
         {
             var5 = 0.6666667F;
             GL11.glScalef(1.0F, var5, 1.0F);
@@ -767,7 +767,6 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glPopMatrix();
 		
 		        unbindTexture();
-		        this.mc.renderEngine.resetBoundTexture();
 	        	mc.checkGLError("GUI");
         	}
 
@@ -1158,7 +1157,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_FOG);
         this.setupFog(1, renderPartialTicks);
 
-        if (this.mc.gameSettings.ambientOcclusion != 0)
+        if (this.mc.gameSettings.ambientOcclusion )
         {
             GL11.glShadeModel(GL11.GL_SMOOTH);
         }
@@ -1193,7 +1192,7 @@ public class VRRenderer extends EntityRenderer
         this.mc.mcProfiler.endStartSection("prepareterrain");
         this.setupFog(0, renderPartialTicks);
         GL11.glEnable(GL11.GL_FOG);
-        this.mc.renderEngine.bindTexture("/terrain.png");
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/terrain.png"));
         RenderHelper.disableStandardItemLighting();
         this.mc.mcProfiler.endStartSection("terrain");
         renderGlobal.sortAndRender(renderViewEntity, 0, (double) renderPartialTicks);
@@ -1253,7 +1252,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_CULL_FACE);
 
-        this.mc.renderEngine.bindTexture("/terrain.png");
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/terrain.png"));
         WrUpdates.resumeBackgroundUpdates();
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -1261,7 +1260,7 @@ public class VRRenderer extends EntityRenderer
         {
             this.mc.mcProfiler.endStartSection("water");
 
-            if (this.mc.gameSettings.ambientOcclusion != 0)
+            if (this.mc.gameSettings.ambientOcclusion )
             {
                 GL11.glShadeModel(GL11.GL_SMOOTH);
             }
@@ -1343,7 +1342,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_BLEND);
 
-	        this.mc.renderEngine.bindTexture("/gui/icons.png");
+	        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/icons.png"));
 
 	        float var7 = 0.00390625F;
 	        float var8 = 0.00390625F;
@@ -1963,7 +1962,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glColor3f(1, 1, 1);
         this.mc.mcProfiler.endStartSection("mouse pointer");
-        this.mc.renderEngine.bindTexture("/gui/icons.png");
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/icons.png"));
         this.mc.ingameGUI.drawTexturedModalRect(mouseX - 7, mouseY - 7, 0, 0, 16, 16);
         
         GL11.glEnable(GL11.GL_BLEND);
@@ -1973,7 +1972,6 @@ public class VRRenderer extends EntityRenderer
     {
         if (this.mc.renderViewEntity != null && this.mc.theWorld != null)
         {
-            this.mc.pointedEntityLiving = null;
             double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
             double entityReachDistance = blockReachDistance;
             Vec3 pos = Vec3.createVectorHelper(renderOriginX + camRelX, renderOriginY + camRelY, renderOriginZ + camRelZ); 

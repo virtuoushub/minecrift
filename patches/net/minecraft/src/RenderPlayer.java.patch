@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/RenderPlayer.java
 +++ b/net/minecraft/src/RenderPlayer.java
-@@ -7,7 +7,10 @@
+@@ -8,7 +8,10 @@
      private ModelBiped modelBipedMain;
      private ModelBiped modelArmorChestplate;
      private ModelBiped modelArmor;
@@ -12,7 +12,7 @@
  
      public RenderPlayer()
      {
-@@ -17,6 +20,14 @@
+@@ -18,6 +21,14 @@
          this.modelArmor = new ModelBiped(0.5F);
      }
  
@@ -24,10 +24,10 @@
 +        this.modelBipedMain._renderHeadWear = this.modelArmorChestplate._renderHeadWear = this.modelArmor._renderHeadWear = renderHeadWear;
 +	}
 +
-     protected void func_98191_a(EntityPlayer par1EntityPlayer)
-     {
-         this.loadDownloadableImageTexture(par1EntityPlayer.skinUrl, par1EntityPlayer.getTexture());
-@@ -64,9 +75,9 @@
+     /**
+      * Set the specified armor model as the player model. Args: player, armorSlot, partialTick
+      */
+@@ -60,9 +71,9 @@
  
                  float var8 = 1.0F;
  
@@ -39,7 +39,7 @@
                      float var10 = (float)(var9 >> 16 & 255) / 255.0F;
                      float var11 = (float)(var9 >> 8 & 255) / 255.0F;
                      float var12 = (float)(var9 & 255) / 255.0F;
-@@ -164,9 +175,17 @@
+@@ -220,9 +231,17 @@
              this.modelBipedMain.bipedHead.postRender(0.0625F);
              float var5;
  
@@ -59,7 +59,7 @@
                  {
                      var5 = 0.625F;
                      GL11.glTranslatef(0.0F, -0.25F, 0.0F);
-@@ -269,6 +288,7 @@
+@@ -325,6 +344,7 @@
          if (var21 != null)
          {
              GL11.glPushMatrix();
@@ -67,18 +67,18 @@
              this.modelBipedMain.bipedRightArm.postRender(0.0625F);
              GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
  
-@@ -284,7 +304,9 @@
+@@ -340,7 +360,9 @@
                  var23 = var21.getItemUseAction();
              }
  
 -            if (var21.itemID < 256 && RenderBlocks.renderItemIn3d(Block.blocksList[var21.itemID].getRenderType()))
 +            boolean render3D = false;
-+            boolean isBlock = var21.itemID < Block.blocksList.length && var21.getItemSpriteNumber() == 0;
++            boolean isBlock = var21.itemID < Block.blocksList.length;
 +            if ( render3D || ( isBlock && RenderBlocks.renderItemIn3d(Block.blocksList[var21.itemID].getRenderType())))
              {
                  var7 = 0.5F;
                  GL11.glTranslatef(0.0F, 0.1875F, -0.3125F);
-@@ -341,7 +363,12 @@
+@@ -397,7 +419,12 @@
  
              if (var21.getItem().requiresMultipleRenderPasses())
              {
@@ -92,7 +92,7 @@
                  {
                      int var26 = var21.getItem().getColorFromItemStack(var21, var27);
                      var28 = (float)(var26 >> 16 & 255) / 255.0F;
-@@ -504,4 +531,5 @@
+@@ -531,4 +558,5 @@
      {
          this.renderPlayer((EntityPlayer)par1Entity, par2, par4, par6, par8, par9);
      }

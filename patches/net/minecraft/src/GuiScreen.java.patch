@@ -1,6 +1,26 @@
 --- a/net/minecraft/src/GuiScreen.java
 +++ b/net/minecraft/src/GuiScreen.java
-@@ -177,14 +177,38 @@
+@@ -26,7 +26,9 @@
+     public int height;
+ 
+     /** A list of all the controls added to this container. */
+-    protected List controlList = new ArrayList();
++
++	protected ArrayList<GuiButton> buttonList = new ArrayList<GuiButton>();
++	protected List controlList = buttonList;
+     public boolean allowUserInput = false;
+ 
+     /** The FontRenderer used by GuiScreen */
+@@ -39,6 +41,8 @@
+     private long field_85043_c = 0L;
+     private int field_92018_d = 0;
+ 
++	private int eventButton;
++
+     /**
+      * Draws the screen and all the components in it.
+      */
+@@ -177,14 +181,38 @@
              this.handleKeyboardInput();
          }
      }
@@ -41,7 +61,7 @@
  
          if (Mouse.getEventButtonState())
          {
-@@ -261,7 +285,7 @@
+@@ -261,7 +289,7 @@
      {
          if (this.mc.theWorld != null)
          {

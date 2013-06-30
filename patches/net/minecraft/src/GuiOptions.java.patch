@@ -25,15 +25,15 @@
 +            {
 +                // Minecrift settings
 +                GuiSmallButton var7 = new GuiSmallButton(666, this.width / 2 - 155 + var2 % 2 * 160, this.height / 6 - 12 + 24 * (var2 >> 1), var6, "VR Settings...");
-+                this.buttonList.add(var7);
++                this.controlList.add(var7);
 +            }
 +            else if (var6.getEnumFloat())
              {
-                 this.buttonList.add(new GuiSlider(var6.returnEnumOrdinal(), this.width / 2 - 155 + var2 % 2 * 160, this.height / 6 - 12 + 24 * (var2 >> 1), var6, this.options.getKeyBinding(var6), this.options.getOptionFloatValue(var6)));
+                 this.controlList.add(new GuiSlider(var6.returnEnumOrdinal(), this.width / 2 - 155 + var2 % 2 * 160, this.height / 6 - 12 + 24 * (var2 >> 1), var6, this.options.getKeyBinding(var6), this.options.getOptionFloatValue(var6)));
              }
-@@ -122,6 +129,12 @@
+@@ -115,6 +122,12 @@
                  this.mc.gameSettings.saveOptions();
-                 this.mc.displayGuiScreen(new GuiTexturePacks(this, this.options));
+                 this.mc.displayGuiScreen(this.parentScreen);
              }
 +
 +            if (par1GuiButton.id == 666)
@@ -44,7 +44,7 @@
          }
      }
  
-@@ -134,4 +147,5 @@
+@@ -127,4 +140,5 @@
          this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 15, 16777215);
          super.drawScreen(par1, par2, par3);
      }
