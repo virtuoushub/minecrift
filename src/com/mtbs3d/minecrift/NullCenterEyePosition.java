@@ -28,7 +28,7 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
 
 	@Override
 	public String getName() {
-		return "None";
+		return "Neck Model";
 	}
 
 	@Override

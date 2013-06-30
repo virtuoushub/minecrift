@@ -15,8 +15,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 {
 	static EnumOptions[] minecriftOptions = new EnumOptions[] {
             EnumOptions.PLAYER_HEIGHT,
-            EnumOptions.EYE_PROTRUSION,
-            EnumOptions.NECK_LENGTH,
             EnumOptions.HUD_OPACITY,
             EnumOptions.HUD_SCALE,
             EnumOptions.HUD_DISTANCE,
@@ -61,18 +59,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                     minValue = 1.62f;
                     maxValue = 1.85f;
                     increment = 0.01f;
-                }
-                if (var8 == EnumOptions.EYE_PROTRUSION)
-                {
-                    minValue = 0.00f;
-                    maxValue = 0.25f;
-                    increment = 0.001f;
-                }
-                if (var8 == EnumOptions.NECK_LENGTH)
-                {
-                    minValue = 0.00f;
-                    maxValue = 0.25f;
-                    increment = 0.001f;
                 }
                 if (var8 == EnumOptions.HUD_SCALE)
                 {
@@ -191,28 +177,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 				"  Setting this value isn't required, but you should",
 				"  strive to get it as close as possible for an accurate",
 				"  experience"
-    		};
-    	case EYE_PROTRUSION:
-    		return new String[] {
-				"Distance from \"head-center\" to your eyes (in meters)",
-				"  Not required, but get it close for the best experience",
-				" (\"X\" distance below)     ____  ",
-				"                              /      \\ ",
-				"                              |    XXo ",
-				"                              |      _\\",
-				"                               \\   /",
-				"                                 | |"
-    		};
-    	case NECK_LENGTH:
-    		return new String[] {
-				"Distance from \"head-center\" to your shoulders",
-				"  Not required, but get it close for the best experience",
-				" (\"Y\" distance below)     ____  ",
-				"                              /      \\ ",
-				"                              |   Y  o ",
-				"                              |   Y  _\\",
-				"                               \\ Y /",
-				"                                 |Y|"
     		};
     	case HUD_OPACITY:
     		return new String[] {

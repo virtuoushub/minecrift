@@ -17,6 +17,12 @@ import net.minecraft.src.*;
 public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEventEx
 {
     /** An array of all of EnumOption's head position options. */
+
+    static EnumOptions[] neckModelOptions = new EnumOptions[] {
+            EnumOptions.EYE_PROTRUSION,
+            EnumOptions.NECK_LENGTH,
+    };
+
     static EnumOptions[] hydraOptions = new EnumOptions[] {
         EnumOptions.POS_TRACK_HYDRALOC,
         EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE,
@@ -24,9 +30,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         EnumOptions.POS_TRACK_HYDRA_OFFSET_X,
         EnumOptions.HYDRA_USE_FILTER,
         EnumOptions.POS_TRACK_HYDRA_OFFSET_Y,
-        EnumOptions.DUMMY,//EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
+        EnumOptions.EYE_PROTRUSION,
         EnumOptions.POS_TRACK_HYDRA_OFFSET_Z,
-        EnumOptions.DUMMY,
+        EnumOptions.NECK_LENGTH,   //EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
         EnumOptions.POS_TRACK_HYDRA_OFFSET_SET_DEFAULT,
     };
 
@@ -66,7 +72,13 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
         GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (look ahead now)");
         this.buttonList.add(recalibrate);
-        EnumOptions[] var10 = hydraOptions;
+        EnumOptions[] var10 = null;
+
+        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+            var10 = hydraOptions;
+        else
+            var10 = neckModelOptions;
+
         int var11 = var10.length;
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
@@ -107,6 +119,18 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                         maxValue = 45.0f;
                         increment = 0.1f;
                     }
+                    if (var8 == EnumOptions.EYE_PROTRUSION)
+                    {
+                        minValue = 0.00f;
+                        maxValue = 0.25f;
+                        increment = 0.001f;
+                    }
+                    if (var8 == EnumOptions.NECK_LENGTH)
+                    {
+                        minValue = 0.00f;
+                        maxValue = 0.25f;
+                        increment = 0.001f;
+                    }
 
                     GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
                     slider.setEventHandler(this);
@@ -136,8 +160,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             return false;
 
         //These don't really apply to Oculus head position (which is just neck model)
-        if (!this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
-            return false;
+        if (this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        {
+            if (this.guiGameSettings.posTrackHydraLoc != GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && var8 == EnumOptions.NECK_LENGTH)
+                return false;
+        }
 
         return true;
     }
@@ -145,6 +172,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     private boolean getEnabledState(EnumOptions var8)
     {
         String s = var8.getEnumString();
+
+        if (!this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        {
+            return true;
+        }
 
         if (var8 == EnumOptions.POS_TRACK_HYDRALOC ||
             var8 == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ||
@@ -270,14 +302,15 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             {
                 case POS_TRACK_HYDRALOC:
                     return new String[] {
-                            "Sets the location(s) of the Hydra controller(s) used",
-                            "for positional tracking.",
+                            "Location(s) of the Hydra(s) used for pos track.",
                             "  L&R - One hydra is mounted to the left side of the ",
                             "        HMD, one to the right side. The Hydra center",
                             "        point is the average of the two reported locations.",
                             "  L   - One Hydra is mounted to the left side of the HMD.",
                             "  R   - One Hydra is mounted to the right side of the HMD.",
-                            "  T   - One Hydra is mounted to the top of the HMD."} ;
+                            "  T   - One Hydra is mounted to the top of the HMD.",
+                            "  B   - One hydra is mounted to the back of your head."
+                    } ;
                 case POS_TRACK_HYDRA_DISTANCE_SCALE:
                     return new String[] {
                             "Sets the distance scale factor.",
@@ -337,6 +370,28 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 case POS_TRACK_HYDRA_OFFSET_SET_DEFAULT:
                     return new String[] {
                             "Set offset defaults for the selected Hydra location."
+                    };
+                case EYE_PROTRUSION:
+                    return new String[] {
+                            "Distance from \"head-center\" to your eyes (in meters)",
+                            "  Get it close for the best experience",
+                            " (\"X\" distance below)     ____  ",
+                            "                              /      \\ ",
+                            "                              |    XXo ",
+                            "                              |      _\\",
+                            "                               \\   /",
+                            "                                 | |"
+                    };
+                case NECK_LENGTH:
+                    return new String[] {
+                            "Distance from \"head-center\" to your shoulders",
+                            "  Get it close for the best experience",
+                            " (\"Y\" distance below)     ____  ",
+                            "                              /      \\ ",
+                            "                              |   Y  o ",
+                            "                              |   Y  _\\",
+                            "                               \\ Y /",
+                            "                                 |Y|"
                     };
 //                case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
 //                    return new String[] {

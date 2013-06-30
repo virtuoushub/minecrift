@@ -465,26 +465,62 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         //Account for hydra base station / head tracker orientation not aligned
         //After this, rel is in body coordinates (relative to head tracker reference frame, not accounting for mouse-induced world yaw offset)
         rel.rotateAroundY(baseStationYawOffset*PIOVER180);
-        
-        
-        //Now, compute the offset from the hydra controller to the camera location. Straight from the settings (although negated -
-        //gameSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
-        float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
-        float hydraYOffset = -gameSettings.getPosTrackHydraOffsetY();
-        float hydraZOffset = -gameSettings.getPosTrackHydraOffsetZ();
 
-        if (gameSettings.posTrackHydraDebugCentreEyePos)
+        Vec3 correctionToCentreEyePosition = null;
+
+        switch(Minecraft.getMinecraft().gameSettings.posTrackHydraLoc)
         {
-            debugCentreEyePosition(userScale, yawHeadDegrees, pitchHeadDegrees, rollHeadDegrees, hydraXOffset, hydraYOffset, hydraZOffset,
-                    cont1PosX, cont1PosY, cont1PosZ, cont2PosX, cont2PosY, cont2PosZ);
+            case GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+            {
+                // TODO: Prototype code, probably all wrong currently...
+
+                // Compute the offset from the hydra controller to the neck base. Have to use rudimentary neck
+                // model to infer the point of rotation for each axis
+                float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
+                float hydraYOffsetFromNeckBase = -gameSettings.getPosTrackHydraOffsetY() + Minecraft.getMinecraft().gameSettings.neckBaseToEyeHeight;
+                float hydraZOffsetFromNeckBase = -gameSettings.getPosTrackHydraOffsetZ() + Minecraft.getMinecraft().gameSettings.eyeProtrusion;
+
+                // Correct for a rotation around and behind the neck base
+                Vec3 correctionToHydraPosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffsetFromNeckBase, hydraZOffsetFromNeckBase);
+
+                // All angles reversed from the usual calculation
+                correctionToHydraPosition.rotateAroundZ(-rollHeadDegrees*PIOVER180);
+                correctionToHydraPosition.rotateAroundX(-pitchHeadDegrees*PIOVER180);
+                correctionToHydraPosition.rotateAroundY(yawHeadDegrees*PIOVER180);
+
+                // Determine scale factor
+                float scaleFactor = (1.0f / hydraZOffsetFromNeckBase) * Minecraft.getMinecraft().gameSettings.eyeProtrusion;
+
+                // Scale and negate the values to get our correction to the eye center position
+                correctionToCentreEyePosition = Vec3.createVectorHelper((float)correctionToHydraPosition.xCoord * -1.0f,
+                                                                        (float)correctionToHydraPosition.yCoord * -1.0f,
+                                                                        (float)correctionToHydraPosition.zCoord * -scaleFactor);
+
+                break;
+            }
+            default:
+            {
+                //Now, compute the offset from the hydra controller to the camera location. Straight from the settings (although negated -
+                //gameSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
+                float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
+                float hydraYOffset = -gameSettings.getPosTrackHydraOffsetY();
+                float hydraZOffset = -gameSettings.getPosTrackHydraOffsetZ();
+
+                if (gameSettings.posTrackHydraDebugCentreEyePos)
+                {
+                    debugCentreEyePosition(userScale, yawHeadDegrees, pitchHeadDegrees, rollHeadDegrees, hydraXOffset, hydraYOffset, hydraZOffset,
+                            cont1PosX, cont1PosY, cont1PosZ, cont2PosX, cont2PosY, cont2PosZ);
+                }
+
+                // The configured offset is for a 0,0,0 rotation head. Apply current head orientation to get final offset
+                correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
+
+                correctionToCentreEyePosition.rotateAroundZ(rollHeadDegrees*PIOVER180);
+                correctionToCentreEyePosition.rotateAroundX(pitchHeadDegrees*PIOVER180);
+                correctionToCentreEyePosition.rotateAroundY(-yawHeadDegrees*PIOVER180);
+                break;
+            }
         }
-
-        // The configured offset is for a 0,0,0 rotation head. Apply current head orientation to get final offset 
-        Vec3 correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
-
-        correctionToCentreEyePosition.rotateAroundZ(rollHeadDegrees*PIOVER180);
-        correctionToCentreEyePosition.rotateAroundX(pitchHeadDegrees*PIOVER180);
-        correctionToCentreEyePosition.rotateAroundY(-yawHeadDegrees*PIOVER180);
 
         //Add the hydra position (in head tracker reference frame) to the camera offset 
         //to get the camera position in head tracker reference frame

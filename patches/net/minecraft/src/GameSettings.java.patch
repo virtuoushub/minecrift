@@ -1,16 +1,14 @@
 --- a/net/minecraft/src/GameSettings.java
 +++ b/net/minecraft/src/GameSettings.java
-@@ -7,6 +7,9 @@
+@@ -7,6 +7,7 @@
  import java.io.PrintWriter;
  import java.util.Arrays;
  import java.util.List;
 +
-+import com.mtbs3d.minecrift.api.BasePlugin;
-+import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
  import net.minecraft.client.Minecraft;
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
-@@ -14,6 +17,19 @@
+@@ -14,6 +15,19 @@
  
  public class GameSettings
  {
@@ -18,19 +16,19 @@
 +    public static final int POS_TRACK_NECK = 0;
 +    public static final int POS_TRACK_HYDRA = 1;
 +
-+    private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back of head", "Direct"};
++    private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back Of Head BETA", "Direct"};
 +    //TODO: Shouldn't these be an enum? 
 +    public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT = 0;
 +    public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT = 1;
 +    public static final int POS_TRACK_HYDRA_LOC_HMD_TOP = 2;
 +    public static final int POS_TRACK_HYDRA_LOC_HMD_RIGHT = 3;
-+    //public static final int POS_TRACK_HYDRA_LOC_BACK_OFF_HEAD_UNDER_TOP_STRAP = 4;
++    public static final int POS_TRACK_HYDRA_LOC_BACK_OF_HEAD = 4;
 +    //public static final int POS_TRACK_HYDRA_LOC_DIRECT = 5;
 +
      private static final String[] RENDER_DISTANCES = new String[] {"options.renderDistance.far", "options.renderDistance.normal", "options.renderDistance.short", "options.renderDistance.tiny"};
      private static final String[] DIFFICULTIES = new String[] {"options.difficulty.peaceful", "options.difficulty.easy", "options.difficulty.normal", "options.difficulty.hard"};
  
-@@ -28,6 +44,7 @@
+@@ -28,6 +42,7 @@
      public float musicVolume = 1.0F;
      public float soundVolume = 1.0F;
      public float mouseSensitivity = 0.5F;
@@ -38,7 +36,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,61 @@
+@@ -133,6 +148,64 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -86,6 +84,9 @@
 +    public float posTrackHydraTOffsetX = 0.0f;
 +    public float posTrackHydraTOffsetY = 0.085f;
 +    public float posTrackHydraTOffsetZ = 0.0f;
++    public float posTrackHydraBOffsetX = 0.0f;
++    public float posTrackHydraBOffsetY = 0.05f;
++    public float posTrackHydraBOffsetZ = -0.25f;
 +    public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 +	public float joystickSensitivity = 3f;
 +	public float aimKeyholeWidthDegrees = 90f;
@@ -100,7 +101,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +238,7 @@
+@@ -166,7 +239,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -109,7 +110,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +247,7 @@
+@@ -175,6 +248,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -117,7 +118,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +276,7 @@
+@@ -203,6 +277,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -125,7 +126,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +285,7 @@
+@@ -211,7 +286,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -134,7 +135,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +303,7 @@
+@@ -229,6 +304,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -142,7 +143,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +315,7 @@
+@@ -240,7 +316,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -151,7 +152,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +489,150 @@
+@@ -414,6 +490,159 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -249,6 +250,9 @@
 +                case POS_TRACK_HYDRA_LOC_HMD_TOP:
 +                    this.posTrackHydraTOffsetX = par2;
 +                    break;
++                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
++                    this.posTrackHydraBOffsetX = par2;
++                    break;
 +            }
 +        }
 +
@@ -267,6 +271,9 @@
 +                    break;
 +                case POS_TRACK_HYDRA_LOC_HMD_TOP:
 +                    this.posTrackHydraTOffsetY = par2;
++                    break;
++                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
++                    this.posTrackHydraBOffsetY = par2;
 +                    break;
 +            }
 +        }
@@ -287,6 +294,9 @@
 +                case POS_TRACK_HYDRA_LOC_HMD_TOP:
 +                    this.posTrackHydraTOffsetZ = par2;
 +                    break;
++                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
++                    this.posTrackHydraBOffsetZ = par2;
++                    break;
 +            }
 +        }
 +
@@ -302,7 +312,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1381,130 @@
+@@ -1162,12 +1391,133 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -366,7 +376,7 @@
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
 +        {
 +            this.posTrackHydraLoc += 1;
-+            if (this.posTrackHydraLoc > POS_TRACK_HYDRA_LOC_HMD_RIGHT)
++            if (this.posTrackHydraLoc > POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)
 +            {
 +                this.posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
 +            }
@@ -407,14 +417,17 @@
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetX :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetX :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetX :
++              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD ? this.posTrackHydraBOffsetX :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetY :
++              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD ? this.posTrackHydraBOffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetZ :
++              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD ? this.posTrackHydraBOffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg :
 +              (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight :
@@ -430,11 +443,11 @@
 +              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused :
 +              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused :
 +              (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale :
-+              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))))))))))))))))))))))))))))));
++              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F))))))))))))))))))))))))))))))))))))))))));
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1962,220 @@
+@@ -1625,6 +1975,229 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -584,6 +597,9 @@
 +                case POS_TRACK_HYDRA_LOC_HMD_TOP:
 +                    value = this.posTrackHydraTOffsetX;
 +                    break;
++                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
++                    value = this.posTrackHydraBOffsetX;
++                    break;
 +            }
 +
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
@@ -606,6 +622,9 @@
 +                case POS_TRACK_HYDRA_LOC_HMD_TOP:
 +                    value = this.posTrackHydraTOffsetY;
 +                    break;
++                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
++                    value = this.posTrackHydraBOffsetY;
++                    break;
 +            }
 +
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
@@ -627,6 +646,9 @@
 +                    break;
 +                case POS_TRACK_HYDRA_LOC_HMD_TOP:
 +                    value = this.posTrackHydraTOffsetZ;
++                    break;
++                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
++                    value = this.posTrackHydraBOffsetZ;
 +                    break;
 +            }
 +
@@ -655,7 +677,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2870,287 @@
+@@ -2319,6 +2892,302 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -887,6 +909,21 @@
 +                        this.posTrackHydraTOffsetZ = this.parseFloat(var3[1]);
 +                    }
 +
++                    if (var3[0].equals("posTrackHydraBOffsetX"))
++                    {
++                        this.posTrackHydraBOffsetX = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("posTrackHydraBOffsetY"))
++                    {
++                        this.posTrackHydraBOffsetY = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("posTrackHydraBOffsetZ"))
++                    {
++                        this.posTrackHydraBOffsetZ = this.parseFloat(var3[1]);
++                    }
++
 +                    if (var3[0].equals("posTrackHydraDistanceScale"))
 +                    {
 +                        this.posTrackHydraDistanceScale = this.parseFloat(var3[1]);
@@ -943,7 +980,7 @@
      }
  
      /**
-@@ -2479,6 +3311,65 @@
+@@ -2479,6 +3348,68 @@
              var3.printStackTrace();
          }
  
@@ -991,6 +1028,9 @@
 +            var5.println("posTrackHydraTOffsetX:" + this.posTrackHydraTOffsetX);
 +            var5.println("posTrackHydraTOffsetY:" + this.posTrackHydraTOffsetY);
 +            var5.println("posTrackHydraTOffsetZ:" + this.posTrackHydraTOffsetZ);
++            var5.println("posTrackHydraBOffsetX:" + this.posTrackHydraBOffsetX);
++            var5.println("posTrackHydraBOffsetY:" + this.posTrackHydraBOffsetY);
++            var5.println("posTrackHydraBOffsetZ:" + this.posTrackHydraBOffsetZ);
 +            var5.println("posTrackHydraDistanceScale:" + this.posTrackHydraDistanceScale);
 +            var5.println("posTrackHydraUseController1:" + this.posTrackHydraUseController1);
 +            var5.println("posTrackHydraYAxisDistanceSkewAngleDeg:" + this.posTrackHydraYAxisDistanceSkewAngleDeg);
@@ -1009,7 +1049,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3548,74 @@
+@@ -2657,4 +3588,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
