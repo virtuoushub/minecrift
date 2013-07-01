@@ -290,6 +290,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 this.guiGameSettings.posTrackHydraROffsetY = 0.0f;
                 this.guiGameSettings.posTrackHydraROffsetZ = 0.0f;
                 break;
+            case GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+                this.guiGameSettings.posTrackHydraBOffsetX = 0.05f;
+                this.guiGameSettings.posTrackHydraBOffsetY = 0.11f;
+                this.guiGameSettings.posTrackHydraBOffsetZ = -0.25f;
+                break;
         }
     }
 
