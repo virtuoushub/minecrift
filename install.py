@@ -70,9 +70,12 @@ def download_deps( mcp_dir ):
         os.mkdir( mcp_dir )
         mcp_zip = zipfile.ZipFile( "mcp726a.zip" )
         mcp_zip.extractall( mcp_dir )
+        import stat
+        astyle = os.path.join(mcp_dir,"runtime","bin","astyle-osx")
+        st = os.stat( astyle )
+        os.chmod(astyle, st.st_mode | stat.S_IEXEC)
     except:
         pass
-
 
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
