@@ -36,7 +36,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
     Vec3 headPos; //in meters, in world coordinates
     Vec3 origin = Vec3.createVectorHelper(0, 0, 0);  //in meters, relative to hydra base station
 
-    float baseStationYawOffset = 0.0f; //in degrees, not currently used (would be nice to support)
+    float baseStationYawOffset = 0.0f;
 
     boolean hydraRunning = false;
 	private boolean hydraInitialized = false;
@@ -193,6 +193,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 			cont1Yaw   = cont1.yaw;
 			cont1Pitch = cont1.pitch;
 			cont1Roll  = cont1.roll;
+			//System.out.println(cont1Yaw+" "+cont1Pitch+" "+cont1Roll);
 	
 			cont2Yaw   = cont2.yaw;
 			cont2Pitch = cont2.pitch;
@@ -412,15 +413,21 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         	headPos = Vec3.createVectorHelper(0, 0, 0);
             return;
         }
+
+        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
         
         if( resetOriginRotation )
         {
         	//TODO: this might be backwards: with only a razer to test the yawHeadDegrees, its always the same!
-        	baseStationYawOffset = cont1Yaw - yawHeadDegrees;
+        	if( Minecraft.getMinecraft().headTracker != this ) //if the positional tracker is the hydra, they are always aligned
+        	{
+        		baseStationYawOffset = cont1Yaw - yawHeadDegrees; //assume hydra oriented straight with head orientation
+	        	if( gameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)
+	        		baseStationYawOffset -= 90;//assume hydra oriented at 90degrees to head orientation
+        	}
         	resetOriginRotation = false;
         }
         
-        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
 
         // Using a single controller. Select controller. poll() has already switch left and right depending on configuration 
         //cont1 is for head tracking, if head tracking is enabled (TODO: make head tracking optional?)
@@ -492,7 +499,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         if (resetOrigin)
         {
         	//We compute the "ideal" neck model position, in head tracker reference frame
-		Vec3 neckModelToCentreEyePosition = Vec3.createVectorHelper(0, gameSettings.neckBaseToEyeHeight, -gameSettings.eyeProtrusion);
+        	Vec3 neckModelToCentreEyePosition = Vec3.createVectorHelper(0, gameSettings.neckBaseToEyeHeight, -gameSettings.eyeProtrusion);
 	        neckModelToCentreEyePosition.rotateAroundZ(rollHeadDegrees*PIOVER180);
 	        neckModelToCentreEyePosition.rotateAroundX(pitchHeadDegrees*PIOVER180);
 	        neckModelToCentreEyePosition.rotateAroundY(-yawHeadDegrees*PIOVER180);
