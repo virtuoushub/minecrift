@@ -64,6 +64,16 @@ def download_native(url, folder, name):
 
 def download_deps( mcp_dir ):
 
+    download_file( "http://mcp.ocean-labs.de/files/mcp751.zip", "mcp751.zip" )
+
+    try:
+        os.mkdir( mcp_dir )
+        mcp_zip = zipfile.ZipFile( "mcp751.zip" )
+        mcp_zip.extractall( mcp_dir )
+    except:
+        pass
+
+
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
     MinecraftDownload = "http://s3.amazonaws.com/MinecraftDownload/"
