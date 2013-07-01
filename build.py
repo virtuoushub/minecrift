@@ -73,7 +73,7 @@ def main(mcp_dir):
     commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True)
     reobfuscate_side( commands, CLIENT )
 
-    version = "1.0_beta"
+    version = "1.0_beta_1.4.7"
     out_file = os.path.join( base_dir,"releases","minecrift_"+version+"_classes.zip" )
     try:
         os.remove( out_file)
