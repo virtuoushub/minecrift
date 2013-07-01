@@ -163,11 +163,16 @@ def main(mcp_dir):
     applychanges( mcp_dir )
     
 	#Need git in system PATH!
-    process = subprocess.Popen(["git","submodule","init"], cwd=base_dir, bufsize=-1)
-    process.communicate()
+    try:
+        process = subprocess.Popen(["git","submodule","init"], cwd=base_dir, bufsize=-1)
+        process.communicate()
 
-    process = subprocess.Popen(["git","submodule","update"], cwd=base_dir, bufsize=-1)
-    process.communicate()
+        process = subprocess.Popen(["git","submodule","update"], cwd=base_dir, bufsize=-1)
+        process.communicate()
+    except:
+        print("You'll need to get the JRift and Sixense-Java git submodules manually! Then, copy the jar files to mcp/lib")
+        pass
+
     try:
         os.mkdir( os.path.join( mcp_dir, "lib" ) )
     except WindowsError:
