@@ -64,6 +64,16 @@ def download_native(url, folder, name):
 
 def download_deps( mcp_dir ):
 
+    download_file( "http://mcp.ocean-labs.de/files/mcp726a.zip", "mcp726a.zip" )
+
+    try:
+        os.mkdir( mcp_dir )
+        mcp_zip = zipfile.ZipFile( "mcp726a.zip" )
+        mcp_zip.extractall( mcp_dir )
+    except:
+        pass
+
+
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
     MinecraftDownload = "http://s3.amazonaws.com/MinecraftDownload/"
@@ -74,10 +84,10 @@ def download_deps( mcp_dir ):
         download_file( MinecraftDownload + jar, os.path.join(bin,jar) )
 
 
-    MinecraftDownload = "http://s3.amazonaws.com/Minecraft.Download/versions/"
-    download_file( MinecraftDownload+ "1.4.7/1.4.7.jar", os.path.join(bin,"minecraft.jar"))
+    download_file( "https://assets.minecraft.net/1_4_7/minecraft.jar", os.path.join(bin,"minecraft.jar"),"8e80fb01b321c6b3c7efca397a3eea35")
 
     download_file( "http://optifine.net/download.php?f=OptiFine_1.4.6_HD_U_D5.zip", os.path.join(bin,"optifine.zip"))
+
 
 def zipmerge( target_file, source_file ):
     out_file, out_filename = tempfile.mkstemp()
@@ -129,7 +139,8 @@ def main(mcp_dir):
     zipmerge( os.path.join( mcp_dir,"jars","bin","minecraft.jar"),
               os.path.join( mcp_dir,"jars","bin","optifine.zip") )
 
-    shutil.copy( "minecraft_ff.patch", os.path.join(mcp_dir,"conf","mincraft_ff.patch"))
+    shutil.copy( "minecraft_ff.patch", os.path.join(mcp_dir,"conf","patches") )
+
     print("Decompiling...")
     sys.path.append(mcp_dir)
     os.chdir(mcp_dir)
