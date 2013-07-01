@@ -149,6 +149,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             }
             case CALIBRATE_AT_FIRST_ORIGIN:
             {
+                _reset();
                 _beginAutomaticCalibration();
                 calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
                 break;
