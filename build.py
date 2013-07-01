@@ -74,6 +74,11 @@ def main(mcp_dir):
     reobfuscate_side( commands, CLIENT )
 
     version = "1.0_beta_1.4.7"
+
+    try:
+        os.mkdir( os.path.join( base_dir, "releases" ) )
+    except:
+        pass
     out_file = os.path.join( base_dir,"releases","minecrift_"+version+"_classes.zip" )
     try:
         os.remove( out_file)

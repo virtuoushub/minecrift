@@ -159,6 +159,9 @@ def main(mcp_dir):
     applychanges( mcp_dir )
     
 	#Need git in system PATH!
+    process = subprocess.Popen(["git","submodule","init"], cwd=base_dir, bufsize=-1)
+    process.communicate()
+
     process = subprocess.Popen(["git","submodule","update"], cwd=base_dir, bufsize=-1)
     process.communicate()
     try:
