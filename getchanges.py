@@ -12,7 +12,6 @@ def cmdsplit(args):
         args = args.replace('\\', '\\\\')
     return shlex.split(args)
 
-crlf = re.compile(r"\n(?<!\r)")
 def create_patch( target_dir, src_file, mod_file, label, patch_file ):
     
     if os.name == 'nt':
@@ -26,7 +25,7 @@ def create_patch( target_dir, src_file, mod_file, label, patch_file ):
     stdout, stderr = process.communicate()
     if stdout:
         with open( patch_file, 'w') as out:
-            out.write( crlf.sub("\r\n", stdout ))
+            out.write( stdout )
 
 def main(mcp_dir):
     new_src_dir    = os.path.join( base_dir , "src" )
