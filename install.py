@@ -77,6 +77,8 @@ def download_deps( mcp_dir ):
     except:
         pass
 
+    if sys.platform == 'darwin':
+        shutil.copy("minecraft_ff_osx.patch.crlf",os.path.join(mcp_dir,"conf","patches","minecraft_ff.patch"))
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
     MinecraftDownload = "http://s3.amazonaws.com/MinecraftDownload/"
