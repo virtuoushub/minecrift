@@ -15,7 +15,7 @@
 +    public static final int POS_TRACK_NECK = 0;
 +    public static final int POS_TRACK_HYDRA = 1;
 +
-+    private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back Of Head BETA", "Direct"};
++    private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back Of Head", "Direct"};
 +    //TODO: Shouldn't these be an enum? 
 +    public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT = 0;
 +    public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT = 1;
@@ -83,8 +83,8 @@
 +    public float posTrackHydraTOffsetX = 0.0f;
 +    public float posTrackHydraTOffsetY = 0.085f;
 +    public float posTrackHydraTOffsetZ = 0.0f;
-+    public float posTrackHydraBOffsetX = 0.0f;
-+    public float posTrackHydraBOffsetY = 0.05f;
++    public float posTrackHydraBOffsetX = 0.05f;
++    public float posTrackHydraBOffsetY = 0.11f;
 +    public float posTrackHydraBOffsetZ = -0.25f;
 +    public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 +	public float joystickSensitivity = 3f;
