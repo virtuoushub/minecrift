@@ -36,7 +36,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +148,64 @@
+@@ -133,6 +148,65 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -90,6 +90,7 @@
 +    public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 +	public float joystickSensitivity = 3f;
 +	public float aimKeyholeWidthDegrees = 90f;
++	public boolean keyholeHeadRelative = true;
 +    public boolean hydraUseFilter = true;
 +    public float magRefDistance = 0.15f;
 +	public String headPositionPluginID = "oculus";
@@ -101,7 +102,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +239,7 @@
+@@ -166,7 +240,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -110,7 +111,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +248,7 @@
+@@ -175,6 +249,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -118,7 +119,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +277,7 @@
+@@ -203,6 +278,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -126,7 +127,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +286,7 @@
+@@ -211,7 +287,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -135,7 +136,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +304,7 @@
+@@ -229,6 +305,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -143,7 +144,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +316,7 @@
+@@ -240,7 +317,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -152,7 +153,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +490,159 @@
+@@ -414,6 +491,159 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -312,7 +313,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1391,133 @@
+@@ -1162,12 +1392,139 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -392,6 +393,12 @@
 +            this.hydraUseFilter = !this.hydraUseFilter;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
++        {
++        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
++        }
++        
++
          this.saveOptions();
      }
  
@@ -447,7 +454,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1975,229 @@
+@@ -1625,6 +1982,233 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -673,11 +680,15 @@
 +        {
 +            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
 +        }
++        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
++        {
++            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
++        }
 +        // End Minecrift
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2892,302 @@
+@@ -2319,6 +2903,307 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -950,6 +961,11 @@
 +                    	this.lookAimYawDecoupled =  this.aimKeyholeWidthDegrees >= 5;
 +                    }
 +
++                    if (var3[0].equals("keyholeHeadRelative"))
++                    {
++                    	this.keyholeHeadRelative = var3[1].equals("true");
++                    }
++
 +                    if (var3[0].equals("posTrackHydraYAxisDistanceSkewAngleDeg"))
 +                    {
 +                        this.posTrackHydraYAxisDistanceSkewAngleDeg = this.parseFloat(var3[1]);
@@ -980,7 +996,7 @@
      }
  
      /**
-@@ -2479,6 +3348,68 @@
+@@ -2479,6 +3364,69 @@
              var3.printStackTrace();
          }
  
@@ -1037,6 +1053,7 @@
 +            var5.println("hydraUseFilter:" + this.hydraUseFilter);
 +            var5.println("joystickSensitivity:" + this.joystickSensitivity);
 +            var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
++            var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
 +
 +            var5.close();
 +        }
@@ -1049,7 +1066,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3588,74 @@
+@@ -2657,4 +3605,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

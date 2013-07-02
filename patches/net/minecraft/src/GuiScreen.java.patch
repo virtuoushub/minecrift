@@ -1,6 +1,16 @@
 --- a/net/minecraft/src/GuiScreen.java
 +++ b/net/minecraft/src/GuiScreen.java
-@@ -177,14 +177,38 @@
+@@ -39,6 +39,9 @@
+     private long field_85043_c = 0L;
+     private int field_92018_d = 0;
+ 
++	public int mouseOffsetX = 0;
++	public int mouseOffsetY = 0;
++
+     /**
+      * Draws the screen and all the components in it.
+      */
+@@ -177,14 +180,38 @@
              this.handleKeyboardInput();
          }
      }
@@ -36,12 +46,12 @@
      {
 -        int var1 = Mouse.getEventX() * this.width / this.mc.displayWidth;
 -        int var2 = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-+        int var1 = Mouse.getEventX() * this.width / this.mc.displayFBWidth;
-+        int var2 = this.height - Mouse.getEventY() * this.height / this.mc.displayFBHeight - 1;
++        int var1 = ( Mouse.getEventX() + mouseOffsetX ) * this.width  / this.mc.displayFBWidth;
++        int var2 = this.height - ( Mouse.getEventY()  + mouseOffsetY) * this.height/ this.mc.displayFBHeight - 1;
  
          if (Mouse.getEventButtonState())
          {
-@@ -261,7 +285,7 @@
+@@ -261,7 +288,7 @@
      {
          if (this.mc.theWorld != null)
          {

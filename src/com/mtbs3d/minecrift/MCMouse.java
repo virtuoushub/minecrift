@@ -7,6 +7,7 @@ package com.mtbs3d.minecrift;
 import java.io.File;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.src.MathHelper;
 
 import org.lwjgl.opengl.Display;
 
@@ -100,7 +101,8 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             }
 
         	float headYaw = this.mc.headTracker.getHeadYawDegrees();
-        	float keyholeYaw = this.mc.gameSettings.aimKeyholeWidthDegrees;
+        	float cosHeadPitch = MathHelper.cos(this.mc.headTracker.getHeadPitchDegrees()*PIOVER180);
+        	float keyholeYaw = this.mc.gameSettings.aimKeyholeWidthDegrees/2/cosHeadPitch;
         	
         	boolean aimYawAllowed;
         	if( this.mc.gameSettings.lookAimYawDecoupled && this.mc.gameSettings.lookAimPitchDecoupled)
@@ -110,24 +112,24 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 
             if( aimYawAllowed && adjustedMouseDeltaX != 0 )
             {
-                aimYaw += adjustedMouseDeltaX;
+                aimYaw += adjustedMouseDeltaX/cosHeadPitch;
 
 	            //Yaw
 	            if( !this.mc.gameSettings.lookAimYawDecoupled )
 	                bodyYaw = aimYaw;
-	            else if( aimYaw > (headYaw + bodyYaw + keyholeYaw/2) )
+	            else if( aimYaw > (headYaw + bodyYaw + keyholeYaw) )
 	            	bodyYaw += adjustedMouseDeltaX;
-	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw/2))
+	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw))
 	            	bodyYaw += adjustedMouseDeltaX;
                 aimYaw %= 360;
                 bodyYaw %= 360;
             }
             else if( this.mc.gameSettings.lookAimYawDecoupled )
             {
-	            if( aimYaw > (headYaw + bodyYaw + keyholeYaw/2) )
-	            	aimYaw = headYaw + bodyYaw + keyholeYaw/2;
-	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw/2))
-	            	aimYaw = headYaw + bodyYaw - keyholeYaw/2;
+	            if( aimYaw > (headYaw + bodyYaw + keyholeYaw) )
+	            	aimYaw = headYaw + bodyYaw + keyholeYaw;
+	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw))
+	            	aimYaw = headYaw + bodyYaw - keyholeYaw;
             }
 		}
 	}
