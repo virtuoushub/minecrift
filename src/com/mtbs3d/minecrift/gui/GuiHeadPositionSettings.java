@@ -30,9 +30,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         EnumOptions.POS_TRACK_HYDRA_OFFSET_X,
         EnumOptions.HYDRA_USE_FILTER,
         EnumOptions.POS_TRACK_HYDRA_OFFSET_Y,
-        EnumOptions.EYE_PROTRUSION,
+        EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT,
         EnumOptions.POS_TRACK_HYDRA_OFFSET_Z,
-        EnumOptions.NECK_LENGTH,   //EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
+        EnumOptions.DUMMY,
+        //EnumOptions.EYE_PROTRUSION,
+        //EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
         EnumOptions.POS_TRACK_HYDRA_OFFSET_SET_DEFAULT,
     };
 
@@ -162,7 +164,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         //These don't really apply to Oculus head position (which is just neck model)
         if (this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
         {
-            if (this.guiGameSettings.posTrackHydraLoc != GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && var8 == EnumOptions.NECK_LENGTH)
+            if (this.guiGameSettings.posTrackHydraLoc != GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && var8 == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
                 return false;
         }
 
@@ -180,7 +182,8 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
         if (var8 == EnumOptions.POS_TRACK_HYDRALOC ||
             var8 == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ||
-            var8 == EnumOptions.HYDRA_USE_FILTER)
+            var8 == EnumOptions.HYDRA_USE_FILTER ||
+            var8 == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
             return true;
 
         if (this.guiGameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT &&
@@ -260,7 +263,8 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             this.reinit = true;
         }
 
-        if (enumm == EnumOptions.POS_TRACK_HYDRALOC)
+        if (enumm == EnumOptions.POS_TRACK_HYDRALOC ||
+            enumm == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
         {
             this.reinit = true;
         }
@@ -291,9 +295,19 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 this.guiGameSettings.posTrackHydraROffsetZ = 0.0f;
                 break;
             case GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                this.guiGameSettings.posTrackHydraBOffsetX = 0.05f;
-                this.guiGameSettings.posTrackHydraBOffsetY = 0.11f;
-                this.guiGameSettings.posTrackHydraBOffsetZ = -0.25f;
+                if (this.guiGameSettings.posTrackHydraBIsPointingLeft)
+                {
+                    this.guiGameSettings.posTrackHydraBLOffsetX = 0.05f;
+                    this.guiGameSettings.posTrackHydraBLOffsetY = 0.11f;
+                    this.guiGameSettings.posTrackHydraBLOffsetZ = -0.225f;
+                }
+                else
+                {
+                    this.guiGameSettings.posTrackHydraBROffsetX = -0.05f;
+                    this.guiGameSettings.posTrackHydraBROffsetY = 0.11f;
+                    this.guiGameSettings.posTrackHydraBROffsetZ = -0.225f;
+                }
+
                 break;
         }
     }
