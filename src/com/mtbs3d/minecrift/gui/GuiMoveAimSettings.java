@@ -16,12 +16,15 @@ public class GuiMoveAimSettings extends BaseGuiSettings
 {
     /** An array of all of EnumOption's movement options relevant to the hydra. */
     static EnumOptions[] hydraMoveAimOptions = new EnumOptions[] {
-        EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.KEYHOLE_WIDTH,
+        EnumOptions.KEYHOLE_HEAD_RELATIVE,
         EnumOptions.DECOUPLE_LOOK_MOVE,
+        EnumOptions.JOYSTICK_SENSITIVITY,
     };
     /** An array of all of EnumOption's movement options relevant to the mouse. */
     static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
+        EnumOptions.KEYHOLE_HEAD_RELATIVE,
         EnumOptions.DECOUPLE_LOOK_AIM_PITCH,
         EnumOptions.PITCH_AFFECTS_CAMERA,
         EnumOptions.DECOUPLE_LOOK_MOVE,
@@ -165,6 +168,13 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "Otherwise, this value is the horizontal width (in degrees)",
                             "  of the keyhole in which the cursor can freely move.",
                             "  Recommended value: > 60°"} ;
+                case KEYHOLE_HEAD_RELATIVE:
+                    return new String[] {
+                            "Determines if the \"keyhole\" used for aiming moves ",
+                            "  with your head.",
+                            "  If YES, you'll need to move the aiming hydra along",
+                            "  with your head in order to prevent counter-rotation.",
+                            "  Recommended value: YES"} ;
                 case PITCH_AFFECTS_CAMERA:
                     return new String[] {
                             "Adjusts whether the mouse can control the camera pitch",

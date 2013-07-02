@@ -28,23 +28,23 @@ public interface IOrientationProvider extends IBasePlugin {
     /**
      * Gets the Yaw(Y) from YXZ Euler angle representation of orientation
      * 
-     * @return The Yaw degrees 
+     * @return The Head Yaw, in degrees 
      */
-    public float getYawDegrees_LH();
+    public float getHeadYawDegrees();
 
     /**
      * Gets the Pitch(X) from YXZ Euler angle representation of orientation
      * 
-     * @return The Pitch degrees 
+     * @return The Head Pitch, in degrees 
      */
-    public float getPitchDegrees_LH();
+    public float getHeadPitchDegrees();
 
     /**
      * Gets the Roll(Z) from YXZ Euler angle representation of orientation
      * 
-     * @return The Roll degrees 
+     * @return The Head Roll, in degrees 
      */
-    public float getRollDegrees_LH();
+    public float getHeadRollDegrees();
 
 	void beginAutomaticCalibration();
 

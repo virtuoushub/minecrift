@@ -28,7 +28,7 @@ import net.minecraft.src.Vec3;
  * @author Mark Browning
  *
  */
-public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, ILookAimController, IEventListener {
+public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, IBodyAimController, IEventListener {
 
     ControllerManager cm;
     public static ControllerData[] newData = {new ControllerData(), new ControllerData(), new ControllerData(), new ControllerData()};
@@ -76,18 +76,24 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
     private final float YDIRECTION = 1.0f;    // +Y
     private final float ZDIRECTION = 1.0f;    // +Z
     
-    //lookAim implementation
-    private float lookYaw;
-    private float aimYaw;
+    //body/Aim implementation
+    private float bodyYaw; //floating; not fixed to base station; 
+    private float aimYaw; //relative to bodyYaw, so that IRL "forward"
+    //(that is, baseStationYawOffset) is always the direction of movement
+
+    //aimPitch is always cont2Pitch
 
     //Input/controller
 	int lastcont1Buttons = 0;
 	int lastcont2Buttons = 0;
+	
+	//For mouse menu emulation
 	private int hydraMouseX = 0;
 	private int hydraMouseY = 0;
 	private boolean leftMouseClicked = false;
-	private Field keyDownField;
-
+	private Field keyDownField; //Whee, reflection
+	private Field buttonDownField; //Whee, reflection
+	private boolean mouseUseJoystick = true;
 
 	public MCHydra()
 	{
@@ -139,6 +145,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         try {
 			keyDownField = Keyboard.class.getDeclaredField("keyDownBuffer");
 			keyDownField.setAccessible(true);
+			buttonDownField = Mouse.class.getDeclaredField("buttons");
+			buttonDownField.setAccessible(true);
 		} catch (SecurityException e) {
 		} catch (NoSuchFieldException e) {
 		}
@@ -255,14 +263,41 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        	mc.displayInGameMenu();
 	        }
 	       
+	        //In game!
 	        if( mc.currentScreen == null )
 	        {
 	        	hydraMouseX = 0;
 	        	hydraMouseY = 0;
-	
-		        //Now, do aim/look/move 
-                lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
-                aimYaw = lookYaw + cont2Yaw ;
+
+		        //aim/body adjustments
+	        	float headYaw = 0;
+	        	if( mc.gameSettings.keyholeHeadRelative )
+		        	headYaw = mc.headTracker.getHeadYawDegrees();
+	        	
+	        	//Adjust keyhole width on controller pitch; otherwise its a very narrow window at the top and bottom
+	        	float keyholeYaw = mc.gameSettings.aimKeyholeWidthDegrees/2/MathHelper.cos(cont2Pitch*PIOVER180);
+	        	
+	        	float bodyYawT = cont2Yaw - baseStationYawOffset; //
+
+	            if( bodyYawT > headYaw + keyholeYaw  ) 
+	            {
+	            	bodyYawT = Math.min(10,bodyYawT - headYaw - keyholeYaw) * 0.1f*mc.gameSettings.joystickSensitivity; //TODO: add new sensitivity
+	            	//Controller pointing too far right, move body to the right
+	                aimYaw = headYaw + keyholeYaw;
+	            }
+	            else if( bodyYawT < headYaw -keyholeYaw )
+	            {
+	            	//Controller pointing too far left, move body to the left
+	            	bodyYawT = Math.max(-10,bodyYawT -headYaw + keyholeYaw) * 0.1f*mc.gameSettings.joystickSensitivity;
+	                aimYaw = headYaw - keyholeYaw;
+	            }
+	            else
+	            {
+	            	aimYaw = bodyYawT;
+	            	bodyYawT = 0;
+	            }
+            	bodyYaw += bodyYawT;
+                bodyYaw %= 360;
 		        
 		        if( thePlayer != null )
 		        {
@@ -270,6 +305,11 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 				        thePlayer.movementInput.baseMoveForward = cont2.joystick_y;
 			        else
 				        thePlayer.movementInput.baseMoveForward = 0.0f;
+			        
+			        if( Math.abs(cont2.joystick_x)>0.01)
+				        thePlayer.movementInput.baseMoveStrafe = -cont2.joystick_x;
+			        else
+				        thePlayer.movementInput.baseMoveStrafe = 0.0f;
 		        }
 		
 		        //Do buttons
@@ -339,14 +379,27 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         //GUI controls
         if( mc.currentScreen != null )
         {
-        	hydraMouseX += 2*mc.gameSettings.joystickSensitivity*cont2.joystick_x;
-        	hydraMouseY += 2*mc.gameSettings.joystickSensitivity*cont2.joystick_y;
-        	int mouseX = Mouse.getX() + hydraMouseX;
-        	int mouseY = Mouse.getY() + hydraMouseY ;
+        	mouseUseJoystick = false;
+        	if( mouseUseJoystick )
+        	{
+	        	hydraMouseX += 2*mc.gameSettings.joystickSensitivity*cont2.joystick_x;
+	        	hydraMouseY += 2*mc.gameSettings.joystickSensitivity*cont2.joystick_y;
+        	}
+        	else
+        	{
+        		hydraMouseX = (int)(mc.displayWidth * (  0.5*cont2Yaw/75f   )); 
+        		hydraMouseY = (int)(mc.displayWidth * ( -0.5*cont2Pitch/60f ));
+        	}
+            float scaleX = mc.displayFBWidth/(float)mc.displayWidth;
+            float scaleY = mc.displayFBHeight/(float)mc.displayHeight;
+            mc.currentScreen.mouseOffsetX = (int)(hydraMouseX*scaleX);
+            mc.currentScreen.mouseOffsetY = (int)(hydraMouseY*scaleY);
+	        int mouseX = Mouse.getX() + hydraMouseX;
+	        int	mouseY = Mouse.getY() + hydraMouseY;
             Mouse.setCursorPosition(mouseX, mouseY);
             
-            mouseX = (mouseX*mc.displayFBWidth)/mc.displayWidth;
-            mouseY =(mouseY * mc.displayFBHeight)/mc.displayHeight;
+            mouseX = (int)(mouseX*scaleX);
+            mouseY = (int)(mouseY*scaleY);
 
             //hack, hack hack... Joystick button is right shift for use in GUI
             //Set the internal keyboard state that right shift is depressed if this button is
@@ -369,6 +422,14 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        		//Already down
 	        		mc.currentScreen.mouseDrag(mouseX, mouseY);//Signals mouse move
 	        	leftMouseClicked = true;
+		        if( buttonDownField != null )
+		        {
+		        	try {
+						((ByteBuffer)buttonDownField.get(null)).put(0,(byte) 1);
+					} catch (IllegalArgumentException e) {
+					} catch (IllegalAccessException e) {
+					}
+		        }
 	        }
 	        else if( leftMouseClicked )
 	        {
@@ -382,6 +443,14 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        		mc.currentScreen.mouseDown(mouseX,mouseY,1);
 	        	else
 	        		mc.currentScreen.mouseDrag(mouseX, mouseY);
+		        if( buttonDownField != null )
+		        {
+		        	try {
+						((ByteBuffer)buttonDownField.get(null)).put(1,(byte) 1);
+					} catch (IllegalArgumentException e) {
+					} catch (IllegalAccessException e) {
+					}
+		        }
 	        }
 	        else if( ( lastcont2Buttons & EnumButton.BUMPER.mask())>0 )
 	        {
@@ -547,13 +616,13 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         Minecraft mc = Minecraft.getMinecraft();
         if( resetOriginRotation && mc.headTracker == this )
         {
-        	float prevTotalYaw = mc.lookaimController.getLookYawOffset() + getYawDegrees_LH();
+        	float prevTotalYaw = mc.lookaimController.getBodyYawDegrees() + getHeadYawDegrees();
         	yawOffset = cont1Yaw;
         	if( mc.thePlayer == null )
-        		//Reset lookYaw for main menu
-        		mc.lookaimController.setLookYawOffset(0);
+        		//Reset bodyYaw for main menu
+        		mc.lookaimController.setBodyYawDegrees(0);
         	else
-        		mc.lookaimController.setLookYawOffset(prevTotalYaw);
+        		mc.lookaimController.setBodyYawDegrees(prevTotalYaw);
         }
 
 	}
@@ -564,17 +633,17 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 
 	@Override
-	public float getYawDegrees_LH() {
+	public float getHeadYawDegrees() {
 		return cont1Yaw - yawOffset;
 	}
 
 	@Override
-	public float getPitchDegrees_LH() {
+	public float getHeadPitchDegrees() {
 		return cont1Pitch;
 	}
 
 	@Override
-	public float getRollDegrees_LH() {
+	public float getHeadRollDegrees() {
 		return cont1Roll;
 	}
 
@@ -674,23 +743,23 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public void updateAutomaticCalibration() {/*no-op*/ }
 
 	@Override
-	public float getLookYawOffset() {
-		return lookYaw;
+	public float getBodyYawDegrees() {
+		return bodyYaw;
 	}
 
 	@Override
-	public void setLookYawOffset(float yawOffset) {
-		lookYaw = yawOffset;
+	public void setBodyYawDegrees(float yawOffset) {
+		bodyYaw = yawOffset;
 	}
 
 	@Override
-	public float getLookPitchOffset() {
-		return 0; //Always return 0 for look pitch
+	public float getBodyPitchDegrees() {
+		return 0; //Always return 0 for body pitch
 	}
 
 	@Override
 	public float getAimYaw() {
-		return aimYaw;
+		return aimYaw + bodyYaw;
 	}
 	@Override
 	public float getAimPitch() {

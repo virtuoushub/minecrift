@@ -441,16 +441,16 @@ public class VRRenderer extends EntityRenderer
 
         PluginManager.pollAll();
         
-        float lookYawOffset   = mc.lookaimController.getLookYawOffset();
-        float lookPitchOffset = mc.lookaimController.getLookPitchOffset(); 
+        float lookYawOffset   = mc.lookaimController.getBodyYawDegrees();
+        float lookPitchOffset = mc.lookaimController.getBodyPitchDegrees(); 
         
         if (mc.headTracker.isInitialized() && this.mc.gameSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
                                                          // Roll multiplier is a one-way trip to barf-ville!
-            cameraRoll = mc.headTracker.getRollDegrees_LH()  * this.mc.gameSettings.headTrackSensitivity;
-            headPitch  = mc.headTracker.getPitchDegrees_LH() * this.mc.gameSettings.headTrackSensitivity;
-            headYaw    = mc.headTracker.getYawDegrees_LH()   * this.mc.gameSettings.headTrackSensitivity;
+            cameraRoll = mc.headTracker.getHeadRollDegrees()  * this.mc.gameSettings.headTrackSensitivity;
+            headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.gameSettings.headTrackSensitivity;
+            headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.gameSettings.headTrackSensitivity;
 
             cameraPitch = (lookPitchOffset + headPitch )%180;
             cameraYaw   = (lookYawOffset   + headYaw ) % 360;
@@ -702,7 +702,7 @@ public class VRRenderer extends EntityRenderer
         //Update gui Yaw
         if( guiShowingThisFrame && !guiShowingLastFrame )
         {
-        	guiHeadYaw = this.cameraYaw - this.mc.lookaimController.getLookYawOffset();
+        	guiHeadYaw = this.cameraYaw - this.mc.lookaimController.getBodyYawDegrees();
         } 
         guiShowingLastFrame = guiShowingThisFrame;
         
@@ -741,13 +741,13 @@ public class VRRenderer extends EntityRenderer
 
                 float guiYaw;
                 if( this.mc.theWorld != null && this.mc.gameSettings.lookMoveDecoupled)
-                    guiYaw = this.mc.lookaimController.getLookYawOffset();
+                    guiYaw = this.mc.lookaimController.getBodyYawDegrees();
                 else
-                    guiYaw = guiHeadYaw + this.mc.lookaimController.getLookYawOffset();
+                    guiYaw = guiHeadYaw + this.mc.lookaimController.getBodyYawDegrees();
                 GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
 
 				if( this.mc.gameSettings.pitchInputAffectsCamera)
-		        	GL11.glRotatef( this.mc.lookaimController.getLookPitchOffset(), 1f, 0f, 0f);
+		        	GL11.glRotatef( this.mc.lookaimController.getBodyPitchDegrees(), 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.gameSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
 				if( this.mc.gameSettings.useHudOpacity )

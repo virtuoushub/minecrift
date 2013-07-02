@@ -35,7 +35,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -130,6 +145,64 @@
+@@ -130,6 +145,65 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -89,6 +89,7 @@
 +    public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 +	public float joystickSensitivity = 3f;
 +	public float aimKeyholeWidthDegrees = 90f;
++	public boolean keyholeHeadRelative = true;
 +    public boolean hydraUseFilter = true;
 +    public float magRefDistance = 0.15f;
 +	public String headPositionPluginID = "oculus";
@@ -100,7 +101,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -159,7 +232,7 @@
+@@ -159,7 +233,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -109,7 +110,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -168,6 +241,7 @@
+@@ -168,6 +242,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -117,7 +118,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -196,6 +270,7 @@
+@@ -196,6 +271,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -125,7 +126,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -204,7 +279,7 @@
+@@ -204,7 +280,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -134,7 +135,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -222,6 +297,7 @@
+@@ -222,6 +298,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -142,7 +143,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -233,7 +309,7 @@
+@@ -233,7 +310,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -151,7 +152,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -375,6 +451,159 @@
+@@ -375,6 +452,159 @@
          {
              this.chatOpacity = par2;
          }
@@ -311,7 +312,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1117,12 +1346,152 @@
+@@ -1117,12 +1347,158 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -391,6 +392,12 @@
 +            this.hydraUseFilter = !this.hydraUseFilter;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
++        {
++        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
++        }
++        
++
          this.saveOptions();
      }
  
@@ -465,7 +472,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1242,6 +1611,171 @@
+@@ -1242,6 +1618,171 @@
                  int var8 = this.ofRenderDistanceFine - var7;
                  return var8 == 0 ? var4 + var6 : var4 + var6 + " +" + var8;
              }
@@ -637,7 +644,7 @@
              else
              {
                  return par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? var4 + " " + this.ofLimitFramerateFine + " FPS" : (this.enableVsync ? var4 + " VSync" : var4 + " MaxFPS")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var4 + (int)(var9 * 90.0F + 10.0F) + "%" : (var9 == 0.0F ? var4 + var2.translateKey("options.off") : var4 + (int)(var9 * 100.0F) + "%"));
-@@ -1251,11 +1785,7 @@
+@@ -1251,11 +1792,7 @@
          {
              return !this.advancedOpengl ? var4 + "OFF" : (this.ofOcclusionFancy ? var4 + "Fancy" : var4 + "Fast");
          }
@@ -650,7 +657,7 @@
          else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
          {
              return var4 + getTranslation(RENDER_DISTANCES, this.renderDistance);
-@@ -1512,6 +2042,78 @@
+@@ -1512,6 +2049,82 @@
                      return var4 + "OFF";
              }
          }
@@ -700,10 +707,6 @@
 +        {
 +            return this.lookAimPitchDecoupled? var4 + "ON" : var4 + "OFF";
 +        }
-+        else if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
-+        {
-+            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
-+        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
 +        {
 +            String s = var4 + "Unknown";
@@ -720,6 +723,14 @@
 +
 +            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
 +        }
++        else if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
++        {
++            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
++        {
++            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
++        }
 +        // End Minecrift
 +        else if (par1EnumOptions.getEnumBoolean())
 +        {
@@ -729,7 +740,7 @@
          else
          {
              return par1EnumOptions == EnumOptions.WEATHER ? (this.ofWeather ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SKY ? (this.ofSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.STARS ? (this.ofStars ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SUN_MOON ? (this.ofSunMoon ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CHUNK_UPDATES ? var4 + this.ofChunkUpdates : (par1EnumOptions == EnumOptions.CHUNK_LOADING ? (this.ofChunkLoading == 1 ? var4 + "Smooth" : (this.ofChunkLoading == 2 ? var4 + "Multi-Core" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CHUNK_UPDATES_DYNAMIC ? (this.ofChunkUpdatesDynamic ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.TIME ? (this.ofTime == 1 ? var4 + "Day Only" : (this.ofTime == 3 ? var4 + "Night Only" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CLEAR_WATER ? (this.ofClearWater ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.DEPTH_FOG ? (this.ofDepthFog ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.AA_LEVEL ? (this.ofAaLevel == 0 ? var4 + "OFF" : var4 + this.ofAaLevel) : (par1EnumOptions == EnumOptions.AF_LEVEL ? (this.ofAfLevel == 1 ? var4 + "OFF" : var4 + this.ofAfLevel) : (par1EnumOptions == EnumOptions.PROFILER ? (this.ofProfiler ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.BETTER_SNOW ? (this.ofBetterSnow ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SWAMP_COLORS ? (this.ofSwampColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.RANDOM_MOBS ? (this.ofRandomMobs ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SMOOTH_BIOMES ? (this.ofSmoothBiomes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_FONTS ? (this.ofCustomFonts ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_COLORS ? (this.ofCustomColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_SKY ? (this.ofCustomSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SHOW_CAPES ? (this.ofShowCapes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.NATURAL_TEXTURES ? (this.ofNaturalTextures ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING ? (this.ofLazyChunkLoading ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.FULLSCREEN_MODE ? var4 + this.ofFullscreenMode : (par1EnumOptions == EnumOptions.HELD_ITEM_TOOLTIPS ? (this.field_92117_D ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") : var4 + var2.translateKey("options.graphics.fast")) : var4)))))))))))))))))))))))));
-@@ -2169,6 +2771,302 @@
+@@ -2169,6 +2782,307 @@
              System.out.println("Failed to load options");
              var6.printStackTrace();
          }
@@ -1002,6 +1013,11 @@
 +                    	this.lookAimYawDecoupled =  this.aimKeyholeWidthDegrees >= 5;
 +                    }
 +
++                    if (var3[0].equals("keyholeHeadRelative"))
++                    {
++                    	this.keyholeHeadRelative = var3[1].equals("true");
++                    }
++
 +                    if (var3[0].equals("posTrackHydraYAxisDistanceSkewAngleDeg"))
 +                    {
 +                        this.posTrackHydraYAxisDistanceSkewAngleDeg = this.parseFloat(var3[1]);
@@ -1032,7 +1048,7 @@
      }
  
      /**
-@@ -2324,6 +3222,68 @@
+@@ -2324,6 +3238,69 @@
              var3.printStackTrace();
          }
  
@@ -1089,6 +1105,7 @@
 +            var5.println("hydraUseFilter:" + this.hydraUseFilter);
 +            var5.println("joystickSensitivity:" + this.joystickSensitivity);
 +            var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
++            var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
 +
 +            var5.close();
 +        }
@@ -1101,7 +1118,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2510,4 +3470,74 @@
+@@ -2510,4 +3487,74 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
