@@ -198,4 +198,19 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             }
         }
     }
+
+	@Override
+	public float getHeadYawDegrees() {
+		return getYawDegrees_LH();
+	}
+
+	@Override
+	public float getHeadPitchDegrees() {
+		return getPitchDegrees_LH();
+	}
+
+	@Override
+	public float getHeadRollDegrees() {
+		return getRollDegrees_LH();
+	}
 }

@@ -11,12 +11,12 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
-import com.mtbs3d.minecrift.api.ILookAimController;
+import com.mtbs3d.minecrift.api.IBodyAimController;
 
-public class MCMouse extends BasePlugin implements ILookAimController {
+public class MCMouse extends BasePlugin implements IBodyAimController {
 
-	private float lookYaw = 0f;
-	private float lookPitch = 0f;
+	private float bodyYaw = 0f;
+	private float bodyPitch = 0f;
 	
 	private float aimYaw = 0f;
 	private float aimPitch = 0f;
@@ -77,14 +77,14 @@ public class MCMouse extends BasePlugin implements ILookAimController {
             //Pitch
             if( this.mc.gameSettings.pitchInputAffectsCamera )
             {
-            	lookPitch  += (adjustedMouseDeltaY * (float)yDirection);
-	            if( lookPitch > 90 )
-	            	lookPitch = 90;
-	            if( lookPitch < -90 )
-	            	lookPitch = -90;
+            	bodyPitch  += (adjustedMouseDeltaY * (float)yDirection);
+	            if( bodyPitch > 90 )
+	            	bodyPitch = 90;
+	            if( bodyPitch < -90 )
+	            	bodyPitch = -90;
             }
             else
-            	lookPitch = 0;
+            	bodyPitch = 0;
 
             if( !this.mc.gameSettings.pitchInputAffectsCamera )
             {
@@ -96,10 +96,10 @@ public class MCMouse extends BasePlugin implements ILookAimController {
             }
             else
             {
-            	aimPitch = lookPitch;
+            	aimPitch = bodyPitch;
             }
 
-        	float headYaw = this.mc.headTracker.getYawDegrees_LH();
+        	float headYaw = this.mc.headTracker.getHeadYawDegrees();
         	float keyholeYaw = this.mc.gameSettings.aimKeyholeWidthDegrees;
         	
         	boolean aimYawAllowed;
@@ -114,20 +114,20 @@ public class MCMouse extends BasePlugin implements ILookAimController {
 
 	            //Yaw
 	            if( !this.mc.gameSettings.lookAimYawDecoupled )
-	                lookYaw = aimYaw;
-	            else if( aimYaw > (headYaw + lookYaw + keyholeYaw/2) )
-	            	lookYaw += adjustedMouseDeltaX;
-	            else if( aimYaw < (headYaw + lookYaw - keyholeYaw/2))
-	            	lookYaw += adjustedMouseDeltaX;
+	                bodyYaw = aimYaw;
+	            else if( aimYaw > (headYaw + bodyYaw + keyholeYaw/2) )
+	            	bodyYaw += adjustedMouseDeltaX;
+	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw/2))
+	            	bodyYaw += adjustedMouseDeltaX;
                 aimYaw %= 360;
-                lookYaw %= 360;
+                bodyYaw %= 360;
             }
             else if( this.mc.gameSettings.lookAimYawDecoupled )
             {
-	            if( aimYaw > (headYaw + lookYaw + keyholeYaw/2) )
-	            	aimYaw = headYaw + lookYaw + keyholeYaw/2;
-	            else if( aimYaw < (headYaw + lookYaw - keyholeYaw/2))
-	            	aimYaw = headYaw + lookYaw - keyholeYaw/2;
+	            if( aimYaw > (headYaw + bodyYaw + keyholeYaw/2) )
+	            	aimYaw = headYaw + bodyYaw + keyholeYaw/2;
+	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw/2))
+	            	aimYaw = headYaw + bodyYaw - keyholeYaw/2;
             }
 		}
 	}
@@ -136,18 +136,18 @@ public class MCMouse extends BasePlugin implements ILookAimController {
 	public void destroy() {/*no-op*/ }
 
 	@Override
-	public float getLookYawOffset() {
-		return lookYaw;
+	public float getBodyYawDegrees() {
+		return bodyYaw;
 	}
 
 	@Override
-	public void setLookYawOffset( float yawOffset ) {
-		lookYaw = yawOffset;
+	public void setBodyYawDegrees( float yawOffset ) {
+		bodyYaw = yawOffset;
 	}
 
 	@Override
-	public float getLookPitchOffset() {
-		return lookPitch;
+	public float getBodyPitchDegrees() {
+		return bodyPitch;
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import de.fruitfly.ovr.OculusRift;
 public class TestOculus extends OculusRift {
 	public boolean isInitialized() { return true; };
 
-	public float getYawDegrees_LH() { return 180.0f; };
-	public float getPitchDegrees_LH() { return 0.0f; };
-	public float getRollDegrees_LH() { return 0.0f; };
+	public float getHeadYawDegrees_LH() { return 180.0f; };
+	public float getPitchDegrees() { return 0.0f; };
+	public float getHeadRollDegrees_LH() { return 0.0f; };
 }

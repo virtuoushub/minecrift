@@ -127,7 +127,7 @@
 +import com.mtbs3d.minecrift.api.BasePlugin;
 +import com.mtbs3d.minecrift.api.IHMDInfo;
 +import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
-+import com.mtbs3d.minecrift.api.ILookAimController;
++import com.mtbs3d.minecrift.api.IBodyAimController;
 +import com.mtbs3d.minecrift.api.IOrientationProvider;
 +import com.mtbs3d.minecrift.gui.GuiMinecriftSettings;
 +import com.mtbs3d.minecrift.api.PluginManager;
@@ -187,7 +187,7 @@
 +    public ICenterEyePositionProvider  positionTracker;
 +    
 +    /** Active VR view/aim/move controller Plugin **/
-+	public ILookAimController lookaimController;
++	public IBodyAimController lookaimController;
 +
  
      public Minecraft(Canvas par1Canvas, MinecraftApplet par2MinecraftApplet, int par3, int par4, boolean par5)

@@ -21,7 +21,7 @@ public class PluginManager implements IEventListener
     public List<IHMDInfo> hmdInfoPlugins = new ArrayList<IHMDInfo>();
     public List<IOrientationProvider> orientPlugins = new ArrayList<IOrientationProvider>();
     public List<ICenterEyePositionProvider> positionPlugins = new ArrayList<ICenterEyePositionProvider>();
-    public List<ILookAimController> controllerPlugins = new ArrayList<ILookAimController>();
+    public List<IBodyAimController> controllerPlugins = new ArrayList<IBodyAimController>();
 
     public static void create()
     {
@@ -100,11 +100,11 @@ public class PluginManager implements IEventListener
         return positionTracker;
     }
 
-    public static ILookAimController configureController( String pluginID )
+    public static IBodyAimController configureController( String pluginID )
     {
 
-        ILookAimController lookaimController = null;
-        for( ILookAimController controller: thePluginManager.controllerPlugins )
+        IBodyAimController lookaimController = null;
+        for( IBodyAimController controller: thePluginManager.controllerPlugins )
         {
             if( controller.getID().equals( pluginID ) )
             {
@@ -147,8 +147,8 @@ public class PluginManager implements IEventListener
         }
         if( that instanceof ICenterEyePositionProvider )
             thePluginManager.positionPlugins.add((ICenterEyePositionProvider) that);
-        if( that instanceof ILookAimController )
-            thePluginManager.controllerPlugins.add((ILookAimController) that);
+        if( that instanceof IBodyAimController )
+            thePluginManager.controllerPlugins.add((IBodyAimController) that);
         thePluginManager.allPlugins.add(that);
     }
 

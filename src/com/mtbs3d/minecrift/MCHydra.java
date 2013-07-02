@@ -28,7 +28,7 @@ import net.minecraft.src.Vec3;
  * @author Mark Browning
  *
  */
-public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, ILookAimController, IEventListener {
+public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, IBodyAimController, IEventListener {
 
     ControllerManager cm;
     public static ControllerData[] newData = {new ControllerData(), new ControllerData(), new ControllerData(), new ControllerData()};
@@ -77,7 +77,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
     private final float ZDIRECTION = 1.0f;    // +Z
     
     //lookAim implementation
-    private float lookYaw;
+    private float bodyYaw;
     private float aimYaw;
 
     //Input/controller
@@ -261,9 +261,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	        	hydraMouseX = 0;
 	        	hydraMouseY = 0;
 	
-		        //Now, do aim/look/move 
-                lookYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
-                aimYaw = lookYaw + cont2Yaw ;
+                bodyYaw += mc.gameSettings.joystickSensitivity * cont2.joystick_x * Math.abs(cont2.joystick_x);
+                aimYaw = bodyYaw + cont2Yaw ;
 		        
 		        if( thePlayer != null )
 		        {
@@ -554,13 +553,13 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         Minecraft mc = Minecraft.getMinecraft();
         if( resetOriginRotation && mc.headTracker == this )
         {
-        	float prevTotalYaw = mc.lookaimController.getLookYawOffset() + getYawDegrees_LH();
+        	float prevTotalYaw = mc.lookaimController.getBodyYawDegrees() + getHeadYawDegrees();
         	yawOffset = cont1Yaw;
         	if( mc.thePlayer == null )
-        		//Reset lookYaw for main menu
-        		mc.lookaimController.setLookYawOffset(0);
+        		//Reset bodyYaw for main menu
+        		mc.lookaimController.setBodyYawDegrees(0);
         	else
-        		mc.lookaimController.setLookYawOffset(prevTotalYaw);
+        		mc.lookaimController.setBodyYawDegrees(prevTotalYaw);
         }
 
 	}
@@ -571,17 +570,17 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 
 	@Override
-	public float getYawDegrees_LH() {
+	public float getHeadYawDegrees() {
 		return cont1Yaw - yawOffset;
 	}
 
 	@Override
-	public float getPitchDegrees_LH() {
+	public float getHeadPitchDegrees() {
 		return cont1Pitch;
 	}
 
 	@Override
-	public float getRollDegrees_LH() {
+	public float getHeadRollDegrees() {
 		return cont1Roll;
 	}
 
@@ -681,18 +680,18 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public void updateAutomaticCalibration() {/*no-op*/ }
 
 	@Override
-	public float getLookYawOffset() {
-		return lookYaw;
+	public float getBodyYawDegrees() {
+		return bodyYaw;
 	}
 
 	@Override
-	public void setLookYawOffset(float yawOffset) {
-		lookYaw = yawOffset;
+	public void setBodyYawDegrees(float yawOffset) {
+		bodyYaw = yawOffset;
 	}
 
 	@Override
-	public float getLookPitchOffset() {
-		return 0; //Always return 0 for look pitch
+	public float getBodyPitchDegrees() {
+		return 0; //Always return 0 for body pitch
 	}
 
 	@Override
