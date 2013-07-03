@@ -10,7 +10,7 @@
      /**
       * Draws the screen and all the components in it.
       */
-@@ -177,14 +180,38 @@
+@@ -177,14 +180,40 @@
              this.handleKeyboardInput();
          }
      }
@@ -48,10 +48,12 @@
 -        int var2 = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 +        int var1 = ( Mouse.getEventX() + mouseOffsetX ) * this.width  / this.mc.displayFBWidth;
 +        int var2 = this.height - ( Mouse.getEventY()  + mouseOffsetY) * this.height/ this.mc.displayFBHeight - 1;
++        mouseOffsetX = 0;
++        mouseOffsetY = 0;
  
          if (Mouse.getEventButtonState())
          {
-@@ -261,7 +288,7 @@
+@@ -261,7 +290,7 @@
      {
          if (this.mc.theWorld != null)
          {
