@@ -190,7 +190,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
                 hydraRunning = false;
                 if (step != null)
                 {
-                    System.out.println("HYDRA: " + step.toString());
+                    //System.out.println("HYDRA: " + step.toString());
                     calibrationStep = cm.getStepString();
                 }
                 break;
