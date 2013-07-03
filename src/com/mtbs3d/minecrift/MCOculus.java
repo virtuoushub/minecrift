@@ -42,20 +42,20 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	
 	@Override
 	public void resetOrigin() {
-        if (isInitialized() && _isCalibrated())
-            _setCalibrationReference();
     }
 
     @Override
     public void beginAutomaticCalibration()
     {
-        processCalibration();
+        if (isInitialized())
+            processCalibration();
     }
 
     @Override
     public void updateAutomaticCalibration()
     {
-        processCalibration();
+        if (isInitialized())
+            processCalibration();
     }
 
     @Override
