@@ -1,5 +1,5 @@
 import os, os.path, sys
-import urllib, zipfile
+import urllib, zipfile, urllib2
 import shutil, tempfile
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
@@ -26,7 +26,9 @@ def download_file(url, target, md5=None):
     
     if not os.path.isfile(target):
         try:
-            urllib.urlretrieve(url, target)
+            with open(target,"wb") as tf:
+                res = urllib2.urlopen(urllib2.Request( url, headers = {"User-Agent":"Mozilla/5.0"}))
+                tf.write( res.read() )
             if not md5 == None:
                 if not get_md5(target) == md5:
                     print 'Download of %s failed md5 check, deleting' % name
@@ -46,7 +48,7 @@ def download_native(url, folder, name):
         os.makedirs(folder)
     
     target = os.path.join(folder, name)
-    if not download_file(url + name, target):
+    if not download_file(url, target):
         return False
     
     zip = zipfile.ZipFile(target)
@@ -81,13 +83,22 @@ def download_deps( mcp_dir ):
         shutil.copy("minecraft_ff_osx.patch.crlf",os.path.join(mcp_dir,"conf","patches","minecraft_ff.patch"))
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
-    MinecraftDownload = "http://s3.amazonaws.com/MinecraftDownload/"
-    for native in ("windows_natives.jar", "macosx_natives.jar", "linux_natives.jar" ):
-        download_native( MinecraftDownload, os.path.join(bin,"natives"), native )
 
-    for jar in ("lwjgl.jar", "lwjgl_util.jar", "jinput.jar" ):
-        download_file( MinecraftDownload + jar, os.path.join(bin,jar) )
+    native = "natives-window.jar"
+    if sys.platform == 'darwin':
+        native = "natives-osx.jar"
+    elif sys.platform == "linux":
+        native = "natives-linux.jar"
 
+    MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/org/lwjgl/lwjgl/lwjgl-platform/2.9.0/lwjgl-platform-2.9.0-"
+    download_native( MinecraftDownload + native, os.path.join(bin,"natives"), "lwjgl-"+native )
+    MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/net/java/jinput/jinput-platform/2.0.5/jinput-platform-2.0.5-"
+    download_native( MinecraftDownload+ native, os.path.join(bin,"natives"), "jinput-"+native )
+
+    MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/"
+    download_file( MinecraftDownload + "net/java/jinput/jinput/2.0.5/jinput-2.0.5.jar", os.path.join(bin,"jinput.jar" ))
+    download_file( MinecraftDownload + "org/lwjgl/lwjgl/lwjgl/2.9.0/lwjgl-2.9.0.jar", os.path.join(bin,"lwjgl.jar" ))
+    download_file( MinecraftDownload + "org/lwjgl/lwjgl/lwjgl_util/2.9.0/lwjgl_util-2.9.0.jar", os.path.join(bin,"lwjgl_util.jar" ))
 
     MinecraftDownload = "http://s3.amazonaws.com/Minecraft.Download/versions/"
     download_file( MinecraftDownload+ "1.5.2/1.5.2.jar", os.path.join(bin,"minecraft.jar"), "6897c3287fb971c9f362eb3ab20f5ddd" )
