@@ -164,10 +164,6 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     				"Corrects for color distortion due to lenses", 
     				"  OFF - no correction", 
     				"  ON - correction applied"} ;
-    	case IPD:
-    		return new String[] {
-    				"Interpupillary Distance", 
-    				"  How far apart your eye pupils are, in millimeters"} ;
     	case FOV_SCALE_FACTOR:
     		return new String[] {
     				"Set this to override the computed Field-of-View", 

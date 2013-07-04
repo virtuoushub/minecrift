@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,57 @@
+@@ -97,7 +97,60 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -10,19 +10,22 @@
 +    
 +    //General
 +    USE_VR("VR mode", false, true),
-+    PLAYER_HEIGHT("Eye Height", true, false),
-+    EYE_PROTRUSION("Eye Protrusion", true, false),
-+    NECK_LENGTH("Neck Length", true, false),
 +    HUD_SCALE("HUD Scale", true, false),
 +    HUD_DISTANCE("HUD Distance", true, false),
 +    HUD_OPACITY("HUD Opacity", false, true),
 +    HEAD_TRACKING("Head Tracking", false, true),
-+    RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
-+    RENDER_PLAYER_OFFSET("View Body Offset", true, false),
 +    DUMMY("Dummy", false, true),
 +
-+    //HMD/render
++    // Player
++    PLAYER_HEIGHT("Eye Height", true, false),
++    EYE_PROTRUSION("Eye Protrusion", true, false),
++    NECK_LENGTH("Neck Length", true, false),
++    RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
++    RENDER_PLAYER_OFFSET("View Body Offset", true, false),
 +    IPD("IPD", true, false),
++    OCULUS_PROFILE("Oculus Profile", false, false),
++
++    //HMD/render
 +    USE_DISTORTION("Distortion", false, true),
 +    CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
 +    FOV_SCALE_FACTOR("FOV Scale", true, false),
