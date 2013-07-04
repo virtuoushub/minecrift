@@ -12,18 +12,18 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
             EnumOptions.IPD,
             EnumOptions.FOV_SCALE_FACTOR,
+            EnumOptions.CHROM_AB_CORRECTION,
             EnumOptions.USE_DISTORTION,
             EnumOptions.DISTORTION_FIT_POINT,
             EnumOptions.SUPERSAMPLING,
             EnumOptions.SUPERSAMPLE_SCALEFACTOR,
-            EnumOptions.CHROM_AB_CORRECTION,
     };
 
 
     public GuiRenderOpticsSettings(GuiScreen par1GuiScreen, GameSettings par2GameSettings)
     {
     	super( par1GuiScreen, par2GameSettings);
-        screenTitle = "Oculus Settings";
+        screenTitle = "Optics / Render Settings";
     }
 
     /**
@@ -35,8 +35,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset to defaults"));
-        //this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
+
         int var9 = 0;
         EnumOptions[] var10 = minecriftDisplayOptions;
         int var11 = var10.length;
@@ -59,19 +59,19 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     maxValue = 0.075f;
                     increment = 0.0001f;
                 }
-                else if (var8 == EnumOptions.FOV_SCALE_FACTOR)
+                if (var8 == EnumOptions.FOV_SCALE_FACTOR)
                 {
                     minValue = 0.5f;
                     maxValue = 1.5f;
                     increment = 0.01f;
                 }
-                else if (var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
+                if (var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
                 {
                     minValue = 1.5f;
                     maxValue = 4.0f;
                     increment = 0.5f;
                 }
-                else if (var8 == EnumOptions.DISTORTION_FIT_POINT)
+                if (var8 == EnumOptions.DISTORTION_FIT_POINT)
                 {
                     minValue = 0.0f;
                     maxValue = 14.0f;

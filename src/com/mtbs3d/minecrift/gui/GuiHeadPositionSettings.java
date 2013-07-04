@@ -61,6 +61,13 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             setHydraLocOffsetDefaults();
         }
 
+        if (this.reinit)
+        {
+            this.guiGameSettings.posTrackResetPosition = true;
+            if (vrRenderer != null)
+                vrRenderer.resetGuiYawOrientation();
+        }
+
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
@@ -72,7 +79,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
             this.buttonList.add(resetPosButton);
 
-        GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (look ahead now)");
+        GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
         this.buttonList.add(recalibrate);
         EnumOptions[] var10 = null;
 
@@ -389,6 +396,12 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 case POS_TRACK_HYDRA_OFFSET_SET_DEFAULT:
                     return new String[] {
                             "Set offset defaults for the selected Hydra location."
+                    };
+                case POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT:
+                    return new String[] {
+                            "Choose the direction the hydra is facing while under",
+                            "the top strap of the Rift; either to the left or to",
+                            "the right. This affects the offset settings."
                     };
                 case EYE_PROTRUSION:
                     return new String[] {

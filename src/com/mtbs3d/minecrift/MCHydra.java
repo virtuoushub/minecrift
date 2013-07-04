@@ -558,7 +558,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         //gameSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
         float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
         float hydraYOffset = -gameSettings.getPosTrackHydraOffsetY();
-        float hydraZOffset = -gameSettings.getPosTrackHydraOffsetZ();
+        float hydraZOffset = gameSettings.getPosTrackHydraOffsetZ();
 
         // The configured offset is for a 0,0,0 rotation head. Apply current head orientation to get final offset
         Vec3 correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);

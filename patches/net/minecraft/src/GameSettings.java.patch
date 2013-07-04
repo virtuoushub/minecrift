@@ -326,7 +326,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1405,142 @@
+@@ -1162,12 +1405,147 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -401,6 +401,11 @@
 +            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
++        {
++            this.posTrackHydraBIsPointingLeft = !this.posTrackHydraBIsPointingLeft;
++        }
++
 +        if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
 +        {
 +            this.hydraUseFilter = !this.hydraUseFilter;
@@ -444,13 +449,13 @@
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBLOffsetY :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetY :
++              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetY :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBLOffsetZ :
-+              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetZ :
++              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg :
 +              (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight :
@@ -470,7 +475,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +1998,246 @@
+@@ -1625,6 +2003,246 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -717,7 +722,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2932,327 @@
+@@ -2319,6 +2937,327 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1045,7 +1050,7 @@
      }
  
      /**
-@@ -2479,6 +3413,73 @@
+@@ -2479,6 +3418,73 @@
              var3.printStackTrace();
          }
  
@@ -1119,7 +1124,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3658,90 @@
+@@ -2657,4 +3663,90 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

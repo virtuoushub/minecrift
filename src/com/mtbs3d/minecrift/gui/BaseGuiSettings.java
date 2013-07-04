@@ -5,14 +5,11 @@
 package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.VRRenderer;
-import com.mtbs3d.minecrift.gui.*;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.EnumOptions;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
-import net.minecraft.src.StringTranslate;
 
 public class BaseGuiSettings extends GuiScreen
 {
@@ -26,7 +23,8 @@ public class BaseGuiSettings extends GuiScreen
 
     private int lastMouseX = 0;
     private int lastMouseY = 0;
-    private long mouseStillTime = 0L;
+    private long mouseStillTimeMs = 0L;
+    public static final long TOOLTIP_DELAY_MS = 750;
 
     protected VRRenderer vrRenderer;
 
@@ -56,9 +54,9 @@ public class BaseGuiSettings extends GuiScreen
 
         if (Math.abs(par1 - this.lastMouseX) <= 5 && Math.abs(par2 - this.lastMouseY) <= 5)
         {
-            short var4 = 300;
+            long delayMs = TOOLTIP_DELAY_MS;
 
-            if (System.currentTimeMillis() >= this.mouseStillTime + (long)var4)
+            if (System.currentTimeMillis() >= this.mouseStillTimeMs + delayMs)
             {
                 int var5 = this.width / 2 - 150;
                 int var6 = this.height / 6 - 5;
@@ -96,7 +94,7 @@ public class BaseGuiSettings extends GuiScreen
         {
             this.lastMouseX = par1;
             this.lastMouseY = par2;
-            this.mouseStillTime = System.currentTimeMillis();
+            this.mouseStillTimeMs = System.currentTimeMillis();
         }
     }
 
