@@ -148,6 +148,12 @@ img {
   margin: 10px 0 32px 0;
   border: 1px solid #ccc;
 }
+img.header
+{
+  margin: 0 auto;
+  max-width: 400px; 
+  border: 0;
+}
 
 
 /* Code blocks */
