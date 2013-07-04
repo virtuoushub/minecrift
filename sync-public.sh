@@ -7,7 +7,7 @@
 
 WORK_TREE=mcp/src/minecraft
 export GIT_DIR=$WORK_TREE/.git
-git rev-list public..master | tac | while read REV; do
+git rev-list --reverse public..master | while read REV; do
 	AUTHOR=$(git log --pretty=format:"%an <%ae>" -1 $REV)
 	DATE=$(git log --pretty=format:"%ad" -1 $REV)
 	BODY=$(git log --pretty=format:"%B" -1 $REV | sed '/Merge/s/of http[^ \t\n\r]*/of private-repo/' )
