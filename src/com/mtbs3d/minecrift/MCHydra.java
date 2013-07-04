@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 import com.mtbs3d.minecrift.api.*;
+import com.sixense.utils.enums.EnumControllerDesc;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -161,24 +162,41 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 	
 	@Override
-	public void poll() {
-        // Poll hydras, get position information in metres
-        Sixense.getAllNewestData(newData);
+	public void poll()
+    {
         Minecraft mc = Minecraft.getMinecraft();
 
+        // Poll hydras; get orientation, and position information in metres
+        Sixense.getAllNewestData(newData);
+
+        // Update the controller manager, allowing us to determine which
+        // controller is the 'Left' controller, and which is the 'Right'
+        // (if calibrated)
+        cm.update(newData);
+        int leftIndex = cm.getIndex(EnumControllerDesc.P1L);
+        int rightIndex = cm.getIndex(EnumControllerDesc.P1R);
+
         ControllerData cont1, cont2;
-        if (mc.gameSettings.posTrackHydraUseController1)
+        if (leftIndex != -1 && rightIndex != -1)
         {
-        	cont1 = newData[0];
-        	cont2 = newData[1];
+            if (mc.gameSettings.posTrackHydraUseController1)
+            {
+                cont1 = newData[leftIndex];
+                cont2 = newData[rightIndex];
+            }
+            else
+            {
+                cont1 = newData[rightIndex];
+                cont2 = newData[leftIndex];
+            }
         }
         else
         {
-        	cont1 = newData[1];
-        	cont2 = newData[0];
+            // Not yet calibrated
+            cont1 = newData[0];
+            cont2 = newData[1];
         }
 
-        cm.update(newData);
         EnumSetupStep step = cm.getCurrentStep();
         switch ( step )
         {
