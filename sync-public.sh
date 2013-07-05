@@ -13,7 +13,8 @@ git rev-list --reverse public..master | while read REV; do
 	BODY=$(git log --pretty=format:"%B" -1 $REV | sed '/Merge/s/of http[^ \t\n\r]*/of private-repo/' )
 	GIT_WORK_TREE=$WORK_TREE git checkout $REV
 	./getchanges.sh
-	GIT_DIR=.git git commit --author="$AUTHOR" --date="$DATE" -m "$BODY" patches src
+	GIT_DIR=.git git add -A src patches
+	GIT_DIR=.git git commit --author="$AUTHOR" --date="$DATE" -m "$BODY"
 	git tag -f public
 done
 

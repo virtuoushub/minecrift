@@ -56,12 +56,15 @@ def main(mcp_dir):
             mod_file = os.path.join(src_dir, file_)
             org_file = os.path.join(mod_dir, file_)
 
+            if mod_file[-4:]!="java":
+                continue
+
             if os.path.exists(org_file):
                 patch_file = os.path.join(patch_dir,file_+".patch")
                 label = pkg.replace("\\","/") + "/" + file_ #patch label always has "/"
 
                 create_patch( mcp_dir, org_file, mod_file, label, patch_file )
-            elif mod_file[-4:]=="java":
+            else:
                 new_file = os.path.join(new_dir, file_)
                 #new class file, just replace
                 if os.path.exists( new_file ):
