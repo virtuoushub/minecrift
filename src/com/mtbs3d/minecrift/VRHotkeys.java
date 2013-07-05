@@ -186,14 +186,14 @@ public class VRHotkeys {
 	        float newIpd;
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            newIpd = mc.gameSettings.ipd + 0.0001f;
+	            newIpd = mc.gameSettings.getIPD() + 0.0001f;
 	        }
 	        else
 	        {
-	            newIpd = mc.gameSettings.ipd + 0.0005f;
+	            newIpd = mc.gameSettings.getIPD() + 0.0005f;
 	        }
 	        mc.hmdInfo.setIPD(newIpd);
-	        mc.gameSettings.ipd = newIpd;
+	        mc.gameSettings.setMinecraftIpd(newIpd);
 	        mc.gameSettings.saveOptions();
 	    }
 	
@@ -203,14 +203,14 @@ public class VRHotkeys {
 	        float newIpd;
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            newIpd = mc.gameSettings.ipd - 0.0001f;
+	            newIpd = mc.gameSettings.getIPD() - 0.0001f;
 	        }
 	        else
 	        {
-	            newIpd = mc.gameSettings.ipd - 0.0005f;
+	            newIpd = mc.gameSettings.getIPD() - 0.0005f;
 	        }
 	        mc.hmdInfo.setIPD(newIpd);
-	        mc.gameSettings.ipd = newIpd;
+	        mc.gameSettings.setMinecraftIpd(newIpd);
 	        mc.gameSettings.saveOptions();
 	    }
 

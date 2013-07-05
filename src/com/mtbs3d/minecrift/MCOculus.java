@@ -8,6 +8,7 @@ package com.mtbs3d.minecrift;
 import com.mtbs3d.minecrift.api.*;
 
 import de.fruitfly.ovr.OculusRift;
+import de.fruitfly.ovr.UserProfileData;
 
 public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting 
 	implements IOrientationProvider, IBasePlugin, IHMDInfo, IEventNotifier, IEventListener {
@@ -29,6 +30,8 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private long lastUpdateAt = 0L;
     private int calibrationStep = NOT_CALIBRATING;
     private int MagCalSampleCount = 0;
+
+    public static UserProfileData theProfileData = null;
 
 	@Override
 	public String getName() {
@@ -229,4 +232,17 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	public float getHeadRollDegrees() {
 		return getRollDegrees_LH();
 	}
+
+    @Override
+    public UserProfileData getProfileData()
+    {
+        UserProfileData userProfile = null;
+
+        if (isInitialized())
+        {
+            userProfile = _getUserProfileData();
+        }
+
+        return userProfile;
+    }
 }

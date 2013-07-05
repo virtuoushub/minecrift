@@ -1,5 +1,9 @@
 package com.mtbs3d.minecrift.gui;
 
+import com.mtbs3d.minecrift.api.IHMDInfo;
+import com.mtbs3d.minecrift.api.PluginManager;
+import de.fruitfly.ovr.UserProfileData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.src.*;
 
 /**
@@ -9,11 +13,22 @@ import net.minecraft.src.*;
  * Time: 10:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class GuiPlayerPreferenceSettings extends BaseGuiSettings
+public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiEventEx
 {
-    static EnumOptions[] playerOptions = new EnumOptions[] {
+    static EnumOptions[] playerOptionsNoProfile = new EnumOptions[] {
+            EnumOptions.DUMMY,
+            EnumOptions.DUMMY,
             EnumOptions.IPD,
-            EnumOptions.PLAYER_HEIGHT,
+            EnumOptions.EYE_HEIGHT,
+            EnumOptions.RENDER_OWN_HEADWEAR,
+            EnumOptions.RENDER_PLAYER_OFFSET,
+    };
+
+    static EnumOptions[] playerOptionsWithProfile = new EnumOptions[] {
+            EnumOptions.OCULUS_PROFILE_NAME,
+            EnumOptions.OCULUS_PROFILE_GENDER,
+            EnumOptions.IPD,
+            EnumOptions.EYE_HEIGHT,
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.RENDER_PLAYER_OFFSET,
     };
@@ -28,16 +43,52 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings
      */
     public void initGui()
     {
+        UserProfileData profile = null;
+        boolean enableProfileButton = false;
+
+        if (Minecraft.getMinecraft().vrRenderer != null &&
+            Minecraft.getMinecraft().hmdInfo != null)
+        {
+            profile = Minecraft.getMinecraft().hmdInfo.getProfileData();
+            if (profile != null)
+            {
+                this.guiGameSettings.setOculusProfileIpd(profile._ipd);
+                this.guiGameSettings.setOculusProfilePlayerEyeHeight(profile._eyeHeight);
+                this.guiGameSettings.oculusProfileName = profile._name;
+                this.guiGameSettings.oculusProfileGender = profile.getGenderString();
+                enableProfileButton = true;
+            }
+        }
+
+        if (profile == null)
+        {
+            this.guiGameSettings.useOculusProfile = false;
+        }
+
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-        this.buttonList.add(new GuiSmallButtonEx(202, this.width / 2 - 78, this.height / 6 - 14, EnumOptions.OCULUS_PROFILE, this.guiGameSettings.getKeyBinding(EnumOptions.OCULUS_PROFILE)));
+
+        // Profile on/off
+        GuiSmallButtonEx profileOnOff = new GuiSmallButtonEx(EnumOptions.OCULUS_PROFILE.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.OCULUS_PROFILE, this.guiGameSettings.getKeyBinding(EnumOptions.OCULUS_PROFILE));
+        profileOnOff.setEventHandler(this);
+        profileOnOff.enabled = enableProfileButton;
+        this.buttonList.add(profileOnOff);
+
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        EnumOptions[] buttons = playerOptions;
+        EnumOptions[] buttons = null;
+
+        if (this.guiGameSettings.useOculusProfile)
+            buttons = playerOptionsWithProfile;
+        else
+            buttons = playerOptionsNoProfile;
 
         for (int var12 = 2; var12 < buttons.length + 2; ++var12)
         {
             EnumOptions var8 = buttons[var12 - 2];
+            if (var8 == EnumOptions.DUMMY)
+                continue;
+
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
@@ -47,7 +98,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-                if (var8 == EnumOptions.PLAYER_HEIGHT)
+                if (var8 == EnumOptions.EYE_HEIGHT)
                 {
                     minValue = 1.62f;
                     maxValue = 1.85f;
@@ -68,13 +119,35 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings
                     increment = 0.0001f;
                 }
 
-                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8)));
+                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
+                slider.enabled = getEnabledState(var8);
+                slider.setEventHandler(this);
+                this.buttonList.add(slider);
             }
             else
             {
-                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
+                GuiSmallButtonEx button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8));
+                button.enabled = getEnabledState(var8);
+                button.setEventHandler(this);
+                this.buttonList.add(button);
             }
         }
+    }
+
+    private boolean getEnabledState(EnumOptions e)
+    {
+        if (this.guiGameSettings.useOculusProfile)
+        {
+            if (e == EnumOptions.IPD ||
+                e == EnumOptions.EYE_HEIGHT ||
+                e == EnumOptions.OCULUS_PROFILE_NAME ||
+                e == EnumOptions.OCULUS_PROFILE_GENDER)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -97,7 +170,15 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings
             }
             else if (par1GuiButton.id == 201)
             {
-                this.mc.gameSettings.saveOptions();
+                // Set defaults
+                this.guiGameSettings.setMinecraftIpd(0.0635F);
+                mc.hmdInfo.setIPD(this.guiGameSettings.getIPD());
+                this.guiGameSettings.setMinecraftPlayerEyeHeight(1.74f);
+                this.guiGameSettings.renderHeadWear = false;
+                this.guiGameSettings.renderPlayerOffset = 0.25f;
+
+                this.guiGameSettings.saveOptions();
+                this.reinit = true;
             }
         }
     }
@@ -129,7 +210,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings
                             "  position of body backwards by the desired distance,",
                             "  in cm."
                     };
-                case PLAYER_HEIGHT:
+                case EYE_HEIGHT:
                     return new String[] {
                             "Your real-world Eye Height when standing (in meters)",
                             "  Setting this value isn't required, but you should",
@@ -151,5 +232,18 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings
                 default:
                     return null;
             }
+    }
+
+    @Override
+    public void event(int id, EnumOptions enumm)
+    {
+        if (enumm == EnumOptions.IPD)
+        {
+            mc.hmdInfo.setIPD(this.mc.gameSettings.getIPD());
+        }
+        if (enumm == EnumOptions.OCULUS_PROFILE)
+        {
+            this.reinit = true;
+        }
     }
 }

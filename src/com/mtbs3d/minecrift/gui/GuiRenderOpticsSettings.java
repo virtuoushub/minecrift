@@ -112,8 +112,6 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             else if (par1GuiButton.id == 201)
             {
 			    this.mc.gameSettings.useDistortion = true;
-			    this.mc.gameSettings.ipd = 0.0635F;
-                mc.hmdInfo.setIPD(this.mc.gameSettings.ipd);
 			    this.mc.gameSettings.useChromaticAbCorrection = false;
 			    this.mc.gameSettings.fovScaleFactor = 1.0f;
 			    this.mc.gameSettings.distortionFitPoint = 5;
@@ -139,10 +137,6 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     @Override
     public void event(int id, EnumOptions enumm)
     {
-        if (enumm == EnumOptions.IPD)
-        {
-            mc.hmdInfo.setIPD(this.mc.gameSettings.ipd);
-        }
         if (enumm == EnumOptions.DISTORTION_FIT_POINT ||
             enumm == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
         {

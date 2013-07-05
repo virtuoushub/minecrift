@@ -36,13 +36,13 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +148,69 @@
+@@ -133,6 +148,74 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
 +    // Minecrift
 +    public boolean useVRRenderer    = false; //default to false
-+	public float playerHeight = 1.74f;
++	protected float playerEyeHeight = 1.74f;  // Use getPlayerEyeHeight()
 +	public float eyeProtrusion = 0.185f;
 +	public float neckBaseToEyeHeight = 0.225f;
 +    public float movementSpeedMultiplier = 1.0f;
@@ -50,7 +50,11 @@
 +    public boolean useHeadTracking = true;
 +    public boolean useHeadTrackPrediction = true;
 +    public float headTrackPredictionTimeSecs = 0.015f;
-+    public float ipd = 0.0635F;
++    protected float ipd = 0.0635F;   // Use getIPD()
++    protected float oculusProfileIpd = ipd;
++    public String oculusProfileName;
++    public String oculusProfileGender;
++    protected float oculusProfilePlayerEyeHeight = playerEyeHeight;
 +    public boolean useHudOpacity = false;
 +    public boolean renderHeadWear = false;
 +    public float renderPlayerOffset = 0.25f;
@@ -67,6 +71,7 @@
 +    public boolean lookMoveDecoupled = false;
 +	public boolean lookAimYawDecoupled = false;
 +	public boolean lookAimPitchDecoupled = false;
++    public boolean useOculusProfile = false;
 +    public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
 +    public boolean posTrackHydraUseController1 = true;
 +    public boolean posTrackHydraDebugCentreEyePos = false;
@@ -106,7 +111,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +244,7 @@
+@@ -166,7 +249,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -115,7 +120,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +253,7 @@
+@@ -175,6 +258,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -123,7 +128,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +282,7 @@
+@@ -203,6 +287,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -131,7 +136,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +291,7 @@
+@@ -211,7 +296,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -140,7 +145,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +309,7 @@
+@@ -229,6 +314,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -148,7 +153,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +321,7 @@
+@@ -240,7 +326,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -157,15 +162,15 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +495,168 @@
+@@ -414,6 +500,168 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
 +
 +        // Minecrift
-+        if (par1EnumOptions == EnumOptions.PLAYER_HEIGHT)
++        if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
 +        {
-+            this.playerHeight = par2;
++            this.playerEyeHeight = par2;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
@@ -326,7 +331,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1405,147 @@
+@@ -1162,12 +1410,152 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -401,6 +406,11 @@
 +            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.OCULUS_PROFILE)
++        {
++            this.useOculusProfile = !this.useOculusProfile;
++        }
++
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
 +        {
 +            this.posTrackHydraBIsPointingLeft = !this.posTrackHydraBIsPointingLeft;
@@ -423,11 +433,11 @@
      public float getOptionFloatValue(EnumOptions par1EnumOptions)
      {
 -        return par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight : (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel : (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE ? (float)(this.ofRenderDistanceFine - 32) / 480.0F : (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? (float)this.ofLimitFramerateFine / 200.0F : (this.enableVsync ? 0.0F : 1.0F)) : (par1EnumOptions == EnumOptions.FOV ? this.fovSetting : (par1EnumOptions == EnumOptions.GAMMA ? this.gammaSetting : (par1EnumOptions == EnumOptions.MUSIC ? this.musicVolume : (par1EnumOptions == EnumOptions.SOUND ? this.soundVolume : (par1EnumOptions == EnumOptions.SENSITIVITY ? this.mouseSensitivity : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? this.chatOpacity : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused : (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))));
-+        return par1EnumOptions == EnumOptions.PLAYER_HEIGHT ? this.playerHeight :
++        return par1EnumOptions == EnumOptions.EYE_HEIGHT ? getPlayerEyeHeight() :
 +              (par1EnumOptions == EnumOptions.EYE_PROTRUSION ? this.eyeProtrusion :
 +              (par1EnumOptions == EnumOptions.NECK_LENGTH ? this.neckBaseToEyeHeight :
 +              (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER ? this.movementSpeedMultiplier :
-+              (par1EnumOptions == EnumOptions.IPD ? this.ipd :
++              (par1EnumOptions == EnumOptions.IPD ? getIPD() :
 +              (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME) ? this.headTrackPredictionTimeSecs :
 +              (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY) ? this.joystickSensitivity:
 +              (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
@@ -475,7 +485,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,6 +2003,246 @@
+@@ -1625,6 +2013,258 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -485,9 +495,9 @@
 +        {
 +            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
 +        }
-+        else if (par1EnumOptions == EnumOptions.PLAYER_HEIGHT)
++        else if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
 +        {
-+            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(this.playerHeight) });
++            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
 +        {
@@ -515,7 +525,7 @@
 +        }
 +        else if (par1EnumOptions == EnumOptions.IPD)
 +        {
-+            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(this.ipd * 1000) });
++            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getIPD() * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME)
 +        {
@@ -710,6 +720,18 @@
 +        {
 +            return this.posTrackHydraBIsPointingLeft ? var4 + "To the Left" : var4 + "To the Right";
 +        }
++        else if (par1EnumOptions == EnumOptions.OCULUS_PROFILE)
++        {
++            return this.useOculusProfile ? var4 + "YES" : var4 + "NO";
++        }
++        else if (par1EnumOptions == EnumOptions.OCULUS_PROFILE_NAME)
++        {
++            return var4 + this.oculusProfileName;
++        }
++        else if (par1EnumOptions == EnumOptions.OCULUS_PROFILE_GENDER)
++        {
++            return var4 + this.oculusProfileGender;
++        }
 +        else if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
 +        {
 +            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
@@ -722,7 +744,7 @@
          else if (par1EnumOptions.getEnumFloat())
          {
              float var10 = this.getOptionFloatValue(par1EnumOptions);
-@@ -2319,6 +2937,327 @@
+@@ -2319,6 +2959,342 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -764,9 +786,9 @@
 +                        this.useVRRenderer = var3[1].equals("true");
 +                    }
 +
-+                    if (var3[0].equals("playerHeight"))
++                    if (var3[0].equals("playerEyeHeight"))
 +                    {
-+                        this.playerHeight = this.parseFloat(var3[1]);
++                        this.playerEyeHeight = this.parseFloat(var3[1]);
 +                    }
 +
 +                    if (var3[0].equals("neckBaseToEyeHeight"))
@@ -994,6 +1016,11 @@
 +                        this.posTrackHydraUseController1 = var3[1].equals("true");
 +                    }
 +
++                    if (var3[0].equals("useOculusProfile"))
++                    {
++                        this.useOculusProfile = var3[1].equals("true");
++                    }
++
 +                    if (var3[0].equals("posTrackHydraBIsPointingLeft"))
 +                    {
 +                        this.posTrackHydraBIsPointingLeft = var3[1].equals("true");
@@ -1024,6 +1051,16 @@
 +                    {
 +                        this.posTrackHydraYAxisDistanceSkewAngleDeg = this.parseFloat(var3[1]);
 +                    }
++
++                    if (var3[0].equals("oculusProfileIpd"))
++                    {
++                        this.oculusProfileIpd = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("oculusProfilePlayerEyeHeight"))
++                    {
++                        this.oculusProfilePlayerEyeHeight = this.parseFloat(var3[1]);
++                    }
 +//                    for (int var4 = 0; var4 < this.keyBindings.length; ++var4)
 +//                    {
 +//                        if (var3[0].equals("key_" + this.keyBindings[var4].keyDescription))
@@ -1050,7 +1087,7 @@
      }
  
      /**
-@@ -2479,6 +3418,73 @@
+@@ -2479,6 +3455,76 @@
              var3.printStackTrace();
          }
  
@@ -1060,7 +1097,7 @@
 +            var5 = new PrintWriter(new FileWriter(this.optionsFileMinecrift));
 +
 +            var5.println("useVRRenderer:"+ this.useVRRenderer );
-+            var5.println("playerHeight:" + this.playerHeight );
++            var5.println("playerEyeHeight:" + this.playerEyeHeight);
 +            var5.println("eyeProtrusion:" + this.eyeProtrusion );
 +            var5.println("neckBaseToEyeHeight:" + this.neckBaseToEyeHeight );
 +            var5.println("headTrackerPluginID:"+ this.headTrackerPluginID);
@@ -1112,6 +1149,9 @@
 +            var5.println("joystickSensitivity:" + this.joystickSensitivity);
 +            var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
 +            var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
++            var5.println("useOculusProfile:" + this.useOculusProfile);
++            var5.println("oculusProfileIpd:" + this.oculusProfileIpd);
++            var5.println("oculusProfilePlayerEyeHeight:" + this.oculusProfilePlayerEyeHeight);
 +
 +            var5.close();
 +        }
@@ -1124,7 +1164,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3663,90 @@
+@@ -2657,4 +3703,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
@@ -1213,5 +1253,41 @@
 +        }
 +
 +        return par2;
++    }
++
++    public void setMinecraftIpd(float ipd)
++    {
++        this.ipd = ipd;
++    }
++
++    public void setOculusProfileIpd(float ipd)
++    {
++        this.oculusProfileIpd = ipd;
++    }
++
++    public void setMinecraftPlayerEyeHeight(float eyeHeight)
++    {
++        this.playerEyeHeight = eyeHeight;
++    }
++
++    public void setOculusProfilePlayerEyeHeight(float eyeHeight)
++    {
++        this.oculusProfilePlayerEyeHeight = eyeHeight;
++    }
++
++    public float getIPD()
++    {
++        if (this.useOculusProfile)
++            return this.oculusProfileIpd;
++
++        return this.ipd;
++    }
++
++    public float getPlayerEyeHeight()
++    {
++        if (this.useOculusProfile)
++            return this.oculusProfilePlayerEyeHeight;
++
++        return this.playerEyeHeight;
 +    }
  }

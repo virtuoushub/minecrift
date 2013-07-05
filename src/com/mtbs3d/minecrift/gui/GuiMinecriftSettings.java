@@ -14,7 +14,7 @@ import net.minecraft.src.StringTranslate;
 public class GuiMinecriftSettings extends BaseGuiSettings
 {
 	static EnumOptions[] minecriftOptions = new EnumOptions[] {
-//            EnumOptions.PLAYER_HEIGHT,
+//            EnumOptions.EYE_HEIGHT,
 //            EnumOptions.HUD_OPACITY,
 //            EnumOptions.HUD_SCALE,
 //            EnumOptions.HUD_DISTANCE,

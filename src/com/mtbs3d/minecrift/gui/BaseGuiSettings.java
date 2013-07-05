@@ -28,6 +28,8 @@ public class BaseGuiSettings extends GuiScreen
 
     protected VRRenderer vrRenderer;
 
+    protected boolean reinit = false;
+
     /**
      * True if the system is 64-bit (using a simple indexOf test on a system property)
      */
@@ -48,6 +50,12 @@ public class BaseGuiSettings extends GuiScreen
      */
     public void drawScreen(int par1, int par2, float par3)
     {
+        if (this.reinit)
+        {
+            initGui();
+            this.reinit = false;
+        }
+
         this.drawDefaultBackground();
         this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 20, 16777215);
         super.drawScreen(par1, par2, par3);

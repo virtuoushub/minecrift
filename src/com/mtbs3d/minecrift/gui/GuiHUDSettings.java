@@ -12,7 +12,7 @@ import net.minecraft.src.*;
 public class GuiHUDSettings extends BaseGuiSettings
 {
     static EnumOptions[] hudOptions = new EnumOptions[] {
-//            EnumOptions.PLAYER_HEIGHT,
+//            EnumOptions.EYE_HEIGHT,
 //            EnumOptions.RENDER_OWN_HEADWEAR,
 //            EnumOptions.RENDER_PLAYER_OFFSET,
             EnumOptions.HUD_SCALE,
@@ -49,7 +49,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-//                if (var8 == EnumOptions.PLAYER_HEIGHT)
+//                if (var8 == EnumOptions.EYE_HEIGHT)
 //                {
 //                    minValue = 1.62f;
 //                    maxValue = 1.85f;
