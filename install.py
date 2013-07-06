@@ -74,6 +74,7 @@ def download_deps( mcp_dir ):
         astyle = os.path.join(mcp_dir,"runtime","bin","astyle-osx")
         st = os.stat( astyle )
         os.chmod(astyle, st.st_mode | stat.S_IEXEC)
+        shutil.copy("mcp.cfg",os.path.join(mcp_dir,"conf","mcp.cfg"))
     except:
         pass
 
