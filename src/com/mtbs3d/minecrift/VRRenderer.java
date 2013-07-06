@@ -18,7 +18,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
-import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 
 import net.minecraft.src.*;
@@ -243,7 +242,7 @@ public class VRRenderer extends EntityRenderer
         }
 
         // Camera height offset
-        float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
+        float cameraYOffset = 1.62f - (this.mc.gameSettings.getPlayerEyeHeight() - this.mc.gameSettings.neckBaseToEyeHeight);
         
         EntityLiving entity = this.mc.renderViewEntity;
         if( entity != null )
@@ -514,7 +513,7 @@ public class VRRenderer extends EntityRenderer
         {
         	float fulldist = (float)(Math.sqrt( camRelX * camRelX + camRelY * camRelY + camRelZ * camRelZ ));
             
-        	float cameraYOffset = 1.62f - (this.mc.gameSettings.playerHeight - this.mc.gameSettings.neckBaseToEyeHeight);
+        	float cameraYOffset = 1.62f - (this.mc.gameSettings.getPlayerEyeHeight() - this.mc.gameSettings.neckBaseToEyeHeight);
             float colldist = checkCameraCollision(renderOriginX, renderOriginY - cameraYOffset, renderOriginZ, 
             		-camRelX, -camRelY, -camRelZ, fulldist );
             if( colldist != fulldist )

@@ -8,6 +8,7 @@ package com.mtbs3d.minecrift;
 import com.mtbs3d.minecrift.api.*;
 
 import de.fruitfly.ovr.OculusRift;
+import de.fruitfly.ovr.UserProfileData;
 
 public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting 
 	implements IOrientationProvider, IBasePlugin, IHMDInfo, IEventNotifier, IEventListener {
@@ -28,6 +29,9 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private long coolDownStart = 0L;
     private long lastUpdateAt = 0L;
     private int calibrationStep = NOT_CALIBRATING;
+    private int MagCalSampleCount = 0;
+
+    public static UserProfileData theProfileData = null;
 
 	@Override
 	public String getName() {
@@ -41,20 +45,20 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	
 	@Override
 	public void resetOrigin() {
-        if (isInitialized() && _isCalibrated())
-            _setCalibrationReference();
     }
 
     @Override
     public void beginAutomaticCalibration()
     {
-        processCalibration();
+        if (isInitialized())
+            processCalibration();
     }
 
     @Override
     public void updateAutomaticCalibration()
     {
-        processCalibration();
+        if (isInitialized())
+            processCalibration();
     }
 
     @Override
@@ -82,7 +86,21 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             case CALIBRATE_AWAITING_MAG_CAL:
             case CALIBRATE_MAG_CAL_WAIT:
             {
-                step = "Slowly look left, right, up";
+                switch (MagCalSampleCount)
+                {
+                    case 0:
+                        step = String.format("Look forward (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
+                        break;
+                    case 1:
+                        step = String.format("Look all the way left (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
+                        break;
+                    case 2:
+                        step = String.format("Look all the way right (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
+                        break;
+                    default:
+                        step = String.format("Look all the way up (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
+                        break;
+                }
                 break;
             }
             case CALIBRATE_COOLDOWN:
@@ -151,12 +169,13 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             {
                 _reset();
                 _beginAutomaticCalibration();
+                MagCalSampleCount = 0;
                 calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
                 break;
             }
             case CALIBRATE_AWAITING_MAG_CAL:
             {
-                _updateAutomaticCalibration();
+                MagCalSampleCount = _updateAutomaticCalibration();
                 if (_isCalibrated())
                 {
                     lastUpdateAt = 0;
@@ -213,4 +232,17 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	public float getHeadRollDegrees() {
 		return getRollDegrees_LH();
 	}
+
+    @Override
+    public UserProfileData getProfileData()
+    {
+        UserProfileData userProfile = null;
+
+        if (isInitialized())
+        {
+            userProfile = _getUserProfileData();
+        }
+
+        return userProfile;
+    }
 }

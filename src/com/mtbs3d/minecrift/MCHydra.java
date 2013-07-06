@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 import com.mtbs3d.minecrift.api.*;
+import com.sixense.utils.enums.EnumControllerDesc;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -161,24 +162,41 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 	
 	@Override
-	public void poll() {
-        // Poll hydras, get position information in metres
-        Sixense.getAllNewestData(newData);
+	public void poll()
+    {
         Minecraft mc = Minecraft.getMinecraft();
 
+        // Poll hydras; get orientation, and position information in metres
+        Sixense.getAllNewestData(newData);
+
+        // Update the controller manager, allowing us to determine which
+        // controller is the 'Left' controller, and which is the 'Right'
+        // (if calibrated)
+        cm.update(newData);
+        int leftIndex = cm.getIndex(EnumControllerDesc.P1L);
+        int rightIndex = cm.getIndex(EnumControllerDesc.P1R);
+
         ControllerData cont1, cont2;
-        if (mc.gameSettings.posTrackHydraUseController1)
+        if (leftIndex != -1 && rightIndex != -1)
         {
-        	cont1 = newData[0];
-        	cont2 = newData[1];
+            if (mc.gameSettings.posTrackHydraUseController1)
+            {
+                cont1 = newData[leftIndex];
+                cont2 = newData[rightIndex];
+            }
+            else
+            {
+                cont1 = newData[rightIndex];
+                cont2 = newData[leftIndex];
+            }
         }
         else
         {
-        	cont1 = newData[1];
-        	cont2 = newData[0];
+            // Not yet calibrated
+            cont1 = newData[0];
+            cont2 = newData[1];
         }
 
-        cm.update(newData);
         EnumSetupStep step = cm.getCurrentStep();
         switch ( step )
         {
@@ -190,7 +208,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
                 hydraRunning = false;
                 if (step != null)
                 {
-                    System.out.println("HYDRA: " + step.toString());
+                    //System.out.println("HYDRA: " + step.toString());
                     calibrationStep = cm.getStepString();
                 }
                 break;
@@ -482,14 +500,29 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
             return;
         }
         
+        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
+        
         if( resetOriginRotation )
         {
         	//TODO: this might be backwards: with only a razer to test the yawHeadDegrees, its always the same!
-        	baseStationYawOffset = cont1Yaw - yawHeadDegrees;
+        	if( Minecraft.getMinecraft().headTracker != this ) //if the positional tracker is the hydra, they are always aligned
+        	{
+        		baseStationYawOffset = cont1Yaw - yawHeadDegrees; //assume hydra oriented straight with head orientation
+	        	if( gameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)   // TODO: Also needed for HMD top?
+                {
+                    //assume hydra oriented at 90degrees to head orientation
+	        		if (gameSettings.posTrackHydraBIsPointingLeft)
+                    {
+                        baseStationYawOffset -= 90;
+                    }
+                    else
+                    {
+                        baseStationYawOffset += 90;
+                    }
+                }
+        	}
         	resetOriginRotation = false;
         }
-        
-        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
 
         // Using a single controller. Select controller. poll() has already switch left and right depending on configuration 
         //cont1 is for head tracking, if head tracking is enabled (TODO: make head tracking optional?)
@@ -503,21 +536,6 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
             rawX = (cont1PosX + cont2PosX) / 2.0f;
             rawY = (cont1PosY + cont2PosY) / 2.0f;
             rawZ = (cont1PosZ + cont2PosZ) / 2.0f;
-
-
-            if (gameSettings.posTrackHydraDebugCentreEyePos)
-            {
-                // Get controller offset
-                float rotatedC1OffsetX = cont1PosX - rawX;
-                float rotatedC1OffsetY = cont1PosX - rawY;
-                float rotatedC1OffsetZ = cont1PosZ - rawZ;
-                float rotatedC2OffsetX = cont2PosX - rawX;
-                float rotatedC2OffsetY = cont2PosX - rawY;
-                float rotatedC2OffsetZ = cont2PosZ - rawZ;
-
-                debugOffsets("Left", yawHeadDegrees, pitchHeadDegrees, rollHeadDegrees, rotatedC1OffsetX, rotatedC1OffsetY, rotatedC1OffsetZ);
-                debugOffsets("Right", yawHeadDegrees, pitchHeadDegrees, rollHeadDegrees, rotatedC2OffsetX, rotatedC2OffsetY, rotatedC2OffsetZ);
-            }
         }
 
         // Correct for distance from base y axis skew
@@ -539,13 +557,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         //gameSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
         float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
         float hydraYOffset = -gameSettings.getPosTrackHydraOffsetY();
-        float hydraZOffset = -gameSettings.getPosTrackHydraOffsetZ();
-
-        if (gameSettings.posTrackHydraDebugCentreEyePos)
-        {
-            debugCentreEyePosition(userScale, yawHeadDegrees, pitchHeadDegrees, rollHeadDegrees, hydraXOffset, hydraYOffset, hydraZOffset,
-                    cont1PosX, cont1PosY, cont1PosZ, cont2PosX, cont2PosY, cont2PosZ);
-        }
+        float hydraZOffset = gameSettings.getPosTrackHydraOffsetZ();
 
         // The configured offset is for a 0,0,0 rotation head. Apply current head orientation to get final offset
         Vec3 correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
@@ -646,93 +658,6 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public float getHeadRollDegrees() {
 		return cont1Roll;
 	}
-
-    protected void debugCentreEyePosition(float scale, float yaw, float pitch, float roll, float hydraXOffset, float hydraYOffset, float hydraZOffset,
-                                          float cont1PosX, float cont1PosY, float cont1PosZ, float cont2PosX, float cont2PosY, float cont2PosZ)
-    {
-        float tempHmdPosX = 0.0f;
-        float tempHmdPosY = 0.0f;
-        float tempHmdPosZ = 0.0f;
-
-        System.out.println(String.format("Positional Track: Orientation         : Yaw=%.3f, Pitch=%.3f, Roll=%.3f", new Object[] {Float.valueOf(yaw), Float.valueOf(pitch), Float.valueOf(roll)}));
-
-        // The centre eye position returned by all off these methods should agree with each other...
-
-        //GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-        {
-            // 2 hydras are used for positional tracking, strapped to the left and right sides of the HMD respectively
-            // Get average centre (eye) position.
-
-            tempHmdPosX = ((cont1PosX + cont2PosX) / 2.0f);
-            tempHmdPosY = ((cont1PosY + cont2PosY) / 2.0f);
-            tempHmdPosZ = ((cont1PosZ + cont2PosZ) / 2.0f);
-
-            System.out.println(String.format("Positional Track: Centre Eye pos (L&R): (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf(tempHmdPosX * 100.0f), Float.valueOf(tempHmdPosY * 100.0f), Float.valueOf(tempHmdPosZ * 100.0f)}));
-        }
-
-        //GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
-
-        // 1 hydra is used for positional tracking, strapped to the left side of the HMD
-        // Get centre (eye) position.
-
-        tempHmdPosX = cont1PosX;
-        tempHmdPosY = cont1PosY;
-        tempHmdPosZ = cont1PosZ;
-
-        Vec3 correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
-
-        correctionToCentreEyePosition.rotateAroundX((float)Math.toRadians(pitch));
-        correctionToCentreEyePosition.rotateAroundY((float)Math.toRadians(-yaw));
-        correctionToCentreEyePosition.rotateAroundZ((float)Math.toRadians(roll));
-
-        tempHmdPosX = tempHmdPosX + (float)correctionToCentreEyePosition.xCoord;
-        tempHmdPosY = tempHmdPosY + (float)correctionToCentreEyePosition.yCoord;
-        tempHmdPosZ = tempHmdPosZ + (float)correctionToCentreEyePosition.zCoord;
-
-        System.out.println(String.format("Positional Track: Centre Eye pos (L):   (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf(tempHmdPosX * 100.0f), Float.valueOf(tempHmdPosY * 100.0f), Float.valueOf(tempHmdPosZ * 100.0f)}));
-
-        //GameSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-
-        // 1 hydra is used for positional tracking, strapped to the right side of the HMD
-        // Get centre (eye) position.
-
-        tempHmdPosX = cont2PosX;
-        tempHmdPosY = cont2PosY;
-        tempHmdPosZ = cont2PosZ;
-
-        correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
-
-        correctionToCentreEyePosition.rotateAroundX((float)Math.toRadians(pitch));
-        correctionToCentreEyePosition.rotateAroundY((float)Math.toRadians(-yaw));
-        correctionToCentreEyePosition.rotateAroundZ((float)Math.toRadians(roll));
-
-        tempHmdPosX = tempHmdPosX + (float)correctionToCentreEyePosition.xCoord;
-        tempHmdPosY = tempHmdPosY + (float)correctionToCentreEyePosition.yCoord;
-        tempHmdPosZ = tempHmdPosZ + (float)correctionToCentreEyePosition.zCoord;
-
-        System.out.println(String.format("Positional Track: Centre Eye pos (R):   (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf(tempHmdPosX * 100.0f), Float.valueOf(tempHmdPosY * 100.0f), Float.valueOf(tempHmdPosZ * 100.0f)}));
-
-        //GameSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
-
-        // 1 hydra is used for positional tracking, strapped to the top of the HMD
-        // Get centre (eye) position.
-
-        tempHmdPosX = cont2PosX;
-        tempHmdPosY = cont2PosY;
-        tempHmdPosZ = cont2PosZ;
-
-        correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
-
-        correctionToCentreEyePosition.rotateAroundX((float)Math.toRadians(pitch));
-        correctionToCentreEyePosition.rotateAroundY((float)Math.toRadians(-yaw));
-        correctionToCentreEyePosition.rotateAroundZ((float)Math.toRadians(roll));
-
-        tempHmdPosX = tempHmdPosX + (float)correctionToCentreEyePosition.xCoord;
-        tempHmdPosY = tempHmdPosY + (float)correctionToCentreEyePosition.yCoord;
-        tempHmdPosZ = tempHmdPosZ + (float)correctionToCentreEyePosition.zCoord;
-
-        System.out.println(String.format("Positional Track: Centre Eye pos (Top): (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf(tempHmdPosX * 100.0f), Float.valueOf(tempHmdPosY * 100.0f), Float.valueOf(tempHmdPosZ * 100.0f)}));
-    }
 
 	@Override
 	public void beginAutomaticCalibration() { 

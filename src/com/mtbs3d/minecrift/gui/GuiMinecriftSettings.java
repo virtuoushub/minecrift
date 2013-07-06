@@ -14,12 +14,12 @@ import net.minecraft.src.StringTranslate;
 public class GuiMinecriftSettings extends BaseGuiSettings
 {
 	static EnumOptions[] minecriftOptions = new EnumOptions[] {
-            EnumOptions.PLAYER_HEIGHT,
-            EnumOptions.HUD_OPACITY,
-            EnumOptions.HUD_SCALE,
-            EnumOptions.HUD_DISTANCE,
-            EnumOptions.RENDER_OWN_HEADWEAR,
-            EnumOptions.RENDER_PLAYER_OFFSET,
+//            EnumOptions.EYE_HEIGHT,
+//            EnumOptions.HUD_OPACITY,
+//            EnumOptions.HUD_SCALE,
+//            EnumOptions.HUD_DISTANCE,
+//            EnumOptions.RENDER_OWN_HEADWEAR,
+//            EnumOptions.RENDER_PLAYER_OFFSET,
         };
 
     /** An array of all of EnumOption's video options. */
@@ -54,31 +54,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-                if (var8 == EnumOptions.PLAYER_HEIGHT)
-                {
-                    minValue = 1.62f;
-                    maxValue = 1.85f;
-                    increment = 0.01f;
-                }
-                if (var8 == EnumOptions.HUD_SCALE)
-                {
-                    minValue = 0.5f;
-                    maxValue = 1.5f;
-                    increment = 0.01f;
-                }
-                if (var8 == EnumOptions.HUD_DISTANCE)
-                {
-                    minValue = 0.5f;
-                    maxValue = 3.0f;
-                    increment = 0.02f;
-                }
-                if (var8 == EnumOptions.RENDER_PLAYER_OFFSET)
-                {
-                    minValue = 0.0f;
-                    maxValue = 0.25f;
-                    increment = 0.01f;
-                }
-
                 this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8)));
             }
             else
@@ -86,22 +61,30 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                 this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
             }
         }
-        for( int i = 0; i < 4; ++i )
+
+        String buttonText [] =
+        {
+            "Player Preferences...",
+            "HUD / Overlay Settings...",
+            "", "",
+            "Head Orientation Tracking...",
+            "Optics/Rendering...",
+            "Head Position Tracking...",
+            "Move/Aim Control...",
+        };
+
+        for( int i = 0; i < buttonText.length; ++i )
         {
         	int var12 = buttons.length + 2 + i;
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = (this.height / 6 + 21 * (var12 / 2) - 10) + 20;
-            String buttonText [] =
-        	{
-        		"Head Orientation Tracking...",
-        		"Optics/Rendering...",
-        		"Head Position Tracking...",
-        		"Move/Aim Control...",
-        	};
-            
-            GuiSmallButtonEx btn = new GuiSmallButtonEx(201+i, width, height, buttonText[i] ); 
-            //btn.enabled = this.guiGameSettings.useVRRenderer; //TODO: could be good, maybe not yet
-        	this.buttonList.add(btn);
+
+            if (!buttonText[i].isEmpty())
+            {
+                GuiSmallButtonEx btn = new GuiSmallButtonEx(201+i, width, height, buttonText[i] );
+                //btn.enabled = this.guiGameSettings.useVRRenderer; //TODO: could be good, maybe not yet
+                this.buttonList.add(btn);
+            }
         }
     }
 
@@ -123,8 +106,21 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                     if (vrRenderer != null)
                         vrRenderer._FBOInitialised = false;
                 }
-            } 
+            }
             else if (par1GuiButton.id == 201)
+            {
+                this.mc.gameSettings.saveOptions();
+                this.mc.displayGuiScreen(new GuiPlayerPreferenceSettings(this, this.guiGameSettings));
+            }
+            else if (par1GuiButton.id == 202)
+            {
+                if( mc.headTracker != null )
+                {
+                    this.mc.gameSettings.saveOptions();
+                    this.mc.displayGuiScreen(new GuiHUDSettings(this, this.guiGameSettings));
+                }
+            }
+            else if (par1GuiButton.id == 205)
             {
             	if( mc.headTracker != null )
             	{
@@ -132,7 +128,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 	                this.mc.displayGuiScreen(new GuiHeadOrientationSettings(this, this.guiGameSettings));
             	}
             } 
-            else if (par1GuiButton.id == 202)
+            else if (par1GuiButton.id == 206)
             {
             	if( mc.headTracker != null && mc.hmdInfo != null && mc.positionTracker != null )
             	{
@@ -140,7 +136,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guiGameSettings));
             	}
             } 
-            else if (par1GuiButton.id == 203)
+            else if (par1GuiButton.id == 207)
             {
             	if( mc.positionTracker != null )
             	{
@@ -148,7 +144,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 	                this.mc.displayGuiScreen(new GuiHeadPositionSettings(this, this.guiGameSettings));
             	}
             } 
-            else if (par1GuiButton.id == 204)
+            else if (par1GuiButton.id == 208)
             {
             	if( mc.lookaimController != null )
             	{
@@ -171,47 +167,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
     	if( e != null )
     	switch(e)
     	{
-    	case PLAYER_HEIGHT:
-    		return new String[] {
-				"Your real-world Eye Height when standing (in meters)",
-				"  Setting this value isn't required, but you should",
-				"  strive to get it as close as possible for an accurate",
-				"  experience"
-    		};
-    	case HUD_OPACITY:
-    		return new String[] {
-				"Whether the HUD and UI are slightly transparent",
-				"  ON: HUD and UI are transparent",
-				"  OFF: HUD and UI are opaque"
-    		};
-    	case HUD_SCALE:
-    		return new String[] {
-				"Relative size HUD takes up in field-of-view",
-				"  The units are just relative, not in degrees",
-				"  or a fraction of FOV or anything"
-    		};
-    	case HUD_DISTANCE:
-    		return new String[] {
-				"Distance the floating HUD is drawn in front of your body",
-				"  The relative size of the HUD is unchanged by this",
-				"  Distance is in meters (though isn't obstructed by blocks)"
-    		};
-        case RENDER_OWN_HEADWEAR:
-            return new String[] {
-                    "Whether to render the player's own headwear or not",
-                    "  ON:  Headwear is rendered. May obscure your view!",
-                    "  OFF: Not rendered."
-            };
-        case RENDER_PLAYER_OFFSET:
-            return new String[] {
-                    "Distance your body is rendered back from the normal",
-                    "position.",
-                    "  The current Steve player model can obscure your",
-                    "  peripheral view when rendered at the normal",
-                    "  Minecraft position. This setting moves the render",
-                    "  position of body backwards by the desired distance,",
-                    "  in cm."
-            };
     	case USE_VR:
     		return new String[] {
 				"Whether to enable all the fun new Virtual Reality features",
@@ -224,26 +179,38 @@ public class GuiMinecriftSettings extends BaseGuiSettings
     	else
     	switch(buttonId)
     	{
-	    	case 201:
+            case 201:
+                return new String[] {
+                        "Open this configuration screen to adjust the Player",
+                        "  avatar preferences, select Oculus profiles etc.",
+                        "  Ex: IPD, Player (Eye) Height"
+                };
+            case 202:
+                return new String[] {
+                        "Open this configuration screen to adjust the Head",
+                        "Up Display (HUD) overlay properties.",
+                        "  Ex: HUD size, HUD distance, Crosshair options"
+                };
+	    	case 205:
 	    		return new String[] {
 	    			"Open this configuration screen to adjust the Head",
 	    			"  Tracker orientation (direction) settings. ",
 	    			"  Ex: Head Tracking Selection (Hydra/Oculus), Prediction"
 	    		};
-	    	case 202:
+	    	case 206:
 	    		return new String[] {
 	    			"Open this configuration screen to adjust the Head ",
 	    			"  Mounted Display optics or other rendering features.",
-	    			"  Ex: IPD, FOV, Distortion, FSAA, Chromatic Abberation"
+	    			"  Ex: FOV, Distortion, FSAA, Chromatic Abberation"
 	    		};
-	    	case 203:
+	    	case 207:
 	    		return new String[] {
 	    			"Open this configuration screen to adjust the Head",
 	    			"  Tracker position settings. ",
 	    			"  Ex: Head Position Selection (Hydra/None), " ,
 	    			"       Hydra head placement (left, right, top etc)"
 	    		};
-	    	case 204:
+	    	case 208:
 	    		return new String[] {
 	    			"Open this configuration screen to adjust how the ",
 	    			"  character is controlled. ",

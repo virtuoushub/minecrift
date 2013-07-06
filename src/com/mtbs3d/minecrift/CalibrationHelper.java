@@ -4,9 +4,7 @@
  */
 package com.mtbs3d.minecrift;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import net.minecraft.client.Minecraft;
 
@@ -14,19 +12,25 @@ import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 
 public class CalibrationHelper {
-	public Set<IBasePlugin> pluginsToCalibrate = new HashSet<IBasePlugin>();
+	public ArrayList<IBasePlugin> pluginsToCalibrate = new ArrayList<IBasePlugin>();
 	
 	public IBasePlugin currentPlugin = null;
 	public Iterator<IBasePlugin> iterator = null;
 	public String calibrationStep = "";
 
 	public CalibrationHelper(Minecraft mc) {
-		pluginsToCalibrate.add(mc.hmdInfo);
+
+        // TODO: Will need a rethink to avoid multiple initialisation when Oculus
+        // is used for both pos track and orientation. Maybe static instance of
+        // Oculus lib?
+
+        // Never calibrate HMDInfo; not required currently
+        pluginsToCalibrate.add(mc.lookaimController);
+        pluginsToCalibrate.add(mc.positionTracker);
 		pluginsToCalibrate.add(mc.headTracker);
-		pluginsToCalibrate.add(mc.positionTracker);
-		pluginsToCalibrate.add(mc.lookaimController);
-		iterator = pluginsToCalibrate.iterator();
-		currentPlugin  = iterator.next();
+
+        iterator = pluginsToCalibrate.iterator();
+		currentPlugin = null;
 	}
 	
 	public boolean allPluginsCalibrated()
@@ -41,17 +45,16 @@ public class CalibrationHelper {
 					((IOrientationProvider)currentPlugin).beginAutomaticCalibration();
 				}
 			}
-			
+
 			if( currentPlugin instanceof IOrientationProvider )
 			{
 				((IOrientationProvider)currentPlugin).updateAutomaticCalibration();
 			}
-		
+
 			if( currentPlugin.isCalibrated() )
 			{
 				currentPlugin = null;
 			}
-		
 		} while( currentPlugin == null && iterator.hasNext() );
 		
 		if( currentPlugin != null )

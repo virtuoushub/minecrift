@@ -7,6 +7,7 @@ package com.mtbs3d.minecrift.api;
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.HMDInfo;
 import de.fruitfly.ovr.SensorInfo;
+import de.fruitfly.ovr.UserProfileData;
 
 /**
  * Implement this class to inform Minecrift of distortion, resolution, and
@@ -15,8 +16,8 @@ import de.fruitfly.ovr.SensorInfo;
  * @author Mark Browning
  *
  */
-public interface IHMDInfo extends IBasePlugin {
-
+public interface IHMDInfo extends IBasePlugin
+{
 	public HMDInfo getHMDInfo();
 	public SensorInfo getSensorInfo();
     public EyeRenderParams getEyeRenderParams(int viewPortWidth, int viewPortHeight);
@@ -50,4 +51,7 @@ public interface IHMDInfo extends IBasePlugin {
      * @return Interpupillary distance, in meters.
      */
     public float getIPD();
+
+    /* Get the profile data */
+    public UserProfileData getProfileData();
 }
