@@ -73,7 +73,10 @@ def main(mcp_dir):
     commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True)
     reobfuscate_side( commands, CLIENT )
 
-    version = "1.0_beta_1.4.7"
+    if os.getenv("BUILD_NUMBER"):
+        version = "build_"+os.getenv("BUILD_NUMBER")+"_1.4.7"
+    else:
+        version = "1.1_beta_1.4.7"
 
     try:
         os.mkdir( os.path.join( base_dir, "releases" ) )
