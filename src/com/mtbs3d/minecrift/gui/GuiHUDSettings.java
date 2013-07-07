@@ -49,19 +49,6 @@ public class GuiHUDSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-//                if (var8 == EnumOptions.EYE_HEIGHT)
-//                {
-//                    minValue = 1.62f;
-//                    maxValue = 1.85f;
-//                    increment = 0.01f;
-//                }
-//                if (var8 == EnumOptions.RENDER_PLAYER_OFFSET)
-//                {
-//                    minValue = 0.0f;
-//                    maxValue = 0.25f;
-//                    increment = 0.01f;
-//                }
-
                 if (var8 == EnumOptions.HUD_SCALE)
                 {
                     minValue = 0.5f;
@@ -104,7 +91,11 @@ public class GuiHUDSettings extends BaseGuiSettings
             }
             else if (par1GuiButton.id == 201)
             {
+                this.guiGameSettings.hudDistance = 1.0f;
+                this.guiGameSettings.hudScale = 1.0f;
+                this.guiGameSettings.useHudOpacity = false;
                 this.mc.gameSettings.saveOptions();
+                this.reinit = true;
             }
         }
     }

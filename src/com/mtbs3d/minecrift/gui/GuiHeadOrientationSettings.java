@@ -6,6 +6,7 @@ package com.mtbs3d.minecrift.gui;
 
 import java.util.List;
 
+import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
@@ -15,11 +16,15 @@ import net.minecraft.src.*;
 public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiEventEx
 {
     /** An array of all of EnumOption's video options. */
-    static EnumOptions[] headOrientationOptions = new EnumOptions[] {
+    static EnumOptions[] oculusHeadOrientationOptions = new EnumOptions[] {
             EnumOptions.HEAD_TRACKING,
-            EnumOptions.HEAD_TRACK_PREDICTION,
             EnumOptions.HEAD_TRACK_SENSITIVITY,
+            EnumOptions.HEAD_TRACK_PREDICTION,
             EnumOptions.HEAD_TRACK_PREDICTION_TIME,
+    };
+    static EnumOptions[] hydraHeadOrientationOptions = new EnumOptions[] {
+            EnumOptions.HEAD_TRACKING,
+            EnumOptions.HEAD_TRACK_SENSITIVITY,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
     public GuiHeadOrientationSettings(GuiScreen par1GuiScreen,
@@ -37,11 +42,16 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Reset to defaults"));
-        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate (Look left, right, up)"));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
         pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.orientPlugins, this.guiGameSettings.headTrackerPluginID );
         this.buttonList.add(pluginModeChangeutton);
-        EnumOptions[] var10 = headOrientationOptions;
+        EnumOptions[] var10 = null;
+        if( this.guiGameSettings.headTrackerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+            var10 = hydraHeadOrientationOptions;
+        else
+            var10 = oculusHeadOrientationOptions;
+
         int var11 = var10.length;
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
@@ -107,10 +117,14 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
             else if (par1GuiButton.id == 201)
             {
 			    this.mc.gameSettings.useHeadTracking = true;
-			    this.mc.gameSettings.useHeadTrackPrediction = true;
-                this.mc.gameSettings.headTrackPredictionTimeSecs = 0.015f;
-                mc.headTracker.setPrediction(this.mc.gameSettings.headTrackPredictionTimeSecs, this.mc.gameSettings.useHeadTrackPrediction);
+                if(!this.guiGameSettings.headTrackerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+                {
+                    this.mc.gameSettings.useHeadTrackPrediction = true;
+                    this.mc.gameSettings.headTrackPredictionTimeSecs = 0.015f;
+                    mc.headTracker.setPrediction(this.mc.gameSettings.headTrackPredictionTimeSecs, this.mc.gameSettings.useHeadTrackPrediction);
+                }
 			    this.mc.gameSettings.headTrackSensitivity = 1.0f;
+                this.reinit = true;
             }
             else if (par1GuiButton.id == 202)
             {
@@ -122,6 +136,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
             	this.mc.gameSettings.headTrackerPluginID = pluginModeChangeutton.getSelectedID();
                 this.mc.gameSettings.saveOptions();
             	this.mc.headTracker = PluginManager.configureOrientation(this.mc.gameSettings.headTrackerPluginID);
+                this.reinit = true;
             }
         }
     }

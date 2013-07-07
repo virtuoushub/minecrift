@@ -10,7 +10,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 {
     /** An array of all of EnumOption's video options. */
     static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
-            EnumOptions.IPD,
+            //EnumOptions.IPD,
             EnumOptions.FOV_SCALE_FACTOR,
             EnumOptions.CHROM_AB_CORRECTION,
             EnumOptions.USE_DISTORTION,
