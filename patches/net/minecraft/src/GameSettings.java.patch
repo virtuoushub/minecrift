@@ -780,23 +780,23 @@
 +        else if (par1EnumOptions == EnumOptions.VR_HEAD_ORIENTATION)
 +        {
 +            if (this.mc.headTracker != null)
-+                return var4 + this.mc.headTracker.getName();
++                return this.mc.headTracker.getName();
 +
-+            return var4 + "None";
++            return "None";
 +        }
 +        else if (par1EnumOptions == EnumOptions.VR_HEAD_POSITION)
 +        {
 +            if (this.mc.positionTracker != null)
-+                return var4 + this.mc.positionTracker.getName();
++                return this.mc.positionTracker.getName();
 +
-+            return var4 + "None";
++            return "None";
 +        }
 +        else if (par1EnumOptions == EnumOptions.VR_CONTROLLER)
 +        {
 +            if (this.mc.lookaimController != null)
-+                return var4 + this.mc.lookaimController.getName();
++                return this.mc.lookaimController.getName();
 +
-+            return var4 + "None";
++            return "None";
 +        }
 +        // End Minecrift
 +        else if (par1EnumOptions.getEnumFloat())
