@@ -149,7 +149,7 @@ public class VRRenderer extends EntityRenderer
     private float INITIAL_CALIBRATION_TEXT_SCALE = 0.0080f;
     private int CALIBRATION_TEXT_WORDWRAP_LEN = 40;
 
-    public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv )
+    public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv)
     {
     	super( par1Minecraft );
     	this.guiAchievement = guiAchiv;
@@ -164,8 +164,9 @@ public class VRRenderer extends EntityRenderer
     	{
     		superSampleSupported = false;
     	}
-    	
-    	calibrationHelper = new CalibrationHelper(par1Minecraft);
+
+        if (this.mc.gameSettings.calibrationStrategy == GameSettings.CALIBRATION_STRATEGY_AT_STARTUP)
+    	    startCalibration();
     }
 
     private float checkCameraCollision(

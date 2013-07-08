@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,65 @@
+@@ -97,7 +97,68 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -62,7 +62,10 @@
 +    JOYSTICK_SENSITIVITY("Joystick Sensitivity",true,false),
 +    DECOUPLE_LOOK_AIM_PITCH("Free Aim - Vertical",false,true),
 +    KEYHOLE_WIDTH("Keyhole Width",true,false),
-+    KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true);
++    KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true),
++
++    // Calibration
++    CALIBRATION_STRATEGY("Initial Calibration", false, false);
 +
      private final boolean enumFloat;
      private final boolean enumBoolean;

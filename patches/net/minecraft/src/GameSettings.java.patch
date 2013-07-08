@@ -8,7 +8,7 @@
  import net.minecraft.client.Minecraft;
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
-@@ -14,6 +15,19 @@
+@@ -14,6 +15,21 @@
  
  public class GameSettings
  {
@@ -25,10 +25,12 @@
 +    public static final int POS_TRACK_HYDRA_LOC_BACK_OF_HEAD = 4;
 +    //public static final int POS_TRACK_HYDRA_LOC_DIRECT = 5;
 +
++    public static final int CALIBRATION_STRATEGY_AT_STARTUP = 0;
++
      private static final String[] RENDER_DISTANCES = new String[] {"options.renderDistance.far", "options.renderDistance.normal", "options.renderDistance.short", "options.renderDistance.tiny"};
      private static final String[] DIFFICULTIES = new String[] {"options.difficulty.peaceful", "options.difficulty.easy", "options.difficulty.normal", "options.difficulty.hard"};
  
-@@ -28,6 +42,7 @@
+@@ -28,6 +44,7 @@
      public float musicVolume = 1.0F;
      public float soundVolume = 1.0F;
      public float mouseSensitivity = 0.5F;
@@ -36,7 +38,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +148,74 @@
+@@ -133,6 +150,75 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -106,12 +108,13 @@
 +	public String headTrackerPluginID = "oculus";
 +	public String hmdPluginID = "oculus";
 +	public String controllerPluginID = "mouse";
++    public int calibrationStrategy = CALIBRATION_STRATEGY_AT_STARTUP;
 +
 +
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +249,7 @@
+@@ -166,7 +252,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -120,7 +123,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +258,7 @@
+@@ -175,6 +261,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -128,7 +131,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +287,7 @@
+@@ -203,6 +290,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -136,7 +139,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +296,7 @@
+@@ -211,7 +299,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -145,7 +148,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +314,7 @@
+@@ -229,6 +317,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -153,7 +156,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +326,7 @@
+@@ -240,7 +329,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -162,7 +165,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +500,168 @@
+@@ -414,6 +503,173 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -242,6 +245,11 @@
 +        if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
 +        {
 +            this.distortionFitPoint = (int)Math.floor(par2);
++        }
++
++        if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
++        {
++            this.calibrationStrategy = (int)Math.floor(par2);
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X)
@@ -331,7 +339,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1410,152 @@
+@@ -1162,12 +1418,158 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -425,7 +433,13 @@
 +        {
 +        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
 +        }
-+        
++
++        if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
++        {
++            this.calibrationStrategy += 1;
++            if (this.calibrationStrategy > 1)
++                this.calibrationStrategy = 0;
++        }
 +
          this.saveOptions();
      }
@@ -485,7 +499,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,59 +2013,340 @@
+@@ -1625,56 +2027,346 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -585,6 +599,15 @@
 +                return var4 + "Normal";
 +            else
 +                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
++        }
++        else if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
++        {
++            if (this.calibrationStrategy < 1)
++                return var4 + "At Startup";
++//            else if (this.calibrationStrategy == 1) // TODO: Some sort of cached scheme - cache Hydra hemi-sphere & controller 'hand', Rift mag-cal, origin
++//                return var4 + "Cached";
++            else
++                return var4 + "Skip";
 +        }
 +        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
 +        {
@@ -712,7 +735,6 @@
 -                    if (var3[0].equals("mouseSensitivity"))
 -                    {
 -                        this.mouseSensitivity = this.parseFloat(var3[1]);
--                    }
 +            switch (this.posTrackHydraLoc)
 +            {
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
@@ -734,8 +756,7 @@
 +                        value = this.posTrackHydraBROffsetZ;
 +                    break;
 +            }
- 
--                    if (var3[0].equals("fov"))
++
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
@@ -857,13 +878,10 @@
 +                    if (var3[0].equals("mouseSensitivity"))
 +                    {
 +                        this.mouseSensitivity = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("fov"))
-                     {
-                         this.fovSetting = this.parseFloat(var3[1]);
                      }
-@@ -2319,6 +2988,342 @@
+ 
+                     if (var3[0].equals("fov"))
+@@ -2319,6 +3011,347 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1008,6 +1026,11 @@
 +                    if (var3[0].equals("distortionFitPoint"))
 +                    {
 +                        this.distortionFitPoint = Integer.parseInt(var3[1]);
++                    }
++
++                    if (var3[0].equals("calibrationStrategy"))
++                    {
++                        this.calibrationStrategy = Integer.parseInt(var3[1]);
 +                    }
 +
 +                    if (var3[0].equals("headTrackSensitivity"))
@@ -1206,7 +1229,7 @@
      }
  
      /**
-@@ -2479,6 +3484,76 @@
+@@ -2479,6 +3512,77 @@
              var3.printStackTrace();
          }
  
@@ -1237,6 +1260,7 @@
 +            var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
 +            var5.println("fovScaleFactor:" + this.fovScaleFactor);
 +            var5.println("distortionFitPoint:" + this.distortionFitPoint);
++            var5.println("calibrationStrategy:" + this.calibrationStrategy);
 +            var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
 +            var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
 +            var5.println("lookMoveDecoupled:" + this.lookMoveDecoupled);
@@ -1283,7 +1307,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3732,126 @@
+@@ -2657,4 +3761,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
