@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/GameSettings.java
 +++ b/net/minecraft/src/GameSettings.java
-@@ -7,12 +7,26 @@
+@@ -7,12 +7,28 @@
  import java.io.PrintWriter;
  import java.util.Arrays;
  import java.util.List;
@@ -24,10 +24,12 @@
 +    public static final int POS_TRACK_HYDRA_LOC_BACK_OF_HEAD = 4;
 +    //public static final int POS_TRACK_HYDRA_LOC_DIRECT = 5;
 +
++    public static final int CALIBRATION_STRATEGY_AT_STARTUP = 0;
++
      private static final String[] RENDER_DISTANCES = new String[] {"options.renderDistance.far", "options.renderDistance.normal", "options.renderDistance.short", "options.renderDistance.tiny"};
      private static final String[] DIFFICULTIES = new String[] {"options.difficulty.peaceful", "options.difficulty.easy", "options.difficulty.normal", "options.difficulty.hard"};
  
-@@ -26,6 +40,7 @@
+@@ -26,6 +42,7 @@
      public float musicVolume = 1.0F;
      public float soundVolume = 1.0F;
      public float mouseSensitivity = 0.5F;
@@ -35,7 +37,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -130,6 +145,74 @@
+@@ -130,6 +147,75 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -105,12 +107,13 @@
 +	public String headTrackerPluginID = "oculus";
 +	public String hmdPluginID = "oculus";
 +	public String controllerPluginID = "mouse";
++    public int calibrationStrategy = CALIBRATION_STRATEGY_AT_STARTUP;
 +
 +
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -159,7 +242,7 @@
+@@ -159,7 +245,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -119,7 +122,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -168,6 +251,7 @@
+@@ -168,6 +254,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -127,7 +130,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -196,6 +280,7 @@
+@@ -196,6 +283,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -135,7 +138,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -204,7 +289,7 @@
+@@ -204,7 +292,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -144,7 +147,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -222,6 +307,7 @@
+@@ -222,6 +310,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -152,7 +155,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -233,7 +319,7 @@
+@@ -233,7 +322,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -161,7 +164,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -375,6 +461,168 @@
+@@ -375,6 +464,173 @@
          {
              this.chatOpacity = par2;
          }
@@ -241,6 +244,11 @@
 +        if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
 +        {
 +            this.distortionFitPoint = (int)Math.floor(par2);
++        }
++
++        if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
++        {
++            this.calibrationStrategy = (int)Math.floor(par2);
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X)
@@ -330,7 +338,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1117,12 +1365,168 @@
+@@ -1117,12 +1373,174 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -424,7 +432,13 @@
 +        {
 +        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
 +        }
-+        
++
++        if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
++        {
++            this.calibrationStrategy += 1;
++            if (this.calibrationStrategy > 1)
++                this.calibrationStrategy = 0;
++        }
 +
          this.saveOptions();
      }
@@ -500,7 +514,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1242,6 +1646,172 @@
+@@ -1242,6 +1660,172 @@
                  int var8 = this.ofRenderDistanceFine - var7;
                  return var8 == 0 ? var4 + var6 : var4 + var6 + " +" + var8;
              }
@@ -673,7 +687,7 @@
              else
              {
                  return par1EnumOptions == EnumOptions.FRAMERATE_LIMIT_FINE ? (this.ofLimitFramerateFine > 0 && this.ofLimitFramerateFine < 200 ? var4 + " " + this.ofLimitFramerateFine + " FPS" : (this.enableVsync ? var4 + " VSync" : var4 + " MaxFPS")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var4 + (int)(var9 * 90.0F + 10.0F) + "%" : (var9 == 0.0F ? var4 + var2.translateKey("options.off") : var4 + (int)(var9 * 100.0F) + "%"));
-@@ -1251,11 +1821,7 @@
+@@ -1251,11 +1835,7 @@
          {
              return !this.advancedOpengl ? var4 + "OFF" : (this.ofOcclusionFancy ? var4 + "Fancy" : var4 + "Fast");
          }
@@ -686,16 +700,19 @@
          else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
          {
              return var4 + getTranslation(RENDER_DISTANCES, this.renderDistance);
-@@ -1512,6 +2078,198 @@
+@@ -1512,49 +2092,294 @@
                      return var4 + "OFF";
              }
          }
+-        else
 +
 +        // Minecrift
 +        else if (par1EnumOptions == EnumOptions.USE_VR)
-+        {
+         {
+-            return par1EnumOptions == EnumOptions.WEATHER ? (this.ofWeather ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SKY ? (this.ofSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.STARS ? (this.ofStars ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SUN_MOON ? (this.ofSunMoon ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CHUNK_UPDATES ? var4 + this.ofChunkUpdates : (par1EnumOptions == EnumOptions.CHUNK_LOADING ? (this.ofChunkLoading == 1 ? var4 + "Smooth" : (this.ofChunkLoading == 2 ? var4 + "Multi-Core" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CHUNK_UPDATES_DYNAMIC ? (this.ofChunkUpdatesDynamic ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.TIME ? (this.ofTime == 1 ? var4 + "Day Only" : (this.ofTime == 3 ? var4 + "Night Only" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CLEAR_WATER ? (this.ofClearWater ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.DEPTH_FOG ? (this.ofDepthFog ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.AA_LEVEL ? (this.ofAaLevel == 0 ? var4 + "OFF" : var4 + this.ofAaLevel) : (par1EnumOptions == EnumOptions.AF_LEVEL ? (this.ofAfLevel == 1 ? var4 + "OFF" : var4 + this.ofAfLevel) : (par1EnumOptions == EnumOptions.PROFILER ? (this.ofProfiler ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.BETTER_SNOW ? (this.ofBetterSnow ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SWAMP_COLORS ? (this.ofSwampColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.RANDOM_MOBS ? (this.ofRandomMobs ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SMOOTH_BIOMES ? (this.ofSmoothBiomes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_FONTS ? (this.ofCustomFonts ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_COLORS ? (this.ofCustomColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_SKY ? (this.ofCustomSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SHOW_CAPES ? (this.ofShowCapes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.NATURAL_TEXTURES ? (this.ofNaturalTextures ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING ? (this.ofLazyChunkLoading ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.FULLSCREEN_MODE ? var4 + this.ofFullscreenMode : (par1EnumOptions == EnumOptions.HELD_ITEM_TOOLTIPS ? (this.field_92117_D ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") : var4 + var2.translateKey("options.graphics.fast")) : var4)))))))))))))))))))))))));
 +            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
-+        }
+         }
+-    }
 +        else if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
 +        {
 +            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
@@ -732,6 +749,38 @@
 +        {
 +            return this.pitchInputAffectsCamera ? var4 + "ON" : var4 + "OFF";
 +        }
++        else if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
++        }
++        else if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
++        }
++        else if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
++        {
++            if (this.distortionFitPoint < 1)
++                return var4 + "None";
++            else if (this.distortionFitPoint > 13)
++                return var4 + "Large";
++            else if (this.distortionFitPoint == 5)
++                return var4 + "Normal";
++            else
++                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
++        }
++        else if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
++        {
++            if (this.calibrationStrategy < 1)
++                return var4 + "At Startup";
++//            else if (this.calibrationStrategy == 1) // TODO: Some sort of cached scheme - cache Hydra hemi-sphere & controller 'hand', Rift mag-cal, origin
++//                return var4 + "Cached";
++            else
++                return var4 + "Skip";
++        }
++        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.headTrackSensitivity) });
++        }
 +        else if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
 +        {
 +            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
@@ -747,18 +796,26 @@
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
 +        {
 +            String s = var4 + "Unknown";
-+
+ 
+-    /**
+-     * Loads the options from the options file. It appears that this has replaced the previous 'loadOptions'
+-     */
+-    public void loadOptions()
+-    {
+-        try
 +            if (this.posTrackHydraLoc >= 0 && this.posTrackHydraLoc < POS_TRACK_HYDRA_LOC.length)
 +                s = var4 + POS_TRACK_HYDRA_LOC[this.posTrackHydraLoc];
 +
 +            return s;
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X)
-+        {
+         {
+-            if (!this.optionsFile.exists())
 +            float value = 0.0f;
 +
 +            switch (this.posTrackHydraLoc)
-+            {
+             {
+-                return;
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetX;
 +                    break;
@@ -777,16 +834,22 @@
 +                    else
 +                        value = this.posTrackHydraBROffsetX;
 +                    break;
-+            }
-+
+             }
+ 
+-            BufferedReader var1 = new BufferedReader(new FileReader(this.optionsFile));
+-            String var2 = "";
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y)
 +        {
 +            float value = 0.0f;
-+
+ 
+-            while ((var2 = var1.readLine()) != null)
 +            switch (this.posTrackHydraLoc)
-+            {
+             {
+-                try
+-                {
+-                    String[] var3 = var2.split(":");
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -806,13 +869,21 @@
 +                        value = this.posTrackHydraBROffsetY;
 +                    break;
 +            }
-+
+ 
+-                    if (var3[0].equals("music"))
+-                    {
+-                        this.musicVolume = this.parseFloat(var3[1]);
+-                    }
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
 +        {
 +            float value = 0.0f;
-+
+ 
+-                    if (var3[0].equals("sound"))
+-                    {
+-                        this.soundVolume = this.parseFloat(var3[1]);
+-                    }
 +            switch (this.posTrackHydraLoc)
 +            {
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
@@ -834,7 +905,11 @@
 +                        value = this.posTrackHydraBROffsetZ;
 +                    break;
 +            }
-+
+ 
+-                    if (var3[0].equals("mouseSensitivity"))
+-                    {
+-                        this.mouseSensitivity = this.parseFloat(var3[1]);
+-                    }
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
@@ -849,7 +924,8 @@
 +        {
 +            if (this.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
 +                return var4 + "Both";
-+
+ 
+-                    if (var3[0].equals("fov"))
 +            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
@@ -876,16 +952,80 @@
 +        {
 +            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
 +        }
++        else if (par1EnumOptions == EnumOptions.VR_HEAD_ORIENTATION)
++        {
++            if (this.mc.headTracker != null)
++                return this.mc.headTracker.getName();
++
++            return "None";
++        }
++        else if (par1EnumOptions == EnumOptions.VR_HEAD_POSITION)
++        {
++            if (this.mc.positionTracker != null)
++                return this.mc.positionTracker.getName();
++
++            return "None";
++        }
++        else if (par1EnumOptions == EnumOptions.VR_CONTROLLER)
++        {
++            if (this.mc.lookaimController != null)
++                return this.mc.lookaimController.getName();
++
++            return "None";
++        }
 +        // End Minecrift
 +        else if (par1EnumOptions.getEnumBoolean())
 +        {
 +            boolean var5 = this.getOptionOrdinalValue(par1EnumOptions);
 +            return var5 ? var4 + var2.translateKey("options.on") : var4 + var2.translateKey("options.off");
 +        }
-         else
-         {
-             return par1EnumOptions == EnumOptions.WEATHER ? (this.ofWeather ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SKY ? (this.ofSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.STARS ? (this.ofStars ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SUN_MOON ? (this.ofSunMoon ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CHUNK_UPDATES ? var4 + this.ofChunkUpdates : (par1EnumOptions == EnumOptions.CHUNK_LOADING ? (this.ofChunkLoading == 1 ? var4 + "Smooth" : (this.ofChunkLoading == 2 ? var4 + "Multi-Core" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CHUNK_UPDATES_DYNAMIC ? (this.ofChunkUpdatesDynamic ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.TIME ? (this.ofTime == 1 ? var4 + "Day Only" : (this.ofTime == 3 ? var4 + "Night Only" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CLEAR_WATER ? (this.ofClearWater ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.DEPTH_FOG ? (this.ofDepthFog ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.AA_LEVEL ? (this.ofAaLevel == 0 ? var4 + "OFF" : var4 + this.ofAaLevel) : (par1EnumOptions == EnumOptions.AF_LEVEL ? (this.ofAfLevel == 1 ? var4 + "OFF" : var4 + this.ofAfLevel) : (par1EnumOptions == EnumOptions.PROFILER ? (this.ofProfiler ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.BETTER_SNOW ? (this.ofBetterSnow ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SWAMP_COLORS ? (this.ofSwampColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.RANDOM_MOBS ? (this.ofRandomMobs ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SMOOTH_BIOMES ? (this.ofSmoothBiomes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_FONTS ? (this.ofCustomFonts ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_COLORS ? (this.ofCustomColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_SKY ? (this.ofCustomSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SHOW_CAPES ? (this.ofShowCapes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.NATURAL_TEXTURES ? (this.ofNaturalTextures ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING ? (this.ofLazyChunkLoading ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.FULLSCREEN_MODE ? var4 + this.ofFullscreenMode : (par1EnumOptions == EnumOptions.HELD_ITEM_TOOLTIPS ? (this.field_92117_D ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") : var4 + var2.translateKey("options.graphics.fast")) : var4)))))))))))))))))))))))));
-@@ -2169,6 +2927,342 @@
++        else
++        {
++            return par1EnumOptions == EnumOptions.WEATHER ? (this.ofWeather ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SKY ? (this.ofSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.STARS ? (this.ofStars ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SUN_MOON ? (this.ofSunMoon ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CHUNK_UPDATES ? var4 + this.ofChunkUpdates : (par1EnumOptions == EnumOptions.CHUNK_LOADING ? (this.ofChunkLoading == 1 ? var4 + "Smooth" : (this.ofChunkLoading == 2 ? var4 + "Multi-Core" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CHUNK_UPDATES_DYNAMIC ? (this.ofChunkUpdatesDynamic ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.TIME ? (this.ofTime == 1 ? var4 + "Day Only" : (this.ofTime == 3 ? var4 + "Night Only" : var4 + "Default")) : (par1EnumOptions == EnumOptions.CLEAR_WATER ? (this.ofClearWater ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.DEPTH_FOG ? (this.ofDepthFog ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.AA_LEVEL ? (this.ofAaLevel == 0 ? var4 + "OFF" : var4 + this.ofAaLevel) : (par1EnumOptions == EnumOptions.AF_LEVEL ? (this.ofAfLevel == 1 ? var4 + "OFF" : var4 + this.ofAfLevel) : (par1EnumOptions == EnumOptions.PROFILER ? (this.ofProfiler ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.BETTER_SNOW ? (this.ofBetterSnow ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SWAMP_COLORS ? (this.ofSwampColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.RANDOM_MOBS ? (this.ofRandomMobs ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SMOOTH_BIOMES ? (this.ofSmoothBiomes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_FONTS ? (this.ofCustomFonts ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_COLORS ? (this.ofCustomColors ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.CUSTOM_SKY ? (this.ofCustomSky ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.SHOW_CAPES ? (this.ofShowCapes ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.NATURAL_TEXTURES ? (this.ofNaturalTextures ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING ? (this.ofLazyChunkLoading ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.FULLSCREEN_MODE ? var4 + this.ofFullscreenMode : (par1EnumOptions == EnumOptions.HELD_ITEM_TOOLTIPS ? (this.field_92117_D ? var4 + "ON" : var4 + "OFF") : (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") : var4 + var2.translateKey("options.graphics.fast")) : var4)))))))))))))))))))))))));
++        }
++    }
++
++    /**
++     * Loads the options from the options file. It appears that this has replaced the previous 'loadOptions'
++     */
++    public void loadOptions()
++    {
++        try
++        {
++            if (!this.optionsFile.exists())
++            {
++                return;
++            }
++
++            BufferedReader var1 = new BufferedReader(new FileReader(this.optionsFile));
++            String var2 = "";
++
++            while ((var2 = var1.readLine()) != null)
++            {
++                try
++                {
++                    String[] var3 = var2.split(":");
++
++                    if (var3[0].equals("music"))
++                    {
++                        this.musicVolume = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("sound"))
++                    {
++                        this.soundVolume = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("mouseSensitivity"))
++                    {
++                        this.mouseSensitivity = this.parseFloat(var3[1]);
++                    }
++
++                    if (var3[0].equals("fov"))
+                     {
+                         this.fovSetting = this.parseFloat(var3[1]);
+                     }
+@@ -2169,6 +2994,347 @@
              System.out.println("Failed to load options");
              var6.printStackTrace();
          }
@@ -1030,6 +1170,11 @@
 +                    if (var3[0].equals("distortionFitPoint"))
 +                    {
 +                        this.distortionFitPoint = Integer.parseInt(var3[1]);
++                    }
++
++                    if (var3[0].equals("calibrationStrategy"))
++                    {
++                        this.calibrationStrategy = Integer.parseInt(var3[1]);
 +                    }
 +
 +                    if (var3[0].equals("headTrackSensitivity"))
@@ -1228,7 +1373,7 @@
      }
  
      /**
-@@ -2324,6 +3418,76 @@
+@@ -2324,6 +3490,77 @@
              var3.printStackTrace();
          }
  
@@ -1259,6 +1404,7 @@
 +            var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
 +            var5.println("fovScaleFactor:" + this.fovScaleFactor);
 +            var5.println("distortionFitPoint:" + this.distortionFitPoint);
++            var5.println("calibrationStrategy:" + this.calibrationStrategy);
 +            var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
 +            var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
 +            var5.println("lookMoveDecoupled:" + this.lookMoveDecoupled);
@@ -1305,7 +1451,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2510,4 +3674,126 @@
+@@ -2510,4 +3747,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

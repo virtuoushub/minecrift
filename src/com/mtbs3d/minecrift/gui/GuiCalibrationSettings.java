@@ -2,20 +2,15 @@ package com.mtbs3d.minecrift.gui;
 
 import net.minecraft.src.*;
 
-public class GuiHUDSettings extends BaseGuiSettings
+public class GuiCalibrationSettings extends BaseGuiSettings
 {
-    static EnumOptions[] hudOptions = new EnumOptions[] {
-//            EnumOptions.EYE_HEIGHT,
-//            EnumOptions.RENDER_OWN_HEADWEAR,
-//            EnumOptions.RENDER_PLAYER_OFFSET,
-            EnumOptions.HUD_SCALE,
-            EnumOptions.HUD_DISTANCE,
-            EnumOptions.HUD_OPACITY,
+    static EnumOptions[] calibrationOptions = new EnumOptions[] {
+        EnumOptions.CALIBRATION_STRATEGY,
     };
 
-    public GuiHUDSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
+    public GuiCalibrationSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
         super( guiScreen, guiGameSettings );
-        screenTitle = "HUD / Overlay Settings";
+        screenTitle = "Calibration Settings";
     }
 
     /**
@@ -26,9 +21,10 @@ public class GuiHUDSettings extends BaseGuiSettings
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
 //        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
+        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        EnumOptions[] buttons = hudOptions;
+        EnumOptions[] buttons = calibrationOptions;
 
         for (int var12 = 2; var12 < buttons.length + 2; ++var12)
         {
@@ -84,11 +80,14 @@ public class GuiHUDSettings extends BaseGuiSettings
             }
             else if (par1GuiButton.id == 201)
             {
-                this.guiGameSettings.hudDistance = 1.0f;
-                this.guiGameSettings.hudScale = 1.0f;
-                this.guiGameSettings.useHudOpacity = false;
+                this.guiGameSettings.calibrationStrategy = GameSettings.CALIBRATION_STRATEGY_AT_STARTUP;
                 this.mc.gameSettings.saveOptions();
                 this.reinit = true;
+            }
+            else if (par1GuiButton.id == 202)
+            {
+                if (vrRenderer != null)
+                    vrRenderer.startCalibration();
             }
         }
     }
@@ -100,23 +99,19 @@ public class GuiHUDSettings extends BaseGuiSettings
         if( e != null )
             switch(e)
             {
-                case HUD_OPACITY:
+                case CALIBRATION_STRATEGY:
                     return new String[] {
-                            "Whether the in-game HUD and UI are slightly transparent",
-                            "  ON: HUD and UI are transparent",
-                            "  OFF: HUD and UI are opaque"
-                    };
-                case HUD_SCALE:
-                    return new String[] {
-                            "Relative size HUD takes up in field-of-view",
-                            "  The units are just relative, not in degrees",
-                            "  or a fraction of FOV or anything"
-                    };
-                case HUD_DISTANCE:
-                    return new String[] {
-                            "Distance the floating HUD is drawn in front of your body",
-                            "  The relative size of the HUD is unchanged by this",
-                            "  Distance is in meters (though isn't obstructed by blocks)"
+                            "Sets whether device calibration is performed when",
+                            "Minecraft is started.",
+                            "  At Startup:",
+                            "     Calibration routines for all utilised",
+                            "     devices are run at startup.",
+                            "  Skip:",
+                            "     No calibration will be performed. The user",
+                            "     will have to manually trigger calibration",
+                            "     at some point for correct device operation.",
+                            "     Note: Weird behaviour may ensue if no",
+                            "     calibration is performed!"
                     };
                 default:
                     return null;

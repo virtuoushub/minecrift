@@ -7,8 +7,6 @@ package com.mtbs3d.minecrift.gui;
 import java.util.List;
 
 import com.mtbs3d.minecrift.MCHydra;
-import com.mtbs3d.minecrift.VRRenderer;
-import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
 import com.mtbs3d.minecrift.api.PluginManager;
@@ -21,6 +19,8 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     static EnumOptions[] neckModelOptions = new EnumOptions[] {
             EnumOptions.EYE_PROTRUSION,
             EnumOptions.NECK_LENGTH,
+            EnumOptions.DUMMY,
+            EnumOptions.POS_TRACK_OFFSET_SET_DEFAULT,
     };
 
     static EnumOptions[] hydraOptions = new EnumOptions[] {
@@ -35,7 +35,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         EnumOptions.DUMMY,
         //EnumOptions.EYE_PROTRUSION,
         //EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
-        EnumOptions.POS_TRACK_HYDRA_OFFSET_SET_DEFAULT,
+        EnumOptions.POS_TRACK_OFFSET_SET_DEFAULT,
     };
 
     protected boolean reinit = false;
@@ -58,7 +58,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         if (this.reinitOffsetDefaults)
         {
             this.reinitOffsetDefaults = false;
-            setHydraLocOffsetDefaults();
+            setLocOffsetDefaults();
         }
 
         if (this.reinit)
@@ -80,7 +80,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             this.buttonList.add(resetPosButton);
 
         GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
-        this.buttonList.add(recalibrate);
+        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+            this.buttonList.add(recalibrate);
+
         EnumOptions[] var10 = null;
 
         if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
@@ -149,7 +151,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 else
                 {
                     String keyText = this.guiGameSettings.getKeyBinding(var8);
-                    if (var8 == EnumOptions.POS_TRACK_HYDRA_OFFSET_SET_DEFAULT)
+                    if (var8 == EnumOptions.POS_TRACK_OFFSET_SET_DEFAULT)
                     {
                         keyText = "Set Default Offsets";
                     }
@@ -264,7 +266,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     @Override
     public void event(int id, EnumOptions enumm)
     {
-        if (enumm == EnumOptions.POS_TRACK_HYDRA_OFFSET_SET_DEFAULT)
+        if (enumm == EnumOptions.POS_TRACK_OFFSET_SET_DEFAULT)
         {
             this.reinitOffsetDefaults = true;
             this.reinit = true;
@@ -277,45 +279,53 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         }
     }
 
-    private void setHydraLocOffsetDefaults()
+    private void setLocOffsetDefaults()
     {
-        switch (this.guiGameSettings.posTrackHydraLoc)
+        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
         {
-            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                this.guiGameSettings.posTrackHydraLROffsetX = 0.0f;
-                this.guiGameSettings.posTrackHydraLROffsetY = 0.0f;
-                this.guiGameSettings.posTrackHydraLROffsetZ = 0.0f;
-                break;
-            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                this.guiGameSettings.posTrackHydraLOffsetX = -0.108f;
-                this.guiGameSettings.posTrackHydraLOffsetY = 0.0f;
-                this.guiGameSettings.posTrackHydraLOffsetZ = 0.0f;
-                break;
-            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
-                this.guiGameSettings.posTrackHydraTOffsetX = 0.0f;
-                this.guiGameSettings.posTrackHydraTOffsetY = 0.085f;
-                this.guiGameSettings.posTrackHydraTOffsetZ = 0.0f;
-                break;
-            case GameSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                this.guiGameSettings.posTrackHydraROffsetX = 0.108f;
-                this.guiGameSettings.posTrackHydraROffsetY = 0.0f;
-                this.guiGameSettings.posTrackHydraROffsetZ = 0.0f;
-                break;
-            case GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                if (this.guiGameSettings.posTrackHydraBIsPointingLeft)
-                {
-                    this.guiGameSettings.posTrackHydraBLOffsetX = 0.05f;
-                    this.guiGameSettings.posTrackHydraBLOffsetY = 0.11f;
-                    this.guiGameSettings.posTrackHydraBLOffsetZ = -0.225f;
-                }
-                else
-                {
-                    this.guiGameSettings.posTrackHydraBROffsetX = -0.05f;
-                    this.guiGameSettings.posTrackHydraBROffsetY = 0.11f;
-                    this.guiGameSettings.posTrackHydraBROffsetZ = -0.225f;
-                }
+            switch (this.guiGameSettings.posTrackHydraLoc)
+            {
+                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
+                    this.guiGameSettings.posTrackHydraLROffsetX = 0.0f;
+                    this.guiGameSettings.posTrackHydraLROffsetY = 0.0f;
+                    this.guiGameSettings.posTrackHydraLROffsetZ = 0.0f;
+                    break;
+                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
+                    this.guiGameSettings.posTrackHydraLOffsetX = -0.108f;
+                    this.guiGameSettings.posTrackHydraLOffsetY = 0.0f;
+                    this.guiGameSettings.posTrackHydraLOffsetZ = 0.0f;
+                    break;
+                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
+                    this.guiGameSettings.posTrackHydraTOffsetX = 0.0f;
+                    this.guiGameSettings.posTrackHydraTOffsetY = 0.085f;
+                    this.guiGameSettings.posTrackHydraTOffsetZ = 0.0f;
+                    break;
+                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
+                    this.guiGameSettings.posTrackHydraROffsetX = 0.108f;
+                    this.guiGameSettings.posTrackHydraROffsetY = 0.0f;
+                    this.guiGameSettings.posTrackHydraROffsetZ = 0.0f;
+                    break;
+                case GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+                    if (this.guiGameSettings.posTrackHydraBIsPointingLeft)
+                    {
+                        this.guiGameSettings.posTrackHydraBLOffsetX = 0.05f;
+                        this.guiGameSettings.posTrackHydraBLOffsetY = 0.11f;
+                        this.guiGameSettings.posTrackHydraBLOffsetZ = -0.225f;
+                    }
+                    else
+                    {
+                        this.guiGameSettings.posTrackHydraBROffsetX = -0.05f;
+                        this.guiGameSettings.posTrackHydraBROffsetY = 0.11f;
+                        this.guiGameSettings.posTrackHydraBROffsetZ = -0.225f;
+                    }
 
-                break;
+                    break;
+            }
+        }
+        else
+        {
+            this.guiGameSettings.eyeProtrusion = 0.185f;
+            this.guiGameSettings.neckBaseToEyeHeight = 0.225f;
         }
     }
 
@@ -393,9 +403,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                             "        distance from the Hydra base unit.",
                             "  ON  - Filter used. Less positional 'jitter', more latency."
                     };
-                case POS_TRACK_HYDRA_OFFSET_SET_DEFAULT:
+                case POS_TRACK_OFFSET_SET_DEFAULT:
                     return new String[] {
-                            "Set offset defaults for the selected Hydra location."
+                            "Set offset defaults for positional tracking."
                     };
                 case POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT:
                     return new String[] {
