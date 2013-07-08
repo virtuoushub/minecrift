@@ -9,6 +9,7 @@ package com.mtbs3d.minecrift;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 import com.mtbs3d.minecrift.api.PluginManager;
 import de.fruitfly.ovr.EyeRenderParams;
@@ -144,6 +145,8 @@ public class VRRenderer extends EntityRenderer
 
 	// Calibration
 	private CalibrationHelper calibrationHelper;
+    private float INITIAL_CALI_TEXT_SCALE = 0.0080f;
+    private int CALI_TEXT_WORDWRAP_LEN = 20;
 
     public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv )
     {
@@ -772,17 +775,28 @@ public class VRRenderer extends EntityRenderer
 
 	    	if( calibrationHelper != null )
 	    	{
-		        GL11.glDisable(GL11.GL_DEPTH_TEST);
+		        boolean doWordWrap = true;
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
 	            GL11.glPushMatrix();
 	            GL11.glTranslatef(lookX*mc.gameSettings.hudDistance,lookY*mc.gameSettings.hudDistance,lookZ*mc.gameSettings.hudDistance);
 	            GL11.glRotatef(-this.cameraYaw, 0.0F, 1.0F, 0.0F);
 	            GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
 	            GL11.glRotatef(180+this.cameraRoll, 0.0F, 0.0F, 1.0F);
-	            GL11.glScaled(0.02, 0.02, 0.02);
+	            GL11.glScaled(INITIAL_CALI_TEXT_SCALE*mc.gameSettings.hudScale, INITIAL_CALI_TEXT_SCALE*mc.gameSettings.hudScale, INITIAL_CALI_TEXT_SCALE*mc.gameSettings.hudScale);
 	            String calibrating = "Calibrating "+calibrationHelper.currentPlugin.getName()+"...";
 	        	mc.fontRenderer.drawStringWithShadow(calibrating, -mc.fontRenderer.getStringWidth(calibrating)/2, -8, /*white*/16777215);
 	        	String calibrationStep = calibrationHelper.calibrationStep;
-	        	mc.fontRenderer.drawStringWithShadow(calibrationStep, -mc.fontRenderer.getStringWidth(calibrationStep)/2, 8, /*white*/16777215);
+                mc.fontRenderer.drawStringWithShadow(calibrationStep, -mc.fontRenderer.getStringWidth(calibrationStep)/2, 8, /*white*/16777215);
+
+//                int column = 8;
+//                ArrayList<String> wrapped = new ArrayList<String>();
+//                wordWrap(calibrationStep, CALI_TEXT_WORDWRAP_LEN, wrapped);
+//	        	for (String line : wrapped)
+//                {
+//                    mc.fontRenderer.drawStringWithShadow(line, -mc.fontRenderer.getStringWidth(line)/2, column, /*white*/16777215);
+//                    column+=8;
+//                }
+
 		        GL11.glPopMatrix();
 		        GL11.glEnable(GL11.GL_DEPTH_TEST);
 	    	}
@@ -2037,4 +2051,34 @@ public class VRRenderer extends EntityRenderer
     {
         guiYawOrientationResetRequested = true;
     }
+
+//    public static void wordWrap(String in, int length, ArrayList<String> wrapped) {
+////:: Trim
+//        while(in.length() > 0 && (in.charAt(0) == ‘\t’ || in.charAt(0) == ‘ ‘))
+//        in = in.substring(1);
+
+    //Remove all instances of /r
+    // String newline = "/n";
+//
+////:: If Small Enough Already, Return Original
+//        if(in.length() < length)
+//            return in;
+//
+////:: If Next length Contains Newline, Split There
+//        if(in.substring(0, length).contains(newline))
+//            return in.substring(0, in.indexOf(newline)).trim() + newline +
+//                    wordWrap(in.substring(in.indexOf("\n") + 1), length);
+//
+////:: Otherwise, Split Along Nearest Previous Space/Tab/Dash
+//        int spaceIndex = Math.max(Math.max( in.lastIndexOf(" ", length),
+//                in.lastIndexOf("\t", length)),
+//                in.lastIndexOf("-", length));
+//
+////:: If No Nearest Space, Split At length
+//        if(spaceIndex == -1)
+//            spaceIndex = length;
+//
+////:: Split
+//        return in.substring(0, spaceIndex).trim() + newline + wordWrap(in.substring(spaceIndex), length);
+//    }
 }
