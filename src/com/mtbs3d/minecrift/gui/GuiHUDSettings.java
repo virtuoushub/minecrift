@@ -5,12 +5,12 @@ import net.minecraft.src.*;
 public class GuiHUDSettings extends BaseGuiSettings
 {
     static EnumOptions[] hudOptions = new EnumOptions[] {
-//            EnumOptions.EYE_HEIGHT,
-//            EnumOptions.RENDER_OWN_HEADWEAR,
-//            EnumOptions.RENDER_PLAYER_OFFSET,
             EnumOptions.HUD_SCALE,
             EnumOptions.HUD_DISTANCE,
             EnumOptions.HUD_OPACITY,
+            EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
+            EnumOptions.CROSSHAIR_SCALE,
+            EnumOptions.CROSSHAIR_ALWAYS_SHOW
     };
 
     public GuiHUDSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
@@ -54,6 +54,12 @@ public class GuiHUDSettings extends BaseGuiSettings
                     maxValue = 3.0f;
                     increment = 0.02f;
                 }
+                if (var8 == EnumOptions.CROSSHAIR_SCALE)
+                {
+                    minValue = 0.25f;
+                    maxValue = 2.5f;
+                    increment = 0.01f;
+                }
 
                 this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8)));
             }
@@ -87,6 +93,9 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guiGameSettings.hudDistance = 1.0f;
                 this.guiGameSettings.hudScale = 1.0f;
                 this.guiGameSettings.useHudOpacity = false;
+                this.guiGameSettings.crosshairScale = 1.0f;
+                this.guiGameSettings.alwaysRenderBlockOutline = false;
+                this.guiGameSettings.alwaysRenderInGameCrosshair = false;
                 this.mc.gameSettings.saveOptions();
                 this.reinit = true;
             }
@@ -117,6 +126,26 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "Distance the floating HUD is drawn in front of your body",
                             "  The relative size of the HUD is unchanged by this",
                             "  Distance is in meters (though isn't obstructed by blocks)"
+                    };
+                case CROSSHAIR_ALWAYS_SHOW:
+                    return new String[] {
+                            "Set the in-game crosshair display mode",
+                            "  Always: The crosshair is always shown even if the",
+                            "          HUD is disabled",
+                            "  With HUD: The crosshair is only shown when the HUD",
+                            "            is enabled"
+                    };
+                case CROSSHAIR_SCALE:
+                    return new String[] {
+                            "Sets the size of the in-game crosshair"
+                    };
+                case BLOCK_OUTLINE_ALWAYS_SHOW:
+                    return new String[] {
+                            "Sets the in-game block outline display mode.",
+                            "  Always: The block outline is always shown even if",
+                            "          the HUD is disabled",
+                            "  With HUD: The block outline is only shown when the",
+                            "           HUD is enabled"
                     };
                 default:
                     return null;

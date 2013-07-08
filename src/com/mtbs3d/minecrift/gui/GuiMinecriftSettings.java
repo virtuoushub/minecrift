@@ -207,6 +207,12 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                         "Up Display (HUD) overlay properties.",
                         "  Ex: HUD size, HUD distance, Crosshair options"
                 };
+            case 203:
+                return new String[] {
+                        "Open this configuration screen to adjust device",
+                        "calibration settings.",
+                        "  Ex: Initial calibration time"
+                };
 	    	case 205:
 	    		return new String[] {
 	    			"Open this configuration screen to adjust the Head",

@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,68 @@
+@@ -97,7 +97,71 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -18,6 +18,9 @@
 +    VR_HEAD_ORIENTATION("Head Orientation", false, true),
 +    VR_HEAD_POSITION("Head Position", false, true),
 +    VR_CONTROLLER("Controller", false, true),
++    CROSSHAIR_SCALE("Crosshair Size", true, false),
++    CROSSHAIR_ALWAYS_SHOW("Show Crosshair", false, true),
++    BLOCK_OUTLINE_ALWAYS_SHOW("Show Block Outline", false, true),
 +
 +    // Player
 +    EYE_HEIGHT("Eye Height", true, false),

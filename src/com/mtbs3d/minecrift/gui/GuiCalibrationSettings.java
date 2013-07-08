@@ -103,15 +103,11 @@ public class GuiCalibrationSettings extends BaseGuiSettings
                     return new String[] {
                             "Sets whether device calibration is performed when",
                             "Minecraft is started.",
-                            "  At Startup:",
-                            "     Calibration routines for all utilised",
-                            "     devices are run at startup.",
-                            "  Skip:",
-                            "     No calibration will be performed. The user",
+                            "  At Startup: Calibration routines for all",
+                            "     utilised devices are run at startup.",
+                            "  Skip: No calibration will be performed. The user",
                             "     will have to manually trigger calibration",
-                            "     at some point for correct device operation.",
-                            "     Note: Weird behaviour may ensue if no",
-                            "     calibration is performed!"
+                            "     at some point for correct device operation."
                     };
                 default:
                     return null;

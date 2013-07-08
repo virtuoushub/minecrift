@@ -38,7 +38,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,75 @@
+@@ -133,6 +150,78 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -109,12 +109,15 @@
 +	public String hmdPluginID = "oculus";
 +	public String controllerPluginID = "mouse";
 +    public int calibrationStrategy = CALIBRATION_STRATEGY_AT_STARTUP;
++    public float crosshairScale = 1.0f;
++    public boolean alwaysRenderInGameCrosshair = false;
++    public boolean alwaysRenderBlockOutline = false;
 +
 +
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +252,7 @@
+@@ -166,7 +255,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -123,7 +126,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +261,7 @@
+@@ -175,6 +264,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -131,7 +134,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +290,7 @@
+@@ -203,6 +293,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -139,7 +142,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +299,7 @@
+@@ -211,7 +302,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -148,7 +151,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +317,7 @@
+@@ -229,6 +320,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -156,7 +159,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +329,7 @@
+@@ -240,7 +332,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -165,7 +168,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +503,173 @@
+@@ -414,6 +506,178 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -336,10 +339,15 @@
 +        {
 +            this.posTrackHydraYAxisDistanceSkewAngleDeg = par2;
 +        }
++
++        if (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE)
++        {
++            this.crosshairScale = par2;
++        }
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1418,158 @@
+@@ -1162,12 +1426,169 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -429,6 +437,16 @@
 +            this.hydraUseFilter = !this.hydraUseFilter;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.CROSSHAIR_ALWAYS_SHOW)
++        {
++            this.alwaysRenderInGameCrosshair = !this.alwaysRenderInGameCrosshair;
++        }
++
++        if (par1EnumOptions == EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW)
++        {
++            this.alwaysRenderBlockOutline = !this.alwaysRenderBlockOutline;
++        }
++
 +        if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
 +        {
 +        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
@@ -481,6 +499,7 @@
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBLOffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetZ :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
++              (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE ? this.crosshairScale :
 +              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg :
 +              (par1EnumOptions == EnumOptions.CLOUD_HEIGHT ? this.ofCloudsHeight :
 +              (par1EnumOptions == EnumOptions.AO_LEVEL ? this.ofAoLevel :
@@ -495,11 +514,11 @@
 +              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused :
 +              (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused :
 +              (par1EnumOptions == EnumOptions.CHAT_SCALE ? this.chatScale :
-+              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F)))))))))))))))))))))))))))))))))))))))))))));
++              (par1EnumOptions == EnumOptions.CHAT_WIDTH ? this.chatWidth : 0.0F))))))))))))))))))))))))))))))))))))))))))))));
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,56 +2027,346 @@
+@@ -1625,47 +2046,349 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -721,20 +740,13 @@
 +                        value = this.posTrackHydraBROffsetY;
 +                    break;
 +            }
- 
--                    if (var3[0].equals("sound"))
--                    {
--                        this.soundVolume = this.parseFloat(var3[1]);
--                    }
++
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
 +        {
 +            float value = 0.0f;
- 
--                    if (var3[0].equals("mouseSensitivity"))
--                    {
--                        this.mouseSensitivity = this.parseFloat(var3[1]);
++
 +            switch (this.posTrackHydraLoc)
 +            {
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
@@ -762,6 +774,10 @@
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
 +        {
 +            return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.posTrackHydraDistanceScale) });
++        }
++        else if (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE)
++        {
++            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.crosshairScale) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW)
 +        {
@@ -793,6 +809,14 @@
 +        else if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
 +        {
 +            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.CROSSHAIR_ALWAYS_SHOW)
++        {
++            return this.alwaysRenderInGameCrosshair ? var4 + "Always" : var4 + "With HUD";
++        }
++        else if (par1EnumOptions == EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW)
++        {
++            return this.alwaysRenderBlockOutline ? var4 + "Always" : var4 + "With HUD";
 +        }
 +        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
 +        {
@@ -869,19 +893,10 @@
 +                    {
 +                        this.musicVolume = this.parseFloat(var3[1]);
 +                    }
-+
-+                    if (var3[0].equals("sound"))
-+                    {
-+                        this.soundVolume = this.parseFloat(var3[1]);
-+                    }
-+
-+                    if (var3[0].equals("mouseSensitivity"))
-+                    {
-+                        this.mouseSensitivity = this.parseFloat(var3[1]);
-                     }
  
-                     if (var3[0].equals("fov"))
-@@ -2319,6 +3011,347 @@
+                     if (var3[0].equals("sound"))
+                     {
+@@ -2319,6 +3042,362 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1153,6 +1168,11 @@
 +                        this.posTrackHydraDistanceScale = this.parseFloat(var3[1]);
 +                    }
 +
++                    if (var3[0].equals("crosshairScale"))
++                    {
++                        this.crosshairScale = this.parseFloat(var3[1]);
++                    }
++
 +                    if (var3[0].equals("posTrackHydraUseController1"))
 +                    {
 +                        this.posTrackHydraUseController1 = var3[1].equals("true");
@@ -1171,6 +1191,16 @@
 +                    if (var3[0].equals("hydraUseFilter"))
 +                    {
 +                        this.hydraUseFilter = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("alwaysRenderInGameCrosshair"))
++                    {
++                        this.alwaysRenderInGameCrosshair = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("alwaysRenderBlockOutline"))
++                    {
++                        this.alwaysRenderBlockOutline = var3[1].equals("true");
 +                    }
 +
 +                    if (var3[0].equals("joystickSensitivity"))
@@ -1229,7 +1259,7 @@
      }
  
      /**
-@@ -2479,6 +3512,77 @@
+@@ -2479,6 +3558,80 @@
              var3.printStackTrace();
          }
  
@@ -1289,12 +1319,15 @@
 +            var5.println("posTrackHydraBIsPointingLeft:" + this.posTrackHydraBIsPointingLeft);
 +            var5.println("posTrackHydraYAxisDistanceSkewAngleDeg:" + this.posTrackHydraYAxisDistanceSkewAngleDeg);
 +            var5.println("hydraUseFilter:" + this.hydraUseFilter);
++            var5.println("alwaysRenderInGameCrosshair:" + this.alwaysRenderInGameCrosshair);
++            var5.println("alwaysRenderBlockOutline:" + this.alwaysRenderBlockOutline);
 +            var5.println("joystickSensitivity:" + this.joystickSensitivity);
 +            var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
 +            var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
 +            var5.println("useOculusProfile:" + this.useOculusProfile);
 +            var5.println("oculusProfileIpd:" + this.oculusProfileIpd);
 +            var5.println("oculusProfilePlayerEyeHeight:" + this.oculusProfilePlayerEyeHeight);
++            var5.println("crosshairScale:" + this.crosshairScale);
 +
 +            var5.close();
 +        }
@@ -1307,7 +1340,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3761,126 @@
+@@ -2657,4 +3810,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

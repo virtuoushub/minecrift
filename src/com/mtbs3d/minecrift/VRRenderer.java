@@ -146,7 +146,7 @@ public class VRRenderer extends EntityRenderer
 
 	// Calibration
 	private CalibrationHelper calibrationHelper;
-    private float INITIAL_CALIBRATION_TEXT_SCALE = 0.0080f;
+    private float INITIAL_CALIBRATION_TEXT_SCALE = 0.01f;
     private int CALIBRATION_TEXT_WORDWRAP_LEN = 40;
 
     public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv)
@@ -1243,22 +1243,22 @@ public class VRRenderer extends EntityRenderer
             effectRenderer.renderParticles(renderViewEntity, renderPartialTicks);
             this.disableLightmap((double) renderPartialTicks);
                                                                                                                                                     // TODO: Always render outline?
-            if (this.mc.objectMouseOver != null && renderViewEntity.isInsideOfMaterial(Material.water) && renderViewEntity instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
-            {
-                var18 = (EntityPlayer)renderViewEntity;
-                GL11.glDisable(GL11.GL_ALPHA_TEST);
-                this.mc.mcProfiler.endStartSection("outline");
-
-                if (!var16 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderGlobal, var18, this.mc.objectMouseOver, Integer.valueOf(0), var18.inventory.getCurrentItem(), Float.valueOf(renderPartialTicks)}))
-                {
-                    renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks);
-                    if (!this.mc.gameSettings.hideGUI)
-                    {
-                        renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks);
-                    }
-                }
-                GL11.glEnable(GL11.GL_ALPHA_TEST);
-            }
+//            if (this.mc.objectMouseOver != null && renderViewEntity.isInsideOfMaterial(Material.water) && renderViewEntity instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
+//            {
+//                var18 = (EntityPlayer)renderViewEntity;
+//                GL11.glDisable(GL11.GL_ALPHA_TEST);
+//                this.mc.mcProfiler.endStartSection("outline");
+//
+//                if (!var16 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderGlobal, var18, this.mc.objectMouseOver, Integer.valueOf(0), var18.inventory.getCurrentItem(), Float.valueOf(renderPartialTicks)}))
+//                {
+//                    renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks);
+//                    if (!this.mc.gameSettings.hideGUI)
+//                    {
+//                        renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks);
+//                    }
+//                }
+//                GL11.glEnable(GL11.GL_ALPHA_TEST);
+//            }
         }
 
         GL11.glDisable(GL11.GL_BLEND);
@@ -1300,8 +1300,10 @@ public class VRRenderer extends EntityRenderer
         GL11.glDepthMask(true);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
-                                                                                    // TODO: Always render selection boxes?
-        if (this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && this.mc.objectMouseOver != null && !renderViewEntity.isInsideOfMaterial(Material.water))
+
+        boolean renderOutline = this.mc.gameSettings.alwaysRenderBlockOutline || !this.mc.gameSettings.hideGUI;
+
+        if (this.mc.currentScreen == null && this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && this.mc.objectMouseOver != null && !renderViewEntity.isInsideOfMaterial(Material.water) && renderOutline)
         {
             var18 = (EntityPlayer)renderViewEntity;
             GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -1342,11 +1344,13 @@ public class VRRenderer extends EntityRenderer
 
 	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); //white crosshair, with blending
     	//Draw crosshair
-    	if( this.mc.gameSettings.thirdPersonView == 0 )
+        boolean renderCrosshair = this.mc.gameSettings.alwaysRenderInGameCrosshair || !this.mc.gameSettings.hideGUI;
+
+    	if( this.mc.currentScreen == null && this.mc.gameSettings.thirdPersonView == 0 && renderCrosshair)
     	{
     		this.mc.mcProfiler.endStartSection("crosshair");
             float crossDepth = (float)Math.sqrt((crossX*crossX + crossY*crossY + crossZ*crossZ));
-            float scale = 0.025f*crossDepth;
+            float scale = 0.025f*crossDepth*this.mc.gameSettings.crosshairScale;
 
             GL11.glPushMatrix();
         	GL11.glTranslatef(crossX, crossY, crossZ);

@@ -20,6 +20,8 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
             EnumOptions.DUMMY,
             EnumOptions.IPD,
             EnumOptions.EYE_HEIGHT,
+            EnumOptions.EYE_PROTRUSION,
+            EnumOptions.NECK_LENGTH,
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.RENDER_PLAYER_OFFSET,
     };
@@ -29,6 +31,8 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
             EnumOptions.OCULUS_PROFILE_GENDER,
             EnumOptions.IPD,
             EnumOptions.EYE_HEIGHT,
+            EnumOptions.EYE_PROTRUSION,
+            EnumOptions.NECK_LENGTH,
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.RENDER_PLAYER_OFFSET,
     };
@@ -119,6 +123,20 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                     increment = 0.0001f;
                 }
 
+                if (var8 == EnumOptions.EYE_PROTRUSION)
+                {
+                    minValue = 0.00f;
+                    maxValue = 0.25f;
+                    increment = 0.001f;
+                }
+
+                if (var8 == EnumOptions.NECK_LENGTH)
+                {
+                    minValue = 0.00f;
+                    maxValue = 0.25f;
+                    increment = 0.001f;
+                }
+
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
                 slider.enabled = getEnabledState(var8);
                 slider.setEventHandler(this);
@@ -176,6 +194,8 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                 this.guiGameSettings.setMinecraftPlayerEyeHeight(1.74f);
                 this.guiGameSettings.renderHeadWear = false;
                 this.guiGameSettings.renderPlayerOffset = 0.25f;
+                this.guiGameSettings.eyeProtrusion = 0.185f;
+                this.guiGameSettings.neckBaseToEyeHeight = 0.225f;
 
                 this.guiGameSettings.saveOptions();
                 this.reinit = true;
@@ -216,6 +236,28 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                             "  Setting this value isn't required, but you should",
                             "  strive to get it as close as possible for an accurate",
                             "  experience"
+                    };
+                case EYE_PROTRUSION:
+                    return new String[] {
+                            "Distance from \"head-center\" to your eyes (in meters)",
+                            "  Get it close for the best experience",
+                            " (\"X\" distance below)     ____  ",
+                            "                              /      \\ ",
+                            "                              |    XXo ",
+                            "                              |      _\\",
+                            "                               \\   /",
+                            "                                 | |"
+                    };
+                case NECK_LENGTH:
+                    return new String[] {
+                            "Distance from \"head-center\" to your shoulders",
+                            "  Get it close for the best experience",
+                            " (\"Y\" distance below)     ____  ",
+                            "                              /      \\ ",
+                            "                              |   Y  o ",
+                            "                              |   Y  _\\",
+                            "                               \\ Y /",
+                            "                                 |Y|"
                     };
                 default:
                     return null;
