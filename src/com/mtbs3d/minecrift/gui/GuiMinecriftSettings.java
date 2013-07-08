@@ -12,30 +12,30 @@ import net.minecraft.src.StringTranslate;
 
 public class GuiMinecriftSettings extends BaseGuiSettings
 {
-//	static VROption[] minecriftDeviceList = new VROption[]
-//    {
-//        new VROption(201,                             VROption.Position.POS_LEFT,   1,    VROption.ENABLED, "Player Preferences..."),
-//        new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.ENABLED, "HUD / Overlay Settings..."),
-//        new VROption(206,                             VROption.Position.POS_CENTER, 2,    VROption.ENABLED, "Optics/Rendering..."),
-//        new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_LEFT,   3.5f, VROption.DISABLED, null),
-//        new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  3.5f, VROption.DISABLED, null),
-//        new VROption(205,                             VROption.Position.POS_LEFT,   4.5f,    VROption.ENABLED, "Head Orientation Tracking..."),
-//        new VROption(207,                             VROption.Position.POS_RIGHT,   4.5f,    VROption.ENABLED, "Head Position Tracking..."),
-//        new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_CENTER, 5.5f, VROption.DISABLED, null),
-//        new VROption(208,                             VROption.Position.POS_CENTER,  6.5f,    VROption.ENABLED, "Move/Aim Control..."),
-//    };
-
-    static VROption[] minecriftDeviceList = new VROption[]
+    static VROption[] vrOffDeviceList = new VROption[]
         {
-                new VROption(201,                             VROption.Position.POS_LEFT,   1,    VROption.ENABLED, "Player Preferences..."),
-                new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.ENABLED, "HUD / Overlay Settings..."),
-                new VROption(206,                             VROption.Position.POS_CENTER, 2,    VROption.ENABLED, "Optics/Rendering..."),
-                new VROption(205,                             VROption.Position.POS_LEFT,   3.5f, VROption.ENABLED, "Head Orientation Tracking..."),
-                new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.5f, VROption.DISABLED, null),
-                new VROption(207,                             VROption.Position.POS_LEFT,   4.5f, VROption.ENABLED, "Head Position Tracking..."),
-                new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.5f, VROption.DISABLED, null),
-                new VROption(208,                             VROption.Position.POS_LEFT,   5.5f, VROption.ENABLED, "Move/Aim Control..."),
-                new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.5f, VROption.DISABLED, null),
+            new VROption(201,                             VROption.Position.POS_LEFT,   1,    VROption.DISABLED, "Player Preferences..."),
+            new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.DISABLED, "HUD / Overlay Settings..."),
+            new VROption(206,                             VROption.Position.POS_CENTER, 2,    VROption.DISABLED, "Optics/Rendering..."),
+            new VROption(205,                             VROption.Position.POS_LEFT,   3.5f, VROption.DISABLED, "Head Orientation Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.5f, VROption.DISABLED, null),
+            new VROption(207,                             VROption.Position.POS_LEFT,   4.5f, VROption.DISABLED, "Head Position Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.5f, VROption.DISABLED, null),
+            new VROption(208,                             VROption.Position.POS_LEFT,   5.5f, VROption.DISABLED, "Move/Aim Control..."),
+            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.5f, VROption.DISABLED, null),
+        };
+
+    static VROption[] vrOnDeviceList = new VROption[]
+        {
+            new VROption(201,                             VROption.Position.POS_LEFT,   1,    VROption.ENABLED, "Player Preferences..."),
+            new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.ENABLED, "HUD / Overlay Settings..."),
+            new VROption(206,                             VROption.Position.POS_CENTER, 2,    VROption.ENABLED, "Optics/Rendering..."),
+            new VROption(205,                             VROption.Position.POS_LEFT,   3.5f, VROption.ENABLED, "Head Orientation Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.5f, VROption.DISABLED, null),
+            new VROption(207,                             VROption.Position.POS_LEFT,   4.5f, VROption.ENABLED, "Head Position Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.5f, VROption.DISABLED, null),
+            new VROption(208,                             VROption.Position.POS_LEFT,   5.5f, VROption.ENABLED, "Move/Aim Control..."),
+            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.5f, VROption.DISABLED, null),
         };
 
     /** An array of all of EnumOption's video options. */
@@ -56,7 +56,11 @@ public class GuiMinecriftSettings extends BaseGuiSettings
         this.buttonList.clear();
         this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        VROption[] buttons = minecriftDeviceList;
+        VROption[] buttons = null;
+        if (this.guiGameSettings.useVRRenderer)
+            buttons = vrOnDeviceList;
+        else
+            buttons = vrOffDeviceList;
 
         for (VROption var8 : buttons)
         {
@@ -83,31 +87,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                 this.buttonList.add(button);
             }
         }
-
-//        String buttonText [] =
-//        {
-//            ,
-//            ,
-//            "", "",
-//            ,
-//            ,
-//            ,
-//            ,
-//        };
-//
-//        for( int i = 0; i < buttonText.length; ++i )
-//        {
-//        	int var12 = buttons.length + 2 + i;
-//            int width = this.width / 2 - 155 + var12 % 2 * 160;
-//            int height = (this.height / 6 + 21 * (var12 / 2) - 10) + 20;
-//
-//            if (!buttonText[i].isEmpty())
-//            {
-//                GuiSmallButtonEx btn = new GuiSmallButtonEx(201+i, width, height, buttonText[i] );
-//                //btn.enabled = this.guiGameSettings.useVRRenderer; //TODO: could be good, maybe not yet
-//                this.buttonList.add(btn);
-//            }
-//        }
     }
 
     /**
@@ -127,6 +106,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                 {
                     if (vrRenderer != null)
                         vrRenderer._FBOInitialised = false;
+                    this.reinit = true;
                 }
             }
             else if (par1GuiButton.id == 201)
