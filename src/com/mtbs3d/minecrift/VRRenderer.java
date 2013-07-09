@@ -523,7 +523,8 @@ public class VRRenderer extends EntityRenderer
             		-camRelX, -camRelY, -camRelZ, fulldist );
             if( colldist != fulldist )
             {
-           	float scale = 0.9f*colldist/fulldist;
+                // #47 Removed additional scale factor
+           	    float scale = colldist/fulldist;
             	camRelX *= scale;
             	camRelY *= scale;
             	camRelZ *= scale;
