@@ -21,7 +21,7 @@ public class GuiCalibrationSettings extends BaseGuiSettings
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
 //        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         EnumOptions[] buttons = calibrationOptions;
