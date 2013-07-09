@@ -176,6 +176,7 @@ public class VRRenderer extends EntityRenderer
         //This loop offsets at [-.1, -.1, -.1], [.1,-.1,-.1], [.1,.1,-.1] etc... for all 8 directions
         for (int var20 = 0; var20 < 8; ++var20)
         {
+            final float MIN_DISTANCE = 0.04f;
             float var21 = (float)((var20 & 1) * 2 - 1);
             float var22 = (float)((var20 >> 1 & 1) * 2 - 1);
             float var23 = (float)((var20 >> 2 & 1) * 2 - 1);
@@ -188,7 +189,7 @@ public class VRRenderer extends EntityRenderer
 
             if (var24 != null && this.mc.theWorld.isBlockOpaqueCube(var24.blockX, var24.blockY, var24.blockZ))
             {
-                double var25 = var24.hitVec.distanceTo(this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX, camY, camZ));
+                double var25 = var24.hitVec.distanceTo(this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX, camY, camZ)) - MIN_DISTANCE;
 
                 if (var25 < distance )
                 {
