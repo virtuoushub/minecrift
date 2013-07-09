@@ -896,7 +896,7 @@
  
                      if (var3[0].equals("sound"))
                      {
-@@ -2319,6 +3042,362 @@
+@@ -2319,6 +3042,372 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -991,6 +991,16 @@
 +                    if (var3[0].equals("useHeadTrackPrediction"))
 +                    {
 +                        this.useHeadTrackPrediction = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("useHeadTracking"))
++                    {
++                        this.useHeadTracking = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("useDistortion"))
++                    {
++                        this.useDistortion = var3[1].equals("true");
 +                    }
 +
 +                    if (var3[0].equals("renderHeadWear"))
@@ -1259,7 +1269,7 @@
      }
  
      /**
-@@ -2479,6 +3558,80 @@
+@@ -2479,6 +3568,82 @@
              var3.printStackTrace();
          }
  
@@ -1279,6 +1289,8 @@
 +            var5.println("ipd:" + this.ipd);
 +            var5.println("headTrackPredictionTimeSecs:" + this.headTrackPredictionTimeSecs);
 +            var5.println("hudOpacity:" + this.useHudOpacity);
++            var5.println("useHeadTracking:" + this.useHeadTracking);
++            var5.println("useDistortion:" + this.useDistortion);
 +            var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
 +            var5.println("renderHeadWear:" + this.renderHeadWear);
 +            var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
@@ -1340,7 +1352,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3810,126 @@
+@@ -2657,4 +3822,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
