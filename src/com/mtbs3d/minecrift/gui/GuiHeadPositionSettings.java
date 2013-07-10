@@ -416,7 +416,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 case EYE_PROTRUSION:
                     return new String[] {
                             "Distance from \"head-center\" to your eyes (in meters)",
-                            "  Get it close for the best experience",
+                            "  (with pos track affects origin position only)",
                             " (\"X\" distance below)     ____  ",
                             "                              /      \\ ",
                             "                              |    XXo ",
@@ -427,7 +427,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                 case NECK_LENGTH:
                     return new String[] {
                             "Distance from \"head-center\" to your shoulders",
-                            "  Get it close for the best experience",
+                            "  (with pos track affects origin position only)",
                             " (\"Y\" distance below)     ____  ",
                             "                              /      \\ ",
                             "                              |   Y  o ",
