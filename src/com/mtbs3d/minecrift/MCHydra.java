@@ -51,19 +51,19 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
 	//latest data
 	
-	private float cont1PosX;
-	private float cont1PosY;
-	private float cont1PosZ;
-	private float cont2PosX;
-	private float cont2PosY;
-	private float cont2PosZ;
+	private float cont1PosX = 0;
+	private float cont1PosY = 0;
+	private float cont1PosZ = 0;
+	private float cont2PosX = 0;
+	private float cont2PosY = 0;
+	private float cont2PosZ = 0;
 
-	private float cont1Yaw;
-	private float cont1Pitch;
-	private float cont1Roll;
-	private float cont2Yaw;
-	private float cont2Pitch;
-	private float cont2Roll; 
+	private float cont1Yaw = 0;
+	private float cont1Pitch = 0;
+	private float cont1Roll = 0;
+	private float cont2Yaw = 0;
+	private float cont2Pitch = 0;
+	private float cont2Roll = 0;
 	
 	//For IOrientationProvider implementation; allows setting origin to set yaw offset as well
 	private float yawOffset = 0;
@@ -78,8 +78,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
     private final float ZDIRECTION = 1.0f;    // +Z
     
     //body/Aim implementation
-    private float bodyYaw; //floating; not fixed to base station; 
-    private float aimYaw; //relative to bodyYaw, so that IRL "forward"
+    private float bodyYaw = 0; //floating; not fixed to base station;
+    private float aimYaw = 0; //relative to bodyYaw, so that IRL "forward"
     //(that is, baseStationYawOffset) is always the direction of movement
 
     //aimPitch is always cont2Pitch
@@ -164,6 +164,9 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	@Override
 	public void poll()
     {
+        if (!isInitialized())
+            return;
+
         Minecraft mc = Minecraft.getMinecraft();
 
         // Poll hydras; get orientation, and position information in metres
@@ -214,46 +217,24 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
                 break;
         }
         
-        if(hydraRunning)
-        {
-			cont1Yaw   = cont1.yaw;
-			cont1Pitch = cont1.pitch;
-			cont1Roll  = cont1.roll;
-	
-			cont2Yaw   = cont2.yaw;
-			cont2Pitch = cont2.pitch;
-			cont2Roll  = cont2.roll;
-	
-	        userScale = SCALE * mc.gameSettings.posTrackHydraDistanceScale;
-	
-	        cont1PosX = userScale * cont1.pos[0] * XDIRECTION;
-	        cont1PosY = userScale * cont1.pos[1] * YDIRECTION;
-	        cont1PosZ = userScale * cont1.pos[2] * ZDIRECTION;
-	
-	        cont2PosX = userScale * cont2.pos[0] * XDIRECTION;
-	        cont2PosY = userScale * cont2.pos[1] * YDIRECTION;
-	        cont2PosZ = userScale * cont2.pos[2] * ZDIRECTION;
-        }
-        else
-        {
-			cont1Yaw   = 0;
-			cont1Pitch = 0;
-			cont1Roll  = 0;
-	
-			cont2Yaw   = 0;
-			cont2Pitch = 0;
-			cont2Roll  = 0;
-			
-	        cont1PosX = 0;
-	        cont1PosY = 0;
-	        cont1PosZ = 0;
-	
-	        cont2PosX = 0;
-	        cont2PosY = 0;
-	        cont2PosZ = 0;
-        }
+        cont1Yaw   = cont1.yaw;
+        cont1Pitch = cont1.pitch;
+        cont1Roll  = cont1.roll;
 
-	        
+        cont2Yaw   = cont2.yaw;
+        cont2Pitch = cont2.pitch;
+        cont2Roll  = cont2.roll;
+
+        userScale = SCALE * mc.gameSettings.posTrackHydraDistanceScale;
+
+        cont1PosX = userScale * cont1.pos[0] * XDIRECTION;
+        cont1PosY = userScale * cont1.pos[1] * YDIRECTION;
+        cont1PosZ = userScale * cont1.pos[2] * ZDIRECTION;
+
+        cont2PosX = userScale * cont2.pos[0] * XDIRECTION;
+        cont2PosY = userScale * cont2.pos[1] * YDIRECTION;
+        cont2PosZ = userScale * cont2.pos[2] * ZDIRECTION;
+
         if( mc.lookaimController != this) return;
         if( mc.theWorld != null )
         {
@@ -494,7 +475,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public void update(float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees)
     {
-        if (!hydraInitialized || !hydraRunning)
+        if (!hydraInitialized)
         {
         	headPos = Vec3.createVectorHelper(0, 0, 0);
             return;
@@ -594,23 +575,9 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
         // Rotate the centre eye position around any world yaw offset (mouse/controller induced rotation)
         headPos.rotateAroundY(-worldYawOffsetDegrees*PIOVER180);
+
+        //System.out.println(String.format("Positional Track: (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf((float)headPos.xCoord * 100.0f), Float.valueOf((float)headPos.yCoord * 100.0f), Float.valueOf((float)headPos.zCoord * 100.0f)}));
 	}
-
-    private void debugOffsets(String name, float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees, float rotOffsetX, float rotOffsetY, float rotOffsetZ)
-    {
-        // Correct for Rift orientation
-        Vec3 correctedOffsets = Vec3.createVectorHelper(rotOffsetX, rotOffsetY, rotOffsetZ);
-
-        correctedOffsets.rotateAroundX(-pitchHeadDegrees*PIOVER180);
-        correctedOffsets.rotateAroundY(yawHeadDegrees*PIOVER180);
-        correctedOffsets.rotateAroundZ(-rollHeadDegrees*PIOVER180);
-
-        float offsetX = (float)correctedOffsets.xCoord;
-        float offsetY = (float)correctedOffsets.yCoord;
-        float offsetZ = (float)correctedOffsets.zCoord;
-
-        System.out.println(String.format("Positional Track: " + name + " Offset:   (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf(offsetX * 100.0f), Float.valueOf(offsetY * 100.0f), Float.valueOf(offsetZ * 100.0f)}));
-    }
 
     @Override
 	public Vec3 getCenterEyePosition() {
