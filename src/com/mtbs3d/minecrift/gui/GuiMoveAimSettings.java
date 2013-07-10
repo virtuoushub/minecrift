@@ -46,6 +46,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     {
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
+        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         
         pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.controllerPlugins, this.guiGameSettings.controllerPluginID );
@@ -135,6 +136,26 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 this.mc.gameSettings.saveOptions();
             	this.mc.lookaimController = PluginManager.configureController(this.mc.gameSettings.controllerPluginID);
             	this.reinit = true;
+            }
+            else if (par1GuiButton.id == 202) // Defaults
+            {
+                if (this.guiGameSettings.controllerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+                {
+                    this.guiGameSettings.aimKeyholeWidthDegrees = 90f;
+                    this.guiGameSettings.keyholeHeadRelative = true;
+                    this.guiGameSettings.lookMoveDecoupled = false;
+                    this.guiGameSettings.joystickSensitivity = 3f;
+                }
+                else
+                {
+                    this.guiGameSettings.aimKeyholeWidthDegrees = 90f;
+                    this.guiGameSettings.keyholeHeadRelative = true;
+                    this.guiGameSettings.lookMoveDecoupled = false;
+                    this.guiGameSettings.lookAimPitchDecoupled = false;
+                    this.guiGameSettings.pitchInputAffectsCamera = false;
+                }
+                this.mc.gameSettings.saveOptions();
+                this.reinit = true;
             }
         }
     }
