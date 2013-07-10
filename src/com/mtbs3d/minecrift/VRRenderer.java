@@ -1344,7 +1344,7 @@ public class VRRenderer extends EntityRenderer
 	        mc.checkGLError("PostFRenderLast");
         }
 
-	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); //white crosshair, with blending
+	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f); //white crosshair, with blending
     	//Draw crosshair
         boolean renderCrosshair = this.mc.gameSettings.alwaysRenderInGameCrosshair || !this.mc.gameSettings.hideGUI;
 
@@ -1363,7 +1363,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glDisable(GL11.GL_LIGHTING);
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_BLEND);
-
+            GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
 	        this.mc.renderEngine.bindTexture("/gui/icons.png");
 
 	        float var7 = 0.00390625F;
@@ -1374,6 +1374,7 @@ public class VRRenderer extends EntityRenderer
 	        Tessellator.instance.addVertexWithUV(+ 1, - 1, 0, 16*var7, 0       );
 	        Tessellator.instance.addVertexWithUV(- 1, - 1, 0, 0      , 0       );
 	        Tessellator.instance.draw();
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	        GL11.glDisable(GL11.GL_BLEND);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
 	        GL11.glPopMatrix();
