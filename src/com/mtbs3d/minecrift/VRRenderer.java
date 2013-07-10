@@ -1356,9 +1356,9 @@ public class VRRenderer extends EntityRenderer
 
             GL11.glPushMatrix();
         	GL11.glTranslatef(crossX, crossY, crossZ);
-            GL11.glRotatef(-this.cameraRoll, 0.0F, 0.0F, 1.0F);
             GL11.glRotatef(-this.aimYaw, 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(this.aimPitch, 1.0F, 0.0F, 0.0F);
+            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
             GL11.glScalef(-scale, -scale, scale);
             GL11.glDisable(GL11.GL_LIGHTING);
             GL11.glDisable(GL11.GL_DEPTH_TEST);
