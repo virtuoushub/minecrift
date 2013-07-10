@@ -38,7 +38,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,78 @@
+@@ -133,6 +150,79 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -112,12 +112,13 @@
 +    public float crosshairScale = 1.0f;
 +    public boolean alwaysRenderInGameCrosshair = false;
 +    public boolean alwaysRenderBlockOutline = false;
++    public boolean crosshairRollsWithHead = true;
 +
 +
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +255,7 @@
+@@ -166,7 +256,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -126,7 +127,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +264,7 @@
+@@ -175,6 +265,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -134,7 +135,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +293,7 @@
+@@ -203,6 +294,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -142,7 +143,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +302,7 @@
+@@ -211,7 +303,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -151,7 +152,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +320,7 @@
+@@ -229,6 +321,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -159,7 +160,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +332,7 @@
+@@ -240,7 +333,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -168,7 +169,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +506,178 @@
+@@ -414,6 +507,178 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -347,7 +348,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1426,169 @@
+@@ -1162,12 +1427,174 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -447,6 +448,11 @@
 +            this.alwaysRenderBlockOutline = !this.alwaysRenderBlockOutline;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.CROSSHAIR_ROLL)
++        {
++            this.crosshairRollsWithHead = !this.crosshairRollsWithHead;
++        }
++
 +        if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
 +        {
 +        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
@@ -518,7 +524,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,47 +2046,349 @@
+@@ -1625,45 +2052,351 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -716,11 +722,6 @@
 -                try
 -                {
 -                    String[] var3 = var2.split(":");
--
--                    if (var3[0].equals("music"))
--                    {
--                        this.musicVolume = this.parseFloat(var3[1]);
--                    }
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -740,7 +741,9 @@
 +                        value = this.posTrackHydraBROffsetY;
 +                    break;
 +            }
-+
+ 
+-                    if (var3[0].equals("music"))
+-                    {
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
@@ -818,6 +821,10 @@
 +        {
 +            return this.alwaysRenderBlockOutline ? var4 + "Always" : var4 + "With HUD";
 +        }
++        else if (par1EnumOptions == EnumOptions.CROSSHAIR_ROLL)
++        {
++            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
++        }
 +        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
 +        {
 +            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
@@ -891,12 +898,10 @@
 +
 +                    if (var3[0].equals("music"))
 +                    {
-+                        this.musicVolume = this.parseFloat(var3[1]);
-+                    }
+                         this.musicVolume = this.parseFloat(var3[1]);
+                     }
  
-                     if (var3[0].equals("sound"))
-                     {
-@@ -2319,6 +3042,372 @@
+@@ -2319,6 +3052,377 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1213,6 +1218,11 @@
 +                        this.alwaysRenderBlockOutline = var3[1].equals("true");
 +                    }
 +
++                    if (var3[0].equals("crosshairRollsWithHead"))
++                    {
++                        this.crosshairRollsWithHead = var3[1].equals("true");
++                    }
++
 +                    if (var3[0].equals("joystickSensitivity"))
 +                    {
 +                        this.joystickSensitivity = this.parseFloat(var3[1]);
@@ -1269,7 +1279,7 @@
      }
  
      /**
-@@ -2479,6 +3568,82 @@
+@@ -2479,6 +3583,83 @@
              var3.printStackTrace();
          }
  
@@ -1333,6 +1343,7 @@
 +            var5.println("hydraUseFilter:" + this.hydraUseFilter);
 +            var5.println("alwaysRenderInGameCrosshair:" + this.alwaysRenderInGameCrosshair);
 +            var5.println("alwaysRenderBlockOutline:" + this.alwaysRenderBlockOutline);
++            var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
 +            var5.println("joystickSensitivity:" + this.joystickSensitivity);
 +            var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
 +            var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
@@ -1352,7 +1363,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3822,126 @@
+@@ -2657,4 +3838,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

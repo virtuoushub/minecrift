@@ -9,8 +9,9 @@ public class GuiHUDSettings extends BaseGuiSettings
             EnumOptions.HUD_DISTANCE,
             EnumOptions.HUD_OPACITY,
             EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
+            EnumOptions.CROSSHAIR_ALWAYS_SHOW,
             EnumOptions.CROSSHAIR_SCALE,
-            EnumOptions.CROSSHAIR_ALWAYS_SHOW
+            EnumOptions.CROSSHAIR_ROLL,
     };
 
     public GuiHUDSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
@@ -96,6 +97,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guiGameSettings.crosshairScale = 1.0f;
                 this.guiGameSettings.alwaysRenderBlockOutline = false;
                 this.guiGameSettings.alwaysRenderInGameCrosshair = false;
+                this.guiGameSettings.crosshairRollsWithHead = true;
                 this.mc.gameSettings.saveOptions();
                 this.reinit = true;
             }
@@ -146,6 +148,13 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "          the HUD is disabled",
                             "  With HUD: The block outline is only shown when the",
                             "           HUD is enabled"
+                    };
+                case CROSSHAIR_ROLL:
+                    return new String[] {
+                            "Sets the crosshair roll behaviour.",
+                            "  With Head: The crosshair rolls with your head.",
+                            "  With HUD:  The crosshair appears to roll, keeping",
+                            "             the same orientation as the HUD."
                     };
                 default:
                     return null;
