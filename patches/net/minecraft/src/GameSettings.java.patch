@@ -38,7 +38,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,79 @@
+@@ -133,6 +150,80 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -59,6 +59,7 @@
 +    protected float oculusProfilePlayerEyeHeight = playerEyeHeight;
 +    public boolean useHudOpacity = false;
 +    public boolean renderHeadWear = false;
++    public boolean renderFullFirstPersonModel = true;
 +    public float renderPlayerOffset = 0.25f;
 +    public boolean useChromaticAbCorrection = false;
 +    public float hudScale = 1.0f;
@@ -118,7 +119,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +256,7 @@
+@@ -166,7 +257,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -127,7 +128,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +265,7 @@
+@@ -175,6 +266,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -135,7 +136,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +294,7 @@
+@@ -203,6 +295,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -143,7 +144,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +303,7 @@
+@@ -211,7 +304,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -152,7 +153,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +321,7 @@
+@@ -229,6 +322,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -160,7 +161,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +333,7 @@
+@@ -240,7 +334,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -169,7 +170,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +507,178 @@
+@@ -414,6 +508,178 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -348,7 +349,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1427,174 @@
+@@ -1162,12 +1428,179 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -372,6 +373,11 @@
 +        if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
 +        {
 +            this.renderHeadWear = !this.renderHeadWear;
++        }
++
++        if (par1EnumOptions == EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL)
++        {
++            this.renderFullFirstPersonModel = !this.renderFullFirstPersonModel;
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
@@ -524,7 +530,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,45 +2052,351 @@
+@@ -1625,46 +2058,356 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -586,6 +592,10 @@
 +        else if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
 +        {
 +            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
++        }
++        else if (par1EnumOptions == EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL)
++        {
++            return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
 +        }
 +        else if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
 +        {
@@ -722,6 +732,10 @@
 -                try
 -                {
 -                    String[] var3 = var2.split(":");
+-
+-                    if (var3[0].equals("music"))
+-                    {
+-                        this.musicVolume = this.parseFloat(var3[1]);
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -741,9 +755,7 @@
 +                        value = this.posTrackHydraBROffsetY;
 +                    break;
 +            }
- 
--                    if (var3[0].equals("music"))
--                    {
++
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
@@ -898,10 +910,11 @@
 +
 +                    if (var3[0].equals("music"))
 +                    {
-                         this.musicVolume = this.parseFloat(var3[1]);
++                        this.musicVolume = this.parseFloat(var3[1]);
                      }
  
-@@ -2319,6 +3052,377 @@
+                     if (var3[0].equals("sound"))
+@@ -2319,6 +3062,382 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1011,6 +1024,11 @@
 +                    if (var3[0].equals("renderHeadWear"))
 +                    {
 +                        this.renderHeadWear = var3[1].equals("true");
++                    }
++
++                    if (var3[0].equals("renderFullFirstPersonModel"))
++                    {
++                        this.renderFullFirstPersonModel = var3[1].equals("true");
 +                    }
 +
 +                    if (var3[0].equals("useChromaticAbCorrection"))
@@ -1279,7 +1297,7 @@
      }
  
      /**
-@@ -2479,6 +3583,83 @@
+@@ -2479,6 +3598,84 @@
              var3.printStackTrace();
          }
  
@@ -1303,6 +1321,7 @@
 +            var5.println("useDistortion:" + this.useDistortion);
 +            var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
 +            var5.println("renderHeadWear:" + this.renderHeadWear);
++            var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
 +            var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
 +            var5.println("hudScale:" + this.hudScale);
 +            var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
@@ -1363,7 +1382,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3838,126 @@
+@@ -2657,4 +3854,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

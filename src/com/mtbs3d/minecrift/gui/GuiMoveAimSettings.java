@@ -148,11 +148,11 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 }
                 else
                 {
-                    this.guiGameSettings.aimKeyholeWidthDegrees = 90f;
+                    this.guiGameSettings.aimKeyholeWidthDegrees = 0f;
                     this.guiGameSettings.keyholeHeadRelative = true;
                     this.guiGameSettings.lookMoveDecoupled = false;
                     this.guiGameSettings.lookAimPitchDecoupled = false;
-                    this.guiGameSettings.pitchInputAffectsCamera = false;
+                    this.guiGameSettings.pitchInputAffectsCamera = true;
                 }
                 this.mc.gameSettings.saveOptions();
                 this.reinit = true;
@@ -182,7 +182,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  Recommended value: ON" } ;
                 case KEYHOLE_WIDTH:
                     return new String[] {
-                            "Allows the mouse some flexbility within a \"keyhole\"",
+                            "Allows the mouse some flexibility within a \"keyhole\"",
                             "  that doesn't turn the player.",
                             "If set to \"Fully Coupled\", any mouse movement will",
                             "  turn the camera.",

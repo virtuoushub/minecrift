@@ -24,6 +24,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
             EnumOptions.NECK_LENGTH,
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.RENDER_PLAYER_OFFSET,
+            EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL,
     };
 
     static EnumOptions[] playerOptionsWithProfile = new EnumOptions[] {
@@ -35,6 +36,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
             EnumOptions.NECK_LENGTH,
             EnumOptions.RENDER_OWN_HEADWEAR,
             EnumOptions.RENDER_PLAYER_OFFSET,
+            EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL,
     };
 
     public GuiPlayerPreferenceSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
@@ -193,6 +195,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                 mc.hmdInfo.setIPD(this.guiGameSettings.getIPD());
                 this.guiGameSettings.setMinecraftPlayerEyeHeight(1.74f);
                 this.guiGameSettings.renderHeadWear = false;
+                this.guiGameSettings.renderFullFirstPersonModel = true;
                 this.guiGameSettings.renderPlayerOffset = 0.25f;
                 this.guiGameSettings.eyeProtrusion = 0.185f;
                 this.guiGameSettings.neckBaseToEyeHeight = 0.225f;
@@ -219,6 +222,16 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                             "Whether to render the player's own headwear or not",
                             "  ON:  Headwear is rendered. May obscure your view!",
                             "  OFF: Not rendered."
+                    };
+                case RENDER_FULL_FIRST_PERSON_MODEL:
+                    return new String[] {
+                            "Whether to render the full first-person model, or",
+                            "just the disembodied arm or held item (Ctrl-H).",
+                            "  Full: A full first-person model is rendered.",
+                            "        However some animations may not yet be",
+                            "        supported (e.g. holding a map).",
+                            "  Hand: Only the held item is rendered. You will",
+                            "        have no torso!"
                     };
                 case RENDER_PLAYER_OFFSET:
                     return new String[] {

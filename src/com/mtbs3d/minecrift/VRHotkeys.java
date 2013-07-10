@@ -214,8 +214,15 @@ public class VRHotkeys {
 	        mc.gameSettings.saveOptions();
 	    }
 
+        // Render full player model or just an disembodied hand...
+        if (Keyboard.getEventKey() == Keyboard.KEY_H && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        {
+            mc.gameSettings.renderFullFirstPersonModel = !mc.gameSettings.renderFullFirstPersonModel;
+            mc.gameSettings.saveOptions();
+        }
+
         // Reset positional track origin
-        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN)
+        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
             mc.gameSettings.posTrackResetPosition = true;
         }

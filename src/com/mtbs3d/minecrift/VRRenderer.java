@@ -23,6 +23,7 @@ import org.lwjgl.opengl.*;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 
 import net.minecraft.src.*;
+import org.lwjgl.util.glu.GLU;
 import paulscode.sound.SoundSystem;
 
 import static java.lang.Math.ceil;
@@ -1244,23 +1245,6 @@ public class VRRenderer extends EntityRenderer
             this.mc.mcProfiler.endStartSection("particles");
             effectRenderer.renderParticles(renderViewEntity, renderPartialTicks);
             this.disableLightmap((double) renderPartialTicks);
-                                                                                                                                                    // TODO: Always render outline?
-//            if (this.mc.objectMouseOver != null && renderViewEntity.isInsideOfMaterial(Material.water) && renderViewEntity instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
-//            {
-//                var18 = (EntityPlayer)renderViewEntity;
-//                GL11.glDisable(GL11.GL_ALPHA_TEST);
-//                this.mc.mcProfiler.endStartSection("outline");
-//
-//                if (!var16 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderGlobal, var18, this.mc.objectMouseOver, Integer.valueOf(0), var18.inventory.getCurrentItem(), Float.valueOf(renderPartialTicks)}))
-//                {
-//                    renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks);
-//                    if (!this.mc.gameSettings.hideGUI)
-//                    {
-//                        renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks);
-//                    }
-//                }
-//                GL11.glEnable(GL11.GL_ALPHA_TEST);
-//            }
         }
 
         GL11.glDisable(GL11.GL_BLEND);
@@ -1342,6 +1326,12 @@ public class VRRenderer extends EntityRenderer
             this.mc.mcProfiler.endStartSection("FRenderLast");
             Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, new Object[] {renderGlobal, Float.valueOf(renderPartialTicks)});
 	        mc.checkGLError("PostFRenderLast");
+        }
+
+        if (this.mc.gameSettings.renderFullFirstPersonModel == false)
+        {
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            this.renderHand(renderPartialTicks, renderSceneNumber);
         }
 
 	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f); //white crosshair, with blending
@@ -2060,5 +2050,107 @@ public class VRRenderer extends EntityRenderer
     public void resetGuiYawOrientation()
     {
         guiYawOrientationResetRequested = true;
+    }
+
+    /**
+     * Render player hand
+     */
+    private void renderHand(float par1, int renderSceneNumber)
+    {
+        if (this.debugViewDirection <= 0)
+        {
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPushMatrix();
+            GL11.glLoadIdentity();
+
+            if (renderSceneNumber == 0)
+            {
+                // Left eye
+                FloatBuffer leftProj = eyeRenderParams.gl_getLeftProjectionMatrix();
+                GL11.glLoadMatrix(leftProj);
+                mc.checkGLError("Set left projection");
+            }
+            else
+            {
+                // Right eye
+                FloatBuffer rightProj = eyeRenderParams.gl_getRightProjectionMatrix();
+                GL11.glLoadMatrix(rightProj);
+                mc.checkGLError("Set right projection");
+            }
+            float var3 = 0.07F;
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                GL11.glTranslatef((float)(-(renderSceneNumber * 2 - 1)) * var3, 0.0F, 0.0F);
+            }
+
+            if (this.cameraZoom != 1.0D)
+            {
+                GL11.glTranslatef((float)this.cameraYaw, (float)(-this.cameraPitch), 0.0F);
+                GL11.glScaled(this.cameraZoom, this.cameraZoom, 1.0D);
+            }
+
+            if (this.mc.playerController.enableEverythingIsScrewedUpMode())
+            {
+                float var4 = 0.6666667F;
+                GL11.glScalef(1.0F, var4, 1.0F);
+            }
+
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPushMatrix();
+            GL11.glLoadIdentity();
+
+            // IPD transformation
+            if (renderSceneNumber == 0)
+            {
+                // Left eye
+                FloatBuffer leftEyeTransform = eyeRenderParams.gl_getLeftViewportTransform();
+                GL11.glMultMatrix(leftEyeTransform);
+            }
+            else
+            {
+                // Right eye
+                FloatBuffer rightEyeTransform = eyeRenderParams.gl_getRightViewportTransform();
+                GL11.glMultMatrix(rightEyeTransform);
+            }
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                GL11.glTranslatef((float)(renderSceneNumber * 2 - 1) * 0.1F, 0.0F, 0.0F);
+            }
+
+            GL11.glPushMatrix();
+            this.hurtCameraEffect(par1);
+
+            if (this.mc.gameSettings.viewBobbing)
+            {
+                this.setupViewBobbing(par1);
+            }
+
+            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping() && !this.mc.playerController.enableEverythingIsScrewedUpMode())
+            {
+                this.enableLightmap((double)par1);
+                this.itemRenderer.renderItemInFirstPerson(par1);
+                this.disableLightmap((double)par1);
+            }
+
+            GL11.glPopMatrix();
+
+            if (this.mc.gameSettings.thirdPersonView == 0 && !this.mc.renderViewEntity.isPlayerSleeping())
+            {
+                this.itemRenderer.renderOverlays(par1);
+                this.hurtCameraEffect(par1);
+            }
+
+            if (this.mc.gameSettings.viewBobbing)
+            {
+                this.setupViewBobbing(par1);
+            }
+
+            GL11.glPopMatrix();
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPopMatrix();
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        }
     }
 }
