@@ -488,7 +488,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public void update(float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees)
     {
-        if (!hydraInitialized || !hydraRunning)
+        if (!hydraInitialized)
         {
         	headPos = Vec3.createVectorHelper(0, 0, 0);
             return;
