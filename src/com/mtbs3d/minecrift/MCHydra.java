@@ -216,14 +216,27 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
                 }
                 break;
         }
-        
-        cont1Yaw   = cont1.yaw;
-        cont1Pitch = cont1.pitch;
-        cont1Roll  = cont1.roll;
 
-        cont2Yaw   = cont2.yaw;
-        cont2Pitch = cont2.pitch;
-        cont2Roll  = cont2.roll;
+        if (hydraRunning)
+        {
+            cont1Yaw   = cont1.yaw;
+            cont1Pitch = cont1.pitch;
+            cont1Roll  = cont1.roll;
+
+            cont2Yaw   = cont2.yaw;
+            cont2Pitch = cont2.pitch;
+            cont2Roll  = cont2.roll;
+        }
+        else
+        {
+            cont1Yaw   = 0;
+            cont1Pitch = 0;
+            cont1Roll  = 0;
+
+            cont2Yaw   = 0;
+            cont2Pitch = 0;
+            cont2Roll  = 0;
+        }
 
         userScale = SCALE * mc.gameSettings.posTrackHydraDistanceScale;
 
@@ -475,7 +488,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public void update(float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees)
     {
-        if (!hydraInitialized)
+        if (!hydraInitialized || !hydraRunning)
         {
         	headPos = Vec3.createVectorHelper(0, 0, 0);
             return;
