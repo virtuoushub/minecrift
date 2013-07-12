@@ -350,7 +350,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1429,179 @@
+@@ -1162,12 +1429,184 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -426,6 +426,11 @@
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
++        {
++            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
++        }
++
++        if (par1EnumOptions == EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE)
 +        {
 +            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
 +        }
@@ -531,7 +536,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,46 +2059,386 @@
+@@ -1625,43 +2064,390 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -734,9 +739,6 @@
 -                {
 -                    String[] var3 = var2.split(":");
 -
--                    if (var3[0].equals("music"))
--                    {
--                        this.musicVolume = this.parseFloat(var3[1]);
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -805,6 +807,13 @@
 +                return var4 + "Both";
 +
 +            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
++        }
++        else if (par1EnumOptions == EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE)
++        {
++            if (this.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
++                return var4 + "Neither!";
++
++            return this.posTrackHydraUseController1? var4 + "Right" : var4 + "Left";
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
 +        {
@@ -939,13 +948,10 @@
 +                {
 +                    String[] var3 = var2.split(":");
 +
-+                    if (var3[0].equals("music"))
-+                    {
-+                        this.musicVolume = this.parseFloat(var3[1]);
-                     }
- 
-                     if (var3[0].equals("sound"))
-@@ -2319,6 +3093,382 @@
+                     if (var3[0].equals("music"))
+                     {
+                         this.musicVolume = this.parseFloat(var3[1]);
+@@ -2319,6 +3105,382 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1328,7 +1334,7 @@
      }
  
      /**
-@@ -2479,6 +3629,84 @@
+@@ -2479,6 +3641,84 @@
              var3.printStackTrace();
          }
  
@@ -1413,7 +1419,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3885,126 @@
+@@ -2657,4 +3897,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
