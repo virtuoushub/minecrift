@@ -1,14 +1,15 @@
 --- a/net/minecraft/src/GameSettings.java
 +++ b/net/minecraft/src/GameSettings.java
-@@ -7,6 +7,7 @@
+@@ -7,6 +7,8 @@
  import java.io.PrintWriter;
  import java.util.Arrays;
  import java.util.List;
 +
++import com.mtbs3d.minecrift.MCHydra;
  import net.minecraft.client.Minecraft;
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
-@@ -14,6 +15,21 @@
+@@ -14,6 +16,21 @@
  
  public class GameSettings
  {
@@ -30,7 +31,7 @@
      private static final String[] RENDER_DISTANCES = new String[] {"options.renderDistance.far", "options.renderDistance.normal", "options.renderDistance.short", "options.renderDistance.tiny"};
      private static final String[] DIFFICULTIES = new String[] {"options.difficulty.peaceful", "options.difficulty.easy", "options.difficulty.normal", "options.difficulty.hard"};
  
-@@ -28,6 +44,7 @@
+@@ -28,6 +45,7 @@
      public float musicVolume = 1.0F;
      public float soundVolume = 1.0F;
      public float mouseSensitivity = 0.5F;
@@ -38,7 +39,7 @@
      public boolean invertMouse = false;
      public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +150,80 @@
+@@ -133,6 +151,80 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress = false;
  
@@ -119,7 +120,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +257,7 @@
+@@ -166,7 +258,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -128,7 +129,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +266,7 @@
+@@ -175,6 +267,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -136,7 +137,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +295,7 @@
+@@ -203,6 +296,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -144,7 +145,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +304,7 @@
+@@ -211,7 +305,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -153,7 +154,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -229,6 +322,7 @@
+@@ -229,6 +323,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -161,7 +162,7 @@
          this.loadOptions();
          Config.setGameSettings(this);
      }
-@@ -240,7 +334,7 @@
+@@ -240,7 +335,7 @@
          this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
          this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
          this.difficulty = 2;
@@ -170,7 +171,7 @@
          this.thirdPersonView = 0;
          this.showDebugInfo = false;
          this.showDebugProfilerChart = false;
-@@ -414,6 +508,178 @@
+@@ -414,6 +509,178 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -349,7 +350,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1428,179 @@
+@@ -1162,12 +1429,184 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -425,6 +426,11 @@
 +        }
 +
 +        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
++        {
++            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
++        }
++
++        if (par1EnumOptions == EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE)
 +        {
 +            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
 +        }
@@ -530,7 +536,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,46 +2058,356 @@
+@@ -1625,43 +2064,390 @@
          {
              return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
          }
@@ -733,9 +739,6 @@
 -                {
 -                    String[] var3 = var2.split(":");
 -
--                    if (var3[0].equals("music"))
--                    {
--                        this.musicVolume = this.parseFloat(var3[1]);
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -805,6 +808,13 @@
 +
 +            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
 +        }
++        else if (par1EnumOptions == EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE)
++        {
++            if (this.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
++                return var4 + "Neither!";
++
++            return this.posTrackHydraUseController1? var4 + "Right" : var4 + "Left";
++        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
 +        {
 +            return this.posTrackHydraBIsPointingLeft ? var4 + "To the Left" : var4 + "To the Right";
@@ -851,14 +861,44 @@
 +        else if (par1EnumOptions == EnumOptions.VR_HEAD_POSITION)
 +        {
 +            if (this.mc.positionTracker != null)
-+                return this.mc.positionTracker.getName();
++            {
++                String posTrackName = this.mc.positionTracker.getName();
++                if (posTrackName.equalsIgnoreCase(MCHydra.pluginName))
++                {
++                    if (this.mc.gameSettings.posTrackHydraUseController1)
++                    {
++                        return "Left " + posTrackName;
++                    }
++                    else
++                    {
++                        return "Right " + posTrackName;
++                    }
++                }
++
++                return posTrackName;
++            }
 +
 +            return "None";
 +        }
 +        else if (par1EnumOptions == EnumOptions.VR_CONTROLLER)
 +        {
 +            if (this.mc.lookaimController != null)
-+                return this.mc.lookaimController.getName();
++            {
++                String controllerName =  this.mc.lookaimController.getName();
++                if (controllerName.equalsIgnoreCase(MCHydra.pluginName))
++                {
++                    if (this.mc.gameSettings.posTrackHydraUseController1)
++                    {
++                        return "Right " + controllerName;
++                    }
++                    else
++                    {
++                        return "Left " + controllerName;
++                    }
++                }
++
++                return controllerName;
++            }
 +
 +            return "None";
 +        }
@@ -908,13 +948,10 @@
 +                {
 +                    String[] var3 = var2.split(":");
 +
-+                    if (var3[0].equals("music"))
-+                    {
-+                        this.musicVolume = this.parseFloat(var3[1]);
-                     }
- 
-                     if (var3[0].equals("sound"))
-@@ -2319,6 +3062,382 @@
+                     if (var3[0].equals("music"))
+                     {
+                         this.musicVolume = this.parseFloat(var3[1]);
+@@ -2319,6 +3105,382 @@
              Config.dbg("Failed to load options");
              var6.printStackTrace();
          }
@@ -1297,7 +1334,7 @@
      }
  
      /**
-@@ -2479,6 +3598,84 @@
+@@ -2479,6 +3641,84 @@
              var3.printStackTrace();
          }
  
@@ -1382,7 +1419,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3854,126 @@
+@@ -2657,4 +3897,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

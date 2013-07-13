@@ -20,6 +20,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         EnumOptions.KEYHOLE_HEAD_RELATIVE,
         EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE,
     };
     /** An array of all of EnumOption's movement options relevant to the mouse. */
     static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
@@ -208,6 +209,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  vertically (tilt up and down)",
                             "  OFF: No, the crosshair is free to move",
                             "  ON: Yes, the only way to aim is with your head"};
+                case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
+                    return new String[] {
+                            "Sets the controller used for move/aim control.",
+                            "  Sets which controller is used. Will be the opposite",
+                            "  controller to that used for positional tracking."
+                    } ;
                 default:
                     return null;
             }

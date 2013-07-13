@@ -147,7 +147,7 @@ public class VRRenderer extends EntityRenderer
 
 	// Calibration
 	private CalibrationHelper calibrationHelper;
-    private float INITIAL_CALIBRATION_TEXT_SCALE = 0.01f;
+    private float INITIAL_CALIBRATION_TEXT_SCALE = 0.0065f;
     private int CALIBRATION_TEXT_WORDWRAP_LEN = 40;
 
     public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv)
@@ -780,14 +780,18 @@ public class VRRenderer extends EntityRenderer
 
 	    	if( calibrationHelper != null )
 	    	{
-		        boolean doWordWrap = true;
+                float x = lookX*mc.gameSettings.hudDistance;
+                float y = lookY*mc.gameSettings.hudDistance;
+                float z = lookZ*mc.gameSettings.hudDistance;
+
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
 	            GL11.glPushMatrix();
-	            GL11.glTranslatef(lookX*mc.gameSettings.hudDistance,lookY*mc.gameSettings.hudDistance,lookZ*mc.gameSettings.hudDistance);
+	            GL11.glTranslatef(x,y,z);
 	            GL11.glRotatef(-this.cameraYaw, 0.0F, 1.0F, 0.0F);
 	            GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
-	            GL11.glRotatef(180+this.cameraRoll, 0.0F, 0.0F, 1.0F);
-	            GL11.glScaled(INITIAL_CALIBRATION_TEXT_SCALE *mc.gameSettings.hudScale, INITIAL_CALIBRATION_TEXT_SCALE *mc.gameSettings.hudScale, INITIAL_CALIBRATION_TEXT_SCALE *mc.gameSettings.hudScale);
+	            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
+                float textScale = (float)Math.sqrt((x*x + y*y + z*z));
+	            GL11.glScalef(-INITIAL_CALIBRATION_TEXT_SCALE * textScale, -INITIAL_CALIBRATION_TEXT_SCALE * textScale, -INITIAL_CALIBRATION_TEXT_SCALE * textScale);
 	            String calibrating = "Calibrating "+calibrationHelper.currentPlugin.getName()+"...";
 	        	mc.fontRenderer.drawStringWithShadow(calibrating, -mc.fontRenderer.getStringWidth(calibrating)/2, -8, /*white*/16777215);
 	        	String calibrationStep = calibrationHelper.calibrationStep;
