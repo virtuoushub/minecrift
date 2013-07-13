@@ -80,4 +80,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         applychanges(os.path.abspath('..'))
     else:
-        applychanges(os.path.abspath('mcp'))
+        applychanges(os.path.abspath('mcp804'))

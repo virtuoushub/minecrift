@@ -66,11 +66,11 @@ def download_native(url, folder, name):
 
 def download_deps( mcp_dir ):
 
-    download_file( "http://mcp.ocean-labs.de/files/mcp751.zip", "mcp751.zip" )
+    download_file( "http://mcp.ocean-labs.de/files/mcp804.zip", "mcp804.zip" )
 
     try:
         os.mkdir( mcp_dir )
-        mcp_zip = zipfile.ZipFile( "mcp751.zip" )
+        mcp_zip = zipfile.ZipFile( "mcp804.zip" )
         mcp_zip.extractall( mcp_dir )
         import stat
         astyle = os.path.join(mcp_dir,"runtime","bin","astyle-osx")
@@ -79,8 +79,6 @@ def download_deps( mcp_dir ):
     except:
         pass
 
-    if sys.platform == 'darwin':
-        shutil.copy("minecraft_ff_osx.patch.crlf",os.path.join(mcp_dir,"conf","patches","minecraft_ff.patch"))
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
 
@@ -205,4 +203,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp'))	
+        main(os.path.abspath('mcp804'))	
