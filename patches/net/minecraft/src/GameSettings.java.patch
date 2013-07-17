@@ -49,7 +49,7 @@
      public int limitFramerate = 1;
      public boolean fancyGraphics = true;
  
-@@ -132,6 +150,80 @@
+@@ -132,6 +150,81 @@
      public boolean enableVsync = true;
      public boolean hideServerAddress;
  
@@ -125,12 +125,13 @@
 +    public boolean alwaysRenderInGameCrosshair = false;
 +    public boolean alwaysRenderBlockOutline = false;
 +    public boolean crosshairRollsWithHead = true;
++    public boolean hudOcclusion = false;
 +
 +
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -165,7 +257,7 @@
+@@ -165,7 +258,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -139,7 +140,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -174,6 +266,7 @@
+@@ -174,6 +267,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -147,7 +148,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -202,6 +295,7 @@
+@@ -202,6 +296,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -155,7 +156,7 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -216,6 +310,7 @@
+@@ -216,6 +311,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -163,7 +164,7 @@
          this.loadOptions();
          Config.initGameSettings(this);
      }
-@@ -388,6 +483,178 @@
+@@ -388,6 +484,178 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -342,7 +343,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1141,12 +1408,184 @@
+@@ -1141,12 +1409,189 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -457,6 +458,11 @@
 +            this.crosshairRollsWithHead = !this.crosshairRollsWithHead;
 +        }
 +
++        if (par1EnumOptions == EnumOptions.HUD_OCCLUSION)
++        {
++            this.hudOcclusion = !this.hudOcclusion;
++        }
++
 +        if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
 +        {
 +        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
@@ -528,7 +534,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1213,6 +1652,7 @@
+@@ -1213,6 +1658,7 @@
          }
  
          String var3 = var2 + ": ";
@@ -536,7 +542,7 @@
          String var5;
  
          if (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE)
-@@ -1603,21 +2043,360 @@
+@@ -1603,23 +2049,366 @@
          {
              return this.heldItemTooltips ? var3 + "ON" : var3 + "OFF";
          }
@@ -679,6 +685,11 @@
 +            String s = var4 + "Unknown";
  
 -            if (par1EnumOptions.getEnumFloat())
+-            {
+-                float var8 = this.getOptionFloatValue(par1EnumOptions);
+-                return par1EnumOptions == EnumOptions.SENSITIVITY ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.sensitivity.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.sensitivity.max") : var5 + (int)(var8 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.fov.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.fov.max") : var5 + (int)(70.0F + var8 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.gamma.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.gamma.max") : var5 + "+" + (int)(var8 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var5 + (int)(var8 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var5 + GuiNewChat.func_96128_a(var8) + "px" : (var8 == 0.0F ? var5 + I18n.func_135053_a("options.off") : var5 + (int)(var8 * 100.0F) + "%")))))));
+-            }
+-            else if (par1EnumOptions.getEnumBoolean())
 +            if (this.posTrackHydraLoc >= 0 && this.posTrackHydraLoc < POS_TRACK_HYDRA_LOC.length)
 +                s = var4 + POS_TRACK_HYDRA_LOC[this.posTrackHydraLoc];
 +
@@ -690,8 +701,8 @@
 +
 +            switch (this.posTrackHydraLoc)
              {
--                float var8 = this.getOptionFloatValue(par1EnumOptions);
--                return par1EnumOptions == EnumOptions.SENSITIVITY ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.sensitivity.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.sensitivity.max") : var5 + (int)(var8 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.fov.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.fov.max") : var5 + (int)(70.0F + var8 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.gamma.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.gamma.max") : var5 + "+" + (int)(var8 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var5 + (int)(var8 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var5 + GuiNewChat.func_96128_a(var8) + "px" : (var8 == 0.0F ? var5 + I18n.func_135053_a("options.off") : var5 + (int)(var8 * 100.0F) + "%")))))));
+-                boolean var9 = this.getOptionOrdinalValue(par1EnumOptions);
+-                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetX;
 +                    break;
@@ -711,7 +722,7 @@
 +                        value = this.posTrackHydraBROffsetX;
 +                    break;
              }
--            else if (par1EnumOptions.getEnumBoolean())
+-            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
 +
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
@@ -721,8 +732,7 @@
 +
 +            switch (this.posTrackHydraLoc)
              {
--                boolean var9 = this.getOptionOrdinalValue(par1EnumOptions);
--                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
+-                return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -741,8 +751,7 @@
 +                    else
 +                        value = this.posTrackHydraBROffsetY;
 +                    break;
-             }
--            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
++            }
 +
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
@@ -832,6 +841,10 @@
 +        {
 +            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
 +        }
++        else if (par1EnumOptions == EnumOptions.HUD_OCCLUSION)
++        {
++            return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
++        }
 +        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
 +        {
 +            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
@@ -903,10 +916,12 @@
 +                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
 +            }
 +            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
-             {
-                 return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
++            {
++                return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
              }
-@@ -2342,6 +3121,382 @@
+             else if (par1EnumOptions == EnumOptions.DIFFICULTY)
+             {
+@@ -2342,6 +3131,387 @@
              Config.warn("Failed to load options");
              var6.printStackTrace();
          }
@@ -1233,6 +1248,11 @@
 +                        this.crosshairRollsWithHead = var3[1].equals("true");
 +                    }
 +
++                    if (var3[0].equals("hudOcclusion"))
++                    {
++                        this.hudOcclusion = var3[1].equals("true");
++                    }
++
 +                    if (var3[0].equals("joystickSensitivity"))
 +                    {
 +                        this.joystickSensitivity = this.parseFloat(var3[1]);
@@ -1289,7 +1309,7 @@
      }
  
      /**
-@@ -2502,6 +3657,84 @@
+@@ -2502,6 +3672,85 @@
              var3.printStackTrace();
          }
  
@@ -1355,6 +1375,7 @@
 +            var5.println("alwaysRenderInGameCrosshair:" + this.alwaysRenderInGameCrosshair);
 +            var5.println("alwaysRenderBlockOutline:" + this.alwaysRenderBlockOutline);
 +            var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
++            var5.println("hudOcclusion:" + this.hudOcclusion);
 +            var5.println("joystickSensitivity:" + this.joystickSensitivity);
 +            var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
 +            var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
@@ -1374,7 +1395,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2679,4 +3912,126 @@
+@@ -2679,4 +3928,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

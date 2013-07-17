@@ -334,7 +334,11 @@ public class VRRenderer extends EntityRenderer
         if (!this.mc.gameSettings.debugCamEnable)
         {
         	//TODO: get rotation matrix instead of pitch/yaw/roll
-            GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
+            if (this.mc.gameSettings.thirdPersonView == 2)
+                GL11.glRotatef(-this.cameraRoll, 0.0F, 0.0F, 1.0F);
+            else
+                GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
+
             GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
             GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
         }
@@ -385,14 +389,18 @@ public class VRRenderer extends EntityRenderer
 	        try
 	        {
 	        	_soundManagerSndSystemField = SoundManager.class.getDeclaredField("sndSystem");
+	        	System.out.println("VRRender: Reflected sndSystem");
 	        }
 	        catch (NoSuchFieldException e) {
 		        try
 		        {
-		        	_soundManagerSndSystemField = SoundManager.class.getDeclaredField("a"); //obfuscated name
+		        	_soundManagerSndSystemField = SoundManager.class.getDeclaredField("b"); //obfuscated name
+		        	System.out.println("VRRender: Reflected obfuscated b");
 		        }
 		        catch (NoSuchFieldException e1) { 
-		        	sndSystem = SoundManager.sndSystem;
+		        	if( this.mc.sndManager != null )
+		        		sndSystem = this.mc.sndManager.sndSystem;
+		        	System.out.println("VRRender: got field directly");
 		        };
 	        }
 	       	if (_soundManagerSndSystemField != null)
@@ -404,7 +412,7 @@ public class VRRenderer extends EntityRenderer
         {
 			try 
         	{
-				sndSystem = (SoundSystem)_soundManagerSndSystemField.get(null);
+				sndSystem = (SoundSystem)_soundManagerSndSystemField.get(this.mc.sndManager);
 			} 
         	catch (IllegalArgumentException e) { } 
         	catch (IllegalAccessException e) { };
@@ -736,7 +744,6 @@ public class VRRenderer extends EntityRenderer
         	
         	if( guiShowingThisFrame )
         	{
-
         		GL11.glPushMatrix();
 		        GL11.glEnable(GL11.GL_TEXTURE_2D);
 		        guiFBO.bindTexture();
@@ -764,12 +771,15 @@ public class VRRenderer extends EntityRenderer
 				else
 				{
 			        GL11.glDisable(GL11.GL_BLEND);
-					
 				}
-		        GL11.glDisable(GL11.GL_DEPTH_TEST);
+
+		        if (!this.mc.gameSettings.hudOcclusion)
+                    GL11.glDisable(GL11.GL_DEPTH_TEST);
+
 				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*this.mc.gameSettings.hudDistance);
 		        GL11.glDisable(GL11.GL_BLEND);
-		        GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
+
 		        GL11.glPopMatrix();
 		
 		        unbindTexture();

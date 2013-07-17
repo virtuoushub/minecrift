@@ -8,10 +8,11 @@ public class GuiHUDSettings extends BaseGuiSettings
             EnumOptions.HUD_SCALE,
             EnumOptions.HUD_DISTANCE,
             EnumOptions.HUD_OPACITY,
-            EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
-            EnumOptions.CROSSHAIR_ALWAYS_SHOW,
+            EnumOptions.HUD_OCCLUSION,
             EnumOptions.CROSSHAIR_SCALE,
+            EnumOptions.CROSSHAIR_ALWAYS_SHOW,
             EnumOptions.CROSSHAIR_ROLL,
+            EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
     };
 
     public GuiHUDSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
@@ -45,15 +46,15 @@ public class GuiHUDSettings extends BaseGuiSettings
 
                 if (var8 == EnumOptions.HUD_SCALE)
                 {
-                    minValue = 0.5f;
-                    maxValue = 1.5f;
+                    minValue = 0.35f;
+                    maxValue = 2.5f;
                     increment = 0.01f;
                 }
                 if (var8 == EnumOptions.HUD_DISTANCE)
                 {
-                    minValue = 0.5f;
-                    maxValue = 3.0f;
-                    increment = 0.02f;
+                    minValue = 0.25f;
+                    maxValue = 5.0f;
+                    increment = 0.01f;
                 }
                 if (var8 == EnumOptions.CROSSHAIR_SCALE)
                 {
@@ -94,6 +95,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guiGameSettings.hudDistance = 1.0f;
                 this.guiGameSettings.hudScale = 1.0f;
                 this.guiGameSettings.useHudOpacity = false;
+                this.guiGameSettings.hudOcclusion = false;
                 this.guiGameSettings.crosshairScale = 1.0f;
                 this.guiGameSettings.alwaysRenderBlockOutline = false;
                 this.guiGameSettings.alwaysRenderInGameCrosshair = false;
@@ -128,6 +130,14 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "Distance the floating HUD is drawn in front of your body",
                             "  The relative size of the HUD is unchanged by this",
                             "  Distance is in meters (though isn't obstructed by blocks)"
+                    };
+                case HUD_OCCLUSION:
+                    return new String[] {
+                            "Specifies whether the HUD is occluded by closer objects.",
+                            "  ON:  The HUD will be hidden by closer objects. May",
+                            "       be hidden completely in confined environments!",
+                            "  OFF: The HUD is always visible. Stereo depth issues",
+                            "       may be noticable."
                     };
                 case CROSSHAIR_ALWAYS_SHOW:
                     return new String[] {

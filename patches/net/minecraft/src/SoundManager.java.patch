@@ -5,7 +5,7 @@
  
      /** A reference to the sound system. */
 -    private SoundSystem sndSystem;
-+    public static SoundSystem sndSystem;
++    public SoundSystem sndSystem;
  
      /** Set to true when the SoundManager has been initialised. */
      private boolean loaded;
