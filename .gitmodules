@@ -4,3 +4,6 @@
 [submodule "Sixense-Java"]
 	path = Sixense-Java
 	url = https://github.com/mabrowning/Sixense-Java.git
+[submodule "repo"]
+	path = repo
+	url = https://github.com/mabrowning/minecrift-repo.git
