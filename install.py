@@ -148,7 +148,7 @@ def download_deps( mcp_dir ):
     jar_url = repo + "versions/"+mc_version+"/"+mc_version+".jar"
     download_file( jar_url, jar_file )
 
-    download_file( "http://optifine.net/download.php?f=OptiFine_1.6.2_HD_U_B2.zip", os.path.join(jars,"optifine.zip"),)
+    download_file( "http://optifine.net/download.php?f=OptiFine_1.6.2_HD_U_B3.zip", os.path.join(jars,"OptiFine-1.6.2_HD_U_B3.zip"),)
 
 def zipmerge( target_file, source_file ):
     out_file, out_filename = tempfile.mkstemp()
@@ -198,7 +198,7 @@ def main(mcp_dir):
 
     print("Applying Optifine...")
     zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"),
-              os.path.join( mcp_dir,"jars","optifine.zip") )
+              os.path.join( mcp_dir,"jars","OptiFine-1.6.2_HD_U_B3.zip") )
 
     print("Decompiling...")
     sys.path.append(mcp_dir)
@@ -209,13 +209,13 @@ def main(mcp_dir):
 
     os.chdir( base_dir )
 
-    src_dir = os.path.join(mcp_dir, "src","minecraft")
-    org_src_dir = os.path.join(mcp_dir, "src",".minecraft_orig")
-    if os.path.exists( org_src_dir ):
-        shutil.rmtree( org_src_dir, True )
-    shutil.copytree( src_dir, org_src_dir )
+    #src_dir = os.path.join(mcp_dir, "src","minecraft")
+    #org_src_dir = os.path.join(mcp_dir, "src",".minecraft_orig")
+    #if os.path.exists( org_src_dir ):
+    #    shutil.rmtree( org_src_dir, True )
+    #shutil.copytree( src_dir, org_src_dir )
 
-    applychanges( mcp_dir )
+    #applychanges( mcp_dir )
     
     #Need git in system PATH!
     try:
