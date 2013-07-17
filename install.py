@@ -64,7 +64,7 @@ def download_native(url, folder, name):
 
 def download_deps( mcp_dir ):
 
-    download_file( "http://mcp.ocean-labs.de/files/mcp726a.zip", "mcp726a.zip" )
+    download_file( "http://mcp.ocean-labs.de/files/archives/mcp726a.zip", "mcp726a.zip" )
 
     try:
         os.mkdir( mcp_dir )
