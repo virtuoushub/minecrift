@@ -6,7 +6,7 @@ package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.VRRenderer;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;

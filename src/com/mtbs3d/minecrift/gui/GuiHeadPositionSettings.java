@@ -451,8 +451,8 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                     };
                 case 202:
                     return new String[] {
-                            "Resets the origin point of the positional tracking",
-                            "to your current head position."
+                            "Resets the origin point to your current head",
+                            "position."
                     };
                 case 203:
                     return new String[] {

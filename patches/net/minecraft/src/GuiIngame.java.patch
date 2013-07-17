@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/GuiIngame.java
 +++ b/net/minecraft/src/GuiIngame.java
-@@ -62,13 +62,6 @@
+@@ -64,13 +64,6 @@
              GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
          }
  
@@ -14,10 +14,10 @@
          if (!this.mc.thePlayer.isPotionActive(Potion.confusion))
          {
              float var10 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * par1;
-@@ -103,10 +96,13 @@
+@@ -94,10 +87,13 @@
              this.drawTexturedModalRect(var6 / 2 - 91, var7 - 22, 0, 0, 182, 22);
              this.drawTexturedModalRect(var6 / 2 - 91 - 1 + var31.currentItem * 20, var7 - 22 - 1, 0, 22, 24, 22);
-             this.mc.renderEngine.bindTexture("/gui/icons.png");
+             this.mc.func_110434_K().func_110577_a(field_110324_m);
 -            GL11.glEnable(GL11.GL_BLEND);
 -            GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
 -            this.drawTexturedModalRect(var6 / 2 - 7, var7 / 2 - 7, 0, 0, 16, 16);
@@ -29,43 +29,6 @@
 +	            this.drawTexturedModalRect(var6 / 2 - 7, var7 / 2 - 7, 0, 0, 16, 16);
 +	            GL11.glDisable(GL11.GL_BLEND);
 +            }
-             var11 = this.mc.thePlayer.hurtResistantTime / 3 % 2 == 1;
- 
-             if (this.mc.thePlayer.hurtResistantTime < 10)
-@@ -148,7 +144,15 @@
- 
-                 var47 = var7 - 39;
-                 var22 = var47 - 10;
--                var23 = this.mc.thePlayer.getTotalArmorValue();
-+                if(Reflector.ForgeHooks.exists())
-+                {
-+                	var23 = Reflector.callInt(Reflector.ForgeHooks_getTotalArmorValue, new Object[]{this.mc.thePlayer});
-+
-+                }
-+                else
-+                {
-+                	var23 = this.mc.thePlayer.getTotalArmorValue();
-+                }
-                 var24 = -1;
- 
-                 if (this.mc.thePlayer.isPotionActive(Potion.regeneration))
-@@ -409,7 +413,18 @@
-                     GL11.glPushMatrix();
-                     GL11.glEnable(GL11.GL_BLEND);
-                     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
--                    var8.drawStringWithShadow(var35, var12, var13, 16777215 + (var38 << 24));
-+                    
-+                    FontRenderer font = (FontRenderer)Reflector.call(highlightingItemStack,Reflector.ForgeItem_getFontRenderer,new Object[]{});
-+                    if( font != null)
-+                    {
-+                    	var12 = ( var6 - font.getStringWidth(var35) )/2;
-+                    	font.drawStringWithShadow(var35, var12, var13, 16777215 + (var38 << 24));
-+                   
-+                    }
-+                    else
-+                    {
-+                    	var8.drawStringWithShadow(var35, var12, var13, 16777215 + (var38 << 24));
-+                    }
-                     GL11.glDisable(GL11.GL_BLEND);
-                     GL11.glPopMatrix();
-                 }
+             this.mc.mcProfiler.startSection("bossHealth");
+             this.renderBossHealth();
+             this.mc.mcProfiler.endSection();

@@ -1,8 +1,8 @@
 --- a/net/minecraft/src/GuiScreen.java
 +++ b/net/minecraft/src/GuiScreen.java
-@@ -39,6 +39,9 @@
-     private long field_85043_c = 0L;
-     private int field_92018_d = 0;
+@@ -35,6 +35,9 @@
+     private long lastMouseEvent;
+     private int field_92018_d;
  
 +	public int mouseOffsetX = 0;
 +	public int mouseOffsetY = 0;
@@ -10,7 +10,7 @@
      /**
       * Draws the screen and all the components in it.
       */
-@@ -177,14 +180,40 @@
+@@ -176,16 +179,42 @@
              this.handleKeyboardInput();
          }
      }
@@ -20,7 +20,7 @@
 +        int var1 = rawX * this.width / this.mc.displayFBWidth;
 +        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
 +        this.eventButton = button;
-+        this.field_85043_c = Minecraft.getSystemTime();
++        this.lastMouseEvent = Minecraft.getSystemTime();
 +        mouseClicked(var1, var2, button);
 +    }
 +    
@@ -35,8 +35,8 @@
 +    {
 +        int var1 = rawX * this.width / this.mc.displayFBWidth;
 +        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
-+        long var3 = Minecraft.getSystemTime() - this.field_85043_c;
-+        this.func_85041_a(var1, var2, this.eventButton, var3);
++        long var3 = Minecraft.getSystemTime() - this.lastMouseEvent;
++        this.mouseClickMove(var1, var2, this.eventButton, var3);
 +    }
  
      /**
@@ -48,11 +48,13 @@
 -        int var2 = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 +        int var1 = ( Mouse.getEventX() + mouseOffsetX ) * this.width  / this.mc.displayFBWidth;
 +        int var2 = this.height - ( Mouse.getEventY()  + mouseOffsetY) * this.height/ this.mc.displayFBHeight - 1;
+         int var3 = Mouse.getEventButton();
+ 
 +        mouseOffsetX = 0;
 +        mouseOffsetY = 0;
- 
-         if (Mouse.getEventButtonState())
+         if (Minecraft.field_142025_a && var3 == 0 && (Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157)))
          {
+             var3 = 1;
 @@ -261,7 +290,7 @@
      {
          if (this.mc.theWorld != null)

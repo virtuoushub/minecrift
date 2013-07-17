@@ -6,7 +6,7 @@ package com.mtbs3d.minecrift;
 
 import java.util.*;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;

@@ -5,7 +5,7 @@
 package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.gui.GuiButtonEx;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.EnumOptions;
 import org.lwjgl.opengl.GL11;
 

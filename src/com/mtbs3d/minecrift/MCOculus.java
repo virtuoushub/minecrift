@@ -48,6 +48,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     }
 
     @Override
+    public boolean isCorrecting() {
+        if (!isInitialized())
+            return false;
+
+        return _isYawCorrectionInProgress();
+    }
+
+    @Override
     public void beginAutomaticCalibration()
     {
         if (isInitialized())

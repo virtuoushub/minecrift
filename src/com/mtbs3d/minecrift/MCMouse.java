@@ -6,7 +6,7 @@ package com.mtbs3d.minecrift;
 
 import java.io.File;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.MathHelper;
 
 import org.lwjgl.opengl.Display;

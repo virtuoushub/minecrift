@@ -1,18 +1,30 @@
 import os, os.path, sys
-import urllib, zipfile, urllib2
-import shutil, tempfile
+import zipfile, urllib2
+import shutil, tempfile, json
+import errno
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
 import subprocess
 
 from applychanges import applychanges
 
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+mc_version = "1.6.2"
+
 try:
     WindowsError
 except NameError:
     WindowsError = OSError
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise
 
 #Helpers taken from forge mod loader, https://github.com/MinecraftForge/FML/blob/master/install/fml.py
 def get_md5(file):
@@ -51,17 +63,6 @@ def download_native(url, folder, name):
     if not download_file(url, target):
         return False
     
-    zip = zipfile.ZipFile(target)
-    for name in zip.namelist():
-        if not name.startswith('META-INF') and not name.endswith('/'):
-            out_file = os.path.join(folder, name)
-            if not os.path.isfile(out_file):
-                print '    Extracting %s' % name
-                out = open(out_file, 'wb')
-                out.write(zip.read(name))
-                out.flush()
-                out.close()
-    zip.close()
     return True 
 
 def download_deps( mcp_dir ):
@@ -80,29 +81,74 @@ def download_deps( mcp_dir ):
         pass
 
     jars = os.path.join(mcp_dir,"jars")
-    bin = os.path.join(jars,"bin")
+    repo = "https://s3.amazonaws.com/Minecraft.Download/"
 
-    native = "natives-window.jar"
+    versions =  os.path.join(jars,"versions",mc_version) 
+    mkdir_p( versions )
+
     if sys.platform == 'darwin':
-        native = "natives-osx.jar"
+        native = "osx"
     elif sys.platform == "linux":
-        native = "natives-linux.jar"
+        native = "linux"
+    elif sys.platform == "linux2":
+        native = "linux"
+    else:
+        native = "windows"
 
-    MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/org/lwjgl/lwjgl/lwjgl-platform/2.9.0/lwjgl-platform-2.9.0-"
-    download_native( MinecraftDownload + native, os.path.join(bin,"natives"), "lwjgl-"+native )
-    MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/net/java/jinput/jinput-platform/2.0.5/jinput-platform-2.0.5-"
-    download_native( MinecraftDownload+ native, os.path.join(bin,"natives"), "jinput-"+native )
+    
+    json_file = os.path.join(versions,mc_version+".json")
+    json_url = repo + "versions/"+mc_version+"/"+mc_version+".json"
 
-    MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/"
-    download_file( MinecraftDownload + "net/java/jinput/jinput/2.0.5/jinput-2.0.5.jar", os.path.join(bin,"jinput.jar" ))
-    download_file( MinecraftDownload + "org/lwjgl/lwjgl/lwjgl/2.9.0/lwjgl-2.9.0.jar", os.path.join(bin,"lwjgl.jar" ))
-    download_file( MinecraftDownload + "org/lwjgl/lwjgl/lwjgl_util/2.9.0/lwjgl_util-2.9.0.jar", os.path.join(bin,"lwjgl_util.jar" ))
+    download_file( json_url, json_file )
+    json_obj = []
+    with open(json_file,"rb") as f:
+        json_obj = json.load( f )
+    try:
+        newlibs = []
+        for lib in json_obj['libraries']:
+            skip = False
+            if "rules" in  lib:
+                for rule in lib["rules"]:
+                    if "action" in rule and rule["action"] == "allow" and "os" in rule:
+                        skip = True
 
-    MinecraftDownload = "http://s3.amazonaws.com/Minecraft.Download/versions/"
-    download_file( MinecraftDownload+ "1.5.2/1.5.2.jar", os.path.join(bin,"minecraft.jar"), "6897c3287fb971c9f362eb3ab20f5ddd" )
-    #download_file( MinecraftDownload+ "1.5.2/minecraft_server.1.5.2.jar", os.path.join(jars,"minecraft_server.jar"),"c4e1bf89e834bd3670c7bf8f13874bc6" ) 
+            if skip:
+                continue
+            group,artifact,version = lib["name"].split(":")
+            url = "libraries/" +group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+".jar"
+            file = os.path.join(jars,url.replace("/",os.sep))
+            mkdir_p(os.path.dirname(file))
+            download_file( repo + url, file )
+            if "natives" in lib:
+                url = "libraries/" +group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+"-"+lib["natives"][native]+".jar"
+                file = os.path.join(jars,url.replace("/",os.sep))
+                download_file( repo + url, file )
 
-    download_file( "http://optifine.net/download.php?f=OptiFine_1.5.2_HD_U_D3.zip", os.path.join(bin,"optifine.zip"), "de96e9633842957bf2c25cc59151e3e1" )
+                folder = os.path.join(jars,"versions",mc_version,mc_version+"-natives")
+                mkdir_p(folder)
+                zip = zipfile.ZipFile(file)
+                for name in zip.namelist():
+                    if not name.startswith('META-INF') and not name.endswith('/'):
+                        out_file = os.path.join(folder, name)
+                        if not os.path.isfile(out_file):
+                            print '    Extracting %s' % name
+                            out = open(out_file, 'wb')
+                            out.write(zip.read(name))
+                            out.flush()
+                            out.close()
+                zip.close()
+            newlibs.append( lib )
+        json_obj['libraries'] = newlibs
+        with open(json_file,"wb+") as f:
+            json.dump( json_obj,f, indent=1 )
+    except:
+        pass
+
+    jar_file = os.path.join(versions,mc_version+".jar")
+    jar_url = repo + "versions/"+mc_version+"/"+mc_version+".jar"
+    download_file( jar_url, jar_file )
+
+    download_file( "http://optifine.net/download.php?f=OptiFine_1.6.2_HD_U_B2.zip", os.path.join(jars,"optifine.zip"),)
 
 def zipmerge( target_file, source_file ):
     out_file, out_filename = tempfile.mkstemp()
@@ -134,7 +180,7 @@ def symlink(source, link_name):
         try:
             os_symlink(source, link_name)
         except Exception:
-			pass
+            pass
     else:
         import ctypes
         csl = ctypes.windll.kernel32.CreateSymbolicLinkW
@@ -151,15 +197,15 @@ def main(mcp_dir):
     download_deps( mcp_dir )
 
     print("Applying Optifine...")
-    zipmerge( os.path.join( mcp_dir,"jars","bin","minecraft.jar"),
-              os.path.join( mcp_dir,"jars","bin","optifine.zip") )
+    zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"),
+              os.path.join( mcp_dir,"jars","optifine.zip") )
 
     print("Decompiling...")
     sys.path.append(mcp_dir)
     os.chdir(mcp_dir)
     from runtime.decompile import decompile
-    #         Conf  JAD    CSV    -r     -d     -a     -n     -p     -o     -l     -g     -c     -s
-    decompile(None, False, False, False, False, False, False, False, False, False, False, True, False )
+    #         Conf  JAD    CSV    -r     -d     -a     -n     -p     -o     -l     -g     -c    -s     --rg   -w    json  --nocopy
+    decompile(None, False, False, False, False, False, False, False, False, False, False, True, False, False, None, None, True  )
 
     os.chdir( base_dir )
 
@@ -171,7 +217,7 @@ def main(mcp_dir):
 
     applychanges( mcp_dir )
     
-	#Need git in system PATH!
+    #Need git in system PATH!
     try:
         process = subprocess.Popen(["git","submodule","init"], cwd=base_dir, bufsize=-1)
         process.communicate()
@@ -185,7 +231,7 @@ def main(mcp_dir):
     try:
         os.mkdir( os.path.join( mcp_dir, "lib" ) )
     except WindowsError:
-        pass	
+        pass    
 
     try:
         symlink( os.path.join( base_dir, "JRift","JRift.jar"), os.path.join( mcp_dir, "lib" ,"JRift.jar") )
@@ -203,4 +249,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp804'))	
+        main(os.path.abspath('mcp804'))    

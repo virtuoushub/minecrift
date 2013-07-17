@@ -54,4 +54,7 @@ public interface IOrientationProvider extends IBasePlugin {
      * Resets the current position/orientation to the origin
      */
     public void resetOrigin();
+
+    /* Is orientation adjustment taking place? */
+    public boolean isCorrecting();
 }

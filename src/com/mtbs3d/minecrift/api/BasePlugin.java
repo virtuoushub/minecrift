@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 /**
  * A base API for plugins. Plugins can be loaded, initialized, queried, and polled.

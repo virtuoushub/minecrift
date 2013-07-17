@@ -19,7 +19,7 @@ import com.sixense.Sixense;
 import com.sixense.utils.ControllerManager;
 import com.sixense.utils.enums.EnumSetupStep;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.MathHelper;
@@ -602,7 +602,12 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		resetOrigin = true;
 	}
 
-	@Override
+    @Override
+    public boolean isCorrecting() {
+        return false;
+    }
+
+    @Override
 	public void resetOriginRotation() {
 		resetOriginRotation = true;
 

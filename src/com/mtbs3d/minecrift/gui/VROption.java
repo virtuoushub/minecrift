@@ -1,6 +1,6 @@
 package com.mtbs3d.minecrift.gui;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.EnumOptions;
 
 /**

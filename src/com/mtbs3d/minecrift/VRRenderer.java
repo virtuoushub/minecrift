@@ -15,7 +15,6 @@ import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.utils.Utils;
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.HMDInfo;
-import net.minecraft.client.Minecraft;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
@@ -184,7 +183,7 @@ public class VRRenderer extends EntityRenderer
             var21 *= 0.1F;
             var22 *= 0.1F;
             var23 *= 0.1F;
-            MovingObjectPosition var24 = this.mc.theWorld.rayTraceBlocks(
+            MovingObjectPosition var24 = this.mc.theWorld.clip(
             		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX + var21, camY + var22, camZ + var23), 
             		this.mc.theWorld.getWorldVec3Pool().getVecFromPool(camX - camXOffset + var21, camY - camYOffset + var22, camZ - camZOffset + var23));
 
@@ -251,7 +250,7 @@ public class VRRenderer extends EntityRenderer
         // Camera height offset
         float cameraYOffset = 1.62f - (this.mc.gameSettings.getPlayerEyeHeight() - this.mc.gameSettings.neckBaseToEyeHeight);
         
-        EntityLiving entity = this.mc.renderViewEntity;
+        EntityLivingBase entity = this.mc.renderViewEntity;
         if( entity != null )
         {
         	//Do in-game camera adjustments if renderViewEntity exists
@@ -429,7 +428,7 @@ public class VRRenderer extends EntityRenderer
     protected void updateCamera( float renderPartialTicks, boolean displayActive )
     {
         float PIOVER180 = (float)(Math.PI/180);
-        EntityLiving entity = this.mc.renderViewEntity;
+        EntityLivingBase entity = this.mc.renderViewEntity;
         
         //runs a step of calibration
         if(calibrationHelper != null &&  calibrationHelper.allPluginsCalibrated())
@@ -549,6 +548,7 @@ public class VRRenderer extends EntityRenderer
             //has been set)
         	guiHeadYaw = cameraYaw;
             guiYawOrientationResetRequested = false;
+            guiShowingLastFrame = false;
         }
     } 
 
@@ -600,7 +600,6 @@ public class VRRenderer extends EntityRenderer
         int mouseY = 0;
         if ( (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI && this.mc.thePlayer.getSleepTimer() == 0) || this.mc.currentScreen != null )
         {
-
 	    	//Render all UI elements into guiFBO
 	        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	        int var16 = var15.getScaledWidth();
@@ -648,10 +647,6 @@ public class VRRenderer extends EntityRenderer
 	            throw new ReportedException(var11);
 	        }
 	
-	        if (this.mc.currentScreen.guiParticles != null)
-	        {
-	          this.mc.currentScreen.guiParticles.draw(renderPartialTicks);
-	        }
 	        GL11.glDisable(GL11.GL_LIGHTING); //inventory messes up fog color sometimes... This fixes
 	        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	        drawMouseQuad( mouseX, mouseY );
@@ -687,7 +682,7 @@ public class VRRenderer extends EntityRenderer
 	            this.mc.renderViewEntity = this.mc.thePlayer;
 	        }
 	
-	        EntityLiving renderViewEntity = this.mc.renderViewEntity;
+	        EntityLivingBase renderViewEntity = this.mc.renderViewEntity;
 	        this.mc.mcProfiler.endStartSection("center");
 
 	        //Used by fog comparison, 3rd person camera/block collision detection
@@ -746,6 +741,10 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glEnable(GL11.GL_TEXTURE_2D);
 		        guiFBO.bindTexture();
 
+                // Prevent black border at top / bottom of GUI
+                GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+                GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+
                 float guiYaw;
                 if( this.mc.theWorld != null && this.mc.gameSettings.lookMoveDecoupled)
                     guiYaw = this.mc.lookaimController.getBodyYawDegrees();
@@ -774,7 +773,7 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glPopMatrix();
 		
 		        unbindTexture();
-		        this.mc.renderEngine.resetBoundTexture();
+		        //this.mc.renderEngine.resetBoundTexture();
 	        	mc.checkGLError("GUI");
         	}
 
@@ -848,14 +847,21 @@ public class VRRenderer extends EntityRenderer
 
         if (!_FBOInitialised)
         {
-            System.out.println("Width: " + this.mc.displayFBWidth + ", Height: " + this.mc.displayFBHeight);
+            System.out.println("[Minecrift] INITIALISE Display");
+            System.out.println("[Minecrift] Display w: " + this.mc.displayFBWidth + ", h: " + this.mc.displayFBHeight);
+            System.out.println("[Minecrift] Renderscale: " + eyeRenderParams._renderScale);
+            if (superSampleSupported && this.mc.gameSettings.useSupersample)
+                System.out.println("[Minecrift] FSAA Scale: " + this.mc.gameSettings.superSampleScaleFactor);
+            else
+                System.out.println("[Minecrift] FSAA OFF");
+
             if ( superSampleSupported && this.mc.gameSettings.useSupersample)
             {
-                preDistortionFBO = new FBOParams(false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.gameSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.gameSettings.superSampleScaleFactor));
+                preDistortionFBO = new FBOParams("preDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.gameSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.gameSettings.superSampleScaleFactor));
             }
             else
             {
-                preDistortionFBO = new FBOParams(false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale));
+                preDistortionFBO = new FBOParams("preDistortionFBO", false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale));
             }
             mc.checkGLError("FBO create");
 
@@ -870,7 +876,7 @@ public class VRRenderer extends EntityRenderer
             mc.checkGLError("FBO init shader");
 
             // GUI FBO
-            guiFBO = new FBOParams(false, this.mc.displayWidth, this.mc.displayHeight);
+            guiFBO = new FBOParams("guiFBO", false, this.mc.displayWidth, this.mc.displayHeight);
             
             if( superSampleSupported )
             {
@@ -878,8 +884,8 @@ public class VRRenderer extends EntityRenderer
 	            if (this.mc.gameSettings.useSupersample)
 	            {
 		            // Lanczos downsample FBOs
-		            postDistortionFBO = new FBOParams(false, (int)ceil(this.mc.displayFBWidth * this.mc.gameSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor));
-		            postSuperSampleFBO = new FBOParams(false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor));
+		            postDistortionFBO = new FBOParams("postDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * this.mc.gameSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor));
+		            postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor));
 		
 		            mc.checkGLError("Lanczos FBO create");
 
@@ -1146,7 +1152,7 @@ public class VRRenderer extends EntityRenderer
     {
         RenderGlobal renderGlobal = this.mc.renderGlobal;
         EffectRenderer effectRenderer = this.mc.effectRenderer;
-        EntityLiving renderViewEntity = this.mc.renderViewEntity;
+        EntityLivingBase renderViewEntity = this.mc.renderViewEntity;
 
         //TODO: fog color isn't quite right yet when eyes split water/air
         this.updateFogColor(renderPartialTicks);
@@ -1215,7 +1221,7 @@ public class VRRenderer extends EntityRenderer
         this.mc.mcProfiler.endStartSection("prepareterrain");
         this.setupFog(0, renderPartialTicks);
         GL11.glEnable(GL11.GL_FOG);
-        this.mc.renderEngine.bindTexture("/terrain.png");
+        this.mc.func_110434_K().func_110577_a(TextureMap.field_110575_b);
         RenderHelper.disableStandardItemLighting();
         this.mc.mcProfiler.endStartSection("terrain");
         renderGlobal.sortAndRender(renderViewEntity, 0, (double) renderPartialTicks);
@@ -1258,7 +1264,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_CULL_FACE);
 
-        this.mc.renderEngine.bindTexture("/terrain.png");
+        this.mc.func_110434_K().func_110577_a(TextureMap.field_110575_b);
         WrUpdates.resumeBackgroundUpdates();
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -1301,9 +1307,9 @@ public class VRRenderer extends EntityRenderer
 
             if (!var16 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderGlobal, var18, this.mc.objectMouseOver, Integer.valueOf(0), var18.inventory.getCurrentItem(), Float.valueOf(renderPartialTicks)}))
             {
-                renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
+                //renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
 
-                renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
+                renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, renderPartialTicks );
             }
             GL11.glEnable(GL11.GL_ALPHA_TEST);
         }
@@ -1359,7 +1365,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
-	        this.mc.renderEngine.bindTexture("/gui/icons.png");
+            this.mc.func_110434_K().func_110577_a(Gui.field_110324_m);
 
 	        float var7 = 0.00390625F;
 	        float var8 = 0.00390625F;
@@ -1980,7 +1986,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glColor3f(1, 1, 1);
         this.mc.mcProfiler.endStartSection("mouse pointer");
-        this.mc.renderEngine.bindTexture("/gui/icons.png");
+        this.mc.func_110434_K().func_110577_a(Gui.field_110324_m);
         this.mc.ingameGUI.drawTexturedModalRect(mouseX - 7, mouseY - 7, 0, 0, 16, 16);
         
         GL11.glEnable(GL11.GL_BLEND);
@@ -1997,7 +2003,7 @@ public class VRRenderer extends EntityRenderer
             Vec3 aim = Vec3.createVectorHelper(aimX, aimY, aimZ);
             Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
 
-            this.mc.objectMouseOver = this.mc.theWorld.rayTraceBlocks(pos, endPos);
+            this.mc.objectMouseOver = this.mc.theWorld.clip(pos, endPos);
 
 
             double crossDistance = 0;
@@ -2009,7 +2015,7 @@ public class VRRenderer extends EntityRenderer
             else
             {
 	            endPos = pos.addVector(aim.xCoord*128,aim.yCoord*128,aim.zCoord*128);
-	            MovingObjectPosition crossPos = this.mc.theWorld.rayTraceBlocks(pos, endPos);
+	            MovingObjectPosition crossPos = this.mc.theWorld.clip(pos, endPos);
 	            if( crossPos != null )
 	            {
 	            	crossDistance = crossPos.hitVec.distanceTo(pos);

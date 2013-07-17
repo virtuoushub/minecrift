@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 public class PluginModeChangeButton extends GuiSmallButtonEx {
 

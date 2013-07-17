@@ -18,12 +18,12 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.DISABLED, "HUD / Overlay Settings..."),
             new VROption(206,                             VROption.Position.POS_LEFT,   2,    VROption.DISABLED, "Optics/Rendering..."),
             new VROption(203,                             VROption.Position.POS_RIGHT,  2,    VROption.DISABLED, "Device Calibration..."),
-            new VROption(205,                             VROption.Position.POS_LEFT,   3.5f, VROption.DISABLED, "Head Orientation Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.5f, VROption.DISABLED, null),
-            new VROption(207,                             VROption.Position.POS_LEFT,   4.5f, VROption.DISABLED, "Head Position Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.5f, VROption.DISABLED, null),
-            new VROption(208,                             VROption.Position.POS_LEFT,   5.5f, VROption.DISABLED, "Move/Aim Control..."),
-            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.5f, VROption.DISABLED, null),
+            new VROption(205,                             VROption.Position.POS_LEFT,   3.25f, VROption.DISABLED, "Head Orientation Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
+            new VROption(207,                             VROption.Position.POS_LEFT,   4.25f, VROption.DISABLED, "Head Position Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
+            new VROption(208,                             VROption.Position.POS_LEFT,   5.25f, VROption.DISABLED, "Move/Aim Control..."),
+            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
         };
 
     static VROption[] vrOnDeviceList = new VROption[]
@@ -32,12 +32,12 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.ENABLED, "HUD / Overlay Settings..."),
             new VROption(206,                             VROption.Position.POS_LEFT,   2,    VROption.ENABLED, "Optics/Rendering..."),
             new VROption(203,                             VROption.Position.POS_RIGHT,  2,    VROption.ENABLED, "Device Calibration..."),
-            new VROption(205,                             VROption.Position.POS_LEFT,   3.5f, VROption.ENABLED, "Head Orientation Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.5f, VROption.DISABLED, null),
-            new VROption(207,                             VROption.Position.POS_LEFT,   4.5f, VROption.ENABLED, "Head Position Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.5f, VROption.DISABLED, null),
-            new VROption(208,                             VROption.Position.POS_LEFT,   5.5f, VROption.ENABLED, "Move/Aim Control..."),
-            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.5f, VROption.DISABLED, null),
+            new VROption(205,                             VROption.Position.POS_LEFT,   3.25f, VROption.ENABLED, "Head Orientation Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
+            new VROption(207,                             VROption.Position.POS_LEFT,   4.25f, VROption.ENABLED, "Head Position Tracking..."),
+            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
+            new VROption(208,                             VROption.Position.POS_LEFT,   5.25f, VROption.ENABLED, "Move/Aim Control..."),
+            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
         };
 
     /** An array of all of EnumOption's video options. */
@@ -57,6 +57,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
+        this.buttonList.add(new GuiButtonEx(211, this.width / 2 - 100, this.height / 6 + 128, stringTranslate.translateKey("Reset Origin")));
         this.buttonList.add(new GuiButtonEx(210, this.width / 2 - 100, this.height / 6 + 148, stringTranslate.translateKey("Recalibrate...")));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         VROption[] buttons = null;
@@ -168,6 +169,12 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                 if (vrRenderer != null)
                     vrRenderer.startCalibration();
             }
+            else if (par1GuiButton.id == 211)
+            {
+                this.mc.gameSettings.saveOptions();
+                if (vrRenderer != null)
+                    vrRenderer.resetGuiYawOrientation();
+            }
             else if (par1GuiButton.id == 200)
             {
                 this.mc.gameSettings.saveOptions();
@@ -239,6 +246,11 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 	    			"  Ex: Look/move/aim decouple, joystick sensitivty, " ,
 	    			"     Keyhole width, Mouse-pitch-affects camera" ,
 	    		};
+            case 211:
+                return new String[] {
+                        "Resets the origin point to your current head",
+                        "position."
+                };
     		default:
     			return null;
     	}

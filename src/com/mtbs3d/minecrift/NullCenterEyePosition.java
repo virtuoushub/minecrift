@@ -6,7 +6,7 @@ package com.mtbs3d.minecrift;
 
 import java.io.File;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.Vec3;
 
 import com.mtbs3d.minecrift.api.BasePlugin;

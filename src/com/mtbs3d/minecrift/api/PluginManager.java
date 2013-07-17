@@ -1,6 +1,6 @@
 package com.mtbs3d.minecrift.api;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -127,10 +127,13 @@ public class PluginManager implements IEventListener
 
     private static void initForMinecrift(IBasePlugin plugin)
     {
-        if( !plugin.isInitialized() && !plugin.init(new File(new File(Minecraft.getMinecraftDir(),"bin"),"natives")) )
-        {
-            System.err.println("Error! Couldn't load "+ plugin.getName()+": "+plugin.getInitializationStatus() );
-        }
+    	for( String path :System.getProperty("java.library.path").split(":") )
+    	{
+	        if( !plugin.isInitialized() && !plugin.init(new File( path )) )
+	        {
+	            System.err.println("Error! Couldn't load "+ plugin.getName()+": "+plugin.getInitializationStatus() );
+	        }
+    	}
     }
 
     public static void register( IBasePlugin that )

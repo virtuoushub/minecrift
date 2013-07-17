@@ -1,15 +1,14 @@
 --- a/net/minecraft/src/GameSettings.java
 +++ b/net/minecraft/src/GameSettings.java
-@@ -7,6 +7,8 @@
+@@ -7,12 +7,29 @@
  import java.io.PrintWriter;
  import java.util.Arrays;
  import java.util.List;
 +
 +import com.mtbs3d.minecrift.MCHydra;
- import net.minecraft.client.Minecraft;
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
-@@ -14,6 +16,21 @@
+ import org.lwjgl.opengl.Display;
  
  public class GameSettings
  {
@@ -31,17 +30,28 @@
      private static final String[] RENDER_DISTANCES = new String[] {"options.renderDistance.far", "options.renderDistance.normal", "options.renderDistance.short", "options.renderDistance.tiny"};
      private static final String[] DIFFICULTIES = new String[] {"options.difficulty.peaceful", "options.difficulty.easy", "options.difficulty.normal", "options.difficulty.hard"};
  
-@@ -28,6 +45,7 @@
+@@ -27,13 +44,14 @@
      public float musicVolume = 1.0F;
      public float soundVolume = 1.0F;
      public float mouseSensitivity = 0.5F;
+-    public boolean invertMouse;
+-    public int renderDistance = 1;
 +
-     public boolean invertMouse = false;
-     public int renderDistance = 0;
++    public boolean invertMouse = false;
++    public int renderDistance = 0;
      public boolean viewBobbing = true;
-@@ -133,6 +151,80 @@
+-    public boolean anaglyph;
++    public boolean anaglyph = false;
+ 
+     /** Advanced OpenGL */
+-    public boolean advancedOpengl;
++    public boolean advancedOpengl = false;
+     public int limitFramerate = 1;
+     public boolean fancyGraphics = true;
+ 
+@@ -132,6 +150,80 @@
      public boolean enableVsync = true;
-     public boolean hideServerAddress = false;
+     public boolean hideServerAddress;
  
 +    // Minecrift
 +    public boolean useVRRenderer    = false; //default to false
@@ -120,7 +130,7 @@
      /**
       * Whether to show advanced information on item tooltips, toggled by F3+H
       */
-@@ -166,7 +258,7 @@
+@@ -165,7 +257,7 @@
      public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98);
      public KeyBinding keyBindCommand = new KeyBinding("key.command", 53);
      public KeyBinding[] keyBindings;
@@ -129,7 +139,7 @@
      private File optionsFile;
      public int difficulty;
      public boolean hideGUI;
-@@ -175,6 +267,7 @@
+@@ -174,6 +266,7 @@
      /** true if debug info should be displayed instead of version */
      public boolean showDebugInfo;
      public boolean showDebugProfilerChart;
@@ -137,7 +147,7 @@
  
      /** The lastServer string. */
      public String lastServer;
-@@ -203,6 +296,7 @@
+@@ -202,6 +295,7 @@
      /** Game settings language */
      public String language;
      private File optionsFileOF;
@@ -145,33 +155,15 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
-@@ -211,7 +305,7 @@
-         this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
-         this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
-         this.difficulty = 2;
--        this.hideGUI = false;
-+        this.hideGUI = true;       // TODO: Default
-         this.thirdPersonView = 0;
-         this.showDebugInfo = false;
-         this.showDebugProfilerChart = false;
-@@ -229,6 +323,7 @@
+@@ -216,6 +310,7 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
 +        this.optionsFileMinecrift = new File(par2File, "optionsvr.txt");
          this.loadOptions();
-         Config.setGameSettings(this);
+         Config.initGameSettings(this);
      }
-@@ -240,7 +335,7 @@
-         this.ofKeyBindZoom = new KeyBinding("Zoom", 29);
-         this.keyBindings = new KeyBinding[] {this.keyBindAttack, this.keyBindUseItem, this.keyBindForward, this.keyBindLeft, this.keyBindBack, this.keyBindRight, this.keyBindJump, this.keyBindSneak, this.keyBindDrop, this.keyBindInventory, this.keyBindChat, this.keyBindPlayerList, this.keyBindPickBlock, this.ofKeyBindZoom, this.keyBindCommand};
-         this.difficulty = 2;
--        this.hideGUI = false;
-+        this.hideGUI = true;     // TODO: Default
-         this.thirdPersonView = 0;
-         this.showDebugInfo = false;
-         this.showDebugProfilerChart = false;
-@@ -414,6 +509,178 @@
+@@ -388,6 +483,178 @@
              this.chatScale = par2;
              this.mc.ingameGUI.getChatGUI().func_96132_b();
          }
@@ -350,7 +342,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -1162,12 +1429,184 @@
+@@ -1141,12 +1408,184 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -536,33 +528,34 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1625,43 +2064,390 @@
-         {
-             return this.heldItemTooltips ? var4 + "ON" : var4 + "OFF";
+@@ -1213,6 +1652,7 @@
          }
--        else if (par1EnumOptions.getEnumFloat())
+ 
+         String var3 = var2 + ": ";
++        String var4 = var3;
+         String var5;
+ 
+         if (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE)
+@@ -1603,21 +2043,360 @@
+         {
+             return this.heldItemTooltips ? var3 + "ON" : var3 + "OFF";
+         }
+-        else
 +
 +        // Minecrift
 +        else if (par1EnumOptions == EnumOptions.USE_VR)
          {
--            float var10 = this.getOptionFloatValue(par1EnumOptions);
--            return par1EnumOptions == EnumOptions.SENSITIVITY ? (var10 == 0.0F ? var4 + var2.translateKey("options.sensitivity.min") : (var10 == 1.0F ? var4 + var2.translateKey("options.sensitivity.max") : var4 + (int)(var10 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var10 == 0.0F ? var4 + var2.translateKey("options.fov.min") : (var10 == 1.0F ? var4 + var2.translateKey("options.fov.max") : var4 + (int)(70.0F + var10 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var10 == 0.0F ? var4 + var2.translateKey("options.gamma.min") : (var10 == 1.0F ? var4 + var2.translateKey("options.gamma.max") : var4 + "+" + (int)(var10 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var4 + (int)(var10 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var4 + GuiNewChat.func_96130_b(var10) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var4 + GuiNewChat.func_96130_b(var10) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var4 + GuiNewChat.func_96128_a(var10) + "px" : (var10 == 0.0F ? var4 + var2.translateKey("options.off") : var4 + (int)(var10 * 100.0F) + "%")))))));
+-            var5 = I18n.func_135053_a(par1EnumOptions.getEnumString()) + ": ";
 +            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
-         }
--        else if (par1EnumOptions.getEnumBoolean())
++        }
 +        else if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
-         {
--            boolean var6 = this.getOptionOrdinalValue(par1EnumOptions);
--            return var6 ? var4 + var2.translateKey("options.on") : var4 + var2.translateKey("options.off");
++        {
 +            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
-         }
--        else
++        }
 +        else if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
-         {
--            return par1EnumOptions == EnumOptions.RENDER_DISTANCE ? var4 + getTranslation(RENDER_DISTANCES, this.renderDistance) : (par1EnumOptions == EnumOptions.DIFFICULTY ? var4 + getTranslation(DIFFICULTIES, this.difficulty) : (par1EnumOptions == EnumOptions.GUI_SCALE ? var4 + getTranslation(GUISCALES, this.guiScale) : (par1EnumOptions == EnumOptions.CHAT_VISIBILITY ? var4 + getTranslation(CHAT_VISIBILITIES, this.chatVisibility) : (par1EnumOptions == EnumOptions.PARTICLES ? var4 + getTranslation(PARTICLES, this.particleSetting) : (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT ? var4 + getTranslation(LIMIT_FRAMERATES, this.limitFramerate) : (par1EnumOptions == EnumOptions.AMBIENT_OCCLUSION ? var4 + getTranslation(AMBIENT_OCCLUSIONS, this.ambientOcclusion) : (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") : var4 + var2.translateKey("options.graphics.fast")) : var4)))))));
++        {
 +            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
-         }
--    }
++        }
 +        else if (par1EnumOptions == EnumOptions.NECK_LENGTH)
 +        {
 +            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.neckBaseToEyeHeight) });
@@ -685,25 +678,20 @@
 +        {
 +            String s = var4 + "Unknown";
  
--    /**
--     * Loads the options from the options file. It appears that this has replaced the previous 'loadOptions'
--     */
--    public void loadOptions()
--    {
--        try
+-            if (par1EnumOptions.getEnumFloat())
 +            if (this.posTrackHydraLoc >= 0 && this.posTrackHydraLoc < POS_TRACK_HYDRA_LOC.length)
 +                s = var4 + POS_TRACK_HYDRA_LOC[this.posTrackHydraLoc];
 +
 +            return s;
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X)
-         {
--            if (!this.optionsFile.exists())
++        {
 +            float value = 0.0f;
 +
 +            switch (this.posTrackHydraLoc)
              {
--                return;
+-                float var8 = this.getOptionFloatValue(par1EnumOptions);
+-                return par1EnumOptions == EnumOptions.SENSITIVITY ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.sensitivity.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.sensitivity.max") : var5 + (int)(var8 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.fov.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.fov.max") : var5 + (int)(70.0F + var8 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.gamma.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.gamma.max") : var5 + "+" + (int)(var8 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var5 + (int)(var8 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var5 + GuiNewChat.func_96128_a(var8) + "px" : (var8 == 0.0F ? var5 + I18n.func_135053_a("options.off") : var5 + (int)(var8 * 100.0F) + "%")))))));
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetX;
 +                    break;
@@ -723,22 +711,18 @@
 +                        value = this.posTrackHydraBROffsetX;
 +                    break;
              }
- 
--            BufferedReader var1 = new BufferedReader(new FileReader(this.optionsFile));
--            String var2 = "";
+-            else if (par1EnumOptions.getEnumBoolean())
++
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y)
 +        {
 +            float value = 0.0f;
- 
--            while ((var2 = var1.readLine()) != null)
++
 +            switch (this.posTrackHydraLoc)
              {
--                try
--                {
--                    String[] var3 = var2.split(":");
--
+-                boolean var9 = this.getOptionOrdinalValue(par1EnumOptions);
+-                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -757,7 +741,8 @@
 +                    else
 +                        value = this.posTrackHydraBROffsetY;
 +                    break;
-+            }
+             }
+-            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
 +
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
@@ -903,56 +888,26 @@
 +            return "None";
 +        }
 +        // End Minecrift
-+        else if (par1EnumOptions.getEnumFloat())
-+        {
-+            float var10 = this.getOptionFloatValue(par1EnumOptions);
-+            return par1EnumOptions == EnumOptions.SENSITIVITY ? (var10 == 0.0F ? var4 + var2.translateKey("options.sensitivity.min") : (var10 == 1.0F ? var4 + var2.translateKey("options.sensitivity.max") : var4 + (int)(var10 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var10 == 0.0F ? var4 + var2.translateKey("options.fov.min") : (var10 == 1.0F ? var4 + var2.translateKey("options.fov.max") : var4 + (int)(70.0F + var10 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var10 == 0.0F ? var4 + var2.translateKey("options.gamma.min") : (var10 == 1.0F ? var4 + var2.translateKey("options.gamma.max") : var4 + "+" + (int)(var10 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var4 + (int)(var10 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var4 + GuiNewChat.func_96130_b(var10) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var4 + GuiNewChat.func_96130_b(var10) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var4 + GuiNewChat.func_96128_a(var10) + "px" : (var10 == 0.0F ? var4 + var2.translateKey("options.off") : var4 + (int)(var10 * 100.0F) + "%")))))));
-+        }
-+        else if (par1EnumOptions.getEnumBoolean())
-+        {
-+            boolean var6 = this.getOptionOrdinalValue(par1EnumOptions);
-+            return var6 ? var4 + var2.translateKey("options.on") : var4 + var2.translateKey("options.off");
-+        }
 +        else
 +        {
-+            return par1EnumOptions == EnumOptions.RENDER_DISTANCE ? var4 + getTranslation(RENDER_DISTANCES, this.renderDistance) :
-+                  (par1EnumOptions == EnumOptions.DIFFICULTY ? var4 + getTranslation(DIFFICULTIES, this.difficulty) :
-+                  (par1EnumOptions == EnumOptions.GUI_SCALE ? var4 + getTranslation(GUISCALES, this.guiScale) :
-+                  (par1EnumOptions == EnumOptions.CHAT_VISIBILITY ? var4 + getTranslation(CHAT_VISIBILITIES, this.chatVisibility) :
-+                  (par1EnumOptions == EnumOptions.PARTICLES ? var4 + getTranslation(PARTICLES, this.particleSetting) :
-+                  (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT ? var4 + getTranslation(LIMIT_FRAMERATES, this.limitFramerate) :
-+                  (par1EnumOptions == EnumOptions.AMBIENT_OCCLUSION ? var4 + getTranslation(AMBIENT_OCCLUSIONS, this.ambientOcclusion) :
-+                  (par1EnumOptions == EnumOptions.GRAPHICS ? (this.fancyGraphics ? var4 + var2.translateKey("options.graphics.fancy") :
-+                  var4 + var2.translateKey("options.graphics.fast")) : var4)))))));
-+        }
-+    }
++            var5 = I18n.func_135053_a(par1EnumOptions.getEnumString()) + ": ";
 +
-+    /**
-+     * Loads the options from the options file. It appears that this has replaced the previous 'loadOptions'
-+     */
-+    public void loadOptions()
-+    {
-+        try
-+        {
-+            if (!this.optionsFile.exists())
++            if (par1EnumOptions.getEnumFloat())
 +            {
-+                return;
++                float var8 = this.getOptionFloatValue(par1EnumOptions);
++                return par1EnumOptions == EnumOptions.SENSITIVITY ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.sensitivity.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.sensitivity.max") : var5 + (int)(var8 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.fov.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.fov.max") : var5 + (int)(70.0F + var8 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.gamma.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.gamma.max") : var5 + "+" + (int)(var8 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var5 + (int)(var8 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var5 + GuiNewChat.func_96128_a(var8) + "px" : (var8 == 0.0F ? var5 + I18n.func_135053_a("options.off") : var5 + (int)(var8 * 100.0F) + "%")))))));
 +            }
-+
-+            BufferedReader var1 = new BufferedReader(new FileReader(this.optionsFile));
-+            String var2 = "";
-+
-+            while ((var2 = var1.readLine()) != null)
++            else if (par1EnumOptions.getEnumBoolean())
 +            {
-+                try
-+                {
-+                    String[] var3 = var2.split(":");
-+
-                     if (var3[0].equals("music"))
-                     {
-                         this.musicVolume = this.parseFloat(var3[1]);
-@@ -2319,6 +3105,382 @@
-             Config.dbg("Failed to load options");
++                boolean var9 = this.getOptionOrdinalValue(par1EnumOptions);
++                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
++            }
++            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
+             {
+                 return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
+             }
+@@ -2342,6 +3121,382 @@
+             Config.warn("Failed to load options");
              var6.printStackTrace();
          }
 +
@@ -1334,7 +1289,7 @@
      }
  
      /**
-@@ -2479,6 +3641,84 @@
+@@ -2502,6 +3657,84 @@
              var3.printStackTrace();
          }
  
@@ -1419,7 +1374,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2657,4 +3897,126 @@
+@@ -2679,4 +3912,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }

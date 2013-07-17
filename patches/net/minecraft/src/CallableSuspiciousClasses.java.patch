@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/CallableSuspiciousClasses.java
++++ b/net/minecraft/src/CallableSuspiciousClasses.java
+@@ -52,7 +52,7 @@
+                 {
+                     if (var5)
+                     {
+-                        if (var10.length() <= 3 || var10.equals("net.minecraft.client.main.Main") || var10.equals("net.minecraft.client.Minecraft") || var10.equals("net.minecraft.client.ClientBrandRetriever") || var10.equals("net.minecraft.server.MinecraftServer"))
++                        if (var10.length() <= 3 || var10.equals("net.minecraft.client.main.Main") || var10.equals("net.minecraft.src.Minecraft") || var10.equals("net.minecraft.client.ClientBrandRetriever") || var10.equals("net.minecraft.server.MinecraftServer"))
+                         {
+                             continue;
+                         }

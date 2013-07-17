@@ -4,14 +4,12 @@
  */
 package com.mtbs3d.minecrift;
 
-import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.api.PluginManager;
 import org.lwjgl.input.Keyboard;
 
-import com.mtbs3d.minecrift.api.BasePlugin;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 public class VRHotkeys {
 

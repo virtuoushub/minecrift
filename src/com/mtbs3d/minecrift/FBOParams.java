@@ -4,17 +4,14 @@
  */
 package com.mtbs3d.minecrift;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.OpenGlHelper;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 
 public class FBOParams
 {
-	public FBOParams(boolean useHighPrecisionBuffer, int fboWidth, int fboHeight )
+	public FBOParams(String fboName, boolean useHighPrecisionBuffer, int fboWidth, int fboHeight )
 	{
         int nBufferFormat = GL11.GL_RGBA8;
 
@@ -48,7 +45,7 @@ public class FBOParams
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, nBufferFormat, fboWidth, fboHeight, 0, GL11.GL_RGBA, GL11.GL_INT, (java.nio.ByteBuffer) null);
-        System.out.println("FBO width: " + fboWidth + ", FBO height: " + fboHeight);
+        System.out.println("[Minecrift] FBO '" + fboName + "': w: " + fboWidth + ", h: " + fboHeight);
         if (mc.gameSettings.useMipMaps)
         {
             // Mipmap gen
@@ -74,7 +71,7 @@ public class FBOParams
 	{
         OpenGlHelper.setActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, _colorTextureId);
-	}
+    }
 	
 	public void delete()
 	{

@@ -3,7 +3,7 @@ package com.mtbs3d.minecrift.gui;
 import com.mtbs3d.minecrift.api.IHMDInfo;
 import com.mtbs3d.minecrift.api.PluginManager;
 import de.fruitfly.ovr.UserProfileData;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.*;
 
 /**
