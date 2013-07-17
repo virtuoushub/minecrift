@@ -12,6 +12,7 @@ from applychanges import applychanges
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 mc_version = "1.6.2"
+of_version = mc_version+"_HD_U_B3"
 
 try:
     WindowsError
@@ -81,7 +82,6 @@ def download_deps( mcp_dir ):
         pass
 
     jars = os.path.join(mcp_dir,"jars")
-    repo = "https://s3.amazonaws.com/Minecraft.Download/"
 
     versions =  os.path.join(jars,"versions",mc_version) 
     mkdir_p( versions )
@@ -97,9 +97,13 @@ def download_deps( mcp_dir ):
 
     
     json_file = os.path.join(versions,mc_version+".json")
-    json_url = repo + "versions/"+mc_version+"/"+mc_version+".json"
+    shutil.copy( os.path.join("jsons",mc_version+".json"),json_file)
 
-    download_file( json_url, json_file )
+    optifine_dir = os.path.join(jars,"libraries","net","optifine","OptiFine",of_version )
+    mkdir_p( optifine_dir )
+
+    download_file( "http://optifine.net/download.php?f=OptiFine_"+of_version+".zip", os.path.join( optifine_dir, "OptiFine-"+of_version+".jar" ))
+
     json_obj = []
     with open(json_file,"rb") as f:
         json_obj = json.load( f )
@@ -115,15 +119,20 @@ def download_deps( mcp_dir ):
             if skip:
                 continue
             group,artifact,version = lib["name"].split(":")
-            url = "libraries/" +group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+".jar"
-            file = os.path.join(jars,url.replace("/",os.sep))
+            if "url" in lib:
+                repo = lib["url"]
+            else:
+                repo = "https://s3.amazonaws.com/Minecraft.Download/libraries/"
+
+            if "natives" in lib:
+                url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+"-"+lib["natives"][native]+".jar"
+            else:
+                url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+".jar"
+            file = os.path.join(jars,"libraries",url.replace("/",os.sep))
             mkdir_p(os.path.dirname(file))
             download_file( repo + url, file )
-            if "natives" in lib:
-                url = "libraries/" +group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+"-"+lib["natives"][native]+".jar"
-                file = os.path.join(jars,url.replace("/",os.sep))
-                download_file( repo + url, file )
 
+            if "natives" in lib:
                 folder = os.path.join(jars,"versions",mc_version,mc_version+"-natives")
                 mkdir_p(folder)
                 zip = zipfile.ZipFile(file)
@@ -136,7 +145,7 @@ def download_deps( mcp_dir ):
                             out.write(zip.read(name))
                             out.flush()
                             out.close()
-                zip.close()
+
             newlibs.append( lib )
         json_obj['libraries'] = newlibs
         with open(json_file,"wb+") as f:
@@ -144,11 +153,11 @@ def download_deps( mcp_dir ):
     except:
         pass
 
+    repo = "https://s3.amazonaws.com/Minecraft.Download/"
     jar_file = os.path.join(versions,mc_version+".jar")
     jar_url = repo + "versions/"+mc_version+"/"+mc_version+".jar"
     download_file( jar_url, jar_file )
 
-    download_file( "http://optifine.net/download.php?f=OptiFine_1.6.2_HD_U_B3.zip", os.path.join(jars,"OptiFine-1.6.2_HD_U_B3.zip"),)
 
 def zipmerge( target_file, source_file ):
     out_file, out_filename = tempfile.mkstemp()
@@ -197,8 +206,8 @@ def main(mcp_dir):
     download_deps( mcp_dir )
 
     print("Applying Optifine...")
-    zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"),
-              os.path.join( mcp_dir,"jars","OptiFine-1.6.2_HD_U_B3.zip") )
+    optifine = os.path.join(mcp_dir,"jars","libraries","net","optifine","OptiFine",of_version,"OptiFine-"+of_version+".jar" )
+    zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"), optifine )
 
     print("Decompiling...")
     sys.path.append(mcp_dir)
@@ -209,35 +218,14 @@ def main(mcp_dir):
 
     os.chdir( base_dir )
 
-    #src_dir = os.path.join(mcp_dir, "src","minecraft")
-    #org_src_dir = os.path.join(mcp_dir, "src",".minecraft_orig")
-    #if os.path.exists( org_src_dir ):
-    #    shutil.rmtree( org_src_dir, True )
-    #shutil.copytree( src_dir, org_src_dir )
+    src_dir = os.path.join(mcp_dir, "src","minecraft")
+    org_src_dir = os.path.join(mcp_dir, "src",".minecraft_orig")
+    if os.path.exists( org_src_dir ):
+        shutil.rmtree( org_src_dir, True )
+    shutil.copytree( src_dir, org_src_dir )
 
-    #applychanges( mcp_dir )
+    applychanges( mcp_dir )
     
-    #Need git in system PATH!
-    try:
-        process = subprocess.Popen(["git","submodule","init"], cwd=base_dir, bufsize=-1)
-        process.communicate()
-
-        process = subprocess.Popen(["git","submodule","update"], cwd=base_dir, bufsize=-1)
-        process.communicate()
-    except:
-        print("You'll need to get the JRift and Sixense-Java git submodules manually! Then, copy the jar files to mcp/lib")
-        pass
-
-    try:
-        os.mkdir( os.path.join( mcp_dir, "lib" ) )
-    except WindowsError:
-        pass    
-
-    try:
-        symlink( os.path.join( base_dir, "JRift","JRift.jar"), os.path.join( mcp_dir, "lib" ,"JRift.jar") )
-        symlink( os.path.join( base_dir, "Sixense-Java","SixenseJava.jar"), os.path.join( mcp_dir, "lib" ,"SixenseJava.jar") )
-    except WindowsError:
-        pass
     
 if __name__ == '__main__':
     parser = OptionParser()

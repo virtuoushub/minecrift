@@ -1,3 +1,7 @@
+1.1 Beta  17-07-13
+==================
+- Supports Minecraft 1.6.2
+ 
 1.0 Beta  27-06-13
 ==================
 - Positional head tracking with Razer Hydra.
