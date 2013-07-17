@@ -84,11 +84,14 @@ def download_deps( mcp_dir ):
     jars = os.path.join(mcp_dir,"jars")
     bin = os.path.join(jars,"bin")
 
-    native = "natives-window.jar"
     if sys.platform == 'darwin':
         native = "natives-osx.jar"
     elif sys.platform == "linux":
         native = "natives-linux.jar"
+    elif sys.platform == "linux2":
+        native = "natives-linux.jar"
+    else:
+        native = "natives-windows.jar"
 
     MinecraftDownload = "https://s3.amazonaws.com/Minecraft.Download/libraries/org/lwjgl/lwjgl/lwjgl-platform/2.9.0/lwjgl-platform-2.9.0-"
     download_native( MinecraftDownload + native, os.path.join(bin,"natives"), "lwjgl-"+native )
