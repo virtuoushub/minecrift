@@ -70,12 +70,17 @@ def download_deps( mcp_dir ):
 
     try:
         os.mkdir( mcp_dir )
+    except:
+        pass
+    try:
         mcp_zip = zipfile.ZipFile( "mcp751.zip" )
         mcp_zip.extractall( mcp_dir )
+        print("Extracted MCP")
         import stat
         astyle = os.path.join(mcp_dir,"runtime","bin","astyle-osx")
         st = os.stat( astyle )
         os.chmod(astyle, st.st_mode | stat.S_IEXEC)
+        print("Fixed astyle-osx")
     except:
         pass
 
