@@ -66,7 +66,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			    }
 			    return true;
 			} catch (Exception e) {
-				errorMessage += "Error: "+e.getLocalizedMessage();
+				finalMessage += "Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
@@ -100,7 +100,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				lib_jar.close();
 				return true;
 			} catch (Exception e) {
-				errorMessage += "Error: "+e.getLocalizedMessage();
+				finalMessage += "Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
@@ -143,7 +143,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	                null_jar.close();
 					return ver_json_file.exists() && ver_file.exists();
 				} catch (Exception e) {
-					errorMessage += "Error: "+e.getLocalizedMessage();
+					finalMessage += "Error: "+e.getLocalizedMessage();
 				}
 				
 			}
@@ -153,11 +153,11 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		/*
 		 * Main task. Executed in background thread.
 		 */
-		public String errorMessage;
+		public String finalMessage;
 		public String statusMessage;
 		@Override
 		public Void doInBackground() {
-			errorMessage = "Failed: Couldn't download Optifine. ";
+			finalMessage = "Failed: Couldn't download Optifine. ";
 			statusMessage = "Downloading Optifine... Please donate to them!";
 			setProgress(1);
 			if(!DownloadOptiFine())
@@ -165,18 +165,18 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				return null;
 			}
 			setProgress(50);
-			errorMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. ";
+			finalMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. ";
 			if(!SetupMinecraftAsLibrary())
 			{
 				return null;
 			}
 			setProgress(75);
-			errorMessage = "Failed: Couldn't extract Minecraft. ";
+			finalMessage = "Failed: Couldn't extract Minecraft. ";
 			if(!ExtractVersion())
 			{
 				return null;
 			}
-			errorMessage = "Installed Successfully!";
+			finalMessage = "Installed Successfully!";
 			setProgress(100);
 			return null;
 		}
@@ -187,7 +187,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		@Override
 		public void done() {
 			setCursor(null); // turn off the wait cursor
-            JOptionPane.showMessageDialog(null, statusMessage, "Complete", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, finalMessage, "Complete", JOptionPane.INFORMATION_MESSAGE);
 	        dialog.dispose();
 	        emptyFrame.dispose();
 		}
