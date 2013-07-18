@@ -1,7 +1,21 @@
-1.1 Beta  17-07-13
+1.1 Beta  18-07-13
 ==================
 - Supports Minecraft 1.6.2
- 
+- Uses Oculus SDK 0.2.3
+  - Linux Head Tracking Support
+  - Player Profiles (Player height, IPD, etc)
+- Camera collision detection to prevent clipping through walls
+- Rework Calibration procedure
+- Reorganize GUI for clarity, adding more tooltips
+- Many new GUI/HUD Tweaks/Options
+  - HUD Occlusion (HUD can be behind world objects)
+  - Decouple Crosshair/HUD/Block Hilight
+  - Crosshair Rotation
+- Hydra Handedness fixed up (left really is left)
+- Startup Calibration can be toggleable/skipable.
+- Added ability to switch between 3rd person/1st person model (for maps)
+- Changed Hydra keyhole aiming. Joystick now moves and strafes.
+
 1.0 Beta  27-06-13
 ==================
 - Positional head tracking with Razer Hydra.
