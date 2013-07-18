@@ -95,7 +95,7 @@ def main(mcp_dir):
         json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
         json_str = json.dumps( json_obj, indent=1 )
 
-    installer = os.path.join( "install-"+json_id+".jar" ) 
+    installer = os.path.join( json_id+"-installer.jar" ) 
     shutil.copy( os.path.join("installer","installer.jar"), installer )
     with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
         install_out.writestr( "version.json", json_str )
