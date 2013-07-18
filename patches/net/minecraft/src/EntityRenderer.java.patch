@@ -321,9 +321,9 @@
 +                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
 +            }
 +        }
-+
-+        this.mc.mcProfiler.endSection();
  
++        this.mc.mcProfiler.endSection();
++
 +    }
 +    
      /**
@@ -508,9 +508,9 @@
 +                this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
              }
 -        }
- 
--        this.waitForServerThread();
 -
+-        this.waitForServerThread();
+ 
 -        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
 -        {
 -            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
@@ -577,27 +577,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLivingBase var3 = this.mc.renderViewEntity;
-@@ -1918,7 +1963,6 @@
-             case 0:
-                 var5 = CustomColorizer.getSkyColor(var5, this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
-                 break;
--
-             case 1:
-                 var5 = CustomColorizer.getSkyColorEnd(var5);
-         }
-@@ -1933,11 +1977,9 @@
-             case -1:
-                 var10 = CustomColorizer.getFogColorNether(var10);
-                 break;
--
-             case 0:
-                 var10 = CustomColorizer.getFogColor(var10, this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
-                 break;
--
-             case 1:
-                 var10 = CustomColorizer.getFogColorEnd(var10);
-         }
-@@ -2118,7 +2160,7 @@
+@@ -2115,7 +2160,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
@@ -606,7 +586,7 @@
      {
          EntityLivingBase var3 = this.mc.renderViewEntity;
          boolean var4 = false;
-@@ -2296,25 +2338,14 @@
+@@ -2293,25 +2338,14 @@
      {
          Minecraft var1 = Config.getMinecraft();
  

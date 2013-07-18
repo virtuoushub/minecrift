@@ -343,35 +343,7 @@
      }
  
      private void updateWaterOpacity()
-@@ -463,11 +731,9 @@
-             case 1:
-                 WrUpdates.setWrUpdater(new WrUpdaterSmooth());
-                 break;
--
-             case 2:
-                 WrUpdates.setWrUpdater(new WrUpdaterThreaded());
-                 break;
--
-             default:
-                 WrUpdates.setWrUpdater((IWrUpdater)null);
-         }
-@@ -604,15 +870,12 @@
-                     }
- 
-                     break;
--
-                 case 2:
-                     this.ofFogType = 3;
-                     break;
--
-                 case 3:
-                     this.ofFogType = 1;
-                     break;
--
-                 default:
-                     this.ofFogType = 1;
-             }
-@@ -1146,12 +1409,189 @@
+@@ -1141,12 +1409,189 @@
              Display.setVSyncEnabled(this.enableVsync);
          }
  
@@ -562,54 +534,7 @@
      }
  
      public boolean getOptionOrdinalValue(EnumOptions par1EnumOptions)
-@@ -1160,46 +1600,32 @@
-         {
-             case 1:
-                 return this.invertMouse;
--
-             case 2:
-                 return this.viewBobbing;
--
-             case 3:
-                 return this.anaglyph;
--
-             case 4:
-                 return this.advancedOpengl;
--
-             case 5:
-                 return this.clouds;
--
-             case 6:
-                 return this.chatColours;
--
-             case 7:
-                 return this.chatLinks;
--
-             case 8:
-                 return this.chatLinksPrompt;
--
-             case 9:
-                 return this.serverTextures;
--
-             case 10:
-                 return this.snooperEnabled;
--
-             case 11:
-                 return this.fullScreen;
--
-             case 12:
-                 return this.enableVsync;
--
-             case 13:
-                 return this.showCape;
--
-             case 14:
-                 return this.touchscreen;
--
-             default:
-                 return false;
-         }
-@@ -1232,6 +1658,7 @@
+@@ -1213,6 +1658,7 @@
          }
  
          String var3 = var2 + ": ";
@@ -617,201 +542,16 @@
          String var5;
  
          if (par1EnumOptions == EnumOptions.RENDER_DISTANCE_FINE)
-@@ -1280,13 +1707,10 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 case 3:
-                     return var3 + "OFF";
--
-                 default:
-                     return var3 + "OFF";
-             }
-@@ -1305,16 +1729,12 @@
-             {
-                 case 0:
-                     return var3 + "Nearest";
--
-                 case 1:
-                     return var3 + "Linear";
--
-                 case 2:
-                     return var3 + "Bilinear";
--
-                 case 3:
-                     return var3 + "Trilinear";
--
-                 default:
-                     return var3 + "Nearest";
-             }
-@@ -1341,13 +1761,10 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 case 3:
-                     return var3 + "OFF";
--
-                 default:
-                     return var3 + "Default";
-             }
-@@ -1358,10 +1775,8 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 default:
-                     return var3 + "Default";
-             }
-@@ -1372,10 +1787,8 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 default:
-                     return var3 + "Default";
-             }
-@@ -1386,10 +1799,8 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 default:
-                     return var3 + "Default";
-             }
-@@ -1400,13 +1811,10 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 case 3:
-                     return var3 + "OFF";
--
-                 default:
-                     return var3 + "Default";
-             }
-@@ -1417,13 +1825,10 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 case 3:
-                     return var3 + "OFF";
--
-                 default:
-                     return var3 + "Default";
-             }
-@@ -1434,10 +1839,8 @@
-             {
-                 case 1:
-                     return var3 + "Dynamic";
--
-                 case 2:
-                     return var3 + "OFF";
--
-                 default:
-                     return var3 + "ON";
-             }
-@@ -1448,10 +1851,8 @@
-             {
-                 case 1:
-                     return var3 + "Dynamic";
--
-                 case 2:
-                     return var3 + "OFF";
--
-                 default:
-                     return var3 + "ON";
-             }
-@@ -1530,10 +1931,8 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 default:
-                     return var3 + "OFF";
-             }
-@@ -1544,10 +1943,8 @@
-             {
-                 case 1:
-                     return var3 + "Fast";
--
-                 case 2:
-                     return var3 + "Fancy";
--
-                 default:
-                     return var3 + "OFF";
-             }
-@@ -1652,44 +2049,387 @@
+@@ -1603,23 +2049,366 @@
          {
              return this.heldItemTooltips ? var3 + "ON" : var3 + "OFF";
          }
 -        else
--        {
--            var5 = I18n.func_135053_a(par1EnumOptions.getEnumString()) + ": ";
- 
--            if (par1EnumOptions.getEnumFloat())
--            {
--                float var8 = this.getOptionFloatValue(par1EnumOptions);
--                return par1EnumOptions == EnumOptions.SENSITIVITY ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.sensitivity.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.sensitivity.max") : var5 + (int)(var8 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.fov.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.fov.max") : var5 + (int)(70.0F + var8 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.gamma.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.gamma.max") : var5 + "+" + (int)(var8 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var5 + (int)(var8 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var5 + GuiNewChat.func_96128_a(var8) + "px" : (var8 == 0.0F ? var5 + I18n.func_135053_a("options.off") : var5 + (int)(var8 * 100.0F) + "%")))))));
--            }
--            else if (par1EnumOptions.getEnumBoolean())
--            {
--                boolean var9 = this.getOptionOrdinalValue(par1EnumOptions);
--                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
--            }
--            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
--            {
--                return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
--            }
--            else if (par1EnumOptions == EnumOptions.DIFFICULTY)
--            {
--                return var5 + getTranslation(DIFFICULTIES, this.difficulty);
--            }
--            else if (par1EnumOptions == EnumOptions.GUI_SCALE)
--            {
--                return var5 + getTranslation(GUISCALES, this.guiScale);
--            }
--            else if (par1EnumOptions == EnumOptions.CHAT_VISIBILITY)
--            {
--                return var5 + getTranslation(CHAT_VISIBILITIES, this.chatVisibility);
--            }
--            else if (par1EnumOptions == EnumOptions.PARTICLES)
--            {
--                return var5 + getTranslation(PARTICLES, this.particleSetting);
--            }
--            else if (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT)
--            {
--                return var5 + getTranslation(LIMIT_FRAMERATES, this.limitFramerate);
--            }
++
 +        // Minecrift
 +        else if (par1EnumOptions == EnumOptions.USE_VR)
-+        {
+         {
+-            var5 = I18n.func_135053_a(par1EnumOptions.getEnumString()) + ": ";
 +            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
 +        }
 +        else if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
@@ -943,7 +683,13 @@
 +        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
 +        {
 +            String s = var4 + "Unknown";
-+
+ 
+-            if (par1EnumOptions.getEnumFloat())
+-            {
+-                float var8 = this.getOptionFloatValue(par1EnumOptions);
+-                return par1EnumOptions == EnumOptions.SENSITIVITY ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.sensitivity.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.sensitivity.max") : var5 + (int)(var8 * 200.0F) + "%")) : (par1EnumOptions == EnumOptions.FOV ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.fov.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.fov.max") : var5 + (int)(70.0F + var8 * 40.0F))) : (par1EnumOptions == EnumOptions.GAMMA ? (var8 == 0.0F ? var5 + I18n.func_135053_a("options.gamma.min") : (var8 == 1.0F ? var5 + I18n.func_135053_a("options.gamma.max") : var5 + "+" + (int)(var8 * 100.0F) + "%")) : (par1EnumOptions == EnumOptions.CHAT_OPACITY ? var5 + (int)(var8 * 90.0F + 10.0F) + "%" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_UNFOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_HEIGHT_FOCUSED ? var5 + GuiNewChat.func_96130_b(var8) + "px" : (par1EnumOptions == EnumOptions.CHAT_WIDTH ? var5 + GuiNewChat.func_96128_a(var8) + "px" : (var8 == 0.0F ? var5 + I18n.func_135053_a("options.off") : var5 + (int)(var8 * 100.0F) + "%")))))));
+-            }
+-            else if (par1EnumOptions.getEnumBoolean())
 +            if (this.posTrackHydraLoc >= 0 && this.posTrackHydraLoc < POS_TRACK_HYDRA_LOC.length)
 +                s = var4 + POS_TRACK_HYDRA_LOC[this.posTrackHydraLoc];
 +
@@ -954,7 +700,9 @@
 +            float value = 0.0f;
 +
 +            switch (this.posTrackHydraLoc)
-+            {
+             {
+-                boolean var9 = this.getOptionOrdinalValue(par1EnumOptions);
+-                return var9 ? var5 + I18n.func_135053_a("options.on") : var5 + I18n.func_135053_a("options.off");
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetX;
 +                    break;
@@ -973,7 +721,8 @@
 +                    else
 +                        value = this.posTrackHydraBROffsetX;
 +                    break;
-+            }
+             }
+-            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
 +
 +            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
 +        }
@@ -982,7 +731,8 @@
 +            float value = 0.0f;
 +
 +            switch (this.posTrackHydraLoc)
-+            {
+             {
+-                return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
 +                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
 +                    value = this.posTrackHydraLROffsetY;
 +                    break;
@@ -1168,31 +918,10 @@
 +            else if (par1EnumOptions == EnumOptions.RENDER_DISTANCE)
 +            {
 +                return var5 + getTranslation(RENDER_DISTANCES, this.renderDistance);
-+            }
-+            else if (par1EnumOptions == EnumOptions.DIFFICULTY)
-+            {
-+                return var5 + getTranslation(DIFFICULTIES, this.difficulty);
-+            }
-+            else if (par1EnumOptions == EnumOptions.GUI_SCALE)
-+            {
-+                return var5 + getTranslation(GUISCALES, this.guiScale);
-+            }
-+            else if (par1EnumOptions == EnumOptions.CHAT_VISIBILITY)
-+            {
-+                return var5 + getTranslation(CHAT_VISIBILITIES, this.chatVisibility);
-+            }
-+            else if (par1EnumOptions == EnumOptions.PARTICLES)
-+            {
-+                return var5 + getTranslation(PARTICLES, this.particleSetting);
-+            }
-+            else if (par1EnumOptions == EnumOptions.FRAMERATE_LIMIT)
-+            {
-+                return var5 + getTranslation(LIMIT_FRAMERATES, this.limitFramerate);
-+            }
-             else if (par1EnumOptions == EnumOptions.AMBIENT_OCCLUSION)
+             }
+             else if (par1EnumOptions == EnumOptions.DIFFICULTY)
              {
-                 return var5 + getTranslation(AMBIENT_OCCLUSIONS, this.ambientOcclusion);
-@@ -2391,6 +3131,387 @@
+@@ -2342,6 +3131,387 @@
              Config.warn("Failed to load options");
              var6.printStackTrace();
          }
@@ -1580,7 +1309,7 @@
      }
  
      /**
-@@ -2551,6 +3672,85 @@
+@@ -2502,6 +3672,85 @@
              var3.printStackTrace();
          }
  
@@ -1666,21 +1395,7 @@
          this.sendSettingsToServer();
      }
  
-@@ -2712,13 +3912,10 @@
-         {
-             case 0:
-                 return 0;
--
-             case 1:
-                 return 120;
--
-             case 2:
-                 return 35;
--
-             default:
-                 return 0;
-         }
-@@ -2731,4 +3928,126 @@
+@@ -2679,4 +3928,126 @@
      {
          return this.ofRenderDistanceFine > 64 && this.clouds;
      }
