@@ -1,7 +1,6 @@
-import os, os.path, sys
+import os, os.path, sys, json, datetime, StringIO
 import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
-import subprocess
 
 try:
     WindowsError
@@ -10,7 +9,6 @@ except NameError:
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-#Helpers taken from forge mod loader, https://github.com/MinecraftForge/FML/blob/master/install/fml.py
 def zipmerge( target_file, source_file ):
     out_file, out_filename = tempfile.mkstemp()
     out = zipfile.ZipFile(out_filename,'a')
@@ -32,24 +30,6 @@ def zipmerge( target_file, source_file ):
     out.close()
     os.remove( target_file )
     shutil.copy( out_filename, target_file )
-   
-    
-def symlink(source, link_name):
-    import os
-    os_symlink = getattr(os, "symlink", None)
-    if callable(os_symlink):
-        try:
-            os_symlink(source, link_name)
-        except Exception:
-			pass
-    else:
-        import ctypes
-        csl = ctypes.windll.kernel32.CreateSymbolicLinkW
-        csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
-        csl.restype = ctypes.c_ubyte
-        flags = 1 if os.path.isdir(source) else 0
-        if csl(link_name, source, flags) == 0:
-            raise ctypes.WinError()
 
 def main(mcp_dir):
     print 'Using mcp dir: %s' % mcp_dir
@@ -59,6 +39,7 @@ def main(mcp_dir):
 
     reobf = os.path.join(mcp_dir,'reobf','minecraft')
     try:
+        pass
         shutil.rmtree(reobf)
     except OSError:
         pass
@@ -73,32 +54,53 @@ def main(mcp_dir):
     commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True, srg_names=False)
     reobfuscate_side( commands, CLIENT )
 
-    version = os.getenv("RELEASE_VERSION") or os.getenv("BUILD_NUMBER") or "1.1_beta_1.6.2"
+    print("Creating Installer...")
+    
+    mc_ver ="1.6.2"
+    if os.getenv("RELEASE_VESRION"):
+        version = "r"+os.getenv("RELEASE_NUMBER")
+    elif os.getenv("BUILD_NUMBER"):
+        version = "b"+os.getenv("BUILD_NUMBER")
+    else:
+        version = "bXYZ"
 
-    try:
-        os.mkdir( os.path.join( base_dir, "releases" ) )
-    except:
-        pass
-    out_file = os.path.join( base_dir,"releases","minecrift_"+version+"_classes.zip" )
-    try:
-        os.remove( out_file)
-    except OSError:
-        pass
-    print("Creating %s"%out_file)
-    with zipfile.ZipFile( out_file,'w') as zipout:
+    id = mc_ver +"-minecrift"
+    in_mem_zip = StringIO.StringIO()
+    with zipfile.ZipFile( in_mem_zip,'w') as zipout:
         for abs_path, _, filelist in os.walk(reobf, followlinks=True):
             arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
             for cur_file in fnmatch.filter(filelist, '*.class'):
-                if cur_file=='bkc.class':
+                if cur_file=='blk.class': #skip SoundManager
                     continue
                 in_file= os.path.join(abs_path,cur_file) 
                 arcname =  arc_path + cur_file
                 zipout.write(in_file, arcname)
 
-
-
-
     os.chdir( base_dir )
+
+    
+    in_mem_zip.seek(0)
+    json_str = ""
+
+    json_id = id+"-"+version
+    
+    with  open(os.path.join("jsons",mc_ver+".json"),"rb") as f:
+        json_obj = json.load(f)
+        time = datetime.datetime.now().isoformat()
+        json_obj["id"] = json_id
+        json_obj["time"] = time
+        json_obj["releaseTime"] = time
+        json_obj["libraries"].insert(0,{"name":"com.mtbs3d.minecrift:"+id+":"+version}) #Insert at beginning
+        json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
+        json_str = json.dumps( json_obj, indent=1 )
+
+    installer = os.path.join( "install-"+json_id+".jar" ) 
+    shutil.copy( "installer.jar", installer )
+    with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
+        install_out.writestr( "version.json", json_str )
+        install_out.writestr( "version.jar", in_mem_zip.read() )
+        install_out.writestr( "version", json_id )
+    
     
 if __name__ == '__main__':
     parser = OptionParser()
