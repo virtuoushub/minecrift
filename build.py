@@ -81,7 +81,7 @@ def main(mcp_dir):
 
     mc_ver ="1.6.2"
     if os.getenv("RELEASE_VESRION"):
-        version = "r"+os.getenv("RELEASE_NUMBER")
+        version = os.getenv("RELEASE_VERSION")
     elif os.getenv("BUILD_NUMBER"):
         version = "b"+os.getenv("BUILD_NUMBER")
     else:
