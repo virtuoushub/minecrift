@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/EntityList.java
++++ b/net/minecraft/src/EntityList.java
+@@ -83,11 +83,9 @@
+                 case 0:
+                     par0NBTTagCompound.setString("id", "MinecartRideable");
+                     break;
+-
+                 case 1:
+                     par0NBTTagCompound.setString("id", "MinecartChest");
+                     break;
+-
+                 case 2:
+                     par0NBTTagCompound.setString("id", "MinecartFurnace");
+             }

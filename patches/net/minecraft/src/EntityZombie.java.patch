@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/EntityZombie.java
++++ b/net/minecraft/src/EntityZombie.java
+@@ -299,11 +299,9 @@
+             case 0:
+                 this.dropItem(Item.ingotIron.itemID, 1);
+                 break;
+-
+             case 1:
+                 this.dropItem(Item.carrot.itemID, 1);
+                 break;
+-
+             case 2:
+                 this.dropItem(Item.potato.itemID, 1);
+         }

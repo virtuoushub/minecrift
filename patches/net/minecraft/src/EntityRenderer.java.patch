@@ -1,6 +1,13 @@
 --- a/net/minecraft/src/EntityRenderer.java
 +++ b/net/minecraft/src/EntityRenderer.java
-@@ -15,20 +15,20 @@
+@@ -9,26 +9,27 @@
+ import org.lwjgl.input.Keyboard;
+ import org.lwjgl.input.Mouse;
+ import org.lwjgl.opengl.Display;
++import org.lwjgl.opengl.DisplayMode;
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GLContext;
+ import org.lwjgl.util.glu.Project;
  
  public class EntityRenderer
  {
@@ -26,7 +33,7 @@
  
      /** Pointed entity */
      private Entity pointedEntity;
-@@ -46,33 +46,31 @@
+@@ -46,33 +47,31 @@
  
      /** Mouse filter dummy 4 */
      private MouseFilter mouseFilterDummy4 = new MouseFilter();
@@ -70,7 +77,7 @@
  
      /**
       * The texture id of the blocklight/skylight texture used for lighting effects
-@@ -97,37 +95,40 @@
+@@ -97,37 +96,42 @@
      private float field_82832_V;
  
      /** Cloud fog mode */
@@ -85,6 +92,8 @@
 +    protected float cameraPitch = 0.0F; //head + additional input(moues if enabled)
 +    protected float cameraRoll = 0.0F;
 +    protected float prevCamRoll = 0.0F;
++
++    protected boolean checkAspectRatio = true;
  
      /** Previous frame time in milliseconds */
      private long prevFrameTime = Minecraft.getSystemTime();
@@ -122,7 +131,7 @@
  
      /** Rain X coords */
      float[] rainXCoords;
-@@ -139,13 +140,13 @@
+@@ -139,13 +143,13 @@
      FloatBuffer fogColorBuffer = GLAllocation.createDirectFloatBuffer(16);
  
      /** red component of the fog color */
@@ -139,7 +148,7 @@
  
      /** Fog color 2 */
      private float fogColor2;
-@@ -158,11 +159,11 @@
+@@ -158,11 +162,11 @@
       */
      public int debugViewDirection;
      private boolean initialized = false;
@@ -154,7 +163,7 @@
      private int serverWaitTime = 0;
      private int serverWaitTimeCurrent = 0;
      private float avgServerTimeDiff = 0.0F;
-@@ -197,7 +198,7 @@
+@@ -197,7 +201,7 @@
          this.prevDebugCamYaw = this.debugCamYaw;
          this.prevDebugCamPitch = this.debugCamPitch;
          this.prevDebugCamFOV = this.debugCamFOV;
@@ -163,7 +172,7 @@
          float var1;
          float var2;
  
-@@ -277,36 +278,43 @@
+@@ -277,36 +281,43 @@
              }
  
              Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
@@ -230,7 +239,7 @@
                              if (var14 == this.mc.renderViewEntity.ridingEntity)
                              {
                                  if (var11 == 0.0D)
-@@ -333,7 +341,6 @@
+@@ -333,7 +344,6 @@
                      this.mc.pointedEntityLiving = (EntityLivingBase)this.pointedEntity;
                  }
              }
@@ -238,7 +247,7 @@
      }
  
      /**
-@@ -437,7 +444,7 @@
+@@ -437,7 +447,7 @@
          }
      }
  
@@ -247,7 +256,7 @@
      {
          EntityLivingBase var2 = this.mc.renderViewEntity;
          float var3 = (float)var2.hurtTime - par1;
-@@ -463,7 +470,7 @@
+@@ -463,7 +473,7 @@
      /**
       * Setups all the GL settings for view bobbing. Args: partialTickTime
       */
@@ -256,7 +265,7 @@
      {
          if (this.mc.renderViewEntity instanceof EntityPlayer)
          {
-@@ -489,7 +496,7 @@
+@@ -489,7 +499,7 @@
          double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
          double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
          double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
@@ -265,7 +274,7 @@
  
          if (var2.isPlayerSleeping())
          {
-@@ -823,7 +830,7 @@
+@@ -823,7 +833,7 @@
          this.lightmapUpdateNeeded = true;
      }
  
@@ -274,7 +283,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
  
-@@ -975,7 +982,45 @@
+@@ -975,7 +985,45 @@
          int var3 = par1EntityPlayer.getActivePotionEffect(Potion.nightVision).getDuration();
          return var3 > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)var3 - par2) * (float)Math.PI * 0.2F) * 0.3F;
      }
@@ -291,7 +300,7 @@
 +            float var6 = (float)this.mc.mouseHelper.deltaX * var5;
 +            float var7 = (float)this.mc.mouseHelper.deltaY * var5;
 +            byte var8 = 1;
- 
++
 +            if (this.mc.gameSettings.invertMouse)
 +            {
 +                var8 = -1;
@@ -314,13 +323,43 @@
 +        }
 +
 +        this.mc.mcProfiler.endSection();
-+
+ 
 +    }
 +    
      /**
       * Will update any inputs that effect the camera angle (mouse) and then render the world and GUI
       */
-@@ -1028,7 +1073,7 @@
+@@ -999,6 +1047,29 @@
+             Config.setNewRelease((String)null);
+         }
+ 
++        if (var2 != null)
++        {
++            if (checkAspectRatio)
++            {
++                if (this.mc.hmdInfo != null && !this.mc.hmdInfo.getHMDInfo().isFakeData)
++                {
++                    int hmdScreenWidthPixels = this.mc.hmdInfo.getHMDInfo().HResolution;
++                    int hmdScreenHeightPixels = this.mc.hmdInfo.getHMDInfo().VResolution;
++
++                    DisplayMode e = Display.getDisplayMode();
++                    if (hmdScreenWidthPixels != e.getWidth() || hmdScreenHeightPixels != e.getHeight())
++                    {
++                        this.mc.ingameGUI.getChatGUI().printChatMessage("\u00a7e[Minecrift]\u00a7f Warning: wrong display resolution, perspective may be skewed! Please set your display to full-screen " + hmdScreenWidthPixels + "x" + hmdScreenHeightPixels + ".");
++                    }
++                }
++            }
++            checkAspectRatio = false;
++        }
++        else
++        {
++            checkAspectRatio = true;
++        }
++
+         if (this.mc.currentScreen instanceof GuiMainMenu)
+         {
+             this.updateMainMenu((GuiMainMenu)this.mc.currentScreen);
+@@ -1028,7 +1099,7 @@
          {
              if (Minecraft.getSystemTime() - this.prevFrameTime > 500L)
              {
@@ -329,7 +368,7 @@
              }
          }
          else
-@@ -1036,124 +1081,98 @@
+@@ -1036,124 +1107,98 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
@@ -520,7 +559,7 @@
      {
          this.serverWaitTimeCurrent = 0;
  
-@@ -1600,7 +1619,7 @@
+@@ -1600,7 +1645,7 @@
      /**
       * Render clouds if enabled
       */
@@ -529,7 +568,7 @@
      {
          if (this.mc.gameSettings.shouldRenderClouds())
          {
-@@ -1904,7 +1923,7 @@
+@@ -1904,7 +1949,7 @@
      /**
       * calculates fog and calls glClearColor
       */
@@ -538,7 +577,27 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLivingBase var3 = this.mc.renderViewEntity;
-@@ -2115,7 +2134,7 @@
+@@ -1918,7 +1963,6 @@
+             case 0:
+                 var5 = CustomColorizer.getSkyColor(var5, this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
+                 break;
+-
+             case 1:
+                 var5 = CustomColorizer.getSkyColorEnd(var5);
+         }
+@@ -1933,11 +1977,9 @@
+             case -1:
+                 var10 = CustomColorizer.getFogColorNether(var10);
+                 break;
+-
+             case 0:
+                 var10 = CustomColorizer.getFogColor(var10, this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
+                 break;
+-
+             case 1:
+                 var10 = CustomColorizer.getFogColorEnd(var10);
+         }
+@@ -2118,7 +2160,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
@@ -547,7 +606,7 @@
      {
          EntityLivingBase var3 = this.mc.renderViewEntity;
          boolean var4 = false;
-@@ -2293,25 +2312,14 @@
+@@ -2296,25 +2338,14 @@
      {
          Minecraft var1 = Config.getMinecraft();
  

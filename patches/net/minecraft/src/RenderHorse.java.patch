@@ -1,0 +1,19 @@
+--- a/net/minecraft/src/RenderHorse.java
++++ b/net/minecraft/src/RenderHorse.java
+@@ -58,16 +58,12 @@
+                 case 0:
+                 default:
+                     return field_110850_f;
+-
+                 case 1:
+                     return field_110855_h;
+-
+                 case 2:
+                     return field_110851_g;
+-
+                 case 3:
+                     return field_110854_k;
+-
+                 case 4:
+                     return field_110853_l;
+             }

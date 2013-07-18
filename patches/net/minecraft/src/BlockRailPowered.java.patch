@@ -1,0 +1,60 @@
+--- a/net/minecraft/src/BlockRailPowered.java
++++ b/net/minecraft/src/BlockRailPowered.java
+@@ -41,6 +41,7 @@
+             switch (var8)
+             {
+                 case 0:
++
+                     if (par6)
+                     {
+                         ++par4;
+@@ -51,8 +52,8 @@
+                     }
+ 
+                     break;
+-
+                 case 1:
++
+                     if (par6)
+                     {
+                         --par2;
+@@ -63,8 +64,8 @@
+                     }
+ 
+                     break;
+-
+                 case 2:
++
+                     if (par6)
+                     {
+                         --par2;
+@@ -78,8 +79,8 @@
+ 
+                     var8 = 1;
+                     break;
+-
+                 case 3:
++
+                     if (par6)
+                     {
+                         --par2;
+@@ -93,8 +94,8 @@
+ 
+                     var8 = 1;
+                     break;
+-
+                 case 4:
++
+                     if (par6)
+                     {
+                         ++par4;
+@@ -108,8 +109,8 @@
+ 
+                     var8 = 0;
+                     break;
+-
+                 case 5:
++
+                     if (par6)
+                     {
+                         ++par4;

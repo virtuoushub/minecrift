@@ -1,0 +1,48 @@
+--- a/net/minecraft/src/EntityLiving.java
++++ b/net/minecraft/src/EntityLiving.java
+@@ -860,13 +860,10 @@
+                 {
+                     case 0:
+                         return 4;
+-
+                     case 1:
+                         return 3;
+-
+                     case 2:
+                         return 2;
+-
+                     case 3:
+                         return 1;
+                 }
+@@ -888,6 +885,7 @@
+         switch (par0)
+         {
+             case 4:
++
+                 if (par1 == 0)
+                 {
+                     return Item.helmetLeather;
+@@ -910,6 +908,7 @@
+                 }
+ 
+             case 3:
++
+                 if (par1 == 0)
+                 {
+                     return Item.plateLeather;
+@@ -932,6 +931,7 @@
+                 }
+ 
+             case 2:
++
+                 if (par1 == 0)
+                 {
+                     return Item.legsLeather;
+@@ -954,6 +954,7 @@
+                 }
+ 
+             case 1:
++
+                 if (par1 == 0)
+                 {
+                     return Item.bootsLeather;

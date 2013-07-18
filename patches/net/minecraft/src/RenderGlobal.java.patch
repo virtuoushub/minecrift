@@ -62,3 +62,145 @@
              }
  
              this.mc.gameSettings.fancyGraphics = var8;
+@@ -2289,6 +2306,7 @@
+         {
+             case 1013:
+             case 1018:
++
+                 if (this.mc.renderViewEntity != null)
+                 {
+                     double var7 = (double)par2 - this.mc.renderViewEntity.posX;
+@@ -2343,16 +2361,14 @@
+             case 1000:
+                 this.theWorld.playSound((double)par3, (double)par4, (double)par5, "random.click", 1.0F, 1.0F, false);
+                 break;
+-
+             case 1001:
+                 this.theWorld.playSound((double)par3, (double)par4, (double)par5, "random.click", 1.0F, 1.2F, false);
+                 break;
+-
+             case 1002:
+                 this.theWorld.playSound((double)par3, (double)par4, (double)par5, "random.bow", 1.0F, 1.2F, false);
+                 break;
+-
+             case 1003:
++
+                 if (Math.random() < 0.5D)
+                 {
+                     this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "random.door_open", 1.0F, this.theWorld.rand.nextFloat() * 0.1F + 0.9F, false);
+@@ -2363,12 +2379,11 @@
+                 }
+ 
+                 break;
+-
+             case 1004:
+                 this.theWorld.playSound((double)((float)par3 + 0.5F), (double)((float)par4 + 0.5F), (double)((float)par5 + 0.5F), "random.fizz", 0.5F, 2.6F + (var7.nextFloat() - var7.nextFloat()) * 0.8F, false);
+                 break;
+-
+             case 1005:
++
+                 if (Item.itemsList[par6] instanceof ItemRecord)
+                 {
+                     this.theWorld.playRecord(((ItemRecord)Item.itemsList[par6]).recordName, par3, par4, par5);
+@@ -2379,59 +2394,45 @@
+                 }
+ 
+                 break;
+-
+             case 1007:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.ghast.charge", 10.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1008:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.ghast.fireball", 10.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1009:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.ghast.fireball", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1010:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.zombie.wood", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1011:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.zombie.metal", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1012:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.zombie.woodbreak", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1014:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.wither.shoot", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1015:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.bat.takeoff", 0.05F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1016:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.zombie.infect", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1017:
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "mob.zombie.unfect", 2.0F, (var7.nextFloat() - var7.nextFloat()) * 0.2F + 1.0F, false);
+                 break;
+-
+             case 1020:
+                 this.theWorld.playSound((double)((float)par3 + 0.5F), (double)((float)par4 + 0.5F), (double)((float)par5 + 0.5F), "random.anvil_break", 1.0F, this.theWorld.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+-
+             case 1021:
+                 this.theWorld.playSound((double)((float)par3 + 0.5F), (double)((float)par4 + 0.5F), (double)((float)par5 + 0.5F), "random.anvil_use", 1.0F, this.theWorld.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+-
+             case 1022:
+                 this.theWorld.playSound((double)((float)par3 + 0.5F), (double)((float)par4 + 0.5F), (double)((float)par5 + 0.5F), "random.anvil_land", 0.3F, this.theWorld.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+-
+             case 2000:
+                 int var27 = par6 % 3 - 1;
+                 int var28 = par6 / 3 % 3 - 1;
+@@ -2452,7 +2453,6 @@
+                 }
+ 
+                 return;
+-
+             case 2001:
+                 var16 = par6 & 4095;
+ 
+@@ -2464,7 +2464,6 @@
+ 
+                 this.mc.effectRenderer.addBlockDestroyEffects(par3, par4, par5, par6 & 4095, par6 >> 12 & 255);
+                 break;
+-
+             case 2002:
+                 var8 = (double)par3;
+                 var10 = (double)par4;
+@@ -2506,7 +2505,6 @@
+ 
+                 this.theWorld.playSound((double)par3 + 0.5D, (double)par4 + 0.5D, (double)par5 + 0.5D, "random.glass", 1.0F, this.theWorld.rand.nextFloat() * 0.1F + 0.9F, false);
+                 break;
+-
+             case 2003:
+                 var8 = (double)par3 + 0.5D;
+                 var10 = (double)par4;
+@@ -2525,8 +2523,8 @@
+                 }
+ 
+                 return;
+-
+             case 2004:
++
+                 for (int var35 = 0; var35 < 20; ++var35)
+                 {
+                     double var36 = (double)par3 + 0.5D + ((double)this.theWorld.rand.nextFloat() - 0.5D) * 2.0D;
+@@ -2537,7 +2535,6 @@
+                 }
+ 
+                 return;
+-
+             case 2005:
+                 ItemDye.func_96603_a(this.theWorld, par3, par4, par5, par6);
+         }

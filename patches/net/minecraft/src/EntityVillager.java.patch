@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/EntityVillager.java
++++ b/net/minecraft/src/EntityVillager.java
+@@ -453,7 +453,6 @@
+                 }
+ 
+                 break;
+-
+             case 1:
+                 addMerchantItem(var2, Item.paper.itemID, this.rand, this.func_82188_j(0.8F));
+                 addMerchantItem(var2, Item.book.itemID, this.rand, this.func_82188_j(0.8F));
+@@ -473,7 +472,6 @@
+                 }
+ 
+                 break;
+-
+             case 2:
+                 addBlacksmithItem(var2, Item.eyeOfEnder.itemID, this.rand, this.func_82188_j(0.3F));
+                 addBlacksmithItem(var2, Item.expBottle.itemID, this.rand, this.func_82188_j(0.2F));
+@@ -529,7 +527,6 @@
+                 addBlacksmithItem(var2, Item.plateChain.itemID, this.rand, this.func_82188_j(0.1F));
+                 addBlacksmithItem(var2, Item.legsChain.itemID, this.rand, this.func_82188_j(0.1F));
+                 break;
+-
+             case 4:
+                 addMerchantItem(var2, Item.coal.itemID, this.rand, this.func_82188_j(0.7F));
+                 addMerchantItem(var2, Item.porkRaw.itemID, this.rand, this.func_82188_j(0.5F));

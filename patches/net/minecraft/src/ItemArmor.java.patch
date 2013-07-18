@@ -1,0 +1,19 @@
+--- a/net/minecraft/src/ItemArmor.java
++++ b/net/minecraft/src/ItemArmor.java
+@@ -212,16 +212,12 @@
+         {
+             case 0:
+                 return Item.helmetDiamond.field_94604_cx;
+-
+             case 1:
+                 return Item.plateDiamond.field_94604_cx;
+-
+             case 2:
+                 return Item.legsDiamond.field_94604_cx;
+-
+             case 3:
+                 return Item.bootsDiamond.field_94604_cx;
+-
+             default:
+                 return null;
+         }

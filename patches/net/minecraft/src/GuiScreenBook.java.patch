@@ -1,0 +1,56 @@
+--- a/net/minecraft/src/GuiScreenBook.java
++++ b/net/minecraft/src/GuiScreenBook.java
+@@ -272,8 +272,8 @@
+             case 22:
+                 this.func_74160_b(GuiScreen.getClipboardString());
+                 return;
+-
+             default:
++
+                 switch (par2)
+                 {
+                     case 14:
+@@ -285,13 +285,12 @@
+                         }
+ 
+                         return;
+-
+                     case 28:
+                     case 156:
+                         this.func_74160_b("\n");
+                         return;
+-
+                     default:
++
+                         if (ChatAllowedCharacters.isAllowedCharacter(par1))
+                         {
+                             this.func_74160_b(Character.toString(par1));
+@@ -305,6 +304,7 @@
+         switch (par2)
+         {
+             case 14:
++
+                 if (!this.bookTitle.isEmpty())
+                 {
+                     this.bookTitle = this.bookTitle.substring(0, this.bookTitle.length() - 1);
+@@ -312,9 +312,9 @@
+                 }
+ 
+                 return;
+-
+             case 28:
+             case 156:
++
+                 if (!this.bookTitle.isEmpty())
+                 {
+                     this.sendBookToServer(true);
+@@ -322,8 +322,8 @@
+                 }
+ 
+                 return;
+-
+             default:
++
+                 if (this.bookTitle.length() < 16 && ChatAllowedCharacters.isAllowedCharacter(par1))
+                 {
+                     this.bookTitle = this.bookTitle + Character.toString(par1);

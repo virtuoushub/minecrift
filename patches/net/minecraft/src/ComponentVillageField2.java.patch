@@ -1,0 +1,13 @@
+--- a/net/minecraft/src/ComponentVillageField2.java
++++ b/net/minecraft/src/ComponentVillageField2.java
+@@ -31,10 +31,8 @@
+         {
+             case 0:
+                 return Block.carrot.blockID;
+-
+             case 1:
+                 return Block.potato.blockID;
+-
+             default:
+                 return Block.crops.blockID;
+         }

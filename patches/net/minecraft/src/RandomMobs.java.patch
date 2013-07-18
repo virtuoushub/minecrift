@@ -1,0 +1,81 @@
+--- a/net/minecraft/src/RandomMobs.java
++++ b/net/minecraft/src/RandomMobs.java
+@@ -99,7 +99,7 @@
+         }
+         else
+         {
+-            ResourceLocation id;
++            ResourceLocation entity;
+ 
+             try
+             {
+@@ -110,45 +110,45 @@
+                     initialize();
+                 }
+ 
+-                if (renderGlobal == null)
++                if (renderGlobal != null)
+                 {
+-                    ResourceLocation entity1 = loc;
+-                    return entity1;
+-                }
++                    Entity entity1 = renderGlobal.renderedEntity;
++                    ResourceLocation entityLiving1;
+ 
+-                Entity entity = renderGlobal.renderedEntity;
+-                ResourceLocation entityLiving1;
++                    if (entity1 == null)
++                    {
++                        entityLiving1 = loc;
++                        return entityLiving1;
++                    }
+ 
+-                if (entity == null)
+-                {
+-                    entityLiving1 = loc;
+-                    return entityLiving1;
+-                }
++                    if (!(entity1 instanceof EntityLiving))
++                    {
++                        entityLiving1 = loc;
++                        return entityLiving1;
++                    }
+ 
+-                if (!(entity instanceof EntityLiving))
+-                {
+-                    entityLiving1 = loc;
+-                    return entityLiving1;
+-                }
++                    EntityLiving entityLiving = (EntityLiving)entity1;
++                    String name = loc.func_110623_a();
+ 
+-                EntityLiving entityLiving = (EntityLiving)entity;
+-                String name = loc.func_110623_a();
++                    if (!name.startsWith("textures/entity/"))
++                    {
++                        ResourceLocation id1 = loc;
++                        return id1;
++                    }
+ 
+-                if (name.startsWith("textures/entity/"))
+-                {
+-                    int id1 = (int)entity.func_110124_au().getLeastSignificantBits();
+-                    ResourceLocation var5 = getTextureLocation(loc, id1);
++                    int id = (int)entity1.func_110124_au().getLeastSignificantBits();
++                    ResourceLocation var5 = getTextureLocation(loc, id);
+                     return var5;
+                 }
+ 
+-                id = loc;
++                entity = loc;
+             }
+             finally
+             {
+                 working = false;
+             }
+ 
+-            return id;
++            return entity;
+         }
+     }
+ 

@@ -1,0 +1,10 @@
+--- a/net/minecraft/src/Container.java
++++ b/net/minecraft/src/Container.java
+@@ -727,7 +727,6 @@
+             case 0:
+                 par2ItemStack.stackSize = MathHelper.floor_float((float)par2ItemStack.stackSize / (float)par0Set.size());
+                 break;
+-
+             case 1:
+                 par2ItemStack.stackSize = 1;
+         }

@@ -1,0 +1,78 @@
+--- a/net/minecraft/src/NetClientHandler.java
++++ b/net/minecraft/src/NetClientHandler.java
+@@ -935,12 +935,10 @@
+                 var2.displayGUIChest(new InventoryBasic(par1Packet100OpenWindow.windowTitle, par1Packet100OpenWindow.useProvidedWindowTitle, par1Packet100OpenWindow.slotsCount));
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 1:
+                 var2.displayGUIWorkbench(MathHelper.floor_double(var2.posX), MathHelper.floor_double(var2.posY), MathHelper.floor_double(var2.posZ));
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 2:
+                 TileEntityFurnace var4 = new TileEntityFurnace();
+ 
+@@ -952,7 +950,6 @@
+                 var2.displayGUIFurnace(var4);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 3:
+                 TileEntityDispenser var7 = new TileEntityDispenser();
+ 
+@@ -964,12 +961,10 @@
+                 var2.displayGUIDispenser(var7);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 4:
+                 var2.displayGUIEnchantment(MathHelper.floor_double(var2.posX), MathHelper.floor_double(var2.posY), MathHelper.floor_double(var2.posZ), par1Packet100OpenWindow.useProvidedWindowTitle ? par1Packet100OpenWindow.windowTitle : null);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 5:
+                 TileEntityBrewingStand var5 = new TileEntityBrewingStand();
+ 
+@@ -981,12 +976,10 @@
+                 var2.displayGUIBrewingStand(var5);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 6:
+                 var2.displayGUIMerchant(new NpcMerchant(var2), par1Packet100OpenWindow.useProvidedWindowTitle ? par1Packet100OpenWindow.windowTitle : null);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 7:
+                 TileEntityBeacon var8 = new TileEntityBeacon();
+                 var2.displayGUIBeacon(var8);
+@@ -998,12 +991,10 @@
+ 
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 8:
+                 var2.displayGUIAnvil(MathHelper.floor_double(var2.posX), MathHelper.floor_double(var2.posY), MathHelper.floor_double(var2.posZ));
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 9:
+                 TileEntityHopper var3 = new TileEntityHopper();
+ 
+@@ -1015,7 +1006,6 @@
+                 var2.displayGUIHopper(var3);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 10:
+                 TileEntityDropper var6 = new TileEntityDropper();
+ 
+@@ -1027,7 +1017,6 @@
+                 var2.displayGUIDispenser(var6);
+                 var2.openContainer.windowId = par1Packet100OpenWindow.windowId;
+                 break;
+-
+             case 11:
+                 Entity var9 = this.getEntityByID(par1Packet100OpenWindow.field_111008_f);
+ 

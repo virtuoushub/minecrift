@@ -1,0 +1,10 @@
+--- a/net/minecraft/src/GuiGameOver.java
++++ b/net/minecraft/src/GuiGameOver.java
+@@ -63,7 +63,6 @@
+                 this.mc.thePlayer.respawnPlayer();
+                 this.mc.displayGuiScreen((GuiScreen)null);
+                 break;
+-
+             case 2:
+                 this.mc.theWorld.sendQuittingDisconnectingPacket();
+                 this.mc.loadWorld((WorldClient)null);

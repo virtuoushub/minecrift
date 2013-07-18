@@ -1,0 +1,36 @@
+--- a/net/minecraft/src/ComponentMineshaftStairs.java
++++ b/net/minecraft/src/ComponentMineshaftStairs.java
+@@ -25,17 +25,14 @@
+                 var6.maxX = par2 + 2;
+                 var6.maxZ = par4 + 8;
+                 break;
+-
+             case 1:
+                 var6.minX = par2 - 8;
+                 var6.maxZ = par4 + 2;
+                 break;
+-
+             case 2:
+                 var6.maxX = par2 + 2;
+                 var6.minZ = par4 - 8;
+                 break;
+-
+             case 3:
+                 var6.maxX = par2 + 8;
+                 var6.maxZ = par4 + 2;
+@@ -56,15 +53,12 @@
+             case 0:
+                 StructureMineshaftPieces.getNextComponent(par1StructureComponent, par2List, par3Random, this.boundingBox.minX, this.boundingBox.minY, this.boundingBox.maxZ + 1, 0, var4);
+                 break;
+-
+             case 1:
+                 StructureMineshaftPieces.getNextComponent(par1StructureComponent, par2List, par3Random, this.boundingBox.minX - 1, this.boundingBox.minY, this.boundingBox.minZ, 1, var4);
+                 break;
+-
+             case 2:
+                 StructureMineshaftPieces.getNextComponent(par1StructureComponent, par2List, par3Random, this.boundingBox.minX, this.boundingBox.minY, this.boundingBox.minZ - 1, 2, var4);
+                 break;
+-
+             case 3:
+                 StructureMineshaftPieces.getNextComponent(par1StructureComponent, par2List, par3Random, this.boundingBox.maxX + 1, this.boundingBox.minY, this.boundingBox.minZ, 3, var4);
+         }

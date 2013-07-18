@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/RConThreadClient.java
++++ b/net/minecraft/src/RConThreadClient.java
+@@ -74,6 +74,7 @@
+                     switch (var6)
+                     {
+                         case 2:
++
+                             if (this.loggedIn)
+                             {
+                                 String var8 = RConUtils.getBytesAsString(this.buffer, var21, var2);
+@@ -92,7 +93,6 @@
+ 
+                             this.sendLoginFailedResponse();
+                             continue;
+-
+                         case 3:
+                             String var7 = RConUtils.getBytesAsString(this.buffer, var21, var2);
+                             int var10000 = var21 + var7.length();
+@@ -107,7 +107,6 @@
+                             this.loggedIn = false;
+                             this.sendLoginFailedResponse();
+                             continue;
+-
+                         default:
+                             this.sendMultipacketResponse(var5, String.format("Unknown request %s", new Object[] {Integer.toHexString(var6)}));
+                             continue;

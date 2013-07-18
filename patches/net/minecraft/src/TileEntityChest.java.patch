@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/TileEntityChest.java
++++ b/net/minecraft/src/TileEntityChest.java
+@@ -247,30 +247,31 @@
+             switch (par2)
+             {
+                 case 0:
++
+                     if (this.adjacentChestZPosition != par1TileEntityChest)
+                     {
+                         this.adjacentChestChecked = false;
+                     }
+ 
+                     break;
+-
+                 case 1:
++
+                     if (this.adjacentChestXNeg != par1TileEntityChest)
+                     {
+                         this.adjacentChestChecked = false;
+                     }
+ 
+                     break;
+-
+                 case 2:
++
+                     if (this.adjacentChestZNeg != par1TileEntityChest)
+                     {
+                         this.adjacentChestChecked = false;
+                     }
+ 
+                     break;
+-
+                 case 3:
++
+                     if (this.adjacentChestXPos != par1TileEntityChest)
+                     {
+                         this.adjacentChestChecked = false;
