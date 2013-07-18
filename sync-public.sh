@@ -5,7 +5,7 @@
 
 # This script automates the private->public commit transfer process
 
-WORK_TREE=mcp/src/minecraft
+WORK_TREE=mcp804/src/minecraft
 export GIT_DIR=$WORK_TREE/.git
 git rev-list --reverse public..master | while read REV; do
 	AUTHOR=$(git log --pretty=format:"%an <%ae>" -1 $REV)
