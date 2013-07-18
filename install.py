@@ -97,7 +97,7 @@ def download_deps( mcp_dir ):
 
     
     json_file = os.path.join(versions,mc_version+".json")
-    shutil.copy( os.path.join("jsons",mc_version+".json"),json_file)
+    shutil.copy( os.path.join("installer",mc_version+".json"),json_file)
 
     optifine_dir = os.path.join(jars,"libraries","net","optifine","OptiFine",of_version )
     mkdir_p( optifine_dir )

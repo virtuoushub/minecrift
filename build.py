@@ -56,17 +56,8 @@ def main(mcp_dir):
 
     print("Creating Installer...")
     
-    mc_ver ="1.6.2"
-    if os.getenv("RELEASE_VESRION"):
-        version = "r"+os.getenv("RELEASE_NUMBER")
-    elif os.getenv("BUILD_NUMBER"):
-        version = "b"+os.getenv("BUILD_NUMBER")
-    else:
-        version = "bXYZ"
-
-    id = mc_ver +"-minecrift"
     in_mem_zip = StringIO.StringIO()
-    with zipfile.ZipFile( in_mem_zip,'w') as zipout:
+    with zipfile.ZipFile( in_mem_zip,'w', zipfile.ZIP_DEFLATED) as zipout:
         for abs_path, _, filelist in os.walk(reobf, followlinks=True):
             arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
             for cur_file in fnmatch.filter(filelist, '*.class'):
@@ -82,24 +73,34 @@ def main(mcp_dir):
     in_mem_zip.seek(0)
     json_str = ""
 
-    json_id = id+"-"+version
+    mc_ver ="1.6.2"
+    if os.getenv("RELEASE_VESRION"):
+        version = "r"+os.getenv("RELEASE_NUMBER")
+    elif os.getenv("BUILD_NUMBER"):
+        version = "b"+os.getenv("BUILD_NUMBER")
+    else:
+        version = "LOCAL"
+
+    version = mc_ver+"-"+version
+    json_id = "minecrift-"+version
+    lib_id = "com.mtbs3d:minecrift:"+version
     
-    with  open(os.path.join("jsons",mc_ver+".json"),"rb") as f:
+    with  open(os.path.join("installer",mc_ver+".json"),"rb") as f:
         json_obj = json.load(f)
-        time = datetime.datetime.now().isoformat()
+        time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S-05:00")
         json_obj["id"] = json_id
         json_obj["time"] = time
         json_obj["releaseTime"] = time
-        json_obj["libraries"].insert(0,{"name":"com.mtbs3d.minecrift:"+id+":"+version}) #Insert at beginning
+        json_obj["libraries"].insert(0,{"name":lib_id}) #Insert at beginning
         json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
         json_str = json.dumps( json_obj, indent=1 )
 
     installer = os.path.join( "install-"+json_id+".jar" ) 
-    shutil.copy( "installer.jar", installer )
+    shutil.copy( os.path.join("installer","installer.jar"), installer )
     with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
         install_out.writestr( "version.json", json_str )
         install_out.writestr( "version.jar", in_mem_zip.read() )
-        install_out.writestr( "version", json_id )
+        install_out.writestr( "version", json_id+":"+version )
     
     
 if __name__ == '__main__':

@@ -8,3 +8,5 @@
 *.iml
 releases/
 *zip
+*.class
+install*.jar
