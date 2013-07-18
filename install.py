@@ -4,7 +4,6 @@ import shutil, tempfile, json
 import errno
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
-import subprocess
 
 from applychanges import applychanges
 

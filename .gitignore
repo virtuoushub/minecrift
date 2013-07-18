@@ -10,3 +10,4 @@ releases/
 *zip
 *.class
 *install*.jar
+*install*.exe
