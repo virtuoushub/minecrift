@@ -71,6 +71,9 @@ def download_deps( mcp_dir ):
 
     try:
         os.mkdir( mcp_dir )
+    except:
+        pass
+    try:
         mcp_zip = zipfile.ZipFile( "mcp804.zip" )
         mcp_zip.extractall( mcp_dir )
         import stat
