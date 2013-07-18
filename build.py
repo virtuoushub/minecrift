@@ -80,7 +80,7 @@ def main(mcp_dir):
     json_str = ""
 
     mc_ver ="1.6.2"
-    if os.getenv("RELEASE_VESRION"):
+    if os.getenv("RELEASE_VERSION"):
         version = os.getenv("RELEASE_VERSION")
     elif os.getenv("BUILD_NUMBER"):
         version = "b"+os.getenv("BUILD_NUMBER")
