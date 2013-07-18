@@ -165,18 +165,18 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				return null;
 			}
 			setProgress(50);
-			finalMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. ";
+			finalMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. Have you run 1.6.2 at least once yet?";
 			if(!SetupMinecraftAsLibrary())
 			{
 				return null;
 			}
 			setProgress(75);
-			finalMessage = "Failed: Couldn't extract Minecraft. ";
+			finalMessage = "Failed: Couldn't extract Minecrift. Try redownloading this installer.";
 			if(!ExtractVersion())
 			{
 				return null;
 			}
-			finalMessage = "Installed Successfully!";
+			finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-"+version;
 			setProgress(100);
 			return null;
 		}
