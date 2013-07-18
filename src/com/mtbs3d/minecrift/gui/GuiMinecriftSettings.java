@@ -172,6 +172,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             else if (par1GuiButton.id == 211)
             {
                 this.mc.gameSettings.saveOptions();
+                this.guiGameSettings.posTrackResetPosition = true;
                 if (vrRenderer != null)
                     vrRenderer.resetGuiYawOrientation();
             }
