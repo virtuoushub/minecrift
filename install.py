@@ -4,7 +4,6 @@ import shutil, tempfile, json
 import errno
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
-import subprocess
 
 from applychanges import applychanges
 
@@ -72,6 +71,9 @@ def download_deps( mcp_dir ):
 
     try:
         os.mkdir( mcp_dir )
+    except:
+        pass
+    try:
         mcp_zip = zipfile.ZipFile( "mcp804.zip" )
         mcp_zip.extractall( mcp_dir )
         import stat

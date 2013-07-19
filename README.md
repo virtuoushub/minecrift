@@ -1,7 +1,7 @@
 Minecrift Mod for Minecraft
 ===========================
 
-Current Version: 1.0 beta
+Current Version: 1.1 beta
 
 StellaArtois, mabrowning 2013
 
@@ -37,22 +37,17 @@ Mojang, so that they can add official Oculus support in the near future. If and
 when Minecraft officially supports the Rift, Minecrift development might cease
 (unless they make a complete hash of it), but probably not.
 
-Disclaimer
-----------
-
-I recommend using a vanilla Minecraft.jar file for this. Forge compatibility is
-mostly in place, but there may be a bugs.  BACK UP your original minecraft.jar
-and any maps you care about before installing this mod. I've gotten FTB 1.5.2
-to start up and run, but haven't tested all the nooks and crannies of the mod.
-Caveat Modder.
 
 ---
 Where to get it?
 ----------------
 
-We make regular releases and update the MTBS3D forum thread when a release is 
-ready for general use. However, if you can't wait that long, we do have a 
-continuous integration service generously provided by 
+Check [our website](http://minecraft-vr.com) for latest official releases!
+We also make regular updates to the MTBS3D forum thread when a release is 
+ready for general use. 
+
+However, if you can't wait that long, we do have a continuous integration
+service generously provided by 
 [CloudBees](http://www.cloudbees.com). 
 
 Click the button below to go to our Jenkins page where you can download the
@@ -66,89 +61,16 @@ latest build hot-off-the-presses.
 Installation
 ------------
 
-REQUIRES Minecraft 1.5.2 With [Optifine HD D3](http://www.minecraftforum.net/topic/249637-152-optifine-hd-d3-fps-boost-hd-textures-aa-af-and-much-more/)
-
-Magic Launcher
---------------
-The recommended way to install Minecrift is use the [magic
-launcher](http://www.minecraftforum.net/topic/939149-launcher-magic-launcher-114-mods-options-profiles-news/),
-which is available for Windows, OSX, and Linux.
-
-- Download Optifine HD D3, but don't extract.
-- Extract the minecrift\_1.0\_beta.zip
-- Open the Magic Launcher.
-- Click the 'Setup' configuration button.
-- Create a new Configuration and call it "minecrift" (or whatever you prefer)
-- Add these zips, in order:
-  - OptiFine\_1.5.2\_HD\_U\_D3.zip 
-  - JRift.jar 
-  - SixenseJava.jar (if you have a Razer Hydra)
-  - minecrift\_1.0\_beta\_classes.zip 
-- Click 'Test' to make sure it works.
-- When satisfied, click 'OK' to Save the configuration.
-- From now on, just start Magic Launcher and use the "minecrift" configuration
-  to play!
-
-
-In addition, you will need to [update LWJGL to the latest version](http://www.minecraftwiki.net/wiki/LWJGL). Older versions are unsupported.
-
-Manual
-------
-
-It is possible to install Minecrift without using the Magic launcher, but this
-way hasn't been tested as well. Use the steps below according to your operating
-system. You'll still need to update LWJGL according to the tutorial linked above.
-
-Windows
--------
-
-Minecrift for Windows requires Vista or above and a graphics card & driver capable of at least OpenGL 3.3 support.
-
-- Download [Optifine HD D3](http://www.minecraftforum.net/topic/249637-152-optifine-hd-d3-fps-boost-hd-textures-aa-af-and-much-more/)
-- Change directory to %APPDATA%\\.minecraft\bin
-- Open your minecraft.jar file using 7-zip, winzip etc. 
-- Select all, and drag and drop in the *entire contents* of the
-  OptiFine\_1.5.2\_HD\_U\_D3.zip into the minecraft.jar.
-- Select all, and drag and drop in the *entire contents* of the
-  /minecrift\_1.0\_beta\_classes.zip (but not the zip itself) from the Minecrift
-  zip into the minecraft.jar archive.
-- Select all, and drag and drop in the *entire contents* of the
-  /JRift.jar (but not the zip itself) from the Minecrift
-  zip into the minecraft.jar archive.
-- If you have a Razer Hydra and would like to use it, Select all, and drag and
-  drop in the *entire contents* of the /SixenseJava.jar (but not the zip
-  itself) from the Minecrift zip into the minecraft.jar archive.
-- Make sure to delete the META-INF folder in minecraft.jar. Close 7zip /
-  winzip.
-- *IMPORTANT* (but only required once). Install the Microsoft VS2012 C++
-  redists (both x86 and x64) from
-  [here](http://www.microsoft.com/visualstudio/11/en-us/downloads/vc-redist#vc-redist)
-- Start up Minecraft and off you go. If you get a black screen on login, trying
-  running an admin command prompt, cd to your minecraft.exe dir and enter the
-  command 
->java -cp Minecraft.exe net.minecraft.LauncherFrame
-This should allow any exceptions or errors on Minecraft startup to show up in
-the console.
-
-MacOS
------
-
-Follow the same steps for Windows, but use ~/Library/Application
-Support/minecraft instead of <Path to %APPDATA%>\\.minecraft.
-- The VS2012 C++ redistribute is not required.
-
-Linux
------
-
-Follow the same steps for MacOS, but use ~/.minecraft/ instead of
-~/Library/Application Support/minecraft.
+Download and run the latest minecrift-1.6.2-b###-installer.exe/jar.
+*WINDOWS USERS: IMPORTANT* (but only required once). Install the Microsoft
+VS2010 C++ redists (both x86 and x64) from
+[here](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
 
 ----
 
 Razer Hydra
 -----------
-Version 1.0 is the first to include full Razer Hydra support. If you have one, 
-include SixenseJava.jar in your modlist to enable the functionality.
+Version 1.0 is the first to include full Razer Hydra support.
  - OrientationTracker: If you don't have an Oculus Rift, you can use the left
    controler for head orientation (direction).
  - PositionTracker: This makes a huge immersion difference. The Hydra can feed
@@ -159,7 +81,7 @@ include SixenseJava.jar in your modlist to enable the functionality.
    forward and backwards, place blocks, mine, select item, jump, sneak, access
    your inventory and navigate menus. The controls are currently hardcoded:
  - In game:
-   - Joystick X: Turn left/right
+   - Joystick X: Move left/right
    - Joystick Y: Move forward/back
    - 1: Drop item
    - 2: Jump
@@ -169,6 +91,7 @@ include SixenseJava.jar in your modlist to enable the functionality.
    - Bumper: Place block/use item/interact (right mouse)
    - Trigger: Mine block (left mouse)
    - Start: Access Inventory
+   - Keyhole aiming: turning too far left or right will turn the character.
 
  -  In Menus/Inventories:
    - Joystick: mouse up/down/left/right (don't use the actual mouse at
@@ -187,7 +110,7 @@ Controls/Usage
 
 Here are some other hotkeys that allow quick access to changing VR settings.
 
-- All Minecrift settings are present in the Options->Minecrift screen, but
+- All Minecrift settings are present in the Options->VR Settings screen, but
   keyboard shortcuts are also available for convenience
 - Make sure to read the tool-tips on each setting in VR Options to get an
   understanding for what it is adjusting. VR is best when you tune the experience
@@ -226,15 +149,9 @@ Here are some other hotkeys that allow quick access to changing VR settings.
 Known Issues
 ------------
 
-- FSAA (Super Sampling) doesn't work on OSX and is disabled.
-- Linux doesn't support Oculus Rift head tracker (yet).
-- A white line can sometimes be seen at the top or bottom edge of the HUD. No
-  known workaround.
-- When using both the joystick and the mouse to navigate menus, the cursor 
-  does not respond to clicks where it appears. For now, only use one or the other.
-- Sometimes, the Hydra calibration text does not appear... if the hydra isn't 
-  responding, try doing the calibration steps: point at base with left, click, 
-  point at base with right, click.
+FSAA (Super Sampling) doesn't work on OSX and is disabled.  
+There are quite a small bugs that can be seen on the [GitHub issue
+tracker](https://github.com/mabrowning/minecrift/issues)
 
 Feedback, bug reporting
 -----------------------
@@ -264,23 +181,21 @@ The change-list can be seen [here](CHANGES.md)
 Building
 ========
 
+The installation process has been tested on Windows 7, OSX 10.8, and Ubuntu
+Linux, but was written with cross-platform support in mind, so should be usable
+"everywhere".
 
-The installation process has been tested on Linux, but was written with
-cross-platform support in mind, so should be usable on other platforms.
-Known issues: OSX fernflower doesn't decompile cleanly. Decompile on Windows
-or Linux and copy over the .minecraft\_orig folder.
+Run install.sh (or install.bat) to download mcp, minecraft, Optifine, and other
+libraries; deobfuscate the base system, and apply the patches and new files.
 
-Download [mcp 751](http://mcp.ocean-labs.de/index.php/MCP_Releases) and
-extract into /mcp (only needed once)
+Use the MCP environment in /mcp804 to modify, test, and recompile.  If you use
+the built-in eclipse workspace, you'll need to add the JRift and SixenseJava
+jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr and
+SixenseJava is in com/sixense.
 
-Run install.sh (or install.bat) to download minecraft, download Optifine,
-deobfuscate the base system, and apply the patches and new files.
+Run build.sh (or build.bat) to create a release installer.
 
-Use the MCP environment in /mcp to modify, test, and recompile.
-
-Run build.sh (or build.bat) to create a release classes.zip.
-
-Run getchanges.sh (or getchanges.bat) to diff the modified /mcp/src files into
+Run getchanges.sh (or getchanges.bat) to diff the modified /mcp804/src files into
 version controlled /patches and copy the new classes into the /src/
 directory.
 

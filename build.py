@@ -1,6 +1,7 @@
 import os, os.path, sys, json, datetime, StringIO
 import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
+import subprocess, shlex
 
 try:
     WindowsError
@@ -8,6 +9,11 @@ except NameError:
     WindowsError = OSError
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
+
+def cmdsplit(args):
+    if os.sep == '\\':
+        args = args.replace('\\', '\\\\')
+    return shlex.split(args)
 
 def zipmerge( target_file, source_file ):
     out_file, out_filename = tempfile.mkstemp()
@@ -74,8 +80,8 @@ def main(mcp_dir):
     json_str = ""
 
     mc_ver ="1.6.2"
-    if os.getenv("RELEASE_VESRION"):
-        version = "r"+os.getenv("RELEASE_NUMBER")
+    if os.getenv("RELEASE_VERSION"):
+        version = os.getenv("RELEASE_VERSION")
     elif os.getenv("BUILD_NUMBER"):
         version = "b"+os.getenv("BUILD_NUMBER")
     else:
@@ -95,13 +101,25 @@ def main(mcp_dir):
         json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
         json_str = json.dumps( json_obj, indent=1 )
 
-    installer = os.path.join( json_id+"-installer.jar" ) 
+    installer_id = json_id+"-installer"
+    installer = os.path.join( installer_id+".jar" ) 
     shutil.copy( os.path.join("installer","installer.jar"), installer )
     with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
         install_out.writestr( "version.json", json_str )
         install_out.writestr( "version.jar", in_mem_zip.read() )
         install_out.writestr( "version", json_id+":"+version )
-    
+
+    print("Creating Installer exe...")
+    with open( os.path.join("installer","launch4j.xml"),"r" ) as inlaunch:
+        with open( "launch4j.xml", "w" ) as outlaunch:
+            outlaunch.write( inlaunch.read().replace("installer",installer_id))
+    subprocess.Popen( 
+        cmdsplit("java -jar \"%s\" \"%s\""% (
+                os.path.join( base_dir,"installer","launch4j","launch4j.jar"),
+                os.path.join( base_dir, "launch4j.xml"))), 
+            cwd=os.path.join(base_dir,"installer","launch4j"),
+            bufsize=-1).communicate()
+    os.unlink( "launch4j.xml" )
     
 if __name__ == '__main__':
     parser = OptionParser()

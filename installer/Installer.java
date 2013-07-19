@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Random;
@@ -65,7 +66,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			    }
 			    return true;
 			} catch (Exception e) {
-				statusMessage += "Error: "+e.getLocalizedMessage();
+				finalMessage += "Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
@@ -99,7 +100,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				lib_jar.close();
 				return true;
 			} catch (Exception e) {
-				statusMessage += "Error: "+e.getLocalizedMessage();
+				finalMessage += "Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
@@ -142,7 +143,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	                null_jar.close();
 					return ver_json_file.exists() && ver_file.exists();
 				} catch (Exception e) {
-					statusMessage += "Error: "+e.getLocalizedMessage();
+					finalMessage += "Error: "+e.getLocalizedMessage();
 				}
 				
 			}
@@ -152,28 +153,30 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		/*
 		 * Main task. Executed in background thread.
 		 */
+		public String finalMessage;
 		public String statusMessage;
 		@Override
 		public Void doInBackground() {
-			statusMessage = "Failed: Couldn't download Optifine. ";
-			setProgress(0);
+			finalMessage = "Failed: Couldn't download Optifine. ";
+			statusMessage = "Downloading Optifine... Please donate to them!";
+			setProgress(1);
 			if(!DownloadOptiFine())
 			{
 				return null;
 			}
 			setProgress(50);
-			statusMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. ";
+			finalMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. Have you run 1.6.2 at least once yet?";
 			if(!SetupMinecraftAsLibrary())
 			{
 				return null;
 			}
 			setProgress(75);
-			statusMessage = "Failed: Couldn't extract Minecraft. ";
+			finalMessage = "Failed: Couldn't extract Minecrift. Try redownloading this installer.";
 			if(!ExtractVersion())
 			{
 				return null;
 			}
-			statusMessage = "Installed Successfully!";
+			finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-"+version;
 			setProgress(100);
 			return null;
 		}
@@ -184,7 +187,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		@Override
 		public void done() {
 			setCursor(null); // turn off the wait cursor
-            JOptionPane.showMessageDialog(null, statusMessage, "Complete", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, finalMessage, "Complete", JOptionPane.INFORMATION_MESSAGE);
 	        dialog.dispose();
 	        emptyFrame.dispose();
 		}
@@ -202,11 +205,11 @@ public class Installer extends JPanel  implements PropertyChangeListener {
     {
         JOptionPane optionPane = new JOptionPane(this, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 
-        emptyFrame = new Frame("Mod system installer");
+        emptyFrame = new Frame("Minecraft VR Installer");
         emptyFrame.setUndecorated(true);
         emptyFrame.setVisible(true);
         emptyFrame.setLocationRelativeTo(null);
-        dialog = optionPane.createDialog(emptyFrame, "Mod system installer");
+        dialog = optionPane.createDialog(emptyFrame, "Minecraft VR Installer");
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
         int result = (Integer) (optionPane.getValue() != null ? optionPane.getValue() : -1);
@@ -307,7 +310,8 @@ public class Installer extends JPanel  implements PropertyChangeListener {
         tag.setAlignmentX(CENTER_ALIGNMENT);
         tag.setAlignmentY(CENTER_ALIGNMENT);
         logoSplash.add(tag);
-        tag = new JLabel("Select Path to minecraft... (default is usually right)");
+		logoSplash.add(Box.createRigidArea(new Dimension(5,20)));
+        tag = new JLabel("Select path to minecraft. (The default here is almost always what you want.)");
         tag.setAlignmentX(CENTER_ALIGNMENT);
         tag.setAlignmentY(CENTER_ALIGNMENT);
         logoSplash.add(tag);
@@ -315,6 +319,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
         logoSplash.setAlignmentX(CENTER_ALIGNMENT);
         logoSplash.setAlignmentY(TOP_ALIGNMENT);
         this.add(logoSplash);
+		
 
         JPanel entryPanel = new JPanel();
         entryPanel.setLayout(new BoxLayout(entryPanel,BoxLayout.X_AXIS));
@@ -344,11 +349,24 @@ public class Installer extends JPanel  implements PropertyChangeListener {
         fileEntryPanel = new JPanel();
         fileEntryPanel.setLayout(new BoxLayout(fileEntryPanel,BoxLayout.Y_AXIS));
         fileEntryPanel.add(infoLabel);
-        fileEntryPanel.add(Box.createVerticalGlue());
         fileEntryPanel.add(entryPanel);
+
         fileEntryPanel.setAlignmentX(CENTER_ALIGNMENT);
         fileEntryPanel.setAlignmentY(TOP_ALIGNMENT);
         this.add(fileEntryPanel);
+
+        this.add(Box.createVerticalGlue());
+		JLabel website = linkify("Minecraft VR is Open Source (LGPL)! Check back here for updates.","http://minecraft-vr.com","http://minecraft-vr.com") ;
+		JLabel optifine = linkify("We make use of OptiFine for performance. Please consider donating to them!","http://optifine.net/donate.php","http://optifine.net/donate.php");
+
+		website.setAlignmentX(CENTER_ALIGNMENT);
+		optifine.setAlignmentX(CENTER_ALIGNMENT);
+		this.add(Box.createRigidArea(new Dimension(5,20)));
+		this.add( website);
+		this.add( optifine );
+
+        this.setAlignmentX(LEFT_ALIGNMENT);
+
         updateFilePath();
     }
 
@@ -398,5 +416,65 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				createAndShowGUI();
 			}
 		});
+	}
+	public static JLabel linkify(final String text, String URL, String toolTip)
+	{
+		URI temp = null;
+		try
+		{
+			temp = new URI(URL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		final URI uri = temp;
+		final JLabel link = new JLabel();
+		link.setText("<HTML><FONT color=\"#000099\">"+text+"</FONT></HTML>");
+		if(!toolTip.equals(""))
+			link.setToolTipText(toolTip);
+		link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		link.addMouseListener(new MouseListener()
+		{
+			public void mouseExited(MouseEvent arg0)
+			{
+				link.setText("<HTML><FONT color=\"#000099\">"+text+"</FONT></HTML>");
+			}
+
+			public void mouseEntered(MouseEvent arg0)
+			{
+				link.setText("<HTML><FONT color=\"#000099\"><U>"+text+"</U></FONT></HTML>");
+			}
+
+			public void mouseClicked(MouseEvent arg0)
+			{
+				if (Desktop.isDesktopSupported())
+				{
+					try
+					{
+						Desktop.getDesktop().browse(uri);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					JOptionPane pane = new JOptionPane("Could not open link.");
+					JDialog dialog = pane.createDialog(new JFrame(), "");
+					dialog.setVisible(true);
+				}
+			}
+
+			public void mousePressed(MouseEvent e)
+			{
+			}
+
+			public void mouseReleased(MouseEvent e)
+			{
+			}
+		});
+		return link;
 	}
 }
