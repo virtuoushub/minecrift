@@ -345,7 +345,7 @@
 +                    DisplayMode e = Display.getDisplayMode();
 +                    if (hmdScreenWidthPixels != e.getWidth() || hmdScreenHeightPixels != e.getHeight())
 +                    {
-+                        this.mc.ingameGUI.getChatGUI().printChatMessage("\u00a7e[Minecrift]\u00a7f Warning: wrong display resolution, perspective may be skewed! Please set your display to full-screen " + hmdScreenWidthPixels + "x" + hmdScreenHeightPixels + ".");
++                        this.mc.ingameGUI.getChatGUI().printChatMessage("\u00a7e[Minecrift]\u00a7f Warning: Non-native display resolution, perspective may be skewed! Ideally set your display to full-screen " + hmdScreenWidthPixels + "x" + hmdScreenHeightPixels + ".");
 +                    }
 +                }
 +            }

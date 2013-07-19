@@ -72,7 +72,7 @@
 +    public boolean renderHeadWear = false;
 +    public boolean renderFullFirstPersonModel = true;
 +    public float renderPlayerOffset = 0.25f;
-+    public boolean useChromaticAbCorrection = false;
++    public boolean useChromaticAbCorrection = true;
 +    public float hudScale = 1.0f;
 +    public boolean pitchInputAffectsCamera = false;
 +    public float hudDistance = 1.0f;
@@ -112,11 +112,11 @@
 +    public boolean posTrackHydraBIsPointingLeft = true;
 +    public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 +	public float joystickSensitivity = 3f;
-+	public float aimKeyholeWidthDegrees = 90f;
++	public float aimKeyholeWidthDegrees = 0f;
 +	public boolean keyholeHeadRelative = true;
 +    public boolean hydraUseFilter = true;
 +    public float magRefDistance = 0.15f;
-+	public String headPositionPluginID = "oculus";
++	public String headPositionPluginID = "null-pos";
 +	public String headTrackerPluginID = "oculus";
 +	public String hmdPluginID = "oculus";
 +	public String controllerPluginID = "mouse";

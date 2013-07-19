@@ -207,8 +207,8 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                     return new String[] {
                             "Adjusts whether the crosshair is fixed to your head",
                             "  vertically (tilt up and down)",
-                            "  OFF: No, the crosshair is free to move",
-                            "  ON: Yes, the only way to aim is with your head"};
+                            "  OFF: Yes, the only way to aim is with your head",
+                            "  ON:  No, the crosshair is free to move"};
                 case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
                     return new String[] {
                             "Sets the controller used for move/aim control.",
