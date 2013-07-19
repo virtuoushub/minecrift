@@ -54,17 +54,28 @@ public class GuiMinecriftSettings extends BaseGuiSettings
      */
     public void initGui()
     {
+        GuiButtonEx buttonOrigin, buttonRecali;
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
-        this.buttonList.add(new GuiButtonEx(211, this.width / 2 - 100, this.height / 6 + 128, stringTranslate.translateKey("Reset Origin")));
-        this.buttonList.add(new GuiButtonEx(210, this.width / 2 - 100, this.height / 6 + 148, stringTranslate.translateKey("Recalibrate...")));
+        buttonOrigin = new GuiButtonEx(211, this.width / 2 - 100, this.height / 6 + 128, stringTranslate.translateKey("Reset Origin"));
+        buttonRecali = new GuiButtonEx(210, this.width / 2 - 100, this.height / 6 + 148, stringTranslate.translateKey("Recalibrate..."));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         VROption[] buttons = null;
         if (this.guiGameSettings.useVRRenderer)
+        {
             buttons = vrOnDeviceList;
+            buttonOrigin.enabled = true;
+            buttonRecali.enabled = true;
+        }
         else
+        {
             buttons = vrOffDeviceList;
+            buttonOrigin.enabled = false;
+            buttonRecali.enabled = false;
+        }
+        this.buttonList.add(buttonOrigin);
+        this.buttonList.add(buttonRecali);
 
         for (VROption var8 : buttons)
         {
