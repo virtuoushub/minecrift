@@ -112,7 +112,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             else if (par1GuiButton.id == 201)
             {
 			    this.mc.gameSettings.useDistortion = true;
-			    this.mc.gameSettings.useChromaticAbCorrection = false;
+			    this.mc.gameSettings.useChromaticAbCorrection = true;
 			    this.mc.gameSettings.fovScaleFactor = 1.0f;
 			    this.mc.gameSettings.distortionFitPoint = 5;
 			    this.mc.gameSettings.useSupersample = false;
