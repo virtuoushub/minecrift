@@ -1,4 +1,5 @@
 @echo off
 
-.\mcp\runtime\bin\python\python_mcp install.py
+REM.\mcp\runtime\bin\python\python_mcp install.py
+python install.py
 pause
