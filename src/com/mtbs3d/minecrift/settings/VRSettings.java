@@ -51,10 +51,11 @@ public class VRSettings {
     public boolean renderHeadWear = false;
     public boolean renderFullFirstPersonModel = true;
     public float renderPlayerOffset = 0.25f;
-    public boolean useChromaticAbCorrection = false;
-    public float hudScale = 1.0f;
+    public boolean useChromaticAbCorrection = true;
+    public float hudScale = 0.65f;
     public boolean pitchInputAffectsCamera = false;
-    public float hudDistance = 1.0f;
+    public float hudDistance = 1.25f;
+    public float hudPitchOffset = 0.0f;
     public float fovScaleFactor = 1.0f;
     public int distortionFitPoint = 5;
     public float headTrackSensitivity = 1.0f;
@@ -65,7 +66,7 @@ public class VRSettings {
 	public boolean lookAimYawDecoupled = false;
 	public boolean lookAimPitchDecoupled = false;
     public boolean useOculusProfile = false;
-    public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
+    public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
     public boolean posTrackHydraUseController1 = true;
     public boolean posTrackHydraDebugCentreEyePos = false;
     public float posTrackHydraDistanceScale = 1.02f;
@@ -91,11 +92,11 @@ public class VRSettings {
     public boolean posTrackHydraBIsPointingLeft = true;
     public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 	public float joystickSensitivity = 3f;
-	public float aimKeyholeWidthDegrees = 90f;
+	public float aimKeyholeWidthDegrees = 0f;
 	public boolean keyholeHeadRelative = true;
     public boolean hydraUseFilter = true;
     public float magRefDistance = 0.15f;
-	public String headPositionPluginID = "oculus";
+	public String headPositionPluginID = "null-pos";
 	public String headTrackerPluginID = "oculus";
 	public String hmdPluginID = "oculus";
 	public String controllerPluginID = "mouse";
@@ -213,6 +214,11 @@ public class VRSettings {
                         this.renderHeadWear = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("vrHideGUI"))
+                    {
+                        this.mc.gameSettings.hideGUI = optionTokens[1].equals("true");
+                    }
+
                     if (optionTokens[0].equals("renderFullFirstPersonModel"))
                     {
                         this.renderFullFirstPersonModel = optionTokens[1].equals("true");
@@ -243,6 +249,11 @@ public class VRSettings {
                         this.hudDistance = this.parseFloat(optionTokens[1]);
                     }
 
+                    if (optionTokens[0].equals("hudPitchOffset"))
+                    {
+                        this.hudPitchOffset = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("useSupersample"))
                     {
                         this.useSupersample = optionTokens[1].equals("true");
@@ -263,7 +274,7 @@ public class VRSettings {
                         this.distortionFitPoint = Integer.parseInt(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("calibrationStrategy"))
+                    if (optionTokens[0].equals("calibrationStrategy1"))      // Deliberately using a new value to get people using the 'At startup' setting again by default.
                     {
                         this.calibrationStrategy = Integer.parseInt(optionTokens[1]);
                     }
@@ -541,6 +552,10 @@ public class VRSettings {
         {
             return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
         }
+        else if (par1EnumOptions == EnumOptions.HUD_HIDE)
+        {
+            return this.mc.gameSettings.hideGUI ? var4 + "YES" : var4 + "NO";
+        }
         else if (par1EnumOptions == EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL)
         {
             return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
@@ -567,6 +582,10 @@ public class VRSettings {
         else if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
         {
             return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
+        }
+        else if (par1EnumOptions == EnumOptions.HUD_PITCH)
+        {
+            return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudPitchOffset) });
         }
         else if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
         {
@@ -849,6 +868,7 @@ public class VRSettings {
               (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
               (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET ? this.renderPlayerOffset :
               (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
+              (par1EnumOptions == EnumOptions.HUD_PITCH ? this.hudPitchOffset :
               (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR ? this.fovScaleFactor :
               (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY ? this.headTrackSensitivity :
               (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR ? this.superSampleScaleFactor :
@@ -873,7 +893,7 @@ public class VRSettings {
               (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetZ :
               (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
               (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE ? this.crosshairScale :
-              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg : 0.0F))))))))))))))))))))))))))))))));
+              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg : 0.0F)))))))))))))))))))))))))))))))));
     }
     /**
      * For non-float options. Toggles the option on/off, or cycles through the list i.e. render distances.
@@ -899,6 +919,11 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
         {
             this.renderHeadWear = !this.renderHeadWear;
+        }
+
+        if (par1EnumOptions == EnumOptions.HUD_HIDE)
+        {
+            this.mc.gameSettings.hideGUI = !this.mc.gameSettings.hideGUI;
         }
 
         if (par1EnumOptions == EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL)
@@ -1066,6 +1091,11 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
         {
             this.hudDistance = par2;
+        }
+
+        if (par1EnumOptions == EnumOptions.HUD_PITCH)
+        {
+            this.hudPitchOffset = par2;
         }
 
         if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
@@ -1295,17 +1325,19 @@ public class VRSettings {
             var5.println("useDistortion:" + this.useDistortion);
             var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
             var5.println("renderHeadWear:" + this.renderHeadWear);
+            var5.println("hideGUI:" + this.mc.gameSettings.hideGUI);
             var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
             var5.println("hudScale:" + this.hudScale);
             var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
             var5.println("allowMousePitchInput:" + this.pitchInputAffectsCamera);
             var5.println("hudDistance:" + this.hudDistance);
+            var5.println("hudPitchOffset:" + this.hudPitchOffset);
             var5.println("useSupersample:" + this.useSupersample);
             var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
             var5.println("fovScaleFactor:" + this.fovScaleFactor);
             var5.println("distortionFitPoint:" + this.distortionFitPoint);
-            var5.println("calibrationStrategy:" + this.calibrationStrategy);
+            var5.println("calibrationStrategy1:" + this.calibrationStrategy);    // Deliberately using a new value to get people using the 'At startup' setting again by default.
             var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
             var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
             var5.println("lookMoveDecoupled:" + this.lookMoveDecoupled);

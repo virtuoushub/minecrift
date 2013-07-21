@@ -760,8 +760,15 @@ public class VRRenderer extends EntityRenderer
                     guiYaw = guiHeadYaw + this.mc.lookaimController.getBodyYawDegrees();
                 GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
 
+                float guiPitch = 0f;
+
+                if (this.mc.theWorld != null)
+                    guiPitch = -this.mc.vrSettings.hudPitchOffset;
+
 				if( this.mc.vrSettings.pitchInputAffectsCamera)
-		        	GL11.glRotatef( this.mc.lookaimController.getBodyPitchDegrees(), 1f, 0f, 0f);
+                    guiPitch += this.mc.lookaimController.getBodyPitchDegrees();
+
+		        GL11.glRotatef(guiPitch, 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.vrSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
 				if( this.mc.vrSettings.useHudOpacity )

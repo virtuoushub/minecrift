@@ -57,7 +57,7 @@ public class BaseGuiSettings extends GuiScreen
         }
 
         this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 20, 16777215);
+        this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 15, 16777215);
         super.drawScreen(par1, par2, par3);
 
         if (Math.abs(par1 - this.lastMouseX) <= 5 && Math.abs(par2 - this.lastMouseY) <= 5)

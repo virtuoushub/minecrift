@@ -7,7 +7,9 @@ import net.minecraft.src.*;
 public class GuiHUDSettings extends BaseGuiSettings
 {
     static EnumOptions[] hudOptions = new EnumOptions[] {
+            EnumOptions.HUD_HIDE,
             EnumOptions.HUD_SCALE,
+            EnumOptions.HUD_PITCH,
             EnumOptions.HUD_DISTANCE,
             EnumOptions.HUD_OPACITY,
             EnumOptions.HUD_OCCLUSION,
@@ -52,17 +54,23 @@ public class GuiHUDSettings extends BaseGuiSettings
                     maxValue = 2.5f;
                     increment = 0.01f;
                 }
-                if (var8 == EnumOptions.HUD_DISTANCE)
+                else if (var8 == EnumOptions.HUD_DISTANCE)
                 {
                     minValue = 0.25f;
                     maxValue = 5.0f;
                     increment = 0.01f;
                 }
-                if (var8 == EnumOptions.CROSSHAIR_SCALE)
+                else if (var8 == EnumOptions.CROSSHAIR_SCALE)
                 {
                     minValue = 0.25f;
                     maxValue = 2.5f;
                     increment = 0.01f;
+                }
+                else if (var8 == EnumOptions.HUD_PITCH)
+                {
+                    minValue = -45f;
+                    maxValue = 45f;
+                    increment = 1f;
                 }
 
                 this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8)));
@@ -96,6 +104,8 @@ public class GuiHUDSettings extends BaseGuiSettings
             {
                 this.guivrSettings.hudDistance = 1.0f;
                 this.guivrSettings.hudScale = 1.0f;
+                this.guivrSettings.hudPitchOffset = 0f;
+                this.mc.gameSettings.hideGUI = false;
                 this.guivrSettings.useHudOpacity = false;
                 this.guivrSettings.hudOcclusion = false;
                 this.guivrSettings.crosshairScale = 1.0f;
@@ -121,11 +131,22 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "  ON: HUD and UI are transparent",
                             "  OFF: HUD and UI are opaque"
                     };
-                case HUD_SCALE:
+                case HUD_HIDE:
                     return new String[] {
-                            "Relative size HUD takes up in field-of-view",
-                            "  The units are just relative, not in degrees",
-                            "  or a fraction of FOV or anything"
+                            "Whether to hide the in-game HUD or not.",
+                            "  YES: The HUD is hidden.",
+                            "  NO:  The HUD is visible."
+                    };
+                case HUD_SCALE:
+                return new String[] {
+                        "Relative size HUD takes up in field-of-view",
+                        "  The units are just relative, not in degrees",
+                        "  or a fraction of FOV or anything"
+                };
+                case HUD_PITCH:
+                    return new String[] {
+                            "The vertical offset of the HUD, in degrees.",
+                            "  Negative values are down, positive up."
                     };
                 case HUD_DISTANCE:
                     return new String[] {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,75 @@
+@@ -97,7 +97,77 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -12,7 +12,9 @@
 +    USE_VR("VR mode", false, true),
 +    HUD_SCALE("HUD Scale", true, false),
 +    HUD_DISTANCE("HUD Distance", true, false),
++    HUD_PITCH("HUD Pitch Offset", true, false),
 +    HUD_OPACITY("HUD Opacity", false, true),
++    HUD_HIDE("Hide HUD (F1)", false, true),
 +    HUD_OCCLUSION("HUD Occlusion", false, true),
 +    HEAD_TRACKING("Head Tracking", false, true),
 +    DUMMY("Dummy", false, true),
