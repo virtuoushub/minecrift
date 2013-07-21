@@ -63,7 +63,7 @@ def applychanges(mcp_dir):
         print("Backing up src/minecraft to src/minecraft-bak")
         shutil.rmtree( mod_bak_dir, True )
         shutil.move( mod_src_dir, mod_bak_dir )
-    shutil.copytree( org_src_dir, mod_src_dir )
+    shutil.copytree( org_src_dir, mod_src_dir, ignore=lambda p,f: [".git"]  )
 
     #apply patches
     apply_patches( mcp_dir, os.path.join( base_dir, "patches"), mod_src_dir )
