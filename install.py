@@ -12,6 +12,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 mc_version = "1.6.2"
 of_version = mc_version+"_HD_U_B3"
+mcp_version = "mcp804"
 
 try:
     WindowsError
@@ -35,7 +36,7 @@ def get_md5(file):
 
 def download_file(url, target, md5=None):
     name = os.path.basename(target)
-    
+
     if not os.path.isfile(target):
         try:
             with open(target,"wb") as tf:
@@ -54,38 +55,34 @@ def download_file(url, target, md5=None):
     else:
         print 'File Exists: %s' % os.path.basename(target)
     return True
-    
+
 def download_native(url, folder, name):
     if not os.path.exists(folder):
         os.makedirs(folder)
-    
+
     target = os.path.join(folder, name)
     if not download_file(url, target):
         return False
-    
-    return True 
+
+    return True
 
 def download_deps( mcp_dir ):
-
-    download_file( "http://mcp.ocean-labs.de/files/archive/mcp804.zip", "mcp804.zip" )
-
-    try:
-        os.mkdir( mcp_dir )
-    except:
-        pass
-    try:
-        mcp_zip = zipfile.ZipFile( "mcp804.zip" )
-        mcp_zip.extractall( mcp_dir )
-        import stat
-        astyle = os.path.join(mcp_dir,"runtime","bin","astyle-osx")
-        st = os.stat( astyle )
-        os.chmod(astyle, st.st_mode | stat.S_IEXEC)
-    except:
-        pass
+    if not os.path.exists(mcp_dir+"/runtime/commands.py "):
+        download_file( "http://mcp.ocean-labs.de/files/archive/"+mcp_version+".zip", mcp_version+".zip" )
+        try:
+            os.mkdir( mcp_dir )
+            mcp_zip = zipfile.ZipFile( mcp_version+".zip" )
+            mcp_zip.extractall( mcp_dir )
+            import stat
+            astyle = os.path.join(mcp_dir,"runtime","bin","astyle-osx")
+            st = os.stat( astyle )
+            os.chmod(astyle, st.st_mode | stat.S_IEXEC)
+        except:
+            pass
 
     jars = os.path.join(mcp_dir,"jars")
 
-    versions =  os.path.join(jars,"versions",mc_version) 
+    versions =  os.path.join(jars,"versions",mc_version)
     mkdir_p( versions )
 
     if sys.platform == 'darwin':
@@ -97,7 +94,7 @@ def download_deps( mcp_dir ):
     else:
         native = "windows"
 
-    
+
     json_file = os.path.join(versions,mc_version+".json")
     shutil.copy( os.path.join("installer",mc_version+".json"),json_file)
 
@@ -182,8 +179,8 @@ def zipmerge( target_file, source_file ):
     out.close()
     os.remove( target_file )
     shutil.copy( out_filename, target_file )
-   
-    
+
+
 def symlink(source, link_name):
     import os
     os_symlink = getattr(os, "symlink", None)
@@ -227,8 +224,8 @@ def main(mcp_dir):
     shutil.copytree( src_dir, org_src_dir )
 
     applychanges( mcp_dir )
-    
-    
+
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-m', '--mcp-dir', action='store', dest='mcp_dir', help='Path to MCP to use', default=None)
@@ -239,4 +236,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp804'))    
+        main(os.path.abspath(mcp_version))
