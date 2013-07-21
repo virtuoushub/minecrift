@@ -1,0 +1,12 @@
+diff -u a/mcp.cfg b/mcp.cfg
+--- a/mcp.cfg
++++ b/mcp.cfg
+@@ -155,7 +155,7 @@
+ CmdSS         = %s -cp "{classpath}" -jar %s -i {injar} -o {outjar} -m {mapfile} --kill-source
+ CmdSSReobf    = %s -cp "{classpath}" -jar %s -i {injar} -o {outjar} -r -m {mapfile} -d {identifier} -e %s
+ CmdJadretro   = %s -jar %s {targetdir}
+-CmdFernflower = %s -jar %s -din=0 -rbr=0 -dgs=1 -asc=1 -log=WARN {indir} {outdir}
++CmdFernflower = %s -Xincgc -Xms1024M -Xmx1024M -jar %s -din=0 -rbr=0 -dgs=1 -asc=1 -log=WARN {indir} {outdir}
+ CmdExceptor   = %s -jar %s {input} {output} {conf} {log}
+ CmdRecomp     = %s -Xlint:-options -deprecation -g -source 1.6 -target 1.6 -classpath "{classpath}" -sourcepath {sourcepath} -d {outpath} {pkgs}
+ CmdRecompScala = %s -encoding UTF-8 -deprecation -target:jvm-1.6 -classpath "{classpath}" -sourcepath {sourcepath} -d {outpath} {pkgs}

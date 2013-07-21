@@ -5,7 +5,7 @@ import errno
 from hashlib import md5  # pylint: disable-msg=E0611
 from optparse import OptionParser
 
-from applychanges import applychanges
+from applychanges import applychanges, apply_patch
 
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -79,6 +79,8 @@ def download_deps( mcp_dir ):
             os.chmod(astyle, st.st_mode | stat.S_IEXEC)
         except:
             pass
+    print("Patching mcp.cfg. ignore \"FAILED\" hunks")
+    apply_patch( mcp_dir, "mcp.cfg.patch", os.path.join(mcp_dir,"conf"))
 
     jars = os.path.join(mcp_dir,"jars")
 
@@ -209,6 +211,9 @@ def main(mcp_dir):
     zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"), optifine )
 
     print("Decompiling...")
+    src_dir = os.path.join(mcp_dir, "src","minecraft")
+    if os.path.exists( src_dir ):
+        shutil.rmtree( src_dir, True )
     sys.path.append(mcp_dir)
     os.chdir(mcp_dir)
     from runtime.decompile import decompile
@@ -217,7 +222,6 @@ def main(mcp_dir):
 
     os.chdir( base_dir )
 
-    src_dir = os.path.join(mcp_dir, "src","minecraft")
     org_src_dir = os.path.join(mcp_dir, "src",".minecraft_orig")
     if os.path.exists( org_src_dir ):
         shutil.rmtree( org_src_dir, True )

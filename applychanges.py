@@ -19,13 +19,13 @@ def apply_patch( mcp_dir, patch_file, target_dir ):
                 temp_file.write( crlf.sub("\r\n", patch.read() ))
             patch_file = temp_file.name
         applydiff = os.path.abspath(os.path.join(mcp_dir, 'runtime', 'bin', 'applydiff.exe'))
-        cmd = cmdsplit('"%s" -uf -p1 -i "%s"' % (applydiff, patch_file ))
+        cmd = cmdsplit('"%s" -N -uf -p1 -i "%s"' % (applydiff, patch_file ))
     else:
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             with open(patch_file,'rb') as patch:
                 temp_file.write( patch.read())
             patch_file = temp_file.name
-        cmd = cmdsplit('patch -p1 -i "%s" ' % patch_file )
+        cmd = cmdsplit('patch -N -p1 -i "%s" ' % patch_file )
 
     process = subprocess.Popen(cmd, cwd=target_dir, bufsize=-1)
     process.communicate()
