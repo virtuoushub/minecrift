@@ -34,7 +34,7 @@ public class FBOParams
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
-        if (mc.gameSettings.useMipMaps)
+        if (mc.vrSettings.useMipMaps)
         {
             GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
         }
@@ -46,7 +46,7 @@ public class FBOParams
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, nBufferFormat, fboWidth, fboHeight, 0, GL11.GL_RGBA, GL11.GL_INT, (java.nio.ByteBuffer) null);
         System.out.println("[Minecrift] FBO '" + fboName + "': w: " + fboWidth + ", h: " + fboHeight);
-        if (mc.gameSettings.useMipMaps)
+        if (mc.vrSettings.useMipMaps)
         {
             // Mipmap gen
             GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);

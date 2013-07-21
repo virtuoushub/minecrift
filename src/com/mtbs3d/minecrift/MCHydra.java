@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 import com.mtbs3d.minecrift.api.*;
+import com.mtbs3d.minecrift.settings.VRSettings;
 import com.sixense.utils.enums.EnumControllerDesc;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -141,7 +142,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		cm = ControllerManager.getInstance();
 		cm.setGameType(com.sixense.utils.enums.EnumGameType.ONE_PLAYER_TWO_CONTROLLER);
 		Sixense.setActiveBase(0);
-		Sixense.setFilterEnabled(Minecraft.getMinecraft().gameSettings.hydraUseFilter);
+		Sixense.setFilterEnabled(Minecraft.getMinecraft().vrSettings.hydraUseFilter);
 		
         try {
 			keyDownField = Keyboard.class.getDeclaredField("keyDownBuffer");
@@ -182,7 +183,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         ControllerData cont1, cont2;
         if (leftIndex != -1 && rightIndex != -1)
         {
-            if (mc.gameSettings.posTrackHydraUseController1)
+            if (mc.vrSettings.posTrackHydraUseController1)
             {
                 cont1 = newData[leftIndex];
                 cont2 = newData[rightIndex];
@@ -238,7 +239,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
             cont2Roll  = 0;
         }
 
-        userScale = SCALE * mc.gameSettings.posTrackHydraDistanceScale;
+        userScale = SCALE * mc.vrSettings.posTrackHydraDistanceScale;
 
         cont1PosX = userScale * cont1.pos[0] * XDIRECTION;
         cont1PosY = userScale * cont1.pos[1] * YDIRECTION;
@@ -283,24 +284,24 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
 		        //aim/body adjustments
 	        	float headYaw = 0;
-	        	if( mc.gameSettings.keyholeHeadRelative )
+	        	if( mc.vrSettings.keyholeHeadRelative )
 		        	headYaw = mc.headTracker.getHeadYawDegrees();
 	        	
 	        	//Adjust keyhole width on controller pitch; otherwise its a very narrow window at the top and bottom
-	        	float keyholeYaw = mc.gameSettings.aimKeyholeWidthDegrees/2/MathHelper.cos(cont2Pitch*PIOVER180);
+	        	float keyholeYaw = mc.vrSettings.aimKeyholeWidthDegrees/2/MathHelper.cos(cont2Pitch*PIOVER180);
 	        	
 	        	float bodyYawT = cont2Yaw - baseStationYawOffset; //
 
 	            if( bodyYawT > headYaw + keyholeYaw  ) 
 	            {
-	            	bodyYawT = Math.min(10,bodyYawT - headYaw - keyholeYaw) * 0.1f*mc.gameSettings.joystickSensitivity; //TODO: add new sensitivity
+	            	bodyYawT = Math.min(10,bodyYawT - headYaw - keyholeYaw) * 0.1f*mc.vrSettings.joystickSensitivity; //TODO: add new sensitivity
 	            	//Controller pointing too far right, move body to the right
 	                aimYaw = headYaw + keyholeYaw;
 	            }
 	            else if( bodyYawT < headYaw -keyholeYaw )
 	            {
 	            	//Controller pointing too far left, move body to the left
-	            	bodyYawT = Math.max(-10,bodyYawT -headYaw + keyholeYaw) * 0.1f*mc.gameSettings.joystickSensitivity;
+	            	bodyYawT = Math.max(-10,bodyYawT -headYaw + keyholeYaw) * 0.1f*mc.vrSettings.joystickSensitivity;
 	                aimYaw = headYaw - keyholeYaw;
 	            }
 	            else
@@ -329,13 +330,13 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        {
 		        	if( !leftMouseClicked )
 		        		mc.clickMouse(0);
-		        	mc.gameSettings.keyBindAttack.pressed = true;
+		        	settings.keyBindAttack.pressed = true;
 		        	leftMouseClicked = true;
 		        }
 		        else
 		        {
 		        	leftMouseClicked = false;
-		        	mc.gameSettings.keyBindAttack.pressed = false;
+		        	settings.keyBindAttack.pressed = false;
 		        }
 		        	
 		        if((cont2.buttons & EnumButton.BUMPER.mask()) >0 && 
@@ -344,7 +345,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        	mc.clickMouse(1);
 		        }
 
-	        	mc.gameSettings.keyBindUseItem.pressed = (cont2.buttons & EnumButton.BUMPER.mask()) >0 ;
+	        	settings.keyBindUseItem.pressed = (cont2.buttons & EnumButton.BUMPER.mask()) >0 ;
 		        
 		        if((cont2.buttons & EnumButton.JOYSTICK.mask())>0 &&
 		        	 (lastcont2Buttons & EnumButton.JOYSTICK.mask()) == 0)
@@ -394,8 +395,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         	mouseUseJoystick = false;
         	if( mouseUseJoystick )
         	{
-	        	hydraMouseX += 2*mc.gameSettings.joystickSensitivity*cont2.joystick_x;
-	        	hydraMouseY += 2*mc.gameSettings.joystickSensitivity*cont2.joystick_y;
+	        	hydraMouseX += 2*mc.vrSettings.joystickSensitivity*cont2.joystick_x;
+	        	hydraMouseY += 2*mc.vrSettings.joystickSensitivity*cont2.joystick_y;
         	}
         	else
         	{
@@ -494,7 +495,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
             return;
         }
 
-        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
+        VRSettings vrSettings = Minecraft.getMinecraft().vrSettings;
         
         if( resetOriginRotation )
         {
@@ -502,10 +503,10 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         	if( Minecraft.getMinecraft().headTracker != this ) //if the positional tracker is the hydra, they are always aligned
         	{
         		baseStationYawOffset = cont1Yaw - yawHeadDegrees; //assume hydra oriented straight with head orientation
-	        	if( gameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)   // TODO: Also needed for HMD top?
+	        	if( vrSettings.posTrackHydraLoc == vrSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)   // TODO: Also needed for HMD top?
                 {
                     //assume hydra oriented at 90degrees to head orientation
-	        		if (gameSettings.posTrackHydraBIsPointingLeft)
+	        		if (vrSettings.posTrackHydraBIsPointingLeft)
                     {
                         baseStationYawOffset -= 90;
                     }
@@ -525,7 +526,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         float rawY = cont1PosY;
         float rawZ = cont1PosZ;
 
-        if (gameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
+        if (vrSettings.posTrackHydraLoc == vrSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
         {
         	//Otherwise, use average of controllers
             rawX = (cont1PosX + cont2PosX) / 2.0f;
@@ -536,7 +537,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         // Correct for distance from base y axis skew
         // TODO: figure out why the heck this is required for Stella's Hydras...
         // TODO: rename this gameSetting to "hydraXRotationSkew" or other sensible name
-        rawY += rawZ * MathHelper.sin(gameSettings.posTrackHydraYAxisDistanceSkewAngleDeg*PIOVER180 );
+        rawY += rawZ * MathHelper.sin(vrSettings.posTrackHydraYAxisDistanceSkewAngleDeg*PIOVER180 );
         
         //Raw is the absolute coordinate in hydra reference frame of the sample (possible average of two controllers)
         Vec3 raw = Vec3.createVectorHelper(rawX, rawY, rawZ);
@@ -549,10 +550,10 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         rel.rotateAroundY(baseStationYawOffset*PIOVER180);
 
         //Now, compute the offset from the hydra controller to the camera location. Straight from the settings (although negated -
-        //gameSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
-        float hydraXOffset = -gameSettings.getPosTrackHydraOffsetX();
-        float hydraYOffset = -gameSettings.getPosTrackHydraOffsetY();
-        float hydraZOffset = gameSettings.getPosTrackHydraOffsetZ();
+        //vrSettings stores eye center -> hydra values for user readability. We need hydra -> eye center values here)
+        float hydraXOffset = -vrSettings.getPosTrackHydraOffsetX();
+        float hydraYOffset = -vrSettings.getPosTrackHydraOffsetY();
+        float hydraZOffset = vrSettings.getPosTrackHydraOffsetZ();
 
         // The configured offset is for a 0,0,0 rotation head. Apply current head orientation to get final offset
         Vec3 correctionToCentreEyePosition = Vec3.createVectorHelper(hydraXOffset, hydraYOffset, hydraZOffset);
@@ -568,7 +569,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         if (resetOrigin)
         {
         	//We compute the "ideal" neck model position, in head tracker reference frame
-        	Vec3 neckModelToCentreEyePosition = Vec3.createVectorHelper(0, gameSettings.neckBaseToEyeHeight, -gameSettings.eyeProtrusion);
+        	Vec3 neckModelToCentreEyePosition = Vec3.createVectorHelper(0, vrSettings.neckBaseToEyeHeight, -vrSettings.eyeProtrusion);
 	        neckModelToCentreEyePosition.rotateAroundZ(rollHeadDegrees*PIOVER180);
 	        neckModelToCentreEyePosition.rotateAroundX(pitchHeadDegrees*PIOVER180);
 	        neckModelToCentreEyePosition.rotateAroundY(-yawHeadDegrees*PIOVER180);

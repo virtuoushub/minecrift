@@ -4,6 +4,8 @@
  */
 package com.mtbs3d.minecrift.gui;
 
+import com.mtbs3d.minecrift.settings.VRSettings;
+
 import net.minecraft.src.*;
 
 public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEventEx
@@ -20,9 +22,9 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     };
 
 
-    public GuiRenderOpticsSettings(GuiScreen par1GuiScreen, GameSettings par2GameSettings)
+    public GuiRenderOpticsSettings(GuiScreen par1GuiScreen, VRSettings par2vrSettings)
     {
-    	super( par1GuiScreen, par2GameSettings);
+    	super( par1GuiScreen, par2vrSettings);
         screenTitle = "Optics / Render Settings";
     }
 
@@ -77,13 +79,13 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     maxValue = 14.0f;
                     increment = 1.0f;
                 }
-                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
+                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
                 this.buttonList.add(slider);
             }
             else
             {
-                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
+                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));
             }
 
             ++var9;
@@ -101,26 +103,26 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201)
             {
-			    this.mc.gameSettings.useDistortion = true;
-			    this.mc.gameSettings.useChromaticAbCorrection = true;
-			    this.mc.gameSettings.fovScaleFactor = 1.0f;
-			    this.mc.gameSettings.distortionFitPoint = 5;
-			    this.mc.gameSettings.useSupersample = false;
-			    this.mc.gameSettings.superSampleScaleFactor = 2.0f;
+			    this.mc.vrSettings.useDistortion = true;
+			    this.mc.vrSettings.useChromaticAbCorrection = true;
+			    this.mc.vrSettings.fovScaleFactor = 1.0f;
+			    this.mc.vrSettings.distortionFitPoint = 5;
+			    this.mc.vrSettings.useSupersample = false;
+			    this.mc.vrSettings.superSampleScaleFactor = 2.0f;
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
-			    this.mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
-			    this.guiGameSettings.saveOptions();
+			    this.mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
+			    this.guivrSettings.saveOptions();
             }
 
             if (num == EnumOptions.USE_DISTORTION ||

@@ -12,6 +12,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import com.mtbs3d.minecrift.api.PluginManager;
+import com.mtbs3d.minecrift.settings.VRSettings;
 import com.mtbs3d.minecrift.utils.Utils;
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.HMDInfo;
@@ -165,7 +166,7 @@ public class VRRenderer extends EntityRenderer
     		superSampleSupported = false;
     	}
 
-        if (this.mc.gameSettings.calibrationStrategy == GameSettings.CALIBRATION_STRATEGY_AT_STARTUP)
+        if (this.mc.vrSettings.calibrationStrategy == VRSettings.CALIBRATION_STRATEGY_AT_STARTUP)
     	    startCalibration();
     }
 
@@ -248,7 +249,7 @@ public class VRRenderer extends EntityRenderer
         }
 
         // Camera height offset
-        float cameraYOffset = 1.62f - (this.mc.gameSettings.getPlayerEyeHeight() - this.mc.gameSettings.neckBaseToEyeHeight);
+        float cameraYOffset = 1.62f - (this.mc.vrSettings.getPlayerEyeHeight() - this.mc.vrSettings.neckBaseToEyeHeight);
         
         EntityLivingBase entity = this.mc.renderViewEntity;
         if( entity != null )
@@ -444,12 +445,12 @@ public class VRRenderer extends EntityRenderer
     		calibrationHelper = null;
         }
 
-        if (this.mc.gameSettings.posTrackResetPosition)
+        if (this.mc.vrSettings.posTrackResetPosition)
         {
             mc.positionTracker.resetOrigin();
             mc.headTracker.resetOrigin();
             resetGuiYawOrientation();
-            this.mc.gameSettings.posTrackResetPosition = false;
+            this.mc.vrSettings.posTrackResetPosition = false;
         }
 
         PluginManager.pollAll();
@@ -457,13 +458,13 @@ public class VRRenderer extends EntityRenderer
         float lookYawOffset   = mc.lookaimController.getBodyYawDegrees();
         float lookPitchOffset = mc.lookaimController.getBodyPitchDegrees(); 
         
-        if (mc.headTracker.isInitialized() && this.mc.gameSettings.useHeadTracking)
+        if (mc.headTracker.isInitialized() && this.mc.vrSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
                                                          // Roll multiplier is a one-way trip to barf-ville!
-            cameraRoll = mc.headTracker.getHeadRollDegrees()  * this.mc.gameSettings.headTrackSensitivity;
-            headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.gameSettings.headTrackSensitivity;
-            headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.gameSettings.headTrackSensitivity;
+            cameraRoll = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.headTrackSensitivity;
+            headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.headTrackSensitivity;
+            headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.headTrackSensitivity;
 
             cameraPitch = (lookPitchOffset + headPitch )%180;
             cameraYaw   = (lookYawOffset   + headYaw ) % 360;
@@ -491,7 +492,7 @@ public class VRRenderer extends EntityRenderer
         if( entity != null )
         {
         	//set movement direction
-        	if( this.mc.gameSettings.lookMoveDecoupled )
+        	if( this.mc.vrSettings.lookMoveDecoupled )
 	        	entity.rotationYaw = lookYawOffset;
         	else
         		entity.rotationYaw = cameraYaw;
@@ -500,12 +501,12 @@ public class VRRenderer extends EntityRenderer
         	
         }
 
-        if( this.mc.gameSettings.lookAimYawDecoupled )
+        if( this.mc.vrSettings.lookAimYawDecoupled )
         	aimYaw    = mc.lookaimController.getAimYaw();
         else
         	aimYaw = cameraYaw;
 
-        if( this.mc.gameSettings.lookAimPitchDecoupled )
+        if( this.mc.vrSettings.lookAimPitchDecoupled )
 	        aimPitch  = mc.lookaimController.getAimPitch();
         else 
         	aimPitch = cameraPitch;
@@ -527,7 +528,7 @@ public class VRRenderer extends EntityRenderer
         {
         	float fulldist = (float)(Math.sqrt( camRelX * camRelX + camRelY * camRelY + camRelZ * camRelZ ));
             
-        	float cameraYOffset = 1.62f - (this.mc.gameSettings.getPlayerEyeHeight() - this.mc.gameSettings.neckBaseToEyeHeight);
+        	float cameraYOffset = 1.62f - (this.mc.vrSettings.getPlayerEyeHeight() - this.mc.vrSettings.neckBaseToEyeHeight);
             float colldist = checkCameraCollision(renderOriginX, renderOriginY - cameraYOffset, renderOriginZ, 
             		-camRelX, -camRelY, -camRelZ, fulldist );
             if( colldist != fulldist )
@@ -575,15 +576,15 @@ public class VRRenderer extends EntityRenderer
         }
 
         //Setup eye render params
-        if ( superSampleSupported && this.mc.gameSettings.useSupersample)
+        if ( superSampleSupported && this.mc.vrSettings.useSupersample)
         {
             eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
                     0,
-                    (int)ceil(this.mc.displayFBWidth  * this.mc.gameSettings.superSampleScaleFactor),
-                    (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor),
+                    (int)ceil(this.mc.displayFBWidth  * this.mc.vrSettings.superSampleScaleFactor),
+                    (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor),
                     0.05F,
                     this.farPlaneDistance * 2.0F,
-                    this.mc.gameSettings.fovScaleFactor,
+                    this.mc.vrSettings.fovScaleFactor,
                     getDistortionFitX(),
                     getDistortionFitY());
         }
@@ -595,7 +596,7 @@ public class VRRenderer extends EntityRenderer
                     this.mc.displayFBHeight,
                     0.05F,
                     this.farPlaneDistance * 2.0F,
-                    this.mc.gameSettings.fovScaleFactor,
+                    this.mc.vrSettings.fovScaleFactor,
                     getDistortionFitX(),
                     getDistortionFitY());
         }
@@ -661,11 +662,11 @@ public class VRRenderer extends EntityRenderer
         }
       
         //Setup render target
-        if (mc.gameSettings.useDistortion)
+        if (mc.vrSettings.useDistortion)
         {
             preDistortionFBO.bindRenderTarget();
         }
-        else if ( superSampleSupported && this.mc.gameSettings.useSupersample)
+        else if ( superSampleSupported && this.mc.vrSettings.useSupersample)
         {
             postDistortionFBO.bindRenderTarget();
             eyeRenderParams._renderScale = 1.0f;
@@ -753,17 +754,17 @@ public class VRRenderer extends EntityRenderer
                 GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 
                 float guiYaw;
-                if( this.mc.theWorld != null && this.mc.gameSettings.lookMoveDecoupled)
+                if( this.mc.theWorld != null && this.mc.vrSettings.lookMoveDecoupled)
                     guiYaw = this.mc.lookaimController.getBodyYawDegrees();
                 else
                     guiYaw = guiHeadYaw + this.mc.lookaimController.getBodyYawDegrees();
                 GL11.glRotatef(-guiYaw, 0f, 1f, 0f);
 
-				if( this.mc.gameSettings.pitchInputAffectsCamera)
+				if( this.mc.vrSettings.pitchInputAffectsCamera)
 		        	GL11.glRotatef( this.mc.lookaimController.getBodyPitchDegrees(), 1f, 0f, 0f);
-				GL11.glTranslatef (0.0f, 0.0f, this.mc.gameSettings.hudDistance);
+				GL11.glTranslatef (0.0f, 0.0f, this.mc.vrSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
-				if( this.mc.gameSettings.useHudOpacity )
+				if( this.mc.vrSettings.useHudOpacity )
 				{
 			        GL11.glEnable(GL11.GL_BLEND);
 			        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -773,10 +774,10 @@ public class VRRenderer extends EntityRenderer
 			        GL11.glDisable(GL11.GL_BLEND);
 				}
 
-		        if (!this.mc.gameSettings.hudOcclusion)
+		        if (!this.mc.vrSettings.hudOcclusion)
                     GL11.glDisable(GL11.GL_DEPTH_TEST);
 
-				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.gameSettings.hudScale*this.mc.gameSettings.hudDistance);
+				drawQuad2(this.mc.displayWidth,this.mc.displayHeight,this.mc.vrSettings.hudScale*this.mc.vrSettings.hudDistance);
 		        GL11.glDisable(GL11.GL_BLEND);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
 
@@ -789,9 +790,9 @@ public class VRRenderer extends EntityRenderer
 
 	    	if( calibrationHelper != null )
 	    	{
-                float x = lookX*mc.gameSettings.hudDistance;
-                float y = lookY*mc.gameSettings.hudDistance;
-                float z = lookZ*mc.gameSettings.hudDistance;
+                float x = lookX*mc.vrSettings.hudDistance;
+                float y = lookY*mc.vrSettings.hudDistance;
+                float z = lookZ*mc.vrSettings.hudDistance;
 
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
 	            GL11.glPushMatrix();
@@ -860,14 +861,14 @@ public class VRRenderer extends EntityRenderer
             System.out.println("[Minecrift] INITIALISE Display");
             System.out.println("[Minecrift] Display w: " + this.mc.displayFBWidth + ", h: " + this.mc.displayFBHeight);
             System.out.println("[Minecrift] Renderscale: " + eyeRenderParams._renderScale);
-            if (superSampleSupported && this.mc.gameSettings.useSupersample)
-                System.out.println("[Minecrift] FSAA Scale: " + this.mc.gameSettings.superSampleScaleFactor);
+            if (superSampleSupported && this.mc.vrSettings.useSupersample)
+                System.out.println("[Minecrift] FSAA Scale: " + this.mc.vrSettings.superSampleScaleFactor);
             else
                 System.out.println("[Minecrift] FSAA OFF");
 
-            if ( superSampleSupported && this.mc.gameSettings.useSupersample)
+            if ( superSampleSupported && this.mc.vrSettings.useSupersample)
             {
-                preDistortionFBO = new FBOParams("preDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.gameSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.gameSettings.superSampleScaleFactor));
+                preDistortionFBO = new FBOParams("preDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor));
             }
             else
             {
@@ -875,7 +876,7 @@ public class VRRenderer extends EntityRenderer
             }
             mc.checkGLError("FBO create");
 
-            if (this.mc.gameSettings.useChromaticAbCorrection)
+            if (this.mc.vrSettings.useChromaticAbCorrection)
             {
                 _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION, false);
             }
@@ -891,11 +892,11 @@ public class VRRenderer extends EntityRenderer
             if( superSampleSupported )
             {
 	
-	            if (this.mc.gameSettings.useSupersample)
+	            if (this.mc.vrSettings.useSupersample)
 	            {
 		            // Lanczos downsample FBOs
-		            postDistortionFBO = new FBOParams("postDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * this.mc.gameSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor));
-		            postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor));
+		            postDistortionFBO = new FBOParams("postDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
+		            postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
 		
 		            mc.checkGLError("Lanczos FBO create");
 
@@ -957,20 +958,20 @@ public class VRRenderer extends EntityRenderer
     {
     	int FBWidth = this.mc.displayFBWidth;
     	int FBHeight = this.mc.displayFBHeight;
-        if ( superSampleSupported && this.mc.gameSettings.useSupersample)
+        if ( superSampleSupported && this.mc.vrSettings.useSupersample)
         {
-        	FBWidth  = (int)ceil(this.mc.displayFBWidth  * this.mc.gameSettings.superSampleScaleFactor);
-        	FBHeight = (int)ceil(this.mc.displayFBHeight * this.mc.gameSettings.superSampleScaleFactor);
+        	FBWidth  = (int)ceil(this.mc.displayFBWidth  * this.mc.vrSettings.superSampleScaleFactor);
+        	FBHeight = (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor);
         	
         }
     	
-        if (mc.gameSettings.useDistortion)
+        if (mc.vrSettings.useDistortion)
         {
             mc.checkGLError("Before distortion");
 
             preDistortionFBO.bindTexture();
 
-            if ( superSampleSupported && this.mc.gameSettings.useSupersample)
+            if ( superSampleSupported && this.mc.vrSettings.useSupersample)
             {
             	//chain into the superSample FBO
                 postDistortionFBO.bindRenderTarget();
@@ -1059,7 +1060,7 @@ public class VRRenderer extends EntityRenderer
             mc.checkGLError("After distortion");
         }
 
-        if (superSampleSupported && this.mc.gameSettings.useSupersample)
+        if (superSampleSupported && this.mc.vrSettings.useSupersample)
         {
             // Now switch to 1st pass target framebuffer
         	postSuperSampleFBO.bindRenderTarget();
@@ -1307,7 +1308,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
 
-        boolean renderOutline = this.mc.gameSettings.alwaysRenderBlockOutline || !this.mc.gameSettings.hideGUI;
+        boolean renderOutline = this.mc.vrSettings.alwaysRenderBlockOutline || !this.mc.gameSettings.hideGUI;
 
         if (this.mc.currentScreen == null && this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && this.mc.objectMouseOver != null && !renderViewEntity.isInsideOfMaterial(Material.water) && renderOutline)
         {
@@ -1348,7 +1349,7 @@ public class VRRenderer extends EntityRenderer
 	        mc.checkGLError("PostFRenderLast");
         }
 
-        if (this.mc.gameSettings.renderFullFirstPersonModel == false)
+        if (this.mc.vrSettings.renderFullFirstPersonModel == false)
         {
             GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
             this.renderHand(renderPartialTicks, renderSceneNumber);
@@ -1356,19 +1357,19 @@ public class VRRenderer extends EntityRenderer
 
 	    GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f); //white crosshair, with blending
     	//Draw crosshair
-        boolean renderCrosshair = this.mc.gameSettings.alwaysRenderInGameCrosshair || !this.mc.gameSettings.hideGUI;
+        boolean renderCrosshair = this.mc.vrSettings.alwaysRenderInGameCrosshair || !this.mc.gameSettings.hideGUI;
 
     	if( this.mc.currentScreen == null && this.mc.gameSettings.thirdPersonView == 0 && renderCrosshair)
     	{
     		this.mc.mcProfiler.endStartSection("crosshair");
             float crossDepth = (float)Math.sqrt((crossX*crossX + crossY*crossY + crossZ*crossZ));
-            float scale = 0.025f*crossDepth*this.mc.gameSettings.crosshairScale;
+            float scale = 0.025f*crossDepth*this.mc.vrSettings.crosshairScale;
 
             GL11.glPushMatrix();
         	GL11.glTranslatef(crossX, crossY, crossZ);
             GL11.glRotatef(-this.aimYaw, 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(this.aimPitch, 1.0F, 0.0F, 0.0F);
-            if (this.mc.gameSettings.crosshairRollsWithHead)
+            if (this.mc.vrSettings.crosshairRollsWithHead)
                 GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
             GL11.glScalef(-scale, -scale, scale);
             GL11.glDisable(GL11.GL_LIGHTING);
@@ -1880,7 +1881,7 @@ public class VRRenderer extends EntityRenderer
     {
         float fit = 0.0f;
 
-        switch (this.mc.gameSettings.distortionFitPoint)
+        switch (this.mc.vrSettings.distortionFitPoint)
         {
             case 0:
                 fit = 1.0f;
@@ -1937,7 +1938,7 @@ public class VRRenderer extends EntityRenderer
     {
         float fit = -1.0f;
 
-        switch (this.mc.gameSettings.distortionFitPoint)
+        switch (this.mc.vrSettings.distortionFitPoint)
         {
             case 0:
                 fit = -1.0f;

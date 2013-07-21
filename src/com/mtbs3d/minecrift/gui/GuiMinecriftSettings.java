@@ -4,8 +4,9 @@
  */
 package com.mtbs3d.minecrift.gui;
 
+import com.mtbs3d.minecrift.settings.VRSettings;
+
 import net.minecraft.src.EnumOptions;
-import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.StringTranslate;
@@ -43,9 +44,9 @@ public class GuiMinecriftSettings extends BaseGuiSettings
     /** An array of all of EnumOption's video options. */
 
     public GuiMinecriftSettings( GuiScreen par1GuiScreen,
-                                GameSettings par2GameSettings)
+                                VRSettings par2vrSettings)
     {
-    	super( par1GuiScreen, par2GameSettings );
+    	super( par1GuiScreen, par2vrSettings );
     	screenTitle = "VR Settings";
     }
 
@@ -57,12 +58,12 @@ public class GuiMinecriftSettings extends BaseGuiSettings
         GuiButtonEx buttonOrigin, buttonRecali;
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
+        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, EnumOptions.USE_VR, this.guivrSettings.getKeyBinding(EnumOptions.USE_VR)));
         buttonOrigin = new GuiButtonEx(211, this.width / 2 - 100, this.height / 6 + 128, stringTranslate.translateKey("Reset Origin"));
         buttonRecali = new GuiButtonEx(210, this.width / 2 - 100, this.height / 6 + 148, stringTranslate.translateKey("Recalibrate..."));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         VROption[] buttons = null;
-        if (this.guiGameSettings.useVRRenderer)
+        if (this.guivrSettings.useVRRenderer)
         {
             buttons = vrOnDeviceList;
             buttonOrigin.enabled = true;
@@ -82,20 +83,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             int width = var8.getWidth(this.width);
             int height = var8.getHeight(this.height);
 
-//            if (var8._e == EnumOptions.DUMMY)
-//                continue;
-
-//            if (var8._e.getEnumFloat())
-//            {
-//                float minValue = 0.0f;
-//                float maxValue = 1.0f;
-//                float increment = 0.01f;
-//
-//                GuiSliderEx slider = new GuiSliderEx(var8.getOrdinal(), width, height, var8._e, var8.getButtonText(), minValue, maxValue, increment, 0.0f);
-//                slider.enabled = var8._enabled;
-//                this.buttonList.add(slider);
-//            }
-//            else
             {
                 GuiSmallButtonEx button = new GuiSmallButtonEx(var8.getOrdinal(), width, height, var8._e, var8.getButtonText());
                 button.enabled = var8._enabled;
@@ -114,8 +101,8 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
                 EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
-                this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
 
                 if (num == EnumOptions.USE_VR)
                 {
@@ -126,70 +113,70 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             }
             else if (par1GuiButton.id == 201)
             {
-                this.mc.gameSettings.saveOptions();
-                this.mc.displayGuiScreen(new GuiPlayerPreferenceSettings(this, this.guiGameSettings));
+                this.mc.vrSettings.saveOptions();
+                this.mc.displayGuiScreen(new GuiPlayerPreferenceSettings(this, this.guivrSettings));
             }
             else if (par1GuiButton.id == 202)
             {
                 if( mc.headTracker != null )
                 {
-                    this.mc.gameSettings.saveOptions();
-                    this.mc.displayGuiScreen(new GuiHUDSettings(this, this.guiGameSettings));
+                    this.mc.vrSettings.saveOptions();
+                    this.mc.displayGuiScreen(new GuiHUDSettings(this, this.guivrSettings));
                 }
             }
             else if (par1GuiButton.id == 203)
             {
-                this.mc.gameSettings.saveOptions();
-                this.mc.displayGuiScreen(new GuiCalibrationSettings(this, this.guiGameSettings));
+                this.mc.vrSettings.saveOptions();
+                this.mc.displayGuiScreen(new GuiCalibrationSettings(this, this.guivrSettings));
             }
             else if (par1GuiButton.id == 205)
             {
             	if( mc.headTracker != null )
             	{
-	                this.mc.gameSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiHeadOrientationSettings(this, this.guiGameSettings));
+	                this.mc.vrSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiHeadOrientationSettings(this, this.guivrSettings));
             	}
             } 
             else if (par1GuiButton.id == 206)
             {
             	if( mc.headTracker != null && mc.hmdInfo != null && mc.positionTracker != null )
             	{
-	                this.mc.gameSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guiGameSettings));
+	                this.mc.vrSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guivrSettings));
             	}
             } 
             else if (par1GuiButton.id == 207)
             {
             	if( mc.positionTracker != null )
             	{
-	                this.mc.gameSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiHeadPositionSettings(this, this.guiGameSettings));
+	                this.mc.vrSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiHeadPositionSettings(this, this.guivrSettings));
             	}
             } 
             else if (par1GuiButton.id == 208)
             {
             	if( mc.lookaimController != null )
             	{
-	                this.mc.gameSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiMoveAimSettings(this, this.guiGameSettings));
+	                this.mc.vrSettings.saveOptions();
+	                this.mc.displayGuiScreen(new GuiMoveAimSettings(this, this.guivrSettings));
             	}
             }
             else if (par1GuiButton.id == 210)
             {
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 if (vrRenderer != null)
                     vrRenderer.startCalibration();
             }
             else if (par1GuiButton.id == 211)
             {
-                this.mc.gameSettings.saveOptions();
-                this.guiGameSettings.posTrackResetPosition = true;
+                this.mc.vrSettings.saveOptions();
+                this.guivrSettings.posTrackResetPosition = true;
                 if (vrRenderer != null)
                     vrRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
         }

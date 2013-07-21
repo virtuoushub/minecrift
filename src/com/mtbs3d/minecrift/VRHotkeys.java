@@ -25,7 +25,7 @@ public class VRHotkeys {
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
             PluginManager.destroyAll();
-	    	mc.setUseVRRenderer(mc.gameSettings.useVRRenderer);
+	    	mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
 	    }
 
 	    // Distortion on / off
@@ -34,13 +34,13 @@ public class VRHotkeys {
 	        // Chromatic ab correction
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            mc.gameSettings.useChromaticAbCorrection = !mc.gameSettings.useChromaticAbCorrection;
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.useChromaticAbCorrection = !mc.vrSettings.useChromaticAbCorrection;
+	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
 	        }
 	        else
 	        {
-	            mc.gameSettings.useDistortion = !mc.gameSettings.useDistortion;
+	            mc.vrSettings.useDistortion = !mc.vrSettings.useDistortion;
 	        }
 	    }
 	
@@ -50,18 +50,18 @@ public class VRHotkeys {
 	        // FSAA on/off
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            mc.gameSettings.superSampleScaleFactor += 0.5f;
-	            if (mc.gameSettings.superSampleScaleFactor > 4.0f)
+	            mc.vrSettings.superSampleScaleFactor += 0.5f;
+	            if (mc.vrSettings.superSampleScaleFactor > 4.0f)
 	            {
-	                mc.gameSettings.superSampleScaleFactor = 1.5f;
+	                mc.vrSettings.superSampleScaleFactor = 1.5f;
 	            }
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false;
 	        }
 	        else
 	        {
-	            mc.gameSettings.useSupersample = !mc.gameSettings.useSupersample;
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.useSupersample = !mc.vrSettings.useSupersample;
+	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
 	        }
 	    }
@@ -71,13 +71,13 @@ public class VRHotkeys {
 	    {
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            mc.gameSettings.useHeadTrackPrediction = !mc.gameSettings.useHeadTrackPrediction;
-                mc.headTracker.setPrediction(mc.gameSettings.headTrackPredictionTimeSecs, mc.gameSettings.useHeadTrackPrediction);
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.useHeadTrackPrediction = !mc.vrSettings.useHeadTrackPrediction;
+                mc.headTracker.setPrediction(mc.vrSettings.headTrackPredictionTimeSecs, mc.vrSettings.useHeadTrackPrediction);
+	            mc.vrSettings.saveOptions();
 	        }
 	        else
 	        {
-	            mc.gameSettings.useHeadTracking = !mc.gameSettings.useHeadTracking;
+	            mc.vrSettings.useHeadTracking = !mc.vrSettings.useHeadTracking;
 	        }
 	    }
 	
@@ -87,44 +87,44 @@ public class VRHotkeys {
 	        // HUD scale
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            mc.gameSettings.hudScale -= 0.01f;
-	            if (mc.gameSettings.hudScale < 0.15f)
+	            mc.vrSettings.hudScale -= 0.01f;
+	            if (mc.vrSettings.hudScale < 0.15f)
 	            {
-	                mc.gameSettings.hudScale = 1.25f;
+	                mc.vrSettings.hudScale = 1.25f;
 	            }
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.saveOptions();
 	        }
 	        else
 	        {
-	            mc.gameSettings.hudDistance -= 0.01f;
-	            if (mc.gameSettings.hudDistance < 0.15f)
+	            mc.vrSettings.hudDistance -= 0.01f;
+	            if (mc.vrSettings.hudDistance < 0.15f)
 	            {
-	                mc.gameSettings.hudDistance = 1.25f;
+	                mc.vrSettings.hudDistance = 1.25f;
 	            }
-	            mc.gameSettings.saveOptions();
-	            //mc.gameSettings.lockHud = !mc.gameSettings.lockHud; // TOOD: HUD lock removed for now
+	            mc.vrSettings.saveOptions();
+	            //mc.vrSettings.lockHud = !mc.vrSettings.lockHud; // TOOD: HUD lock removed for now
 	        }
 	    }
 	
 	    // Hud opacity on / off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_Y && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.gameSettings.useHudOpacity = !mc.gameSettings.useHudOpacity;
-	        mc.gameSettings.saveOptions();
+	        mc.vrSettings.useHudOpacity = !mc.vrSettings.useHudOpacity;
+	        mc.vrSettings.saveOptions();
 	    }
 	
 	    // Render headwear / ON/off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_M && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.gameSettings.renderHeadWear = !mc.gameSettings.renderHeadWear;
-	        mc.gameSettings.saveOptions();
+	        mc.vrSettings.renderHeadWear = !mc.vrSettings.renderHeadWear;
+	        mc.vrSettings.saveOptions();
 	    }
 	
 	    // Allow mouse pitch
 	    if (Keyboard.getEventKey() == Keyboard.KEY_N && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.gameSettings.pitchInputAffectsCamera = !mc.gameSettings.pitchInputAffectsCamera;
-	        mc.gameSettings.saveOptions();
+	        mc.vrSettings.pitchInputAffectsCamera = !mc.vrSettings.pitchInputAffectsCamera;
+	        mc.vrSettings.saveOptions();
 	    }
 	
 	    // FOV+
@@ -133,17 +133,17 @@ public class VRHotkeys {
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
 	            // Distortion fit point
-	            mc.gameSettings.distortionFitPoint += 1;
-	            if (mc.gameSettings.distortionFitPoint > 14)
-	                mc.gameSettings.distortionFitPoint = 14;
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.distortionFitPoint += 1;
+	            if (mc.vrSettings.distortionFitPoint > 14)
+	                mc.vrSettings.distortionFitPoint = 14;
+	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
 	        }
 	        else
 	        {
 	            // FOV
-	            mc.gameSettings.fovScaleFactor += 0.001f;
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.fovScaleFactor += 0.001f;
+	            mc.vrSettings.saveOptions();
 	        }
 	    }
 	
@@ -153,29 +153,29 @@ public class VRHotkeys {
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
 	            // Distortion fit point
-	            mc.gameSettings.distortionFitPoint -= 1;
-	            if (mc.gameSettings.distortionFitPoint < 0)
-	                mc.gameSettings.distortionFitPoint = 0;
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.distortionFitPoint -= 1;
+	            if (mc.vrSettings.distortionFitPoint < 0)
+	                mc.vrSettings.distortionFitPoint = 0;
+	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
 	        }
 	        else
 	        {
 	            // FOV
-	            mc.gameSettings.fovScaleFactor -= 0.001f;
-	            mc.gameSettings.saveOptions();
+	            mc.vrSettings.fovScaleFactor -= 0.001f;
+	            mc.vrSettings.saveOptions();
 	        }
 	    }
 	
 	    // Cycle head track sensitivity
 	    if (Keyboard.getEventKey() == Keyboard.KEY_V && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.gameSettings.headTrackSensitivity += 0.1f;
-	        if (mc.gameSettings.headTrackSensitivity > 4.05f)
+	        mc.vrSettings.headTrackSensitivity += 0.1f;
+	        if (mc.vrSettings.headTrackSensitivity > 4.05f)
 	        {
-	            mc.gameSettings.headTrackSensitivity = 0.5f;
+	            mc.vrSettings.headTrackSensitivity = 0.5f;
 	        }
-	        mc.gameSettings.saveOptions();
+	        mc.vrSettings.saveOptions();
 	    }
 	
 	    // Increase IPD
@@ -184,15 +184,15 @@ public class VRHotkeys {
 	        float newIpd;
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            newIpd = mc.gameSettings.getIPD() + 0.0001f;
+	            newIpd = mc.vrSettings.getIPD() + 0.0001f;
 	        }
 	        else
 	        {
-	            newIpd = mc.gameSettings.getIPD() + 0.0005f;
+	            newIpd = mc.vrSettings.getIPD() + 0.0005f;
 	        }
 	        mc.hmdInfo.setIPD(newIpd);
-	        mc.gameSettings.setMinecraftIpd(newIpd);
-	        mc.gameSettings.saveOptions();
+	        mc.vrSettings.setMinecraftIpd(newIpd);
+	        mc.vrSettings.saveOptions();
 	    }
 	
 	    // Decrease IPD
@@ -201,28 +201,28 @@ public class VRHotkeys {
 	        float newIpd;
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
-	            newIpd = mc.gameSettings.getIPD() - 0.0001f;
+	            newIpd = mc.vrSettings.getIPD() - 0.0001f;
 	        }
 	        else
 	        {
-	            newIpd = mc.gameSettings.getIPD() - 0.0005f;
+	            newIpd = mc.vrSettings.getIPD() - 0.0005f;
 	        }
 	        mc.hmdInfo.setIPD(newIpd);
-	        mc.gameSettings.setMinecraftIpd(newIpd);
-	        mc.gameSettings.saveOptions();
+	        mc.vrSettings.setMinecraftIpd(newIpd);
+	        mc.vrSettings.saveOptions();
 	    }
 
         // Render full player model or just an disembodied hand...
         if (Keyboard.getEventKey() == Keyboard.KEY_H && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
-            mc.gameSettings.renderFullFirstPersonModel = !mc.gameSettings.renderFullFirstPersonModel;
-            mc.gameSettings.saveOptions();
+            mc.vrSettings.renderFullFirstPersonModel = !mc.vrSettings.renderFullFirstPersonModel;
+            mc.vrSettings.saveOptions();
         }
 
         // Reset positional track origin
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
-            mc.gameSettings.posTrackResetPosition = true;
+            mc.vrSettings.posTrackResetPosition = true;
         }
 
         // If an orientation plugin is performing calibration, space also sets the origin

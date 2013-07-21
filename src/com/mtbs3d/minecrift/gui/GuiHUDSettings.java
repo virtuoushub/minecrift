@@ -1,5 +1,7 @@
 package com.mtbs3d.minecrift.gui;
 
+import com.mtbs3d.minecrift.settings.VRSettings;
+
 import net.minecraft.src.*;
 
 public class GuiHUDSettings extends BaseGuiSettings
@@ -15,8 +17,8 @@ public class GuiHUDSettings extends BaseGuiSettings
             EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
     };
 
-    public GuiHUDSettings(GuiScreen guiScreen, GameSettings guiGameSettings) {
-        super( guiScreen, guiGameSettings );
+    public GuiHUDSettings(GuiScreen guiScreen, VRSettings guivrSettings) {
+        super( guiScreen, guivrSettings );
         screenTitle = "HUD / Overlay Settings";
     }
 
@@ -27,7 +29,7 @@ public class GuiHUDSettings extends BaseGuiSettings
     {
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-//        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guiGameSettings.getKeyBinding(EnumOptions.USE_VR)));
+//        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guivrSettings.getKeyBinding(EnumOptions.USE_VR)));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         EnumOptions[] buttons = hudOptions;
@@ -63,11 +65,11 @@ public class GuiHUDSettings extends BaseGuiSettings
                     increment = 0.01f;
                 }
 
-                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8)));
+                this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8)));
             }
             else
             {
-                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8)));
+                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));
             }
         }
     }
@@ -82,25 +84,25 @@ public class GuiHUDSettings extends BaseGuiSettings
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
                 EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
-                this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201)
             {
-                this.guiGameSettings.hudDistance = 1.0f;
-                this.guiGameSettings.hudScale = 1.0f;
-                this.guiGameSettings.useHudOpacity = false;
-                this.guiGameSettings.hudOcclusion = false;
-                this.guiGameSettings.crosshairScale = 1.0f;
-                this.guiGameSettings.alwaysRenderBlockOutline = false;
-                this.guiGameSettings.alwaysRenderInGameCrosshair = false;
-                this.guiGameSettings.crosshairRollsWithHead = true;
-                this.mc.gameSettings.saveOptions();
+                this.guivrSettings.hudDistance = 1.0f;
+                this.guivrSettings.hudScale = 1.0f;
+                this.guivrSettings.useHudOpacity = false;
+                this.guivrSettings.hudOcclusion = false;
+                this.guivrSettings.crosshairScale = 1.0f;
+                this.guivrSettings.alwaysRenderBlockOutline = false;
+                this.guivrSettings.alwaysRenderInGameCrosshair = false;
+                this.guivrSettings.crosshairRollsWithHead = true;
+                this.mc.vrSettings.saveOptions();
                 this.reinit = true;
             }
         }
