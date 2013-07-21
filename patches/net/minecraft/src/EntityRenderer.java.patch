@@ -577,7 +577,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLivingBase var3 = this.mc.renderViewEntity;
-@@ -2115,7 +2160,7 @@
+@@ -2118,7 +2163,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
@@ -586,7 +586,7 @@
      {
          EntityLivingBase var3 = this.mc.renderViewEntity;
          boolean var4 = false;
-@@ -2293,25 +2338,14 @@
+@@ -2296,25 +2341,14 @@
      {
          Minecraft var1 = Config.getMinecraft();
  
