@@ -80,7 +80,7 @@ public class VROption
         if (_title.isEmpty())
         {
             if (_e != null)
-                return Minecraft.getMinecraft().gameSettings.getKeyBinding(_e);
+                return Minecraft.getMinecraft().vrSettings.getKeyBinding(_e);
         }
 
         return _title;

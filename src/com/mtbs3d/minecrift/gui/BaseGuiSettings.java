@@ -5,9 +5,9 @@
 package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.VRRenderer;
+import com.mtbs3d.minecrift.settings.VRSettings;
 
 import net.minecraft.src.Minecraft;
-import net.minecraft.src.GameSettings;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 
@@ -19,7 +19,7 @@ public class BaseGuiSettings extends GuiScreen
     protected String screenTitle = "";
 
     /** GUI game settings */
-    protected GameSettings guiGameSettings;
+    protected VRSettings guivrSettings;
 
     private int lastMouseX = 0;
     private int lastMouseY = 0;
@@ -38,10 +38,10 @@ public class BaseGuiSettings extends GuiScreen
     /** An array of all of EnumOption's video options. */
 
     public BaseGuiSettings( GuiScreen par1GuiScreen,
-                                GameSettings par2GameSettings)
+                                VRSettings par2vrSettings)
     {
 		this.parentGuiScreen = par1GuiScreen;
-        this.guiGameSettings = par2GameSettings;
+        this.guivrSettings = par2vrSettings;
         this.vrRenderer = Minecraft.getMinecraft().vrRenderer;
     }
 

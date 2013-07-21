@@ -76,7 +76,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             }
 
             //Pitch
-            if( this.mc.gameSettings.pitchInputAffectsCamera )
+            if( this.mc.vrSettings.pitchInputAffectsCamera )
             {
             	bodyPitch  += (adjustedMouseDeltaY * (float)yDirection);
 	            if( bodyPitch > 90 )
@@ -87,7 +87,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             else
             	bodyPitch = 0;
 
-            if( !this.mc.gameSettings.pitchInputAffectsCamera )
+            if( !this.mc.vrSettings.pitchInputAffectsCamera )
             {
             	aimPitch += (adjustedMouseDeltaY * (float)yDirection);
 	            if( aimPitch > 90 )
@@ -102,10 +102,10 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 
         	float headYaw = this.mc.headTracker.getHeadYawDegrees();
         	float cosHeadPitch = MathHelper.cos(this.mc.headTracker.getHeadPitchDegrees()*PIOVER180);
-        	float keyholeYaw = this.mc.gameSettings.aimKeyholeWidthDegrees/2/cosHeadPitch;
+        	float keyholeYaw = this.mc.vrSettings.aimKeyholeWidthDegrees/2/cosHeadPitch;
         	
         	boolean aimYawAllowed;
-        	if( this.mc.gameSettings.lookAimYawDecoupled && this.mc.gameSettings.lookAimPitchDecoupled)
+        	if( this.mc.vrSettings.lookAimYawDecoupled && this.mc.vrSettings.lookAimPitchDecoupled)
         		aimYawAllowed = aimPitch != 90 && aimPitch != -90;
         	else
         		aimYawAllowed = true;
@@ -115,7 +115,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
                 aimYaw += adjustedMouseDeltaX/cosHeadPitch;
 
 	            //Yaw
-	            if( !this.mc.gameSettings.lookAimYawDecoupled )
+	            if( !this.mc.vrSettings.lookAimYawDecoupled )
 	                bodyYaw = aimYaw;
 	            else if( aimYaw > (headYaw + bodyYaw + keyholeYaw) )
 	            	bodyYaw += adjustedMouseDeltaX;
@@ -124,7 +124,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
                 aimYaw %= 360;
                 bodyYaw %= 360;
             }
-            else if( this.mc.gameSettings.lookAimYawDecoupled )
+            else if( this.mc.vrSettings.lookAimYawDecoupled )
             {
 	            if( aimYaw > (headYaw + bodyYaw + keyholeYaw) )
 	            	aimYaw = headYaw + bodyYaw + keyholeYaw;

@@ -99,8 +99,8 @@ public class GuiSliderEx extends GuiButtonEx
                 float range = this.maxValue - this.minValue;
                 this.lastValue = this.minValue + (this.sliderValue * range);
                 this.lastValue = Math.round(this.lastValue / this.increment) * this.increment;
-                par1Minecraft.gameSettings.setOptionFloatValue(this.idFloat, this.lastValue);
-                this.displayString = par1Minecraft.gameSettings.getKeyBinding(this.idFloat);
+                par1Minecraft.vrSettings.setOptionFloatValue(this.idFloat, this.lastValue);
+                this.displayString = par1Minecraft.vrSettings.getKeyBinding(this.idFloat);
 
                 if (_eventHandler != null)
                     _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, this.idFloat);
@@ -149,8 +149,8 @@ public class GuiSliderEx extends GuiButtonEx
                 this.lastValue = this.minValue;
 
             this.sliderValue = (this.lastValue - this.minValue) / range;
-            par1Minecraft.gameSettings.setOptionFloatValue(this.idFloat, this.lastValue);
-            this.displayString = par1Minecraft.gameSettings.getKeyBinding(this.idFloat);
+            par1Minecraft.vrSettings.setOptionFloatValue(this.idFloat, this.lastValue);
+            this.displayString = par1Minecraft.vrSettings.getKeyBinding(this.idFloat);
             this.lastMouseX = par2;
             this.dragging = true;
 

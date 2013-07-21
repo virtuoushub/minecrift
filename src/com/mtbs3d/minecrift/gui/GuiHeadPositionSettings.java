@@ -10,6 +10,8 @@ import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
 import com.mtbs3d.minecrift.api.PluginManager;
+import com.mtbs3d.minecrift.settings.VRSettings;
+
 import net.minecraft.src.*;
 
 public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEventEx
@@ -44,9 +46,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 	private PluginModeChangeButton pluginModeChangeutton;
 
     public GuiHeadPositionSettings(GuiScreen par1GuiScreen,
-                            GameSettings par2GameSettings)
+                            VRSettings par2vrSettings)
     {
-    	super(par1GuiScreen, par2GameSettings );
+    	super(par1GuiScreen, par2vrSettings );
         screenTitle = "Positional Tracking Configuration";
     }
 
@@ -63,7 +65,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
         if (this.reinit)
         {
-            this.guiGameSettings.posTrackResetPosition = true;
+            this.guivrSettings.posTrackResetPosition = true;
             if (vrRenderer != null)
                 vrRenderer.resetGuiYawOrientation();
         }
@@ -72,20 +74,20 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
 
-        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.positionPlugins, this.guiGameSettings.headPositionPluginID );
+        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.positionPlugins, this.guivrSettings.headPositionPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
         GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
-        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
             this.buttonList.add(resetPosButton);
 
         GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
-        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
             this.buttonList.add(recalibrate);
 
         EnumOptions[] var10 = null;
 
-        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
             var10 = hydraOptions;
         else
             var10 = neckModelOptions;
@@ -143,14 +145,14 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                         increment = 0.001f;
                     }
 
-                    GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
+                    GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                     slider.setEventHandler(this);
                     slider.enabled = getEnabledState(var8);
                     this.buttonList.add(slider);
                 }
                 else
                 {
-                    String keyText = this.guiGameSettings.getKeyBinding(var8);
+                    String keyText = this.guivrSettings.getKeyBinding(var8);
                     if (var8 == EnumOptions.POS_TRACK_OFFSET_SET_DEFAULT)
                     {
                         keyText = "Set Default Offsets";
@@ -171,9 +173,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             return false;
 
         //These don't really apply to Oculus head position (which is just neck model)
-        if (this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if (this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
         {
-            if (this.guiGameSettings.posTrackHydraLoc != GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && var8 == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
+            if (this.guivrSettings.posTrackHydraLoc != VRSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && var8 == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
                 return false;
         }
 
@@ -184,7 +186,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     {
         String s = var8.getEnumString();
 
-        if (!this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if (!this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
         {
             return true;
         }
@@ -195,7 +197,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             var8 == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
             return true;
 
-        if (this.guiGameSettings.posTrackHydraLoc == GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT &&
+        if (this.guivrSettings.posTrackHydraLoc == VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT &&
             var8 == EnumOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
         {
             return false;
@@ -215,24 +217,24 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201) // Mode Change
             {
-            	this.mc.gameSettings.headPositionPluginID = pluginModeChangeutton.getSelectedID();
-                this.mc.gameSettings.saveOptions();
-            	this.mc.positionTracker = PluginManager.configurePosition(this.mc.gameSettings.headPositionPluginID);
+            	this.mc.vrSettings.headPositionPluginID = pluginModeChangeutton.getSelectedID();
+                this.mc.vrSettings.saveOptions();
+            	this.mc.positionTracker = PluginManager.configurePosition(this.mc.vrSettings.headPositionPluginID);
             	this.reinit = true;
             }
             else if (par1GuiButton.id == 202) // Reset origin
             {
-                this.guiGameSettings.posTrackResetPosition = true;
+                this.guivrSettings.posTrackResetPosition = true;
                 if (vrRenderer != null)
                     vrRenderer.resetGuiYawOrientation();
             }
@@ -245,7 +247,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             if (num == EnumOptions.HYDRA_USE_FILTER)
             {
                 if (mc.positionTracker.getID() == MCHydra.pluginID)
-                    mc.positionTracker.setPrediction(0.0f, this.guiGameSettings.hydraUseFilter);
+                    mc.positionTracker.setPrediction(0.0f, this.guivrSettings.hydraUseFilter);
             }
         }
     }
@@ -281,42 +283,42 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
     private void setLocOffsetDefaults()
     {
-        if( this.guiGameSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
         {
-            switch (this.guiGameSettings.posTrackHydraLoc)
+            switch (this.guivrSettings.posTrackHydraLoc)
             {
-                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    this.guiGameSettings.posTrackHydraLROffsetX = 0.0f;
-                    this.guiGameSettings.posTrackHydraLROffsetY = 0.0f;
-                    this.guiGameSettings.posTrackHydraLROffsetZ = 0.0f;
+                case VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
+                    this.guivrSettings.posTrackHydraLROffsetX = 0.0f;
+                    this.guivrSettings.posTrackHydraLROffsetY = 0.0f;
+                    this.guivrSettings.posTrackHydraLROffsetZ = 0.0f;
                     break;
-                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    this.guiGameSettings.posTrackHydraLOffsetX = -0.108f;
-                    this.guiGameSettings.posTrackHydraLOffsetY = 0.0f;
-                    this.guiGameSettings.posTrackHydraLOffsetZ = 0.0f;
+                case VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT:
+                    this.guivrSettings.posTrackHydraLOffsetX = -0.108f;
+                    this.guivrSettings.posTrackHydraLOffsetY = 0.0f;
+                    this.guivrSettings.posTrackHydraLOffsetZ = 0.0f;
                     break;
-                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    this.guiGameSettings.posTrackHydraTOffsetX = 0.0f;
-                    this.guiGameSettings.posTrackHydraTOffsetY = 0.085f;
-                    this.guiGameSettings.posTrackHydraTOffsetZ = 0.0f;
+                case VRSettings.POS_TRACK_HYDRA_LOC_HMD_TOP:
+                    this.guivrSettings.posTrackHydraTOffsetX = 0.0f;
+                    this.guivrSettings.posTrackHydraTOffsetY = 0.085f;
+                    this.guivrSettings.posTrackHydraTOffsetZ = 0.0f;
                     break;
-                case GameSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    this.guiGameSettings.posTrackHydraROffsetX = 0.108f;
-                    this.guiGameSettings.posTrackHydraROffsetY = 0.0f;
-                    this.guiGameSettings.posTrackHydraROffsetZ = 0.0f;
+                case VRSettings.POS_TRACK_HYDRA_LOC_HMD_RIGHT:
+                    this.guivrSettings.posTrackHydraROffsetX = 0.108f;
+                    this.guivrSettings.posTrackHydraROffsetY = 0.0f;
+                    this.guivrSettings.posTrackHydraROffsetZ = 0.0f;
                     break;
-                case GameSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.guiGameSettings.posTrackHydraBIsPointingLeft)
+                case VRSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+                    if (this.guivrSettings.posTrackHydraBIsPointingLeft)
                     {
-                        this.guiGameSettings.posTrackHydraBLOffsetX = 0.05f;
-                        this.guiGameSettings.posTrackHydraBLOffsetY = 0.11f;
-                        this.guiGameSettings.posTrackHydraBLOffsetZ = -0.225f;
+                        this.guivrSettings.posTrackHydraBLOffsetX = 0.05f;
+                        this.guivrSettings.posTrackHydraBLOffsetY = 0.11f;
+                        this.guivrSettings.posTrackHydraBLOffsetZ = -0.225f;
                     }
                     else
                     {
-                        this.guiGameSettings.posTrackHydraBROffsetX = -0.05f;
-                        this.guiGameSettings.posTrackHydraBROffsetY = 0.11f;
-                        this.guiGameSettings.posTrackHydraBROffsetZ = -0.225f;
+                        this.guivrSettings.posTrackHydraBROffsetX = -0.05f;
+                        this.guivrSettings.posTrackHydraBROffsetY = 0.11f;
+                        this.guivrSettings.posTrackHydraBROffsetZ = -0.225f;
                     }
 
                     break;
@@ -324,8 +326,8 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         }
         else
         {
-            this.guiGameSettings.eyeProtrusion = 0.185f;
-            this.guiGameSettings.neckBaseToEyeHeight = 0.225f;
+            this.guivrSettings.eyeProtrusion = 0.185f;
+            this.guivrSettings.neckBaseToEyeHeight = 0.225f;
         }
     }
 

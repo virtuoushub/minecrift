@@ -10,6 +10,8 @@ import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.PluginManager;
+import com.mtbs3d.minecrift.settings.VRSettings;
+
 import net.minecraft.src.*;
 
 public class GuiMoveAimSettings extends BaseGuiSettings
@@ -34,9 +36,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
 	private boolean reinit;
 
     public GuiMoveAimSettings(GuiScreen par1GuiScreen,
-                            GameSettings par2GameSettings)
+                            VRSettings par2vrSettings)
     {
-    	super( par1GuiScreen, par2GameSettings );
+    	super( par1GuiScreen, par2vrSettings );
         screenTitle = "Move/Look/Aim Controls Configuration";
     }
 
@@ -50,10 +52,10 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         
-        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.controllerPlugins, this.guiGameSettings.controllerPluginID );
+        pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.controllerPlugins, this.guivrSettings.controllerPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
-        EnumOptions[] var10 = guiGameSettings.controllerPluginID.equals(MCHydra.pluginID)?hydraMoveAimOptions:mouseMoveAimOptions ;
+        EnumOptions[] var10 = guivrSettings.controllerPluginID.equals(MCHydra.pluginID)?hydraMoveAimOptions:mouseMoveAimOptions ;
         int var11 = var10.length;
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
@@ -87,12 +89,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 	increment= 1.0f;
                 }
 
-                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guiGameSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guiGameSettings.getOptionFloatValue(var8));
+                GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 this.buttonList.add(slider);
             }
             else
             {
-                String keyText = this.guiGameSettings.getKeyBinding(var8);
+                String keyText = this.guivrSettings.getKeyBinding(var8);
                 GuiSmallButtonEx smallButton = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, keyText);
                 this.buttonList.add(smallButton);
             }
@@ -123,39 +125,39 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guiGameSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guiGameSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201) // Mode Change
             {
-            	this.mc.gameSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
-                this.mc.gameSettings.saveOptions();
-            	this.mc.lookaimController = PluginManager.configureController(this.mc.gameSettings.controllerPluginID);
+            	this.mc.vrSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
+                this.mc.vrSettings.saveOptions();
+            	this.mc.lookaimController = PluginManager.configureController(this.mc.vrSettings.controllerPluginID);
             	this.reinit = true;
             }
             else if (par1GuiButton.id == 202) // Defaults
             {
-                if (this.guiGameSettings.controllerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+                if (this.guivrSettings.controllerPluginID.equalsIgnoreCase(MCHydra.pluginID))
                 {
-                    this.guiGameSettings.aimKeyholeWidthDegrees = 90f;
-                    this.guiGameSettings.keyholeHeadRelative = true;
-                    this.guiGameSettings.lookMoveDecoupled = false;
-                    this.guiGameSettings.joystickSensitivity = 3f;
+                    this.guivrSettings.aimKeyholeWidthDegrees = 90f;
+                    this.guivrSettings.keyholeHeadRelative = true;
+                    this.guivrSettings.lookMoveDecoupled = false;
+                    this.guivrSettings.joystickSensitivity = 3f;
                 }
                 else
                 {
-                    this.guiGameSettings.aimKeyholeWidthDegrees = 0f;
-                    this.guiGameSettings.keyholeHeadRelative = true;
-                    this.guiGameSettings.lookMoveDecoupled = false;
-                    this.guiGameSettings.lookAimPitchDecoupled = false;
-                    this.guiGameSettings.pitchInputAffectsCamera = true;
+                    this.guivrSettings.aimKeyholeWidthDegrees = 0f;
+                    this.guivrSettings.keyholeHeadRelative = true;
+                    this.guivrSettings.lookMoveDecoupled = false;
+                    this.guivrSettings.lookAimPitchDecoupled = false;
+                    this.guivrSettings.pitchInputAffectsCamera = true;
                 }
-                this.mc.gameSettings.saveOptions();
+                this.mc.vrSettings.saveOptions();
                 this.reinit = true;
             }
         }
