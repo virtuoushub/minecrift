@@ -5,9 +5,8 @@
 
 # This script automates the private->public commit transfer process
 
-WORK_TREE=mcp804/src/minecraft
-export GIT_DIR=$WORK_TREE/.git
-git rev-list --reverse public..master | while read REV; do
+function sync_rev() {
+REV=$1
 	AUTHOR=$(git log --pretty=format:"%an <%ae>" -1 $REV)
 	DATE=$(git log --pretty=format:"%ad" -1 $REV)
 	BODY=$(git log --pretty=format:"%B" -1 $REV | sed '/Merge/s/of http[^ \t\n\r]*/of private-repo/' )
@@ -16,7 +15,17 @@ git rev-list --reverse public..master | while read REV; do
 	GIT_DIR=.git git add -A src patches
 	GIT_DIR=.git git commit --author="$AUTHOR" --date="$DATE" -m "$BODY"
 	git tag -f public
-done
+}
 
-
+WORK_TREE=mcp804/src/minecraft
+export GIT_DIR=$WORK_TREE/.git
+if [ "$#" -ne 1 ] ; then
+	git rev-list --reverse public..master | while read REV; do
+		sync_rev $REV
+	done
+else
+	sync_rev $1
+fi
 GIT_WORK_TREE=$WORK_TREE git checkout master
+
+
