@@ -10,7 +10,13 @@
      /**
       * Draws the screen and all the components in it.
       */
-@@ -176,16 +179,42 @@
+@@ -171,21 +174,47 @@
+             this.handleMouseInput();
+         }
+ 
+-        while (Keyboard.next())
++        while (Keyboard.isCreated() && Keyboard.next())
+         {
              this.handleKeyboardInput();
          }
      }
