@@ -127,7 +127,7 @@
       }
     },
     {
-      "name": "de.fruitfly.ovr:JRiftLibrary:0.2.3.2",
+      "name": "de.fruitfly.ovr:JRiftLibrary:0.2.3.3",
 	  "url": "http://repo.minecraft-vr.com/",
       "natives": {
         "linux": "natives-linux",
