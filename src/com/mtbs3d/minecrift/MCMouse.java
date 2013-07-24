@@ -76,7 +76,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             }
 
             //Pitch
-            if( this.mc.vrSettings.pitchInputAffectsCamera )
+            if( this.mc.vrSettings.allowMousePitchInput )
             {
             	bodyPitch  += (adjustedMouseDeltaY * (float)yDirection);
 	            if( bodyPitch > 90 )
@@ -87,7 +87,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             else
             	bodyPitch = 0;
 
-            if( !this.mc.vrSettings.pitchInputAffectsCamera )
+            if( !this.mc.vrSettings.allowMousePitchInput )
             {
             	aimPitch += (adjustedMouseDeltaY * (float)yDirection);
 	            if( aimPitch > 90 )

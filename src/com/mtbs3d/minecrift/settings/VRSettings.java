@@ -18,6 +18,7 @@ import net.minecraft.src.I18n;
 import net.minecraft.src.Minecraft;
 
 public class VRSettings {
+	public static VRSettings inst;
     // Minecrift
     public static final int POS_TRACK_NECK = 0;
     public static final int POS_TRACK_HYDRA = 1;
@@ -47,13 +48,13 @@ public class VRSettings {
     public String oculusProfileName;
     public String oculusProfileGender;
     protected float oculusProfilePlayerEyeHeight = playerEyeHeight;
-    public boolean useHudOpacity = false;
+    public boolean hudOpacity = false;
     public boolean renderHeadWear = false;
     public boolean renderFullFirstPersonModel = true;
     public float renderPlayerOffset = 0.25f;
     public boolean useChromaticAbCorrection = true;
     public float hudScale = 0.65f;
-    public boolean pitchInputAffectsCamera = false;
+    public boolean allowMousePitchInput = false;
     public float hudDistance = 1.25f;
     public float hudPitchOffset = 0.0f;
     public float fovScaleFactor = 1.0f;
@@ -114,6 +115,7 @@ public class VRSettings {
     public VRSettings( Minecraft minecraft, File dataDir )
     {
     	mc = minecraft;
+    	inst = this;
         this.optionsVRFile = new File(dataDir, "optionsvr.txt");
         this.loadOptions();
     }
@@ -191,7 +193,7 @@ public class VRSettings {
 
                     if (optionTokens[0].equals("hudOpacity"))
                     {
-                        this.useHudOpacity = optionTokens[1].equals("true");
+                        this.hudOpacity = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("useHeadTrackPrediction"))
@@ -241,7 +243,7 @@ public class VRSettings {
 
                     if (optionTokens[0].equals("allowMousePitchInput"))
                     {
-                        this.pitchInputAffectsCamera = optionTokens[1].equals("true");
+                        this.allowMousePitchInput = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("hudDistance"))
@@ -546,7 +548,7 @@ public class VRSettings {
         }
         else if (par1EnumOptions == EnumOptions.HUD_OPACITY)
         {
-            return this.useHudOpacity ? var4 + "ON" : var4 + "OFF";
+            return this.hudOpacity ? var4 + "ON" : var4 + "OFF";
         }
         else if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
         {
@@ -577,7 +579,7 @@ public class VRSettings {
         }
         else if (par1EnumOptions == EnumOptions.PITCH_AFFECTS_CAMERA)
         {
-            return this.pitchInputAffectsCamera ? var4 + "ON" : var4 + "OFF";
+            return this.allowMousePitchInput ? var4 + "ON" : var4 + "OFF";
         }
         else if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
         {
@@ -938,7 +940,7 @@ public class VRSettings {
 
         if (par1EnumOptions == EnumOptions.HUD_OPACITY)
         {
-            this.useHudOpacity = !this.useHudOpacity;
+            this.hudOpacity = !this.hudOpacity;
         }
 
         if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
@@ -948,7 +950,7 @@ public class VRSettings {
 
         if (par1EnumOptions == EnumOptions.PITCH_AFFECTS_CAMERA)
         {
-            this.pitchInputAffectsCamera = !this.pitchInputAffectsCamera;
+            this.allowMousePitchInput = !this.allowMousePitchInput;
         }
 
         if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
@@ -1320,7 +1322,7 @@ public class VRSettings {
             var5.println("controllerPluginID:"+ this.controllerPluginID);
             var5.println("ipd:" + this.ipd);
             var5.println("headTrackPredictionTimeSecs:" + this.headTrackPredictionTimeSecs);
-            var5.println("hudOpacity:" + this.useHudOpacity);
+            var5.println("hudOpacity:" + this.hudOpacity);
             var5.println("useHeadTracking:" + this.useHeadTracking);
             var5.println("useDistortion:" + this.useDistortion);
             var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
@@ -1330,7 +1332,7 @@ public class VRSettings {
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
             var5.println("hudScale:" + this.hudScale);
             var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
-            var5.println("allowMousePitchInput:" + this.pitchInputAffectsCamera);
+            var5.println("allowMousePitchInput:" + this.allowMousePitchInput);
             var5.println("hudDistance:" + this.hudDistance);
             var5.println("hudPitchOffset:" + this.hudPitchOffset);
             var5.println("useSupersample:" + this.useSupersample);

@@ -155,7 +155,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                     this.guivrSettings.keyholeHeadRelative = true;
                     this.guivrSettings.lookMoveDecoupled = false;
                     this.guivrSettings.lookAimPitchDecoupled = false;
-                    this.guivrSettings.pitchInputAffectsCamera = true;
+                    this.guivrSettings.allowMousePitchInput = true;
                 }
                 this.mc.vrSettings.saveOptions();
                 this.reinit = true;

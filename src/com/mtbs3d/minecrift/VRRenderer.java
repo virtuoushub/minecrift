@@ -765,13 +765,13 @@ public class VRRenderer extends EntityRenderer
                 if (this.mc.theWorld != null)
                     guiPitch = -this.mc.vrSettings.hudPitchOffset;
 
-				if( this.mc.vrSettings.pitchInputAffectsCamera)
+				if( this.mc.vrSettings.allowMousePitchInput)
                     guiPitch += this.mc.lookaimController.getBodyPitchDegrees();
 
 		        GL11.glRotatef(guiPitch, 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.vrSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
-				if( this.mc.vrSettings.useHudOpacity )
+				if( this.mc.vrSettings.hudOpacity )
 				{
 			        GL11.glEnable(GL11.GL_BLEND);
 			        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

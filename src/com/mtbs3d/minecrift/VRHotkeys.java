@@ -109,7 +109,7 @@ public class VRHotkeys {
 	    // Hud opacity on / off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_Y && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.vrSettings.useHudOpacity = !mc.vrSettings.useHudOpacity;
+	        mc.vrSettings.hudOpacity = !mc.vrSettings.hudOpacity;
 	        mc.vrSettings.saveOptions();
 	    }
 	
@@ -123,7 +123,7 @@ public class VRHotkeys {
 	    // Allow mouse pitch
 	    if (Keyboard.getEventKey() == Keyboard.KEY_N && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.vrSettings.pitchInputAffectsCamera = !mc.vrSettings.pitchInputAffectsCamera;
+	        mc.vrSettings.allowMousePitchInput = !mc.vrSettings.allowMousePitchInput;
 	        mc.vrSettings.saveOptions();
 	    }
 	
