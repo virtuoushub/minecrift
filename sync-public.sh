@@ -5,7 +5,7 @@
 
 # This script automates the private->public commit transfer process
 
-function sync_rev() {
+sync_rev() {
 REV=$1
 	AUTHOR=$(git log --pretty=format:"%an <%ae>" -1 $REV)
 	DATE=$(git log --pretty=format:"%ad" -1 $REV)
