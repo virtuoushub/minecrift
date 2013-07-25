@@ -70,7 +70,7 @@ public class VRSettings {
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
     public boolean posTrackHydraUseController1 = true;
     public boolean posTrackHydraDebugCentreEyePos = false;
-    public float posTrackHydraDistanceScale = 1.02f;
+    public float posTrackHydraDistanceScale = 1.00f;
     public boolean posTrackResetPosition = true;
     public float posTrackHydraLROffsetX = 0.0f;
     public float posTrackHydraLROffsetY = 0.0f;
@@ -93,6 +93,7 @@ public class VRSettings {
     public boolean posTrackHydraBIsPointingLeft = true;
     public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 	public float joystickSensitivity = 3f;
+	public float joystickDeadzone = 0.1f;
 	public float aimKeyholeWidthDegrees = 0f;
 	public boolean keyholeHeadRelative = true;
     public boolean hydraUseFilter = true;
@@ -815,7 +816,7 @@ public class VRSettings {
             if (this.mc.positionTracker != null)
             {
                 String posTrackName = this.mc.positionTracker.getName();
-                if (posTrackName.equalsIgnoreCase(MCHydra.pluginName))
+                if ( this.mc.positionTracker instanceof MCHydra )
                 {
                     if (this.posTrackHydraUseController1)
                     {
@@ -836,8 +837,8 @@ public class VRSettings {
         {
             if (this.mc.lookaimController != null)
             {
-                String controllerName =  this.mc.lookaimController.getName();
-                if (controllerName.equalsIgnoreCase(MCHydra.pluginName))
+                String controllerName = this.mc.lookaimController.getName();
+                if ( this.mc.lookaimController instanceof MCHydra )
                 {
                     if (this.posTrackHydraUseController1)
                     {

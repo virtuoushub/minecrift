@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 import com.mtbs3d.minecrift.api.*;
+import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.settings.VRSettings;
 import com.sixense.utils.enums.EnumControllerDesc;
 import org.lwjgl.input.Keyboard;
@@ -96,6 +97,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	private Field keyDownField; //Whee, reflection
 	private Field buttonDownField; //Whee, reflection
 	private boolean mouseUseJoystick = true;
+	
 
 	public MCHydra()
 	{
@@ -702,4 +704,9 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
             resetOriginRotation();
         }
     }
+	@Override
+	public void mapBinding(ControlBinding binding) {
+		// TODO Auto-generated method stub
+		
+	}
 }

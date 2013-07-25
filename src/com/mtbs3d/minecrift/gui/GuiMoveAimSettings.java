@@ -7,7 +7,7 @@ package com.mtbs3d.minecrift.gui;
 import java.util.List;
 
 import com.mtbs3d.minecrift.MCHydra;
-import com.mtbs3d.minecrift.api.BasePlugin;
+import com.mtbs3d.minecrift.MCMouse;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.settings.VRSettings;
@@ -28,9 +28,17 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
         EnumOptions.KEYHOLE_HEAD_RELATIVE,
+        EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.DECOUPLE_LOOK_AIM_PITCH,
         EnumOptions.PITCH_AFFECTS_CAMERA,
+    };
+    /** An array of all of EnumOption's movement options relevant to the controller. */
+    static EnumOptions[] controllerMoveAimOptions = new EnumOptions[] {
+        EnumOptions.KEYHOLE_WIDTH,
+        EnumOptions.KEYHOLE_HEAD_RELATIVE,
         EnumOptions.DECOUPLE_LOOK_MOVE,
+        EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.PITCH_AFFECTS_CAMERA,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
 	private boolean reinit;
@@ -51,11 +59,20 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        if(! ( mc.lookaimController instanceof MCMouse )  )
+        {
+        	this.buttonList.add(new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 128, "Remap Controls"));
+        }
         
         pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.controllerPlugins, this.guivrSettings.controllerPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
-        EnumOptions[] var10 = guivrSettings.controllerPluginID.equals(MCHydra.pluginID)?hydraMoveAimOptions:mouseMoveAimOptions ;
+        EnumOptions[] var10;
+
+        if( this.mc.lookaimController instanceof MCHydra )
+        	var10 = hydraMoveAimOptions;
+    	else
+        	var10 = mouseMoveAimOptions ;
         int var11 = var10.length;
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
@@ -130,19 +147,19 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.vrSettings.saveOptions();
+                this.guivrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201) // Mode Change
             {
-            	this.mc.vrSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
-                this.mc.vrSettings.saveOptions();
-            	this.mc.lookaimController = PluginManager.configureController(this.mc.vrSettings.controllerPluginID);
+            	this.guivrSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
+                this.guivrSettings.saveOptions();
+            	this.mc.lookaimController = PluginManager.configureController(this.guivrSettings.controllerPluginID);
             	this.reinit = true;
             }
             else if (par1GuiButton.id == 202) // Defaults
             {
-                if (this.guivrSettings.controllerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+                if (this.mc.lookaimController instanceof MCHydra )
                 {
                     this.guivrSettings.aimKeyholeWidthDegrees = 90f;
                     this.guivrSettings.keyholeHeadRelative = true;
@@ -157,8 +174,13 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                     this.guivrSettings.lookAimPitchDecoupled = false;
                     this.guivrSettings.allowMousePitchInput = true;
                 }
-                this.mc.vrSettings.saveOptions();
+                this.guivrSettings.saveOptions();
                 this.reinit = true;
+            }
+            else if (par1GuiButton.id == 203) // Remap
+            {
+                this.guivrSettings.saveOptions();
+                this.mc.displayGuiScreen( new GuiVRControls(this, this.guivrSettings));
             }
         }
     }

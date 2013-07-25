@@ -13,6 +13,7 @@ import org.lwjgl.opengl.Display;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBodyAimController;
+import com.mtbs3d.minecrift.control.ControlBinding;
 
 public class MCMouse extends BasePlugin implements IBodyAimController {
 
@@ -175,4 +176,8 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
     @Override
     public void eventNotification(int eventId) {
     }
+
+	@Override
+	public void mapBinding(ControlBinding binding) {
+	}
 }

@@ -4,6 +4,8 @@
  */
 package com.mtbs3d.minecrift.api;
 
+import com.mtbs3d.minecrift.control.ControlBinding;
+
 /**
  * @author Mark Browning
  *
@@ -35,4 +37,6 @@ public interface IBodyAimController extends IBasePlugin {
 	 * @return Player Aiming Pitch, in degrees
 	 */
 	public float getAimPitch();
+	
+	public void mapBinding(ControlBinding binding);
 }

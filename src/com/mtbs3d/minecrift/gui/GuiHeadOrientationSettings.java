@@ -7,6 +7,7 @@ package com.mtbs3d.minecrift.gui;
 import java.util.List;
 
 import com.mtbs3d.minecrift.MCHydra;
+import com.mtbs3d.minecrift.MCOculus;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
 
@@ -49,7 +50,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.orientPlugins, this.guivrSettings.headTrackerPluginID );
         this.buttonList.add(pluginModeChangeutton);
         EnumOptions[] var10 = null;
-        if( this.guivrSettings.headTrackerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( this.mc.headTracker instanceof MCHydra )
             var10 = hydraHeadOrientationOptions;
         else
             var10 = oculusHeadOrientationOptions;
@@ -119,7 +120,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
             else if (par1GuiButton.id == 201)
             {
 			    this.mc.vrSettings.useHeadTracking = true;
-                if(!this.guivrSettings.headTrackerPluginID.equalsIgnoreCase(MCHydra.pluginID))
+                if(this.mc.headTracker instanceof MCOculus)
                 {
                     this.mc.vrSettings.useHeadTrackPrediction = true;
                     this.mc.vrSettings.headTrackPredictionTimeSecs = 0.015f;

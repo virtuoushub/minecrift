@@ -77,18 +77,16 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.positionPlugins, this.guivrSettings.headPositionPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
-        GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
-        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        EnumOptions[] var10 = null;
+        if( this.mc.positionTracker instanceof MCHydra )
+        {
+        	GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
             this.buttonList.add(resetPosButton);
 
-        GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
-        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+            GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
             this.buttonList.add(recalibrate);
-
-        EnumOptions[] var10 = null;
-
-        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
             var10 = hydraOptions;
+        }
         else
             var10 = neckModelOptions;
 
@@ -173,7 +171,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             return false;
 
         //These don't really apply to Oculus head position (which is just neck model)
-        if (this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( this.mc.positionTracker instanceof MCHydra )
         {
             if (this.guivrSettings.posTrackHydraLoc != VRSettings.POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && var8 == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
                 return false;
@@ -186,7 +184,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     {
         String s = var8.getEnumString();
 
-        if (!this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if( ! (this.mc.positionTracker instanceof MCHydra) )
         {
             return true;
         }
@@ -246,7 +244,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
             if (num == EnumOptions.HYDRA_USE_FILTER)
             {
-                if (mc.positionTracker.getID() == MCHydra.pluginID)
+                if (mc.positionTracker instanceof MCHydra )
                     mc.positionTracker.setPrediction(0.0f, this.guivrSettings.hydraUseFilter);
             }
         }
@@ -283,7 +281,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
     private void setLocOffsetDefaults()
     {
-        if( this.guivrSettings.headPositionPluginID.equalsIgnoreCase(MCHydra.pluginID))
+        if (mc.positionTracker instanceof MCHydra )
         {
             switch (this.guivrSettings.posTrackHydraLoc)
             {
