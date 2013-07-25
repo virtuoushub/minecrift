@@ -22,6 +22,8 @@ public abstract class ControlBinding {
 		bindings.add( new WalkLeftBinding());
 		bindings.add( new WalkBackwardBinding());
 		bindings.add( new WalkRightBinding());
+		bindings.add( new JoystickAim.JoyAimYawBinding() );
+		bindings.add( new JoystickAim.JoyAimPitchBinding() );
 		bindings.add( new KeyControlBinding( settings.keyBindAttack ));
 		bindings.add( new KeyControlBinding( settings.keyBindJump ));
 		bindings.add( new KeyControlBinding( settings.keyBindInventory ));
@@ -31,7 +33,8 @@ public abstract class ControlBinding {
 		bindings.add( new KeyControlBinding( settings.keyBindUseItem ));
 		bindings.add( new KeyControlBinding( settings.keyBindPlayerList ));
 		bindings.add( new KeyControlBinding( settings.keyBindPickBlock ));
-		bindings.add( new KeyControlBinding( settings.keyBindCommand ));
+		bindings.add( new ItemLeftControlBinding() );
+		bindings.add( new ItemRightControlBinding() );
 	}
 	
 	public boolean isAxis() { return false; }

@@ -13,10 +13,14 @@ import org.lwjgl.input.Controllers;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBodyAimController;
 import com.mtbs3d.minecrift.control.ControlBinding;
+import com.mtbs3d.minecrift.control.JoystickAim;
+import com.mtbs3d.minecrift.settings.VRSettings;
 
 
 public class MCController extends BasePlugin implements IBodyAimController {
 
+	float aimOffset = 0.0f;
+	JoystickAim joyAim;
 	boolean hasControllers = false;
 	ControlBinding nextBind = null;
 	HashMap<Pair<Integer,Boolean>,ControlBinding> axisBinds = new HashMap<Pair<Integer,Boolean>,ControlBinding>();
@@ -28,7 +32,8 @@ public class MCController extends BasePlugin implements IBodyAimController {
 		System.out.println("Created Controller plugin");
         pluginID = "controller";
         pluginName = "Controller";
-
+        joyAim = new JoystickAim();
+        JoystickAim.selectedJoystickMode = joyAim;
 	}
 	@Override
 	public String getInitializationStatus() {
@@ -78,33 +83,47 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			if( nextBind != null ) {
 				if( revAxisBinds.containsKey(nextBind)) {
 					System.out.println( nextBind.getDescription()+" already bound to "+cont.getAxisName(revAxisBinds.get(nextBind).getLeft())+" axis. Removing.");
-					axisBinds.remove( revAxisBinds.get(nextBind));
+					if( nextBind.isAxis() )
+						axisBinds.remove( revAxisBinds.get(nextBind));
+					else {
+						Integer axisIndex = revAxisBinds.get(nextBind).getKey();
+						axisBinds.remove( Pair.of( axisIndex, true));
+						axisBinds.remove( Pair.of( axisIndex, false));
+					}
 					revAxisBinds.remove( nextBind );
 				}
 				if( revButtonBinds.containsKey(nextBind)) {
-					System.out.println( nextBind.getDescription()+" already bound to "+cont.getButtonName(revButtonBinds.get(nextBind))+" button. Removing.");
-					axisBinds.remove( revButtonBinds.get(nextBind));
+					Integer button =  revButtonBinds.get(nextBind);
+					System.out.println( nextBind.getDescription()+" already bound to "+cont.getButtonName(button)+" button. Removing.");
+					buttonBinds.remove(button);
 					revButtonBinds.remove( nextBind );
 				}
 				if( Controllers.isEventAxis() ) {
 					float joyVal = cont.getAxisValue(index);
-					System.out.println(joyVal);
 					if(Math.abs(joyVal)>0.5f) {
-						Pair<Integer,Boolean> key; 
 						if( nextBind.isAxis() ) {
-							key = Pair.of(index,joyVal>0);
+							Pair<Integer,Boolean> key= Pair.of(index,joyVal>0);
 							nextBind.bindTo(cont.getAxisName(index)+(joyVal>0?"+":"-")+" axis");
+							if( axisBinds.get( key ) == null ) {
+								System.out.println(nextBind.getDescription()+" bound to "+cont.getAxisName(index) +" axis!");
+								axisBinds.put(key , nextBind);
+								revAxisBinds.put(nextBind, key);
+								nextBind.setValid(true);
+							} else {
+								nextBind.setValid(false);
+							}
 						} else {
-							key = Pair.of(index,true);
 							nextBind.bindTo(cont.getAxisName(index)+" axis");
-						}
-						if( axisBinds.get( key ) == null ) {
-							System.out.println(nextBind.getDescription()+" bound to "+cont.getAxisName(index) +" axis!");
-							axisBinds.put(key , nextBind);
-							revAxisBinds.put(nextBind, key);
-							nextBind.setValid(true);
-						} else {
-							nextBind.setValid(false);
+							if( axisBinds.get( Pair.of(index,true) ) == null &&
+								axisBinds.get( Pair.of(index,false)) == null) {
+								System.out.println(nextBind.getDescription()+" bound to "+cont.getAxisName(index) +" axis!");
+								axisBinds.put(Pair.of(index,true) , nextBind);
+								axisBinds.put(Pair.of(index,false) , nextBind);
+								revAxisBinds.put(nextBind, Pair.of(index,true));
+								nextBind.setValid(true);
+							} else {
+								nextBind.setValid(false);
+							}
 						}
 						nextBind.doneBinding();
 						nextBind = null;
@@ -164,32 +183,29 @@ public class MCController extends BasePlugin implements IBodyAimController {
 
 	@Override
 	public float getBodyYawDegrees() {
-		// TODO Auto-generated method stub
-		return 0;
+		return joyAim.getAimYaw();
 	}
 
 	@Override
 	public void setBodyYawDegrees(float yawOffset) {
-		// TODO Auto-generated method stub
-		
+		this.aimOffset = yawOffset;
 	}
 
 	@Override
 	public float getBodyPitchDegrees() {
-		// TODO Auto-generated method stub
-		return 0;
+		if( VRSettings.inst.allowMousePitchInput)
+			return joyAim.getAimPitch();
+		return 0.0f;
 	}
 
 	@Override
 	public float getAimYaw() {
-		// TODO Auto-generated method stub
-		return 0;
+		return aimOffset + joyAim.getAimYaw();
 	}
 
 	@Override
 	public float getAimPitch() {
-		// TODO Auto-generated method stub
-		return 0;
+		return joyAim.getAimPitch();
 	}
 	@Override
 	public void mapBinding(ControlBinding binding) {

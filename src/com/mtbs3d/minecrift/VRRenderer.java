@@ -21,9 +21,12 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
 import com.mtbs3d.minecrift.api.IOrientationProvider;
+import com.mtbs3d.minecrift.control.JoystickAim;
 
 import net.minecraft.src.*;
 import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.glu.PartialDisk;
+
 import paulscode.sound.SoundSystem;
 
 import static java.lang.Math.ceil;
@@ -454,6 +457,8 @@ public class VRRenderer extends EntityRenderer
         }
 
         PluginManager.pollAll();
+        if(JoystickAim.selectedJoystickMode != null)
+        	JoystickAim.selectedJoystickMode.update( renderPartialTicks );
         
         float lookYawOffset   = mc.lookaimController.getBodyYawDegrees();
         float lookPitchOffset = mc.lookaimController.getBodyPitchDegrees(); 
