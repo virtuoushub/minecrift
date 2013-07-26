@@ -54,7 +54,7 @@ Click the button below to go to our Jenkins page where you can download the
 latest build hot-off-the-presses.
 
 [![Powered By CloudBees](http://www.cloudbees.com/sites/default/files/Button-Powered-by-CB.png)
-](https://minecraftvr.ci.cloudbees.com/job/minecrift/)
+](https://minecraftvr.ci.cloudbees.com/job/minecrift-1.6.2/)
 
 ---
 
@@ -67,6 +67,11 @@ VS2010 C++ redists (both x86 and x64) from
 [here](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
 
 ----
+Controllers/JoyPads
+-------------------
+Version 1.2 supports many different controllers. Change VR->Move/Aim Mode: to 
+'Controller' and then remap the keys that best fit your controller in 'Remap 
+Controls'.
 
 Razer Hydra
 -----------
