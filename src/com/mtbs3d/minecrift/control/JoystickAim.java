@@ -1,3 +1,7 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.control;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
@@ -13,7 +17,7 @@ public class JoystickAim {
 	public static class JoyAimPitchBinding extends ControlBinding {
 
 		public JoyAimPitchBinding() {
-			super("Aim Up/Down");
+			super("Aim Up/Down","axis.updown");
 		}
 
 		@Override
@@ -29,7 +33,7 @@ public class JoystickAim {
 	public static class JoyAimYawBinding extends ControlBinding {
 
 		public JoyAimYawBinding() {
-			super("Aim Left/Right");
+			super("Aim Left/Right","axis.leftright");
 		}
 
 		@Override

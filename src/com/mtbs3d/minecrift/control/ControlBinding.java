@@ -37,7 +37,8 @@ public abstract class ControlBinding {
 		bindings.add( new KeyControlBinding( settings.keyBindChat ));
 		bindings.add( new KeyControlBinding( settings.keyBindSneak ));
 		bindings.add( new KeyControlBinding( settings.keyBindPickBlock ));
-		bindings.add( new KeyControlBinding( settings.keyBindInventory ));
+		bindings.add( new InventoryBinding( settings.keyBindInventory ));
+		bindings.add( new MenuBinding() );
 		bindings.add( new KeyControlBinding( settings.keyBindPlayerList ));
 		//TODO: read from settings.keyBindings, instead, which is populated by Forge.
 		bindings.add( new GuiScreenNaviator.GuiUpBinding() ); 
@@ -65,8 +66,9 @@ public abstract class ControlBinding {
 			callback.doneBinding();
 	}
 	
-	public ControlBinding( String desc ) {
+	public ControlBinding( String desc, String key ) {
 		this.description = desc;
+		this.key = key;
 	}
 	public String key;
 

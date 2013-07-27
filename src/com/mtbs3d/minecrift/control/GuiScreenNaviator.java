@@ -13,6 +13,8 @@ import java.util.List;
 
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiContainer;
+import net.minecraft.src.GuiIngame;
+import net.minecraft.src.GuiIngameMenu;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiSlot;
 import net.minecraft.src.Minecraft;
@@ -42,19 +44,30 @@ public class GuiScreenNaviator {
 	static abstract class GuiControlBinding extends ControlBinding {
 
 		public GuiControlBinding(String desc) {
-			super("GUI "+desc);
+			super("GUI "+desc,"gui."+desc);
 		}
 
+		boolean floatActive = false;
 		@Override
 		public boolean isGUI(){ return true; };
 
 		@Override
 		public void setValue(float value) {
-			setState( Math.abs(value) >0.5 );
+			if( Math.abs(value) >0.5 )
+			{
+				if( !floatActive )
+					setState( true );
+				floatActive = true;
+			} else {
+				setState(false);
+				floatActive = false;
+			}
 		}
 	}
 	static class GuiUpBinding extends GuiControlBinding {
 
+		@Override
+		public boolean isAxis(){ return true; };
 		public GuiUpBinding() {
 			super("Up");
 		}
@@ -66,6 +79,8 @@ public class GuiScreenNaviator {
 	}
 	static class GuiDownBinding extends GuiControlBinding {
 
+		@Override
+		public boolean isAxis(){ return true; };
 		public GuiDownBinding() {
 			super("Down");
 		}
@@ -77,6 +92,8 @@ public class GuiScreenNaviator {
 	}
 	static class GuiRightBinding extends GuiControlBinding {
 
+		@Override
+		public boolean isAxis(){ return true; };
 		public GuiRightBinding() {
 			super("Right");
 		}
@@ -88,6 +105,8 @@ public class GuiScreenNaviator {
 	}
 	static class GuiLeftBinding extends GuiControlBinding {
 
+		@Override
+		public boolean isAxis(){ return true; };
 		public GuiLeftBinding() {
 			super("Left");
 		}
@@ -203,7 +222,9 @@ public class GuiScreenNaviator {
 	}
 	
 	public void back() {
-		if(parentScreen != null)
+		if( screen instanceof GuiIngameMenu ) 
+			mc.displayGuiScreen(null);
+		else if(parentScreen != null)
 			mc.displayGuiScreen(parentScreen);
 		
 	}

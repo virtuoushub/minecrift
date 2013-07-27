@@ -1,3 +1,7 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.control;
 
 import net.minecraft.src.EntityClientPlayerMP;
@@ -9,7 +13,7 @@ public class WalkForwardBinding extends ControlBinding {
 	public boolean isAxis() { return true; }
 
 	public WalkForwardBinding() {
-		super("key.forward");
+		super("key.forward","walk.forward");
 	}
 
 	@Override

@@ -4,9 +4,18 @@
  */
 package com.mtbs3d.minecrift;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 
+import net.minecraft.src.Config;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.Minecraft;
 
@@ -19,7 +28,9 @@ import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBodyAimController;
 import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.control.GuiScreenNaviator;
+import com.mtbs3d.minecrift.control.InventoryBinding;
 import com.mtbs3d.minecrift.control.JoystickAim;
+import com.mtbs3d.minecrift.control.MenuBinding;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
 
@@ -29,6 +40,8 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	JoystickAim joyAim;
 	boolean hasControllers = false;
 	ControlBinding nextBind = null;
+	
+	HashMap<String,String> bindingSaves = new HashMap<String,String>();
 	class BindingMap {
 		HashMap<Pair<Integer,Boolean>,ControlBinding> axisBinds = new HashMap<Pair<Integer,Boolean>,ControlBinding>();
 		HashMap<Integer,ControlBinding> buttonBinds = new HashMap<Integer,ControlBinding>();
@@ -39,10 +52,105 @@ public class MCController extends BasePlugin implements IBodyAimController {
 		ControlBinding povYBindPos;
 		ControlBinding povYBindNeg;
 		
+		void bindAxis( ControlBinding nextBind, int index, boolean posVal, String axisName ) {
+			if( nextBind.isAxis() ) {
+				Pair<Integer,Boolean> key= Pair.of(index,posVal);
+				if( axisBinds.get( key ) == null ) {
+					nextBind.bindTo(axisName+(posVal?"+":"-")+" axis");
+					axisBinds.put(key , nextBind);
+					revAxisBinds.put(nextBind, key);
+					nextBind.setValid(true);
+				} else {
+					nextBind.bindTo("Conflict!");
+					nextBind.setValid(false);
+				}
+			} else {
+				posVal = true;
+				if( axisBinds.get( Pair.of(index,true) ) == null &&
+					axisBinds.get( Pair.of(index,false)) == null) {
+					nextBind.bindTo(axisName+" axis");
+					axisBinds.put(Pair.of(index,true) , nextBind);
+					axisBinds.put(Pair.of(index,false) , nextBind);
+					revAxisBinds.put(nextBind, Pair.of(index,true));
+					nextBind.setValid(true);
+				} else {
+					nextBind.bindTo("Conflict!");
+					nextBind.setValid(false);
+				}
+			}
+			if( nextBind.isValid())
+				bindingSaves.put(nextBind.key, String.format("a:%d:%s:%s",index,posVal?"+":"-",axisName));
+		}
+		
+		void bindButton( ControlBinding nextBind, int index, String buttonName ) {
+			if( buttonBinds.get( index ) == null ) {
+				nextBind.bindTo(buttonName+" button");
+				buttonBinds.put(index, nextBind);
+				revButtonBinds.put(nextBind, index);
+				nextBind.setValid(true);
+			} else {
+				nextBind.bindTo("Conflict!");
+				nextBind.setValid(false);
+			}
+			if( nextBind.isValid())
+				bindingSaves.put(nextBind.key, String.format("b:%d:%s",index,buttonName));
+		}
+		
+		void bindPovX( ControlBinding nextBind, boolean posVal ) {
+			if( posVal ) {
+				if( povXBindPos == null ) {
+					nextBind.bindTo("POV X+");
+					povXBindPos = nextBind;
+					povXBindPos.setValid(true);
+				} else {
+					nextBind.bindTo("Conflict!");
+					povXBindPos.setValid(false);
+				}
+			} else {
+				if( povXBindNeg == null ) {
+					nextBind.bindTo("POV X-");
+					povXBindNeg = nextBind;
+					povXBindNeg.setValid(true);
+				} else {
+					nextBind.bindTo("Conflict!");
+					povXBindNeg.setValid(false);
+				}
+			}
+			if( nextBind.isValid())
+				bindingSaves.put(nextBind.key, String.format("px:%s",posVal?"+":"-"));
+		}
+		
+		void bindPovY( ControlBinding nextBind, boolean posVal ) {
+			if( posVal ) {
+				if( povYBindPos == null ) {
+					nextBind.bindTo("POV Y+");
+					povYBindPos = nextBind;
+					povYBindPos.setValid(true);
+				} else {
+					nextBind.bindTo("Conflict!");
+					povYBindPos.setValid(false);
+				}
+			} else {
+				if( povYBindNeg == null ) {
+					nextBind.bindTo("POV Y-");
+					povYBindNeg = nextBind;
+					povYBindNeg.setValid(true);
+				} else {
+					nextBind.bindTo("Conflict!");
+					povYBindNeg.setValid(false);
+				}
+			}
+			if( nextBind.isValid())
+				bindingSaves.put(nextBind.key, String.format("py:%s",posVal?"+":"-"));
+		}
+		
 		boolean bind( ControlBinding nextBind) {
 			boolean bound = false;
 			Controller cont = Controllers.getEventSource();
 			String alreadyBound = "";
+			
+			
+			//Unbind a value if it is being remapped
 			int index = Controllers.getEventControlIndex();
 			if( revAxisBinds.containsKey(nextBind)) {
 				alreadyBound = cont.getAxisName(revAxisBinds.get(nextBind).getLeft())+" axis";
@@ -74,102 +182,35 @@ public class MCController extends BasePlugin implements IBodyAimController {
 				povYBindNeg = null;
 				alreadyBound = "POV Y-";
 			} 
+
 			if( !alreadyBound.isEmpty() )
 				System.out.println( nextBind.getDescription()+" already bound to "+alreadyBound+". Removing.");
 
+			
+			//Bind to value
 			if( Controllers.isEventAxis() ) {
 				float joyVal = cont.getAxisValue(index);
+				boolean posVal = joyVal>0;
 				if(Math.abs(joyVal)>0.5f) {
-					if( nextBind.isAxis() ) {
-						Pair<Integer,Boolean> key= Pair.of(index,joyVal>0);
-						if( axisBinds.get( key ) == null ) {
-							nextBind.bindTo(cont.getAxisName(index)+(joyVal>0?"+":"-")+" axis");
-							axisBinds.put(key , nextBind);
-							revAxisBinds.put(nextBind, key);
-							nextBind.setValid(true);
-							bound = true;
-						} else {
-							nextBind.bindTo("Conflict!");
-							nextBind.setValid(false);
-							bound = true;
-						}
-					} else {
-						if( axisBinds.get( Pair.of(index,true) ) == null &&
-							axisBinds.get( Pair.of(index,false)) == null) {
-							nextBind.bindTo(cont.getAxisName(index)+" axis");
-							axisBinds.put(Pair.of(index,true) , nextBind);
-							axisBinds.put(Pair.of(index,false) , nextBind);
-							revAxisBinds.put(nextBind, Pair.of(index,true));
-							nextBind.setValid(true);
-							bound = true;
-						} else {
-							nextBind.bindTo("Conflict!");
-							nextBind.setValid(false);
-							bound = true;
-						}
-					}
+					bindAxis( nextBind, index, posVal, cont.getAxisName(index));
+					bound = true;
 				}
 			} else if( Controllers.isEventButton() ) {
 				if( cont.isButtonPressed(index)) {
-					if( buttonBinds.get( index ) == null ) {
-						nextBind.bindTo(cont.getButtonName(index)+" button");
-						buttonBinds.put(index, nextBind);
-						revButtonBinds.put(nextBind, index);
-						nextBind.setValid(true);
-						bound = true;
-					} else {
-						nextBind.bindTo("Conflict!");
-						nextBind.setValid(false);
-						bound = true;
-					}
+					bindButton( nextBind, index, cont.getButtonName(index) );
+					bound = true;
 				}
 			} else if( Controllers.isEventPovX()) {
-				if( cont.getPovX() > 0) {
-					if( povXBindPos == null ) {
-						nextBind.bindTo("POV X+");
-						povXBindPos = nextBind;
-						povXBindPos.setValid(true);
-						bound = true;
-					} else {
-						nextBind.bindTo("Conflict!");
-						povXBindPos.setValid(false);
-						bound = true;
-					}
-				} else if( cont.getPovX() < 0 ) {
-					if( povXBindNeg == null ) {
-						nextBind.bindTo("POV X-");
-						povXBindNeg = nextBind;
-						povXBindNeg.setValid(true);
-						bound = true;
-					} else {
-						nextBind.bindTo("Conflict!");
-						povXBindNeg.setValid(false);
-						bound = true;
-					}
+				if( cont.getPovX() != 0)
+				{
+					bindPovX(nextBind, cont.getPovX() > 0);
+					bound = true;
 				}
 			} else if( Controllers.isEventPovY()) {
-				if( cont.getPovY() > 0) {
-					if( povYBindPos == null ) {
-						nextBind.bindTo("POV Y+");
-						povYBindPos = nextBind;
-						povYBindPos.setValid(true);
-						bound = true;
-					} else {
-						nextBind.bindTo("Conflict!");
-						povYBindPos.setValid(false);
-						bound = true;
-					}
-				} else if( cont.getPovY() < 0 ) {
-					if( povYBindNeg == null ) {
-						nextBind.bindTo("POV Y-");
-						povYBindNeg = nextBind;
-						povYBindNeg.setValid(true);
-						bound = true;
-					} else {
-						nextBind.bindTo("Conflict!");
-						povYBindNeg.setValid(false);
-						bound = true;
-					}
+				if( cont.getPovY() != 0)
+				{
+					bindPovY(nextBind, cont.getPovY() > 0);
+					bound = true;
 				}
 			}
 			return bound;
@@ -223,6 +264,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	BindingMap GUI    = new BindingMap();
 	private Minecraft mc;
 	private GuiScreenNaviator screenNavigator;
+	private boolean loaded = false;
 	public MCController() {
 		super();
 		mc = Minecraft.getMinecraft();
@@ -272,6 +314,9 @@ public class MCController extends BasePlugin implements IBodyAimController {
 
 	@Override
 	public void poll() {
+		if(!loaded)
+			loadBindings();
+
         if( this.mc.currentScreen != null && (this.screenNavigator == null || this.screenNavigator.screen != this.mc.currentScreen) )
         	this.screenNavigator = new GuiScreenNaviator(this.mc.currentScreen );
 		Controllers.poll();
@@ -280,10 +325,14 @@ public class MCController extends BasePlugin implements IBodyAimController {
 				boolean bound = false;
 				if( nextBind.isGUI()) 
 					bound = GUI.bind(nextBind);
-				 else 
+				else 
 					bound = ingame.bind(nextBind);
+				if( nextBind instanceof InventoryBinding ||
+					nextBind instanceof MenuBinding  ) //These are in both
+					GUI.bind( nextBind );
 				
 				if(bound) {
+					saveBindings();
 					nextBind.doneBinding();
 					nextBind = null;
 				}
@@ -294,6 +343,80 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			}
 		}
 		Controllers.clearEvents();
+	}
+
+	private void saveBindings() {
+		File bindingsSave = new File( mc.mcDataDir, "options_controller.txt");
+		PrintWriter bindingsWriter;
+		try {
+			bindingsWriter = new PrintWriter( new FileWriter(bindingsSave));
+			for (Map.Entry<String, String> entry : bindingSaves.entrySet()) {
+				bindingsWriter.println(entry.getKey()+":"+entry.getValue());
+			}
+			bindingsWriter.close();
+		} catch (IOException e) {
+            Config.dbg("Failed to save controller bindings");
+		}
+	}
+	
+	private void loadBinding( ControlBinding binding, BindingMap map, String[] bindingTokens) {
+		if( bindingTokens[1].equals("a") && bindingTokens.length >= 5 ) {
+			int index = Integer.parseInt(bindingTokens[2]);
+			boolean posVal = bindingTokens[3].equals("+");
+			map.bindAxis(binding, index, posVal, bindingTokens[4]);
+		} else if (bindingTokens[1].equals("b") && bindingTokens.length >= 4) {
+			int index = Integer.parseInt(bindingTokens[2]);
+			map.bindButton(binding, index, bindingTokens[3]);
+		} else if (bindingTokens[1].equals("px") && bindingTokens.length >= 3 ) {
+			boolean posVal = bindingTokens[2].equals("+");
+			map.bindPovX(binding, posVal);
+		} else if (bindingTokens[1].equals("py") && bindingTokens.length >= 3 ) {
+			boolean posVal = bindingTokens[2].equals("+");
+			map.bindPovY(binding, posVal);
+		}
+
+	}
+
+	private void loadBindings() {
+		File bindingsSave = new File( mc.mcDataDir, "options_controller.txt");
+		if( !bindingsSave.exists() ) {
+			//TODO: load a default binding?
+			
+		} else {
+            try {
+				BufferedReader bindingsReader = new BufferedReader(new FileReader(bindingsSave));
+				String line;
+				while ((line = bindingsReader.readLine()) != null)
+	            {
+                    String[] bindingTokens = line.split(":");
+                    if( bindingTokens.length > 1 )
+                    {
+                    	String key = bindingTokens[0];
+                    	for( ControlBinding binding : ControlBinding.bindings ) {
+                    		if( binding.key.equals(key) ) {
+                    			
+                    			if( binding.isGUI())
+                    				loadBinding( binding, GUI, bindingTokens );
+                    			else 
+                    				loadBinding( binding, ingame, bindingTokens );
+
+                    			if( binding instanceof InventoryBinding ||
+									binding instanceof MenuBinding  ) //These are in both
+                    				loadBinding( binding, GUI, bindingTokens );
+                    			break;
+                    		}
+                    	}
+                    }
+	            }
+				bindingsReader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
+			
+		}
+		loaded = true;
 	}
 
 	@Override

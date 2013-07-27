@@ -1,3 +1,7 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.control;
 
 import net.minecraft.src.KeyBinding;
@@ -8,7 +12,7 @@ public class KeyControlBinding extends ControlBinding {
 	KeyBinding key;
 	Minecraft mc;
 	public KeyControlBinding(KeyBinding binding ) {
-		super(binding.keyDescription);
+		super(binding.keyDescription,binding.keyDescription);
 		key = binding;
 		mc = Minecraft.getMinecraft();
 	}
