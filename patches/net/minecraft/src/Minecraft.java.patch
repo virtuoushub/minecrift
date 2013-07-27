@@ -118,13 +118,12 @@
          this.tempDisplayWidth = par2;
          this.tempDisplayHeight = par3;
          this.fullscreen = par4;
-@@ -262,36 +303,28 @@
+@@ -262,36 +303,27 @@
      private void startGame() throws LWJGLException
      {
          this.gameSettings = new GameSettings(this, this.mcDataDir);
 +        this.vrSettings = new VRSettings(this, this.mcDataDir);
 +        
-+        ControlBinding.CreateBindingList(this.gameSettings);
  
          if (this.gameSettings.overrideHeight > 0 && this.gameSettings.overrideWidth > 0)
          {
@@ -163,7 +162,7 @@
          this.getLogAgent().logInfo("LWJGL Version: " + Sys.getVersion());
  
          if (Util.func_110647_a() != EnumOS.MACOS)
-@@ -350,6 +383,17 @@
+@@ -350,6 +382,17 @@
          this.field_110451_am.func_110542_a(this.sndManager);
          this.loadScreen();
          this.fontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
@@ -181,7 +180,7 @@
  
          if (this.gameSettings.language != null)
          {
-@@ -363,10 +407,30 @@
+@@ -363,10 +406,30 @@
          this.field_110451_am.func_110542_a(new GrassColorReloadListener());
          this.field_110451_am.func_110542_a(new FoliageColorReloadListener());
          RenderManager.instance.itemRenderer = new ItemRenderer(this);
@@ -213,7 +212,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -383,15 +447,45 @@
+@@ -383,15 +446,45 @@
          this.renderGlobal = new RenderGlobal(this);
          this.renderEngine.func_130088_a(TextureMap.field_110575_b, new TextureMap(0, "textures/blocks"));
          this.renderEngine.func_130088_a(TextureMap.field_110576_c, new TextureMap(1, "textures/items"));
@@ -261,7 +260,7 @@
          else
          {
              this.displayGuiScreen(new GuiMainMenu());
-@@ -403,6 +497,11 @@
+@@ -403,6 +496,11 @@
          {
              this.toggleFullscreen();
          }
@@ -273,7 +272,7 @@
      }
  
      public void func_110436_a()
-@@ -595,21 +694,28 @@
+@@ -595,21 +693,28 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -306,7 +305,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -652,6 +758,8 @@
+@@ -652,6 +757,8 @@
              }
  
              this.sndManager.closeMinecraft();
@@ -315,6 +314,14 @@
          }
          finally
          {
+@@ -683,6 +790,7 @@
+             return;
+         }
+ 
++        ControlBinding.CreateBindingList(this.gameSettings);
+         try
+         {
+             while (this.running)
 @@ -782,7 +890,8 @@
          this.checkGLError("Pre render");
          RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;

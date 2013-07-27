@@ -6,6 +6,7 @@ package com.mtbs3d.minecrift.gui;
 
 import java.util.List;
 
+import com.mtbs3d.minecrift.MCController;
 import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.MCMouse;
 import com.mtbs3d.minecrift.api.IBasePlugin;
@@ -33,10 +34,8 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
     static EnumOptions[] controllerMoveAimOptions = new EnumOptions[] {
-        EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEAD_RELATIVE,
-        EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.PITCH_AFFECTS_CAMERA,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
@@ -70,6 +69,8 @@ public class GuiMoveAimSettings extends BaseGuiSettings
 
         if( this.mc.lookaimController instanceof MCHydra )
         	var10 = hydraMoveAimOptions;
+    	else if( this.mc.lookaimController instanceof MCController )
+    		var10 = controllerMoveAimOptions;
     	else
         	var10 = mouseMoveAimOptions ;
         int var11 = var10.length;

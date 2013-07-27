@@ -13,7 +13,6 @@ import java.util.List;
 
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiContainer;
-import net.minecraft.src.GuiIngame;
 import net.minecraft.src.GuiIngameMenu;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiSlot;
@@ -27,6 +26,8 @@ import org.lwjgl.input.Mouse;
 public class GuiScreenNaviator {
 	public ArrayList<Pair<Integer,Integer>> points = new ArrayList<Pair<Integer,Integer>>();
 	private GuiSlot slot;
+	private int slotIndex = -1;
+	private boolean onSlot = false;
 	public GuiScreen screen;
 	private GuiScreen parentScreen;
 	private Minecraft mc;
@@ -219,6 +220,12 @@ public class GuiScreenNaviator {
         }
         curPoint = Pair.of(	Mouse.getX() * screen.width / this.mc.displayWidth,
         					screen.height - Mouse.getY() * screen.height / this.mc.displayHeight - 1);
+        
+        if( slot != null && slot.publicGetSize() > 0 ) {
+        	slotIndex = 0;
+        	slot.select(0, false);
+        	onSlot = true;
+        }
 	}
 	
 	public void back() {
@@ -230,6 +237,10 @@ public class GuiScreenNaviator {
 	}
 
 	public void select(boolean state) {
+		if( state && onSlot ) {
+			slot.select(slotIndex,true);
+			return;
+		}
 		selectDepressed = state;
 		if( curPoint != null) {
 			if(state)
@@ -260,6 +271,7 @@ public class GuiScreenNaviator {
 	}
 
 	public void left() {
+		onSlot = false;
         parsePoints();
 		if( curPoint != null ) {
 			Pair<Integer,Integer> nextBest = null;
@@ -277,6 +289,7 @@ public class GuiScreenNaviator {
 	}
 
 	public void right() {
+		onSlot = false;
         parsePoints();
 		if( curPoint != null ) {
 			Pair<Integer,Integer> nextBest = null;
@@ -294,6 +307,14 @@ public class GuiScreenNaviator {
 	}
 
 	public void down() {
+		if( onSlot && slot != null && slotIndex != slot.publicGetSize()- 1 ) {
+			slotIndex++;
+			int slotY = slot.select(slotIndex, false);
+			curPoint = Pair.of( screen.width/2, slotY);
+			mouseto();
+			return;
+		}
+		onSlot = false;
         parsePoints();
 		if( curPoint != null ) {
 			Pair<Integer,Integer> nextBest = null;
@@ -323,6 +344,14 @@ public class GuiScreenNaviator {
 			if( nextBest != null) {
 				curPoint = nextBest;
 				mouseto();
+				onSlot = false;
+			} else if( slot != null ) {
+				if( onSlot && slotIndex != 0 )
+					slotIndex--;
+				int slotY = slot.select(slotIndex, false);
+				curPoint = Pair.of( screen.width/2, slotY);
+				mouseto();
+				onSlot = true;
 			}
 		}
 		
