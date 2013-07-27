@@ -779,8 +779,10 @@ public class VRRenderer extends EntityRenderer
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
 		        GL11.glEnable(GL11.GL_BLEND);
 		        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		        if( this.mc.vrSettings.hudOpacity)
-		        	GL11.glColor4f(1, 1, 1, 0.5f);
+		        if( this.mc.theWorld != null )
+		        	GL11.glColor4f(1, 1, 1, this.mc.vrSettings.hudOpacity);
+		        else
+		        	GL11.glColor4f(1, 1, 1, 1);
 		        if (!this.mc.vrSettings.hudOcclusion)
                     GL11.glDisable(GL11.GL_DEPTH_TEST);
 

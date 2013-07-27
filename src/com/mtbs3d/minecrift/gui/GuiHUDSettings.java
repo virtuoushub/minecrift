@@ -72,6 +72,12 @@ public class GuiHUDSettings extends BaseGuiSettings
                     maxValue = 45f;
                     increment = 1f;
                 }
+                else if (var8 == EnumOptions.HUD_OPACITY)
+                {
+                    minValue = 0.15f;
+                    maxValue = 1.0f;
+                    increment = 0.05f;
+                }
 
                 this.buttonList.add(new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8)));
             }
@@ -106,7 +112,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guivrSettings.hudScale = 1.0f;
                 this.guivrSettings.hudPitchOffset = 0f;
                 this.mc.gameSettings.hideGUI = false;
-                this.guivrSettings.hudOpacity = false;
+                this.guivrSettings.hudOpacity = 1.0f;
                 this.guivrSettings.hudOcclusion = false;
                 this.guivrSettings.crosshairScale = 1.0f;
                 this.guivrSettings.alwaysRenderBlockOutline = false;
@@ -127,9 +133,7 @@ public class GuiHUDSettings extends BaseGuiSettings
             {
                 case HUD_OPACITY:
                     return new String[] {
-                            "Whether the in-game HUD and UI are slightly transparent",
-                            "  ON: HUD and UI are transparent",
-                            "  OFF: HUD and UI are opaque"
+                            "How transapernet to draw the in-game HUD and UI",
                     };
                 case HUD_HIDE:
                     return new String[] {

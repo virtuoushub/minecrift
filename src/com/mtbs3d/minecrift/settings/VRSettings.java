@@ -48,7 +48,7 @@ public class VRSettings {
     public String oculusProfileName;
     public String oculusProfileGender;
     protected float oculusProfilePlayerEyeHeight = playerEyeHeight;
-    public boolean hudOpacity = false;
+    public float hudOpacity = 1.0f;
     public boolean renderHeadWear = false;
     public boolean renderFullFirstPersonModel = true;
     public float renderPlayerOffset = 0.25f;
@@ -193,7 +193,9 @@ public class VRSettings {
 
                     if (optionTokens[0].equals("hudOpacity"))
                     {
-                        this.hudOpacity = optionTokens[1].equals("true");
+                        this.hudOpacity = this.parseFloat(optionTokens[1]);
+                        if(hudOpacity< 0.15f)
+                        	hudOpacity = 1.0f;
                     }
 
                     if (optionTokens[0].equals("useHeadTrackPrediction"))
@@ -546,7 +548,9 @@ public class VRSettings {
         }
         else if (par1EnumOptions == EnumOptions.HUD_OPACITY)
         {
-            return this.hudOpacity ? var4 + "ON" : var4 + "OFF";
+        	if( this.hudOpacity > 0.99)
+        		return var4 +" Opaque";
+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudOpacity) });
         }
         else if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
         {
@@ -870,6 +874,7 @@ public class VRSettings {
               (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
               (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT) ? this.keyholeHeight:
               (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
+              (par1EnumOptions == EnumOptions.HUD_OPACITY ? this.hudOpacity :
               (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET ? this.renderPlayerOffset :
               (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
               (par1EnumOptions == EnumOptions.HUD_PITCH ? this.hudPitchOffset :
@@ -897,7 +902,7 @@ public class VRSettings {
               (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetZ :
               (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
               (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE ? this.crosshairScale :
-              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg : 0.0F)))))))))))))))))))))))))))))))));
+              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg : 0.0F))))))))))))))))))))))))))))))))));
     }
     /**
      * For non-float options. Toggles the option on/off, or cycles through the list i.e. render distances.
@@ -938,11 +943,6 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
         {
             this.useHeadTrackPrediction = !this.useHeadTrackPrediction;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_OPACITY)
-        {
-            this.hudOpacity = !this.hudOpacity;
         }
 
         if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
@@ -1083,6 +1083,11 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.HUD_SCALE)
         {
             this.hudScale = par2;
+        }
+
+        if (par1EnumOptions == EnumOptions.HUD_OPACITY)
+        {
+            this.hudOpacity = par2;
         }
 
         if (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET)
