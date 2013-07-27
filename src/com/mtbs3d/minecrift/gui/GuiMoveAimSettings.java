@@ -27,9 +27,8 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     /** An array of all of EnumOption's movement options relevant to the mouse. */
     static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEAD_RELATIVE,
+        EnumOptions.KEYHOLE_HEIGHT,
         EnumOptions.DECOUPLE_LOOK_MOVE,
-        EnumOptions.DECOUPLE_LOOK_AIM_PITCH,
         EnumOptions.PITCH_AFFECTS_CAMERA,
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
@@ -105,6 +104,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 	maxValue = 90f;
                 	increment= 1.0f;
                 }
+                else if( var8 == EnumOptions.KEYHOLE_HEIGHT)
+                {
+                	minValue = 0.0f;
+                	maxValue = 180f;
+                	increment= 1.0f;
+                }
 
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 this.buttonList.add(slider);
@@ -169,9 +174,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 else
                 {
                     this.guivrSettings.aimKeyholeWidthDegrees = 0f;
+                    this.guivrSettings.keyholeHeight = 0f;
                     this.guivrSettings.keyholeHeadRelative = true;
                     this.guivrSettings.lookMoveDecoupled = false;
-                    this.guivrSettings.lookAimPitchDecoupled = false;
                     this.guivrSettings.allowMousePitchInput = true;
                 }
                 this.guivrSettings.saveOptions();
@@ -212,8 +217,17 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "If set to \"Fully Coupled\", any mouse movement will",
                             "  turn the camera.",
                             "Otherwise, this value is the horizontal width (in degrees)",
-                            "  of the keyhole in which the cursor can freely move.",
+                            "  of the keyhole in which the crosshair can freely move.",
                             "  Recommended value: > 60°"} ;
+                case KEYHOLE_HEIGHT:
+                    return new String[] {
+                            "Allows the mouse some flexibility within a \"keyhole\"",
+                            "  that allows the mouse to be constrained.",
+                            "If set to \"Fully Coupled\", any mouse movement will",
+                            "  adjust the camera (if allowed).",
+                            "Otherwise, this value is the vertical height (in degrees)",
+                            "  of the keyhole in which the crosshair can freely move.",
+                            "  Recommended value: 45°"} ;
                 case KEYHOLE_HEAD_RELATIVE:
                     return new String[] {
                             "Determines if the \"keyhole\" used for aiming moves ",
@@ -227,12 +241,6 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  OFF: No, the only way to control pitch is your head",
                             "  ON: Yes, moving the mouse up and down will move the",
                             "     camera up and down", };
-                case DECOUPLE_LOOK_AIM_PITCH:
-                    return new String[] {
-                            "Adjusts whether the crosshair is fixed to your head",
-                            "  vertically (tilt up and down)",
-                            "  OFF: Yes, the only way to aim is with your head",
-                            "  ON:  No, the crosshair is free to move"};
                 case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
                     return new String[] {
                             "Sets the controller used for move/aim control.",

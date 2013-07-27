@@ -64,8 +64,6 @@ public class VRSettings {
     public float superSampleScaleFactor = 2.0f;
     public boolean useMipMaps = false;
     public boolean lookMoveDecoupled = false;
-	public boolean lookAimYawDecoupled = false;
-	public boolean lookAimPitchDecoupled = false;
     public boolean useOculusProfile = false;
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
     public boolean posTrackHydraUseController1 = true;
@@ -95,6 +93,7 @@ public class VRSettings {
 	public float joystickSensitivity = 3f;
 	public float joystickDeadzone = 0.1f;
 	public float aimKeyholeWidthDegrees = 0f;
+	public float keyholeHeight = 0f;
 	public boolean keyholeHeadRelative = true;
     public boolean hydraUseFilter = true;
     public float magRefDistance = 0.15f;
@@ -297,11 +296,6 @@ public class VRSettings {
                         this.lookMoveDecoupled = optionTokens[1].equals("true");
                     }
 
-                    if (optionTokens[0].equals("lookAimPitchDecoupled"))
-                    {
-                        this.lookAimPitchDecoupled = optionTokens[1].equals("true");
-                    }
-
                     if (optionTokens[0].equals("posTrackHydraLoc"))
                     {
                         this.posTrackHydraLoc = Integer.parseInt(optionTokens[1]);
@@ -455,7 +449,10 @@ public class VRSettings {
                     if (optionTokens[0].equals("keyholeWidth"))
                     {
                         this.aimKeyholeWidthDegrees = this.parseFloat(optionTokens[1]);
-                    	this.lookAimYawDecoupled =  this.aimKeyholeWidthDegrees >= 5;
+                    }
+                    if (optionTokens[0].equals("keyholeHeight"))
+                    {
+                        this.keyholeHeight = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("keyholeHeadRelative"))
@@ -630,18 +627,21 @@ public class VRSettings {
         {
             return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
         }
-        else if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_AIM_PITCH)
-        {
-            return this.lookAimPitchDecoupled? var4 + "ON" : var4 + "OFF";
-        }
         else if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
         {
             return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.joystickSensitivity) });
         }
         else if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
         {
-        	if(this.aimKeyholeWidthDegrees>=5)
+        	if(this.aimKeyholeWidthDegrees>0)
 	            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.aimKeyholeWidthDegrees) });
+        	else
+        		return var4 + "Fully Coupled";
+        }
+        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT)
+        {
+        	if(this.keyholeHeight>0)
+	            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.keyholeHeight) });
         	else
         		return var4 + "Fully Coupled";
         }
@@ -868,6 +868,7 @@ public class VRSettings {
               (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME) ? this.headTrackPredictionTimeSecs :
               (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY) ? this.joystickSensitivity:
               (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
+              (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT) ? this.keyholeHeight:
               (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
               (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET ? this.renderPlayerOffset :
               (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
@@ -962,11 +963,6 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_MOVE)
         {
             this.lookMoveDecoupled = !this.lookMoveDecoupled;
-        }
-
-        if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_AIM_PITCH)
-        {
-            this.lookAimPitchDecoupled = !this.lookAimPitchDecoupled;
         }
 
         if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
@@ -1078,7 +1074,10 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
         {
             this.aimKeyholeWidthDegrees = par2;
-            this.lookAimYawDecoupled = par2 >= 5;
+        }
+        if (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT)
+        {
+            this.keyholeHeight = par2;
         }
 
         if (par1EnumOptions == EnumOptions.HUD_SCALE)
@@ -1344,7 +1343,6 @@ public class VRSettings {
             var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
             var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
             var5.println("lookMoveDecoupled:" + this.lookMoveDecoupled);
-            var5.println("lookAimPitchDecoupled:" + this.lookAimPitchDecoupled);
             var5.println("posTrackHydraLoc:" + this.posTrackHydraLoc);
             var5.println("posTrackHydraLROffsetX:" + this.posTrackHydraLROffsetX);
             var5.println("posTrackHydraLROffsetY:" + this.posTrackHydraLROffsetY);
@@ -1375,6 +1373,7 @@ public class VRSettings {
             var5.println("hudOcclusion:" + this.hudOcclusion);
             var5.println("joystickSensitivity:" + this.joystickSensitivity);
             var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
+            var5.println("keyholeHeight:" + this.keyholeHeight);
             var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
             var5.println("useOculusProfile:" + this.useOculusProfile);
             var5.println("oculusProfileIpd:" + this.oculusProfileIpd);

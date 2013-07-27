@@ -68,8 +68,8 @@
 +    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
 +    PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true),
 +    JOYSTICK_SENSITIVITY("Joystick Sensitivity",true,false),
-+    DECOUPLE_LOOK_AIM_PITCH("Free Aim - Vertical",false,true),
 +    KEYHOLE_WIDTH("Keyhole Width",true,false),
++    KEYHOLE_HEIGHT("Keyhole Height",true,false),
 +    KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true),
 +    MOVEAIM_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
 +

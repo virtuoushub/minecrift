@@ -32,19 +32,3 @@
              this.mc.mcProfiler.startSection("bossHealth");
              this.renderBossHealth();
              this.mc.mcProfiler.endSection();
-@@ -110,6 +106,7 @@
-             GL11.glDisable(GL11.GL_BLEND);
-             this.mc.mcProfiler.startSection("actionBar");
-             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-+            GL11.glEnable(GL11.GL_DEPTH_TEST);
-             RenderHelper.enableGUIStandardItemLighting();
- 
-             for (var11 = 0; var11 < 9; ++var11)
-@@ -120,6 +117,7 @@
-             }
- 
-             RenderHelper.disableStandardItemLighting();
-+            GL11.glDisable(GL11.GL_DEPTH_TEST);
-             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-             this.mc.mcProfiler.endSection();
-         }
