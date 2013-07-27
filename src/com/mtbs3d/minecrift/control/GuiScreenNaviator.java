@@ -152,13 +152,13 @@ public class GuiScreenNaviator {
 				keyDownField = Keyboard.class.getDeclaredField("keyDownBuffer");
 				keyDownField.setAccessible(true);
 	        	guiLeft = GuiContainer.class.getDeclaredField("guiLeft");
-	        	guiTop = GuiContainer.class.getDeclaredField("guiTop");
+	        	guiTop  = GuiContainer.class.getDeclaredField("guiTop");
 	        	System.out.println("[Minecrift]GuiScreenNavigator: Reflected guiLeft/guiTop");
 	        }
 	        catch (NoSuchFieldException e) {
 		        try {
-		        	guiLeft = GuiContainer.class.getDeclaredField("c"); //obfuscated name
-		        	guiLeft = GuiContainer.class.getDeclaredField("d"); //obfuscated name
+		        	guiLeft = GuiContainer.class.getDeclaredField("p"); //obfuscated name
+		        	guiTop  = GuiContainer.class.getDeclaredField("q"); //obfuscated name
 		        	System.out.println("VRRender: Reflected obfuscated c/d");
 		        	System.out.println("[Minecrift]GuiScreenNavigator: Reflected guiLeft/guiTop");
 		        }
