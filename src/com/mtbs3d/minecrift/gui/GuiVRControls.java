@@ -1,41 +1,82 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.gui;
-
-import org.lwjgl.input.Keyboard;
 
 import net.minecraft.src.EnumChatFormatting;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
+import net.minecraft.src.GuiSlot;
 import net.minecraft.src.StringTranslate;
+import net.minecraft.src.Tessellator;
 
 import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.control.ControlBinding.ControlBindCallback;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
-public class GuiVRControls extends BaseGuiSettings implements ControlBindCallback {
+public class GuiVRControls extends BaseGuiSettings {
 
-	static String getBindString( ControlBinding binding ) {
-		return (binding.isValid() ? "" : (""+ EnumChatFormatting.RED )) +StringTranslate.getInstance().translateKey(binding.getDescription())+": "+binding.boundTo();
+	ControlSlot slots;
+	class ControlSlot extends GuiSlot implements ControlBindCallback {
+
+		int currentlyBinding;
+		int selected;
+		public ControlSlot(GuiVRControls parent) {
+			super(parent.mc, parent.width, parent.height,32,parent.height - 64, 12 );
+			currentlyBinding = -1;
+			selected = -1;
+		}
+
+		@Override
+		protected int getSize() {
+			return ControlBinding.bindings.size();
+		}
+
+		@Override
+		protected void elementClicked(int controlIndex, boolean var2) {
+			if( currentlyBinding > -1 && currentlyBinding != controlIndex ) {
+				ControlBinding.bindings.get(currentlyBinding).doneBinding();
+				mc.lookaimController.mapBinding(null);
+			}
+			selected = controlIndex;
+			if( var2 ) {
+				currentlyBinding = controlIndex;
+				ControlBinding.bindings.get(currentlyBinding).setDoneBindingCallback(this);
+				mc.lookaimController.mapBinding(ControlBinding.bindings.get(currentlyBinding));
+			}
+			
+		}
+
+		@Override
+		protected boolean isSelected(int var1) {
+			return selected == var1;
+		}
+
+		@Override
+		protected void drawBackground() {
+			drawDefaultBackground();
+		}
+
+		@Override
+		protected void drawSlot(int index, int xPos, int yPos, int height, Tessellator var5) {
+			String display = "";
+			if( index == currentlyBinding ) {
+				display = "" + EnumChatFormatting.WHITE + "> " + EnumChatFormatting.YELLOW + "??? " + EnumChatFormatting.WHITE + "<";
+			} else { 
+				ControlBinding binding = ControlBinding.bindings.get(index);
+				display = (binding.isValid() ? "" : (""+ EnumChatFormatting.RED )) +StringTranslate.getInstance().translateKey(binding.getDescription())+": "+binding.boundTo();
+			}
+			drawString(fontRenderer,display, xPos, yPos, 8421504);
+		}
+
+		@Override
+		public void doneBinding() {
+			currentlyBinding = -1;
+		}
+		
 	}
-	class ControlBindButton extends GuiButtonEx {
-		public ControlBinding binding;
-		public ControlBindButton(int id, int xPos, int yPos, ControlBinding binding) {
-			this(id,xPos,yPos,150,20,binding);
-		}
-		public ControlBindButton(int id, int xPos, int yPos, int width, int height, ControlBinding binding) {
-			super(id, xPos, yPos, width, height, getBindString(binding));
-			this.binding = binding;
-		}
-		
-		void startBinding() {
-			super.displayString = "" + EnumChatFormatting.WHITE + "> " + EnumChatFormatting.YELLOW + "??? " + EnumChatFormatting.WHITE + "<";
-		}
-		
-		void doneBinding() {
-			super.displayString = getBindString(binding);
-		}
-	};
 	
-	private ControlBindButton nextBind = null;
 	public GuiVRControls(GuiScreen par1GuiScreen, VRSettings par2vrSettings) {
 		super(par1GuiScreen, par2vrSettings);
         screenTitle = "Control Remapping";
@@ -46,20 +87,13 @@ public class GuiVRControls extends BaseGuiSettings implements ControlBindCallbac
      */
     protected void keyTyped(char par1, int par2)
     {
-        if ( nextBind != null && par2 == Keyboard.KEY_ESCAPE ) {
-        	doneBinding();
+        if ( slots.currentlyBinding >= 0) {
+        	slots.doneBinding();
         } else {
             super.keyTyped(par1, par2);
         }
     }
 
-	@Override
-	public void doneBinding() {
-		if( nextBind != null ) {
-			nextBind.doneBinding();
-			nextBind = null;
-		}
-	}
 
     /**
      * Adds the buttons (and other controls) to the screen in question.
@@ -70,14 +104,8 @@ public class GuiVRControls extends BaseGuiSettings implements ControlBindCallbac
         //this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         
-        nextBind = null;
-
-        for (int var12 = 0; var12 < ControlBinding.bindings.size(); ++var12) {
-            int width = this.width / 2 - 155 + var12 % 2 * 160;
-            int height = this.height / 6 + 21 * ( var12 / 2) - 10;
-
-            this.buttonList.add( new ControlBindButton(var12, width, height, ControlBinding.bindings.get(var12)));
-        }
+        slots = new ControlSlot(this);
+        slots.registerScrollButtons(201, 202);
     }
 
     /**
@@ -88,19 +116,15 @@ public class GuiVRControls extends BaseGuiSettings implements ControlBindCallbac
             initGui();
             reinit = false;
         }
-        super.drawScreen(par1,par2,par3);
+        this.slots.drawScreen(par1,par2,par3);
+        super.drawScreen(par1,par2,par3,false);
     }
 
     /**
      * Fired when a control is clicked. This is the equivalent of ActionListener.actionPerformed(ActionEvent e).
      */
     protected void actionPerformed(GuiButton par1GuiButton) {
-    	if( par1GuiButton.id < 200 ) {
-    		nextBind = (ControlBindButton)par1GuiButton;
-    		nextBind.binding.setDoneBindingCallback(this);
-    		nextBind.startBinding();
-    		this.mc.lookaimController.mapBinding(nextBind.binding);
-    	} else if (par1GuiButton.id == 200) {
+    	if (par1GuiButton.id == 200) {
             this.guivrSettings.saveOptions();
             this.mc.displayGuiScreen(this.parentGuiScreen);
         }

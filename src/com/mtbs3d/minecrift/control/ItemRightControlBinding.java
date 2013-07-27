@@ -7,7 +7,7 @@ import net.minecraft.src.Minecraft;
 public class ItemRightControlBinding extends ControlBinding {
 
 	public ItemRightControlBinding() {
-		super("Next Item Left");
+		super("Next Item Right");
 	}
 
 	@Override

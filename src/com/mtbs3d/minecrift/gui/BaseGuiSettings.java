@@ -45,10 +45,13 @@ public class BaseGuiSettings extends GuiScreen
         this.vrRenderer = Minecraft.getMinecraft().vrRenderer;
     }
 
+    public void drawScreen(int par1, int par2, float par3) {
+    	this.drawScreen( par1, par2, par3, true );
+    }
     /**
      * Draws the screen and all the components in it.
      */
-    public void drawScreen(int par1, int par2, float par3)
+    public void drawScreen(int par1, int par2, float par3, boolean drawBackground)
     {
         if (this.reinit)
         {
@@ -56,7 +59,8 @@ public class BaseGuiSettings extends GuiScreen
             this.reinit = false;
         }
 
-        this.drawDefaultBackground();
+        if( drawBackground)
+        	this.drawDefaultBackground();
         this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 15, 16777215);
         super.drawScreen(par1, par2, par3);
 

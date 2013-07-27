@@ -24,8 +24,6 @@ import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.control.JoystickAim;
 
 import net.minecraft.src.*;
-import org.lwjgl.util.glu.GLU;
-import org.lwjgl.util.glu.PartialDisk;
 
 import paulscode.sound.SoundSystem;
 
