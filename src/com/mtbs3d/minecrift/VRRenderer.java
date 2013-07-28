@@ -645,6 +645,7 @@ public class VRRenderer extends EntityRenderer
 			//Draw in game GUI
             this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
             guiAchievement.updateAchievementWindow();
+	    	GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT );
         }
 
         if( this.mc.currentScreen != null )

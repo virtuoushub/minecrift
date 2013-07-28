@@ -39,6 +39,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.PITCH_AFFECTS_CAMERA,
         EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.JOYSTICK_DEADZONE,
         EnumOptions.JOYSTICK_AIM_TYPE,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
@@ -101,6 +102,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 	minValue = 0.5f;
                 	maxValue = 10.0f;
                 	increment= 0.1f;
+                }
+                else if( var8 == EnumOptions.JOYSTICK_DEADZONE )
+                {
+                	minValue = 0.0f;
+                	maxValue = 0.4f;
+                	increment= 0.01f;
                 }
                 else if( var8 == EnumOptions.KEYHOLE_WIDTH)
                 {
@@ -207,6 +214,10 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "The higher the value, the more you turn.",
                             "  Doesn't affect forward/backward speed",
                             "  Recommended value: 4.0" } ;
+                case JOYSTICK_DEADZONE:
+                    return new String[] {
+                            "The higher the value, small joystick motions are ignored",
+                            "  Recommended value: 0.1" } ;
                 case JOYSTICK_AIM_TYPE:
                     return new String[] {
                             "How joystick Aiming works.",

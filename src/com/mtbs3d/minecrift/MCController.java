@@ -294,13 +294,8 @@ public class MCController extends BasePlugin implements IBodyAimController {
 		try {
 			Controllers.create();
 			hasControllers = Controllers.getControllerCount()> 0;
-			for( int c = 0; c < Controllers.getControllerCount();c++) {
-				Controller cont = Controllers.getController(c);
-				for( int a = 0; a < cont.getAxisCount(); a++ ) {
-					cont.setDeadZone(a, Minecraft.getMinecraft().vrSettings.joystickDeadzone);
-				}
-			}
-			System.out.println("Initialized controllers: "+getInitializationStatus());
+
+			System.out.println("[Minecrift]Initialized controllers: "+getInitializationStatus());
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}
@@ -318,7 +313,12 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			loadBindings();
 		JoystickAim.selectedJoystickMode = aimTypes[mc.vrSettings.joystickAimType];
 		joyAim = JoystickAim.selectedJoystickMode;
-
+		for( int c = 0; c < Controllers.getControllerCount();c++) {
+			Controller cont = Controllers.getController(c);
+			for( int a = 0; a < cont.getAxisCount(); a++ ) {
+				cont.setDeadZone(a, mc.vrSettings.joystickDeadzone);
+			}
+		}
         if( this.mc.currentScreen != null && (this.screenNavigator == null || this.screenNavigator.screen != this.mc.currentScreen) )
         	this.screenNavigator = new GuiScreenNaviator(this.mc.currentScreen );
 		Controllers.poll();

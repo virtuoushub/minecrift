@@ -450,6 +450,11 @@ public class VRSettings {
                         this.joystickSensitivity = this.parseFloat(optionTokens[1]);
                     }
 
+                    if (optionTokens[0].equals("joystickDeadzone"))
+                    {
+                        this.joystickDeadzone = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("joystickAimType"))
                     {
                         this.joystickAimType = Integer.parseInt(optionTokens[1]);
@@ -641,6 +646,10 @@ public class VRSettings {
         else if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
         {
             return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.joystickSensitivity) });
+        }
+        else if (par1EnumOptions == EnumOptions.JOYSTICK_DEADZONE)
+        {
+            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.joystickDeadzone) });
         }
         else if (par1EnumOptions == EnumOptions.JOYSTICK_AIM_TYPE)
         {
@@ -882,6 +891,7 @@ public class VRSettings {
               (par1EnumOptions == EnumOptions.IPD ? getIPD() :
               (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME) ? this.headTrackPredictionTimeSecs :
               (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY) ? this.joystickSensitivity:
+              (par1EnumOptions == EnumOptions.JOYSTICK_DEADZONE) ? this.joystickDeadzone:
               (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
               (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT) ? this.keyholeHeight:
               (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
@@ -1087,6 +1097,11 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
         {
             this.joystickSensitivity = par2;
+        }
+
+        if (par1EnumOptions == EnumOptions.JOYSTICK_DEADZONE)
+        {
+            this.joystickDeadzone = par2;
         }
 
         if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
@@ -1395,6 +1410,7 @@ public class VRSettings {
             var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
             var5.println("hudOcclusion:" + this.hudOcclusion);
             var5.println("joystickSensitivity:" + this.joystickSensitivity);
+            var5.println("joystickDeadzone:" + this.joystickDeadzone);
             var5.println("joystickAimType:" + this.joystickAimType);
             var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
             var5.println("keyholeHeight:" + this.keyholeHeight);
