@@ -30,6 +30,7 @@ import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.control.GuiScreenNaviator;
 import com.mtbs3d.minecrift.control.InventoryBinding;
 import com.mtbs3d.minecrift.control.JoystickAim;
+import com.mtbs3d.minecrift.control.JoystickAimLoose;
 import com.mtbs3d.minecrift.control.JoystickRecenterAim;
 import com.mtbs3d.minecrift.control.MenuBinding;
 import com.mtbs3d.minecrift.settings.VRSettings;
@@ -263,7 +264,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	}
 	BindingMap ingame = new BindingMap();
 	BindingMap GUI    = new BindingMap();
-	JoystickAim[] aimTypes = new JoystickAim[] { new JoystickAim(), new JoystickRecenterAim() };
+	JoystickAim[] aimTypes = new JoystickAim[] { new JoystickAim(), new JoystickAimLoose(), new JoystickRecenterAim() };
 	private Minecraft mc;
 	private GuiScreenNaviator screenNavigator;
 	private boolean loaded = false;

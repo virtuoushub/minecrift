@@ -24,7 +24,7 @@ public class VRSettings {
     public static final int POS_TRACK_HYDRA = 1;
 
     private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back Of Head", "Direct"};
-    private static final String[] JOYSTICK_AIM_TYPE = new String[] {"Cursor", "Recenter" };
+    private static final String[] JOYSTICK_AIM_TYPE = new String[] {"Keyhole (tight)", "Keyhole (free)","Recentering" };
     //TODO: Shouldn't these be an enum? 
     public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT = 0;
     public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT = 1;

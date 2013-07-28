@@ -20,8 +20,8 @@ public class JoystickAim {
 	float aimYawRate = 0.0f;
 	boolean holdCenter = false;
 	Minecraft mc = Minecraft.getMinecraft();
-	private float headYaw;
-	private float headPitch;
+	protected float headYaw;
+	protected float headPitch;
 	public static class JoyAimPitchBinding extends ControlBinding {
 
 		public JoyAimPitchBinding() {
@@ -101,41 +101,30 @@ public class JoystickAim {
 				aimPitch = -90.0f;
         }
 
-        if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 && !holdCenter )
-        {
-        	headYaw = this.mc.headTracker.getHeadYawDegrees();
+    	headYaw = this.mc.headTracker.getHeadYawDegrees();
+    	if( holdCenter ) {
+        	aimYaw = headYaw;
+    	} else if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 ) {
         	float keyholeYawWidth = this.mc.vrSettings.aimKeyholeWidthDegrees/2;
         	float keyholeYawLeft = headYaw - keyholeYawWidth;
         	float keyholeYawRight = headYaw + keyholeYawWidth;
-        	
-        	//Keep mouse constrained to keyhole
-            if( aimYaw > keyholeYawRight )
-            	aimYaw = keyholeYawRight;
-            else if ( aimYaw < keyholeYawLeft )
-            	aimYaw = keyholeYawLeft;
 
-            if( aimPitch != 90 && aimPitch != -90 && aimYawAdd != 0 )
+            aimYaw = lastAimYaw + aimYawAdd;
+            if( aimYaw > keyholeYawRight )
             {
-                aimYaw = lastAimYaw + aimYawAdd;
-                if( aimYaw > keyholeYawRight )
-                {
-                	bodyYaw = lastBodyYaw + 0.75f*(aimYaw - keyholeYawRight);
-                	aimYaw = keyholeYawRight;
-                }
-                else if( aimYaw < keyholeYawLeft )
-                {
-                	bodyYaw = lastBodyYaw + 0.75f*(aimYaw - keyholeYawLeft);
-                	aimYaw = keyholeYawLeft;
-                }
-                bodyYaw %= 360;
+            	bodyYaw = lastBodyYaw + 0.75f*(aimYaw - keyholeYawRight);
+            	aimYaw = keyholeYawRight;
             }
-        }
-        else
-        {
+            else if( aimYaw < keyholeYawLeft )
+            {
+            	bodyYaw = lastBodyYaw + 0.75f*(aimYaw - keyholeYawLeft);
+            	aimYaw = keyholeYawLeft;
+            }
+        } else {
         	aimYaw = 0;
             bodyYaw = lastBodyYaw + aimYawAdd;
-            bodyYaw %= 360;
         }
+        bodyYaw %= 360;
 	}
 
 	public void setHold(boolean state) {

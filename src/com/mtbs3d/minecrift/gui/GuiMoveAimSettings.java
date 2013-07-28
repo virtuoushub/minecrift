@@ -221,7 +221,10 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 case JOYSTICK_AIM_TYPE:
                     return new String[] {
                             "How joystick Aiming works.",
-                            "  Cursor: the crosshair stays in place like a mouse cursor",
+                            "  Keyhole (tight): the crosshair stays in place ",
+                            "     like a mouse cursor",
+                            "  Keyhole (loose): You don't push the crosshair outside",
+                            "     the keyhole, but it stays after turning head back.",
                             "  Recenter: the crosshair moves back to center when ",
                             "     you let off the joystick." } ;
                 case DECOUPLE_LOOK_MOVE:
