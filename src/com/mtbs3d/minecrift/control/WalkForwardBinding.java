@@ -8,10 +8,6 @@ import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.Minecraft;
 
 public class WalkForwardBinding extends ControlBinding {
-
-	@Override
-	public boolean isAxis() { return true; }
-
 	public WalkForwardBinding() {
 		super("key.forward","walk.forward");
 	}

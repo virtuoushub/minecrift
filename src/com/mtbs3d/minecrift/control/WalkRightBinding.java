@@ -8,10 +8,6 @@ import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.Minecraft;
 
 public class WalkRightBinding extends ControlBinding {
-
-	@Override
-	public boolean isAxis() { return true; }
-
 	public WalkRightBinding() {
 		super("key.right","key.right");
 	}
@@ -20,7 +16,7 @@ public class WalkRightBinding extends ControlBinding {
 	public void setValue(float value) {
         EntityClientPlayerMP thePlayer = Minecraft.getMinecraft().thePlayer;
         if( thePlayer != null )
-        	thePlayer.movementInput.baseMoveStrafe = -Math.abs(value);
+        	thePlayer.movementInput.baseMoveStrafe = -value;
 	}
 
 	@Override

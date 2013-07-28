@@ -53,7 +53,13 @@ public abstract class ControlBinding {
 		
 	}
 	
-	public boolean isAxis() { return false; }
+	/**
+	 * @return True if this binding is for both positive and negative axis
+	 */
+	public boolean isBiAxis() { return false; }
+	/**
+	 * @return True if this binding is used only in the GUI (not ingame)
+	 */
 	public boolean isGUI() { return false; }
 	
 	ControlBindCallback callback = null;

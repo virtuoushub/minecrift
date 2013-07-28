@@ -8,10 +8,6 @@ import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.Minecraft;
 
 public class WalkBackwardBinding extends ControlBinding {
-
-	@Override
-	public boolean isAxis() { return true; }
-
 	public WalkBackwardBinding() {
 		super("key.back","key.back");
 	}
@@ -20,7 +16,7 @@ public class WalkBackwardBinding extends ControlBinding {
 	public void setValue(float value) {
         EntityClientPlayerMP thePlayer = Minecraft.getMinecraft().thePlayer;
         if( thePlayer != null )
-        	thePlayer.movementInput.baseMoveForward = -Math.abs(value);
+        	thePlayer.movementInput.baseMoveForward = -value;
 	}
 
 	@Override

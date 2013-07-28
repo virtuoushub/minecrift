@@ -10,8 +10,10 @@ public class MenuBinding extends ControlBinding {
 
 	private boolean pressed = false;
 
+	Minecraft mc;
 	public MenuBinding() {
 		super("Menu", "key.menu");
+		mc = Minecraft.getMinecraft();
 	}
 
 	@Override
@@ -29,10 +31,10 @@ public class MenuBinding extends ControlBinding {
 	public void setState(boolean state) {
 		pressed = state;
 		if( state ) {
-			if( Minecraft.getMinecraft().currentScreen == null ) {
-				Minecraft.getMinecraft().displayInGameMenu();
-			} else {
-				Minecraft.getMinecraft().displayGuiScreen(null);
+			if( mc.currentScreen == null ) {
+				mc.displayInGameMenu();
+			} else if( mc.thePlayer != null ){
+				mc.thePlayer.closeScreen();
 			}
 		}
 	}

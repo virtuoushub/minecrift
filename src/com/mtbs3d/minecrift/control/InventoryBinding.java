@@ -15,7 +15,7 @@ public class InventoryBinding extends KeyControlBinding {
 	@Override
 	public void setState(boolean state) {
 		if( state && mc.currentScreen != null ) {
-			mc.displayGuiScreen(null);
+            this.mc.thePlayer.closeScreen();
 		} else {
 			super.setState(state);
 		}

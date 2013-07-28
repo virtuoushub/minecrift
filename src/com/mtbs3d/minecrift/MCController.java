@@ -55,8 +55,9 @@ public class MCController extends BasePlugin implements IBodyAimController {
 		ControlBinding povYBindNeg;
 		
 		void bindAxis( ControlBinding nextBind, int index, boolean posVal, String axisName ) {
-			if( nextBind.isAxis() ) {
-				Pair<Integer,Boolean> key= Pair.of(index,posVal);
+			axisName = axisName.replace("axis", "").replace("Axis", "");
+			Pair<Integer,Boolean> key= Pair.of(index,posVal);
+			if( !nextBind.isBiAxis() ) {
 				if( axisBinds.get( key ) == null ) {
 					nextBind.bindTo(axisName+(posVal?"+":"-")+" axis");
 					axisBinds.put(key , nextBind);
@@ -67,13 +68,13 @@ public class MCController extends BasePlugin implements IBodyAimController {
 					nextBind.setValid(false);
 				}
 			} else {
-				posVal = true;
-				if( axisBinds.get( Pair.of(index,true) ) == null &&
-					axisBinds.get( Pair.of(index,false)) == null) {
+				Pair<Integer,Boolean> key2= Pair.of(index,!posVal);
+				if( axisBinds.get( key  ) == null &&
+					axisBinds.get( key2 ) == null ) {
 					nextBind.bindTo(axisName+" axis");
-					axisBinds.put(Pair.of(index,true) , nextBind);
-					axisBinds.put(Pair.of(index,false) , nextBind);
-					revAxisBinds.put(nextBind, Pair.of(index,true));
+					axisBinds.put(key , nextBind);
+					axisBinds.put(key2, nextBind);
+					revAxisBinds.put(nextBind, key  );
 					nextBind.setValid(true);
 				} else {
 					nextBind.bindTo("Conflict!");
@@ -156,12 +157,12 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			int index = Controllers.getEventControlIndex();
 			if( revAxisBinds.containsKey(nextBind)) {
 				alreadyBound = cont.getAxisName(revAxisBinds.get(nextBind).getLeft())+" axis";
-				if( nextBind.isAxis() )
+				if( nextBind.isBiAxis() ) {
+					int axis_index =  revAxisBinds.get(nextBind).getKey();
+					axisBinds.remove( Pair.of(axis_index, true ) );
+					axisBinds.remove( Pair.of(axis_index, false) );
+				} else {
 					axisBinds.remove( revAxisBinds.get(nextBind));
-				else {
-					Integer axisIndex = revAxisBinds.get(nextBind).getKey();
-					axisBinds.remove( Pair.of( axisIndex, true));
-					axisBinds.remove( Pair.of( axisIndex, false));
 				}
 				revAxisBinds.remove( nextBind );
 			}
@@ -223,10 +224,23 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			int index = Controllers.getEventControlIndex();
 			if( Controllers.isEventAxis() ) {
 				float joyVal = cont.getAxisValue(index);
-				Pair<Integer,Boolean> key = Pair.of(index,joyVal>0);
-				ControlBinding bind = axisBinds.get( key );
-				if( bind != null) {
-					bind.setValue( cont.getAxisValue( index ));
+				ControlBinding bindPos = axisBinds.get( Pair.of(index,true ) );
+				ControlBinding bindNeg = axisBinds.get( Pair.of(index,false) );
+				if( bindPos == bindNeg ) {
+					if( bindPos != null) 
+						bindPos.setValue( joyVal );
+				} else { 
+					if( joyVal > 0 ) {
+						if( bindNeg != null )
+							bindNeg.setValue( 0 );
+						if( bindPos != null )
+							bindPos.setValue( joyVal );
+					} else { 
+						if( bindPos != null )
+							bindPos.setValue( 0 );
+						if( bindNeg != null )
+							bindNeg.setValue( -joyVal );
+					}
 				}
 			} else if( Controllers.isEventButton() ) {
 				ControlBinding bind = buttonBinds.get(index);
@@ -443,7 +457,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 
 	@Override
 	public float getBodyYawDegrees() {
-		return joyAim.getBodyYaw();
+		return JoystickAim.getBodyYaw();
 	}
 
 	@Override
@@ -454,18 +468,18 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	@Override
 	public float getBodyPitchDegrees() {
 		if( VRSettings.inst.allowMousePitchInput)
-			return joyAim.getAimPitch();
+			return JoystickAim.getAimPitch();
 		return 0.0f;
 	}
 
 	@Override
 	public float getAimYaw() {
-		return aimOffset + joyAim.getAimYaw();
+		return aimOffset + JoystickAim.getAimYaw();
 	}
 
 	@Override
 	public float getAimPitch() {
-		return joyAim.getAimPitch();
+		return JoystickAim.getAimPitch();
 	}
 	@Override
 	public void mapBinding(ControlBinding binding) {

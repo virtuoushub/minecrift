@@ -19,7 +19,7 @@ public class KeyControlBinding extends ControlBinding {
 
 	@Override
 	public void setValue(float value) {
-		if( value > 0.1 )
+		if( Math.abs(value) > 0.1 )
 		{
 			if(!key.pressed )
 				setState( true );

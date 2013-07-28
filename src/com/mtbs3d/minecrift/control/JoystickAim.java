@@ -16,13 +16,17 @@ public class JoystickAim {
 	static float lastAimYaw   = 0.0f;
 	static float lastBodyYaw  = 0.0f;
 
-	float aimPitchRate = 0.0f;
-	float aimYawRate = 0.0f;
-	boolean holdCenter = false;
+	static float aimPitchRate = 0.0f;
+	static float aimYawRate = 0.0f;
+	static boolean holdCenter = false;
+
 	Minecraft mc = Minecraft.getMinecraft();
-	protected float headYaw;
-	protected float headPitch;
+	static protected float headYaw;
+	static protected float headPitch;
 	public static class JoyAimPitchBinding extends ControlBinding {
+		
+		@Override
+		public boolean isBiAxis() { return true; }
 
 		public JoyAimPitchBinding() {
 			super("Aim Up/Down","axis.updown");
@@ -30,7 +34,7 @@ public class JoystickAim {
 
 		@Override
 		public void setValue(float value) {
-			selectedJoystickMode.updateJoyY(value);
+			aimPitchRate = value;
 		}
 
 		@Override
@@ -40,13 +44,16 @@ public class JoystickAim {
 
 	public static class JoyAimYawBinding extends ControlBinding {
 
+		@Override
+		public boolean isBiAxis() { return true; }
+
 		public JoyAimYawBinding() {
 			super("Aim Left/Right","axis.leftright");
 		}
 
 		@Override
 		public void setValue(float value) {
-			selectedJoystickMode.updateJoyX(value);
+			aimYawRate = value;
 		}
 
 		@Override
@@ -56,7 +63,6 @@ public class JoystickAim {
 	}
 	
 	public static class JoyAimCenterBinding extends ControlBinding {
-		
 		public JoyAimCenterBinding() {
 			super("Center Aim (hold)","key.aimcenter");
 		}
@@ -68,9 +74,8 @@ public class JoystickAim {
 
 		@Override
 		public void setState(boolean state) {
-			selectedJoystickMode.setHold( state );
+			holdCenter = state;
 		}
-		
 	}
 	
 	public static JoystickAim selectedJoystickMode;
@@ -127,27 +132,15 @@ public class JoystickAim {
         bodyYaw %= 360;
 	}
 
-	public void setHold(boolean state) {
-		holdCenter = state;
-	}
-
-	void updateJoyY( float joyStickValue) {
-		aimPitchRate = joyStickValue;
-	}
-
-	void updateJoyX( float joyStickValue) {
-		aimYawRate = joyStickValue;
-	}
-
-	public float getAimPitch() {
+	static public float getAimPitch() {
 		return aimPitch;
 	}
 	
-	public float getAimYaw() {
+	static public float getAimYaw() {
 		return bodyYaw + aimYaw;
 	}
 	
-	public float getBodyYaw() {
+	static public float getBodyYaw() {
 		return bodyYaw;
 	}
 

@@ -41,6 +41,8 @@ public class GuiScreenNaviator {
 	private boolean altselectDepressed = false;
 	private boolean shiftDepressed;
 	
+	static final int AXIS_PREFERENCE = 5;
+	
 	private static GuiScreenNaviator nav;
 	static abstract class GuiControlBinding extends ControlBinding {
 
@@ -67,8 +69,6 @@ public class GuiScreenNaviator {
 	}
 	static class GuiUpBinding extends GuiControlBinding {
 
-		@Override
-		public boolean isAxis(){ return true; };
 		public GuiUpBinding() {
 			super("Up");
 		}
@@ -80,8 +80,6 @@ public class GuiScreenNaviator {
 	}
 	static class GuiDownBinding extends GuiControlBinding {
 
-		@Override
-		public boolean isAxis(){ return true; };
 		public GuiDownBinding() {
 			super("Down");
 		}
@@ -93,8 +91,6 @@ public class GuiScreenNaviator {
 	}
 	static class GuiRightBinding extends GuiControlBinding {
 
-		@Override
-		public boolean isAxis(){ return true; };
 		public GuiRightBinding() {
 			super("Right");
 		}
@@ -106,8 +102,6 @@ public class GuiScreenNaviator {
 	}
 	static class GuiLeftBinding extends GuiControlBinding {
 
-		@Override
-		public boolean isAxis(){ return true; };
 		public GuiLeftBinding() {
 			super("Left");
 		}
@@ -179,11 +173,10 @@ public class GuiScreenNaviator {
 		        try {
 		        	guiLeft = GuiContainer.class.getDeclaredField("p"); //obfuscated name
 		        	guiTop  = GuiContainer.class.getDeclaredField("q"); //obfuscated name
-		        	System.out.println("VRRender: Reflected obfuscated c/d");
-		        	System.out.println("[Minecrift]GuiScreenNavigator: Reflected guiLeft/guiTop");
+		        	System.out.println("[Minecrift]GuiScreenNavigator: Reflected obfuscated guiLeft/guiTop (p/q)");
 		        }
 		        catch (NoSuchFieldException e1) { 
-		        	System.out.println("[Minecrift]GuiScreenNavigator: Couldn't get guiLeft/guiTop via reflection!");
+		        	System.out.println("[Minecrift]GuiScreenNavigator: Couldn't get guiLeft/guiTop via reflection! Joystick navigation of inventories may be inaccurate.");
 		        };
 	        }
 	       	if ( guiLeft != null)
@@ -243,6 +236,10 @@ public class GuiScreenNaviator {
 		}
 		selectDepressed = state;
 		if( curPoint != null) {
+			if( keyDownField != null)
+				try {
+					((ByteBuffer)keyDownField.get(null)).put(Keyboard.KEY_RSHIFT,(byte) (shiftDepressed?1:0));
+				} catch (Exception e) { }
 			if(state)
 				mc.currentScreen.mouseGuiDown(curPoint.getLeft(), curPoint.getRight(), 0); //Left click
 			else
@@ -253,6 +250,10 @@ public class GuiScreenNaviator {
 	public void altselect(boolean state) {
 		altselectDepressed = state;
 		if( curPoint != null) {
+			if( keyDownField != null)
+				try {
+					((ByteBuffer)keyDownField.get(null)).put(Keyboard.KEY_RSHIFT,(byte) (shiftDepressed?1:0));
+				} catch (Exception e) { }
 			if(state)
 				mc.currentScreen.mouseGuiDown(curPoint.getLeft(), curPoint.getRight(), 1); //Right click
 			else
@@ -277,11 +278,12 @@ public class GuiScreenNaviator {
 			Pair<Integer,Integer> nextBest = null;
 			for( Pair<Integer,Integer> point : points ) {
 				if( point.getLeft() < curPoint.getLeft() ) {
-					if(nextBest == null || dist( nextBest, curPoint, 1, 10 ) > dist( point, curPoint , 1, 10 ) )
+					if(nextBest == null || dist( nextBest, curPoint, 1, AXIS_PREFERENCE ) > dist( point, curPoint , 1, AXIS_PREFERENCE ) )
 						nextBest = point;
 				}
 			}
 			if( nextBest != null) {
+				mc.currentScreen.mouseGuiDrag(curPoint.getLeft(), curPoint.getRight());
 				curPoint = nextBest;
 				mouseto();
 			}
@@ -295,11 +297,12 @@ public class GuiScreenNaviator {
 			Pair<Integer,Integer> nextBest = null;
 			for( Pair<Integer,Integer> point : points ) {
 				if( point.getLeft() > curPoint.getLeft() ) {
-					if(nextBest == null || dist( nextBest, curPoint, 1, 10 ) > dist( point, curPoint, 1, 10 ) ) 
+					if(nextBest == null || dist( nextBest, curPoint, 1, AXIS_PREFERENCE ) > dist( point, curPoint, 1, AXIS_PREFERENCE ) ) 
 						nextBest = point;
 				}
 			}
 			if( nextBest != null) {
+				mc.currentScreen.mouseGuiDrag(curPoint.getLeft(), curPoint.getRight());
 				curPoint = nextBest;
 				mouseto();
 			}
@@ -320,11 +323,12 @@ public class GuiScreenNaviator {
 			Pair<Integer,Integer> nextBest = null;
 			for( Pair<Integer,Integer> point : points ) {
 				if( point.getRight() > curPoint.getRight() ) {
-					if(nextBest == null || dist( nextBest, curPoint, 10, 1 ) > dist( point, curPoint, 10, 1 ) )
+					if(nextBest == null || dist( nextBest, curPoint, AXIS_PREFERENCE, 1 ) > dist( point, curPoint, AXIS_PREFERENCE, 1 ) )
 						nextBest = point;
 				}
 			}
 			if( nextBest != null) {
+				mc.currentScreen.mouseGuiDrag(curPoint.getLeft(), curPoint.getRight());
 				curPoint = nextBest;
 				mouseto();
 			}
@@ -337,11 +341,13 @@ public class GuiScreenNaviator {
 			Pair<Integer,Integer> nextBest = null;
 			for( Pair<Integer,Integer> point : points ) {
 				if( point.getRight() < curPoint.getRight() ) {
-					if(nextBest == null || dist( nextBest, curPoint, 10, 1 ) > dist( point, curPoint, 10, 1 ) )
+					if(nextBest == null || dist( nextBest, curPoint, AXIS_PREFERENCE, 1 ) > dist( point, curPoint, AXIS_PREFERENCE, 1 ) )
 						nextBest = point;
 				}
 			}
 			if( nextBest != null) {
+
+				mc.currentScreen.mouseGuiDrag(curPoint.getLeft(), curPoint.getRight());
 				curPoint = nextBest;
 				mouseto();
 				onSlot = false;
