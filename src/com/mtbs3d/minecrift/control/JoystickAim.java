@@ -4,16 +4,21 @@
  */
 package com.mtbs3d.minecrift.control;
 
+import net.minecraft.src.Minecraft;
+
 import com.mtbs3d.minecrift.settings.VRSettings;
 
 public class JoystickAim {
 	public float aimPitch = 0.0f;
 	public float aimYaw   = 0.0f;
+	public float bodyYaw  = 0.0f;
 	float lastAimPitch = 0.0f;
 	float lastAimYaw   = 0.0f;
+	float lastBodyYaw  = 0.0f;
+
 	float aimPitchRate = 0.0f;
 	float aimYawRate = 0.0f;
-	float lastTicks = 0.0f;
+	Minecraft mc = Minecraft.getMinecraft();
 	public static class JoyAimPitchBinding extends ControlBinding {
 
 		public JoyAimPitchBinding() {
@@ -50,21 +55,65 @@ public class JoystickAim {
 	public static JoystickAim selectedJoystickMode;
 
 	public void update( float partialTicks ) {
-		if( partialTicks < lastTicks) {
-			//Next tick
-			lastAimPitch = aimPitch + aimPitchRate * VRSettings.inst.joystickSensitivity*(1-lastTicks); 
-			lastAimYaw = aimYaw + aimYawRate * VRSettings.inst.joystickSensitivity*(1-lastTicks); 
-		}
-		lastTicks = partialTicks;
-		aimPitch = lastAimPitch + aimPitchRate * VRSettings.inst.joystickSensitivity * partialTicks;
-		if( aimPitch > 90.0f )
-			aimPitch = 90.0f;
-		else if( aimPitch < -90.0f )
-			aimPitch = -90.0f;
 		
-		aimYaw += aimYawRate * VRSettings.inst.joystickSensitivity * partialTicks;
-		aimYaw %= 360.0f;
+        float aimYawAdd = 2*aimYawRate * VRSettings.inst.joystickSensitivity * partialTicks;
+        float aimPitchAdd = 2*aimPitchRate * VRSettings.inst.joystickSensitivity * partialTicks;
+
+		aimPitch = lastAimPitch + aimPitchAdd;
+		
+        if( this.mc.vrSettings.keyholeHeight > 0 )
+        {
+        	float headPitch = this.mc.headTracker.getHeadPitchDegrees();
+        	float keyholeBot = Math.max(-90,headPitch - this.mc.vrSettings.keyholeHeight /2);
+        	float keyholeTop = Math.min(90,headPitch + this.mc.vrSettings.keyholeHeight /2);
+        	if( aimPitch > keyholeTop )
+        		aimPitch = keyholeTop;
+        	if( aimPitch < keyholeBot )
+        		aimPitch = keyholeBot;
+        } else {
+			if( aimPitch > 90.0f )
+				aimPitch = 90.0f;
+			else if( aimPitch < -90.0f )
+				aimPitch = -90.0f;
+        }
+
+        if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 )
+        {
+        	float headYaw = this.mc.headTracker.getHeadYawDegrees();
+        	float keyholeYawWidth = this.mc.vrSettings.aimKeyholeWidthDegrees/2;
+        	float keyholeYawLeft = headYaw - keyholeYawWidth;
+        	float keyholeYawRight = headYaw + keyholeYawWidth;
+        	
+        	//Keep mouse constrained to keyhole
+            if( aimYaw > keyholeYawRight )
+            	aimYaw = keyholeYawRight;
+            else if ( aimYaw < keyholeYawLeft )
+            	aimYaw = keyholeYawLeft;
+
+            if( aimPitch != 90 && aimPitch != -90 && aimYawAdd != 0 )
+            {
+                aimYaw = lastAimYaw + aimYawAdd;
+                if( aimYaw > keyholeYawRight )
+                {
+                	bodyYaw = lastBodyYaw + 0.75f*(aimYaw - keyholeYawRight);
+                	aimYaw = keyholeYawRight;
+                }
+                else if( aimYaw < keyholeYawLeft )
+                {
+                	bodyYaw = lastBodyYaw + 0.75f*(aimYaw - keyholeYawLeft);
+                	aimYaw = keyholeYawLeft;
+                }
+                bodyYaw %= 360;
+            }
+        }
+        else
+        {
+        	aimYaw = 0;
+            bodyYaw = lastBodyYaw + aimYawAdd;
+            bodyYaw %= 360;
+        }
 	}
+
 	void updateJoyY( float joyStickValue) {
 		aimPitchRate = joyStickValue;
 	}
@@ -78,6 +127,17 @@ public class JoystickAim {
 	}
 	
 	public float getAimYaw() {
-		return aimYaw;
+		return bodyYaw + aimYaw;
+	}
+	
+	public float getBodyYaw() {
+		return bodyYaw;
+	}
+
+	public void updateTick() {
+		update(1.0f);
+		lastAimPitch = aimPitch; 
+		lastAimYaw = aimYaw; 
+		lastBodyYaw = bodyYaw;
 	}
 }

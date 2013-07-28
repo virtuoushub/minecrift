@@ -34,9 +34,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
     static EnumOptions[] controllerMoveAimOptions = new EnumOptions[] {
-        EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.KEYHOLE_WIDTH,
+        EnumOptions.KEYHOLE_HEIGHT,
         EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.PITCH_AFFECTS_CAMERA,
+        EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.JOYSTICK_AIM_TYPE,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
 	private boolean reinit;
@@ -204,6 +207,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "The higher the value, the more you turn.",
                             "  Doesn't affect forward/backward speed",
                             "  Recommended value: 4.0" } ;
+                case JOYSTICK_AIM_TYPE:
+                    return new String[] {
+                            "How joystick Aiming works.",
+                            "  Cursor: the crosshair stays in place like a mouse cursor",
+                            "  Recenter: the crosshair moves back to center when ",
+                            "     you let off the joystick." } ;
                 case DECOUPLE_LOOK_MOVE:
                     return new String[] {
                             "Decouple Movement from Looking - \"Tank mode\"",

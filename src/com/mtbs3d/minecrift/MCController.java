@@ -30,6 +30,7 @@ import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.control.GuiScreenNaviator;
 import com.mtbs3d.minecrift.control.InventoryBinding;
 import com.mtbs3d.minecrift.control.JoystickAim;
+import com.mtbs3d.minecrift.control.JoystickRecenterAim;
 import com.mtbs3d.minecrift.control.MenuBinding;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
@@ -262,6 +263,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	}
 	BindingMap ingame = new BindingMap();
 	BindingMap GUI    = new BindingMap();
+	JoystickAim[] aimTypes = new JoystickAim[] { new JoystickAim(), new JoystickRecenterAim() };
 	private Minecraft mc;
 	private GuiScreenNaviator screenNavigator;
 	private boolean loaded = false;
@@ -271,8 +273,6 @@ public class MCController extends BasePlugin implements IBodyAimController {
 		System.out.println("Created Controller plugin");
         pluginID = "controller";
         pluginName = "Controller";
-        joyAim = new JoystickAim();
-        JoystickAim.selectedJoystickMode = joyAim;
 	}
 	@Override
 	public String getInitializationStatus() {
@@ -316,6 +316,8 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	public void poll() {
 		if(!loaded)
 			loadBindings();
+		JoystickAim.selectedJoystickMode = aimTypes[mc.vrSettings.joystickAimType];
+		joyAim = JoystickAim.selectedJoystickMode;
 
         if( this.mc.currentScreen != null && (this.screenNavigator == null || this.screenNavigator.screen != this.mc.currentScreen) )
         	this.screenNavigator = new GuiScreenNaviator(this.mc.currentScreen );
@@ -440,7 +442,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 
 	@Override
 	public float getBodyYawDegrees() {
-		return joyAim.getAimYaw();
+		return joyAim.getBodyYaw();
 	}
 
 	@Override

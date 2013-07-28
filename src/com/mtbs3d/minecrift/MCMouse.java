@@ -111,8 +111,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 )
             {
 	        	float headYaw = this.mc.headTracker.getHeadYawDegrees();
-	        	float cosHeadPitch = 1;//MathHelper.cos(this.mc.headTracker.getHeadPitchDegrees()*PIOVER180);
-	        	float keyholeYawWidth = this.mc.vrSettings.aimKeyholeWidthDegrees/2/cosHeadPitch;
+	        	float keyholeYawWidth = this.mc.vrSettings.aimKeyholeWidthDegrees/2;
 	        	float keyholeYawLeft = headYaw - keyholeYawWidth;
 	        	float keyholeYawRight = headYaw + keyholeYawWidth;
 	        	
@@ -124,7 +123,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 	
 	            if( aimPitch != 90 && aimPitch != -90 && adjustedMouseDeltaX != 0 )
 	            {
-	                aimYaw += adjustedMouseDeltaX/cosHeadPitch;
+	                aimYaw += adjustedMouseDeltaX;
 	                if( aimYaw > keyholeYawRight )
 	                {
 	                	bodyYaw += aimYaw - keyholeYawRight;

@@ -24,6 +24,7 @@ public class VRSettings {
     public static final int POS_TRACK_HYDRA = 1;
 
     private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back Of Head", "Direct"};
+    private static final String[] JOYSTICK_AIM_TYPE = new String[] {"Cursor", "Recenter" };
     //TODO: Shouldn't these be an enum? 
     public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT = 0;
     public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT = 1;
@@ -91,6 +92,7 @@ public class VRSettings {
     public boolean posTrackHydraBIsPointingLeft = true;
     public float posTrackHydraYAxisDistanceSkewAngleDeg = 0.0f;
 	public float joystickSensitivity = 3f;
+	public int joystickAimType = 0;
 	public float joystickDeadzone = 0.1f;
 	public float aimKeyholeWidthDegrees = 0f;
 	public float keyholeHeight = 0f;
@@ -448,6 +450,11 @@ public class VRSettings {
                         this.joystickSensitivity = this.parseFloat(optionTokens[1]);
                     }
 
+                    if (optionTokens[0].equals("joystickAimType"))
+                    {
+                        this.joystickAimType = Integer.parseInt(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("keyholeWidth"))
                     {
                         this.aimKeyholeWidthDegrees = this.parseFloat(optionTokens[1]);
@@ -634,6 +641,10 @@ public class VRSettings {
         else if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
         {
             return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.joystickSensitivity) });
+        }
+        else if (par1EnumOptions == EnumOptions.JOYSTICK_AIM_TYPE)
+        {
+            return var4 + JOYSTICK_AIM_TYPE[joystickAimType];
         }
         else if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
         {
@@ -992,6 +1003,13 @@ public class VRSettings {
         if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
         {
             this.posTrackHydraBIsPointingLeft = !this.posTrackHydraBIsPointingLeft;
+        }
+        
+        if( par1EnumOptions == EnumOptions.JOYSTICK_AIM_TYPE )
+        {
+        	this.joystickAimType ++;
+        	if( joystickAimType >= JOYSTICK_AIM_TYPE.length )
+        		joystickAimType = 0;
         }
 
         if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
@@ -1377,6 +1395,7 @@ public class VRSettings {
             var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
             var5.println("hudOcclusion:" + this.hudOcclusion);
             var5.println("joystickSensitivity:" + this.joystickSensitivity);
+            var5.println("joystickAimType:" + this.joystickAimType);
             var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
             var5.println("keyholeHeight:" + this.keyholeHeight);
             var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
