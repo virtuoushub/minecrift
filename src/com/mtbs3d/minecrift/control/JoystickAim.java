@@ -18,7 +18,10 @@ public class JoystickAim {
 
 	float aimPitchRate = 0.0f;
 	float aimYawRate = 0.0f;
+	boolean holdCenter = false;
 	Minecraft mc = Minecraft.getMinecraft();
+	private float headYaw;
+	private float headPitch;
 	public static class JoyAimPitchBinding extends ControlBinding {
 
 		public JoyAimPitchBinding() {
@@ -52,6 +55,24 @@ public class JoystickAim {
 		
 	}
 	
+	public static class JoyAimCenterBinding extends ControlBinding {
+		
+		public JoyAimCenterBinding() {
+			super("Center Aim (hold)","key.aimcenter");
+		}
+
+		@Override
+		public void setValue(float value) {
+			setState( Math.abs(value)> 0.1 );
+		}
+
+		@Override
+		public void setState(boolean state) {
+			selectedJoystickMode.setHold( state );
+		}
+		
+	}
+	
 	public static JoystickAim selectedJoystickMode;
 
 	public void update( float partialTicks ) {
@@ -59,11 +80,13 @@ public class JoystickAim {
         float aimYawAdd = 2*aimYawRate * VRSettings.inst.joystickSensitivity * partialTicks;
         float aimPitchAdd = 2*aimPitchRate * VRSettings.inst.joystickSensitivity * partialTicks;
 
-		aimPitch = lastAimPitch + aimPitchAdd;
 		
-        if( this.mc.vrSettings.keyholeHeight > 0 )
+    	headPitch = this.mc.headTracker.getHeadPitchDegrees();
+    	if( holdCenter ) {
+        	aimPitch = headPitch;
+    	} else if( this.mc.vrSettings.keyholeHeight > 0 )
         {
-        	float headPitch = this.mc.headTracker.getHeadPitchDegrees();
+        	aimPitch = lastAimPitch + aimPitchAdd;
         	float keyholeBot = Math.max(-90,headPitch - this.mc.vrSettings.keyholeHeight /2);
         	float keyholeTop = Math.min(90,headPitch + this.mc.vrSettings.keyholeHeight /2);
         	if( aimPitch > keyholeTop )
@@ -71,15 +94,16 @@ public class JoystickAim {
         	if( aimPitch < keyholeBot )
         		aimPitch = keyholeBot;
         } else {
+        	aimPitch = lastAimPitch + aimPitchAdd;
 			if( aimPitch > 90.0f )
 				aimPitch = 90.0f;
 			else if( aimPitch < -90.0f )
 				aimPitch = -90.0f;
         }
 
-        if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 )
+        if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 && !holdCenter )
         {
-        	float headYaw = this.mc.headTracker.getHeadYawDegrees();
+        	headYaw = this.mc.headTracker.getHeadYawDegrees();
         	float keyholeYawWidth = this.mc.vrSettings.aimKeyholeWidthDegrees/2;
         	float keyholeYawLeft = headYaw - keyholeYawWidth;
         	float keyholeYawRight = headYaw + keyholeYawWidth;
@@ -112,6 +136,10 @@ public class JoystickAim {
             bodyYaw = lastBodyYaw + aimYawAdd;
             bodyYaw %= 360;
         }
+	}
+
+	public void setHold(boolean state) {
+		holdCenter = state;
 	}
 
 	void updateJoyY( float joyStickValue) {
