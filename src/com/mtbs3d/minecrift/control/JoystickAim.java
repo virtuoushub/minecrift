@@ -9,12 +9,12 @@ import net.minecraft.src.Minecraft;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
 public class JoystickAim {
-	public float aimPitch = 0.0f;
-	public float aimYaw   = 0.0f;
-	public float bodyYaw  = 0.0f;
-	float lastAimPitch = 0.0f;
-	float lastAimYaw   = 0.0f;
-	float lastBodyYaw  = 0.0f;
+	static public float aimPitch = 0.0f;
+	static public float aimYaw   = 0.0f;
+	static public float bodyYaw  = 0.0f;
+	static float lastAimPitch = 0.0f;
+	static float lastAimYaw   = 0.0f;
+	static float lastBodyYaw  = 0.0f;
 
 	float aimPitchRate = 0.0f;
 	float aimYawRate = 0.0f;
