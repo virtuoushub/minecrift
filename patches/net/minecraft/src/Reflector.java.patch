@@ -1,6 +1,15 @@
 --- a/net/minecraft/src/Reflector.java
 +++ b/net/minecraft/src/Reflector.java
-@@ -32,6 +32,8 @@
+@@ -15,6 +15,8 @@
+     public static ReflectorMethod FMLRenderAccessLibrary_renderWorldBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderWorldBlock");
+     public static ReflectorMethod FMLRenderAccessLibrary_renderInventoryBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderInventoryBlock");
+     public static ReflectorMethod FMLRenderAccessLibrary_renderItemAsFull3DBlock = new ReflectorMethod(FMLRenderAccessLibrary, "renderItemAsFull3DBlock");
++    public static ReflectorClass FMLRelauncher = new ReflectorClass("cpw.mods.fml.relauncher.FMLRelauncher");
++    public static ReflectorMethod FMLRelauncher_handleClientRelaunch = new ReflectorMethod(FMLRelauncher, "handleClientRelaunch");
+     public static ReflectorClass LightCache = new ReflectorClass("LightCache");
+     public static ReflectorField LightCache_cache = new ReflectorField(LightCache, "cache");
+     public static ReflectorMethod LightCache_clear = new ReflectorMethod(LightCache, "clear");
+@@ -32,6 +34,8 @@
      public static ReflectorMethod ForgeHooks_onLivingFall = new ReflectorMethod(ForgeHooks, "onLivingFall");
      public static ReflectorMethod ForgeHooks_onLivingJump = new ReflectorMethod(ForgeHooks, "onLivingJump");
      public static ReflectorMethod ForgeHooks_isLivingOnLadder = new ReflectorMethod(ForgeHooks, "isLivingOnLadder", new Class[] {Block.class, World.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, EntityLiving.class});
@@ -9,11 +18,7 @@
      public static ReflectorClass ForgeHooksClient = new ReflectorClass("net.minecraftforge.client.ForgeHooksClient");
      public static ReflectorMethod ForgeHooksClient_onDrawBlockHighlight = new ReflectorMethod(ForgeHooksClient, "onDrawBlockHighlight");
      public static ReflectorMethod ForgeHooksClient_orientBedCamera = new ReflectorMethod(ForgeHooksClient, "orientBedCamera");
-@@ -42,12 +44,26 @@
-     public static ReflectorMethod ForgeHooksClient_onTextureStitchedPre = new ReflectorMethod(ForgeHooksClient, "onTextureStitchedPre");
-     public static ReflectorMethod ForgeHooksClient_onTextureStitchedPost = new ReflectorMethod(ForgeHooksClient, "onTextureStitchedPost");
-     public static ReflectorClass FMLCommonHandler = new ReflectorClass("cpw.mods.fml.common.FMLCommonHandler");
-+    public static ReflectorClass FMLSide = new ReflectorClass("cpw.mods.fml.relauncher.Side");
+@@ -45,9 +49,22 @@
      public static ReflectorMethod FMLCommonHandler_instance = new ReflectorMethod(FMLCommonHandler, "instance");
      public static ReflectorMethod FMLCommonHandler_handleServerStarting = new ReflectorMethod(FMLCommonHandler, "handleServerStarting");
      public static ReflectorMethod FMLCommonHandler_handleServerAboutToStart = new ReflectorMethod(FMLCommonHandler, "handleServerAboutToStart");
@@ -36,7 +41,7 @@
      public static ReflectorClass ForgeWorldProvider = new ReflectorClass(WorldProvider.class);
      public static ReflectorMethod ForgeWorldProvider_getSkyRenderer = new ReflectorMethod(ForgeWorldProvider, "getSkyRenderer");
      public static ReflectorMethod ForgeWorldProvider_getCloudRenderer = new ReflectorMethod(ForgeWorldProvider, "getCloudRenderer");
-@@ -56,7 +72,9 @@
+@@ -56,7 +73,9 @@
      public static ReflectorClass DimensionManager = new ReflectorClass("net.minecraftforge.common.DimensionManager");
      public static ReflectorMethod DimensionManager_getStaticDimensionIDs = new ReflectorMethod(DimensionManager, "getStaticDimensionIDs");
      public static ReflectorClass WorldEvent_Load = new ReflectorClass("net.minecraftforge.event.world.WorldEvent$Load");
@@ -46,7 +51,7 @@
      public static ReflectorClass EventBus = new ReflectorClass("net.minecraftforge.event.EventBus");
      public static ReflectorMethod EventBus_post = new ReflectorMethod(EventBus, "post");
      public static ReflectorClass ChunkWatchEvent_UnWatch = new ReflectorClass("net.minecraftforge.event.world.ChunkWatchEvent$UnWatch");
-@@ -70,8 +88,14 @@
+@@ -70,8 +89,14 @@
      public static ReflectorField ForgeEntity_capturedDrops = new ReflectorField(ForgeEntity, "capturedDrops");
      public static ReflectorClass ForgeItem = new ReflectorClass(Item.class);
      public static ReflectorMethod ForgeItem_onEntitySwing = new ReflectorMethod(ForgeItem, "onEntitySwing");

@@ -41,7 +41,6 @@ public class VRHotkeys {
 	        else
 	        {
 	            mc.vrSettings.useDistortion = !mc.vrSettings.useDistortion;
-	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
 	        }
 	    }
 	
