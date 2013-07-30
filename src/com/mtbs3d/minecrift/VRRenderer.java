@@ -830,6 +830,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         doDistortionAndSuperSample();
+        GL11.glFlush();
     }
     
     private void setupFBOs()
