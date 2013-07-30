@@ -454,6 +454,7 @@ public class VRRenderer extends EntityRenderer
             this.mc.vrSettings.posTrackResetPosition = false;
         }
 
+        GL11.glFinish();
         PluginManager.pollAll();
         if(JoystickAim.selectedJoystickMode != null)
         	JoystickAim.selectedJoystickMode.update( renderPartialTicks );
@@ -830,7 +831,6 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         doDistortionAndSuperSample();
-        GL11.glFlush();
     }
     
     private void setupFBOs()
