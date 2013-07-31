@@ -4,16 +4,15 @@
  */
 package com.mtbs3d.minecrift.control;
 
-import net.minecraft.src.KeyBinding;
 import net.minecraft.src.Minecraft;
 
-public class KeyControlBinding extends ControlBinding {
+public class MenuBinding extends ControlBinding {
 
-	KeyBinding key;
+	private boolean pressed = false;
+
 	Minecraft mc;
-	public KeyControlBinding(KeyBinding binding ) {
-		super(binding.keyDescription,binding.keyDescription);
-		key = binding;
+	public MenuBinding() {
+		super("Menu", "key.menu");
 		mc = Minecraft.getMinecraft();
 	}
 
@@ -21,7 +20,7 @@ public class KeyControlBinding extends ControlBinding {
 	public void setValue(float value) {
 		if( Math.abs(value) > 0.1 )
 		{
-			if(!key.pressed )
+			if(!pressed )
 				setState( true );
 		} else {
 			setState(false);
@@ -30,14 +29,14 @@ public class KeyControlBinding extends ControlBinding {
 
 	@Override
 	public void setState(boolean state) {
-		key.pressed = state;
+		pressed = state;
 		if( state ) {
-			if( mc.currentScreen != null && mc.gameSettings.keyBindInventory == key ) {
-				key.pressed = false;
-				mc.displayGuiScreen(null);
-			} else {
-				key.pressTime ++;
+			if( mc.currentScreen == null ) {
+				mc.displayInGameMenu();
+			} else if( mc.thePlayer != null ){
+				mc.thePlayer.closeScreen();
 			}
 		}
 	}
+
 }

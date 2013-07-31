@@ -32,10 +32,8 @@ The cheesy name apart, Minecrift attempts to update Minecraft to support the
 Oculus Rift. Initially this means allowing head-tracking input and using the
 correct stereo rendering parameters for the Rift. We also are in the progress
 of supporting different control schemes and positional head tracking. Minecraft
-for various control schemes. Minecrift is also meant as a kick up the arse to
-Mojang, so that they can add official Oculus support in the near future. If and
-when Minecraft officially supports the Rift, Minecrift development might cease
-(unless they make a complete hash of it), but probably not.
+for various control schemes. If and when Minecraft officially supports the
+Rift, Minecrift development might cease, but probably not.
 
 
 ---

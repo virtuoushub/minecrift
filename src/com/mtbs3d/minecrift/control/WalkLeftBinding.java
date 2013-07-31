@@ -1,15 +1,15 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.control;
 
 import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.Minecraft;
 
 public class WalkLeftBinding extends ControlBinding {
-
-	@Override
-	public boolean isAxis() { return true; }
-
 	public WalkLeftBinding() {
-		super("Stafe left");
+		super("key.left","key.left");
 	}
 
 	@Override

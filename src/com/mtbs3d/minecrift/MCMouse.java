@@ -68,69 +68,80 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             float mouseSensitivityMultiplier1 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
             float mouseSensitivityMultiplier2 = mouseSensitivityMultiplier1 * mouseSensitivityMultiplier1 * mouseSensitivityMultiplier1 * 8.0F;
             float adjustedMouseDeltaX = (float)this.mc.mouseHelper.deltaX * mouseSensitivityMultiplier2 * 0.15f;
-            float adjustedMouseDeltaY = (float)this.mc.mouseHelper.deltaY * mouseSensitivityMultiplier2 * 0.15f;
-            byte yDirection = -1;
-
-            if (this.mc.gameSettings.invertMouse)
-            {
-                yDirection = 1;
-            }
+            float adjustedMouseDeltaY = (float)this.mc.mouseHelper.deltaY * mouseSensitivityMultiplier2 * 0.15f * (mc.gameSettings.invertMouse ?  1 : -1);
 
             //Pitch
-            if( this.mc.vrSettings.allowMousePitchInput )
+            if( this.mc.vrSettings.keyholeHeight > 0 )
             {
-            	bodyPitch  += (adjustedMouseDeltaY * (float)yDirection);
-	            if( bodyPitch > 90 )
-	            	bodyPitch = 90;
-	            if( bodyPitch < -90 )
-	            	bodyPitch = -90;
+            	float headPitch = this.mc.headTracker.getHeadPitchDegrees() + bodyPitch;
+            	float keyholeBot = Math.max(-90,headPitch - this.mc.vrSettings.keyholeHeight /2);
+            	float keyholeTop = Math.min(90,headPitch + this.mc.vrSettings.keyholeHeight /2);
+            	if( aimPitch > keyholeTop )
+            		aimPitch = keyholeTop;
+            	if( aimPitch < keyholeBot )
+            		aimPitch = keyholeBot;
+	            if( adjustedMouseDeltaY != 0 )
+	            {
+	                aimPitch += adjustedMouseDeltaY;
+	                if( aimPitch > keyholeTop )
+	                {
+	                	if( this.mc.vrSettings.allowMousePitchInput)
+		                	bodyPitch += aimPitch - keyholeTop;
+	                	aimPitch = keyholeTop;
+	                }
+	                else if( aimPitch < keyholeBot )
+	                {
+	                	if( this.mc.vrSettings.allowMousePitchInput)
+		                	bodyPitch += aimPitch - keyholeBot;
+	                	aimPitch = keyholeBot;
+	                }
+	            }
             }
+            else if( this.mc.vrSettings.allowMousePitchInput )
+            	bodyPitch  += adjustedMouseDeltaY;
             else
             	bodyPitch = 0;
+            
+            
+            if( bodyPitch > 90 )
+            	bodyPitch = 90;
+            if( bodyPitch < -90 )
+            	bodyPitch = -90;
 
-            if( !this.mc.vrSettings.allowMousePitchInput )
+            if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 )
             {
-            	aimPitch += (adjustedMouseDeltaY * (float)yDirection);
-	            if( aimPitch > 90 )
-	            	aimPitch = 90;
-	            if( aimPitch < -90 )
-	            	aimPitch = -90;
+	        	float headYaw = this.mc.headTracker.getHeadYawDegrees();
+	        	float keyholeYawWidth = this.mc.vrSettings.aimKeyholeWidthDegrees/2;
+	        	float keyholeYawLeft = headYaw - keyholeYawWidth;
+	        	float keyholeYawRight = headYaw + keyholeYawWidth;
+	        	
+	        	//Keep mouse constrained to keyhole
+	            if( aimYaw > keyholeYawRight )
+	            	aimYaw = keyholeYawRight;
+	            else if ( aimYaw < keyholeYawLeft )
+	            	aimYaw = keyholeYawLeft;
+	
+	            if( aimPitch != 90 && aimPitch != -90 && adjustedMouseDeltaX != 0 )
+	            {
+	                aimYaw += adjustedMouseDeltaX;
+	                if( aimYaw > keyholeYawRight )
+	                {
+	                	bodyYaw += aimYaw - keyholeYawRight;
+	                	aimYaw = keyholeYawRight;
+	                }
+	                else if( aimYaw < keyholeYawLeft )
+	                {
+	                	bodyYaw += aimYaw - keyholeYawLeft;
+	                	aimYaw = keyholeYawLeft;
+	                }
+	                bodyYaw %= 360;
+	            }
             }
             else
             {
-            	aimPitch = bodyPitch;
-            }
-
-        	float headYaw = this.mc.headTracker.getHeadYawDegrees();
-        	float cosHeadPitch = MathHelper.cos(this.mc.headTracker.getHeadPitchDegrees()*PIOVER180);
-        	float keyholeYaw = this.mc.vrSettings.aimKeyholeWidthDegrees/2/cosHeadPitch;
-        	
-        	boolean aimYawAllowed;
-        	if( this.mc.vrSettings.lookAimYawDecoupled && this.mc.vrSettings.lookAimPitchDecoupled)
-        		aimYawAllowed = aimPitch != 90 && aimPitch != -90;
-        	else
-        		aimYawAllowed = true;
-
-            if( aimYawAllowed && adjustedMouseDeltaX != 0 )
-            {
-                aimYaw += adjustedMouseDeltaX/cosHeadPitch;
-
-	            //Yaw
-	            if( !this.mc.vrSettings.lookAimYawDecoupled )
-	                bodyYaw = aimYaw;
-	            else if( aimYaw > (headYaw + bodyYaw + keyholeYaw) )
-	            	bodyYaw += adjustedMouseDeltaX;
-	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw))
-	            	bodyYaw += adjustedMouseDeltaX;
-                aimYaw %= 360;
+            	aimYaw = 0;
+                bodyYaw += adjustedMouseDeltaX;
                 bodyYaw %= 360;
-            }
-            else if( this.mc.vrSettings.lookAimYawDecoupled )
-            {
-	            if( aimYaw > (headYaw + bodyYaw + keyholeYaw) )
-	            	aimYaw = headYaw + bodyYaw + keyholeYaw;
-	            else if( aimYaw < (headYaw + bodyYaw - keyholeYaw))
-	            	aimYaw = headYaw + bodyYaw - keyholeYaw;
             }
 		}
 	}
@@ -155,7 +166,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 
 	@Override
 	public float getAimYaw() {
-		return aimYaw;
+		return bodyYaw + aimYaw;
 	}
 
 	@Override

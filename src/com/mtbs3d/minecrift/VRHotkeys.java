@@ -109,7 +109,9 @@ public class VRHotkeys {
 	    // Hud opacity on / off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_Y && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.vrSettings.hudOpacity = !mc.vrSettings.hudOpacity;
+	        mc.vrSettings.hudOpacity = 1-mc.vrSettings.hudOpacity;
+	        if( mc.vrSettings.hudOpacity < 0.15f)
+	        	mc.vrSettings.hudOpacity = 0.15f;
 	        mc.vrSettings.saveOptions();
 	    }
 	

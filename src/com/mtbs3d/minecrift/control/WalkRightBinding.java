@@ -1,22 +1,22 @@
+/**
+ * Copyright 2013 Mark Browning, StellaArtois
+ * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
+ */
 package com.mtbs3d.minecrift.control;
 
 import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.Minecraft;
 
 public class WalkRightBinding extends ControlBinding {
-
-	@Override
-	public boolean isAxis() { return true; }
-
 	public WalkRightBinding() {
-		super("Strafe right");
+		super("key.right","key.right");
 	}
 
 	@Override
 	public void setValue(float value) {
         EntityClientPlayerMP thePlayer = Minecraft.getMinecraft().thePlayer;
         if( thePlayer != null )
-        	thePlayer.movementInput.baseMoveStrafe = -Math.abs(value);
+        	thePlayer.movementInput.baseMoveStrafe = -value;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ package com.mtbs3d.minecrift.gui;
 
 import java.util.List;
 
+import com.mtbs3d.minecrift.MCController;
 import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.MCMouse;
 import com.mtbs3d.minecrift.api.IBasePlugin;
@@ -27,18 +28,19 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     /** An array of all of EnumOption's movement options relevant to the mouse. */
     static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEAD_RELATIVE,
+        EnumOptions.KEYHOLE_HEIGHT,
         EnumOptions.DECOUPLE_LOOK_MOVE,
-        EnumOptions.DECOUPLE_LOOK_AIM_PITCH,
         EnumOptions.PITCH_AFFECTS_CAMERA,
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
     static EnumOptions[] controllerMoveAimOptions = new EnumOptions[] {
         EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEAD_RELATIVE,
+        EnumOptions.KEYHOLE_HEIGHT,
         EnumOptions.DECOUPLE_LOOK_MOVE,
-        EnumOptions.JOYSTICK_SENSITIVITY,
         EnumOptions.PITCH_AFFECTS_CAMERA,
+        EnumOptions.JOYSTICK_SENSITIVITY,
+        EnumOptions.JOYSTICK_DEADZONE,
+        EnumOptions.JOYSTICK_AIM_TYPE,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
 	private boolean reinit;
@@ -71,6 +73,8 @@ public class GuiMoveAimSettings extends BaseGuiSettings
 
         if( this.mc.lookaimController instanceof MCHydra )
         	var10 = hydraMoveAimOptions;
+    	else if( this.mc.lookaimController instanceof MCController )
+    		var10 = controllerMoveAimOptions;
     	else
         	var10 = mouseMoveAimOptions ;
         int var11 = var10.length;
@@ -99,10 +103,22 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 	maxValue = 10.0f;
                 	increment= 0.1f;
                 }
+                else if( var8 == EnumOptions.JOYSTICK_DEADZONE )
+                {
+                	minValue = 0.0f;
+                	maxValue = 0.4f;
+                	increment= 0.01f;
+                }
                 else if( var8 == EnumOptions.KEYHOLE_WIDTH)
                 {
                 	minValue = 0.0f;
                 	maxValue = 90f;
+                	increment= 1.0f;
+                }
+                else if( var8 == EnumOptions.KEYHOLE_HEIGHT)
+                {
+                	minValue = 0.0f;
+                	maxValue = 180f;
                 	increment= 1.0f;
                 }
 
@@ -169,9 +185,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 else
                 {
                     this.guivrSettings.aimKeyholeWidthDegrees = 0f;
+                    this.guivrSettings.keyholeHeight = 0f;
                     this.guivrSettings.keyholeHeadRelative = true;
                     this.guivrSettings.lookMoveDecoupled = false;
-                    this.guivrSettings.lookAimPitchDecoupled = false;
                     this.guivrSettings.allowMousePitchInput = true;
                 }
                 this.guivrSettings.saveOptions();
@@ -198,6 +214,19 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "The higher the value, the more you turn.",
                             "  Doesn't affect forward/backward speed",
                             "  Recommended value: 4.0" } ;
+                case JOYSTICK_DEADZONE:
+                    return new String[] {
+                            "The higher the value, small joystick motions are ignored",
+                            "  Recommended value: 0.1" } ;
+                case JOYSTICK_AIM_TYPE:
+                    return new String[] {
+                            "How joystick Aiming works.",
+                            "  Keyhole (tight): the crosshair stays in place ",
+                            "     like a mouse cursor",
+                            "  Keyhole (loose): You don't push the crosshair outside",
+                            "     the keyhole, but it stays after turning head back.",
+                            "  Recenter: the crosshair moves back to center when ",
+                            "     you let off the joystick." } ;
                 case DECOUPLE_LOOK_MOVE:
                     return new String[] {
                             "Decouple Movement from Looking - \"Tank mode\"",
@@ -212,8 +241,17 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "If set to \"Fully Coupled\", any mouse movement will",
                             "  turn the camera.",
                             "Otherwise, this value is the horizontal width (in degrees)",
-                            "  of the keyhole in which the cursor can freely move.",
+                            "  of the keyhole in which the crosshair can freely move.",
                             "  Recommended value: > 60°"} ;
+                case KEYHOLE_HEIGHT:
+                    return new String[] {
+                            "Allows the mouse some flexibility within a \"keyhole\"",
+                            "  that allows the mouse to be constrained.",
+                            "If set to \"Fully Coupled\", any mouse movement will",
+                            "  adjust the camera (if allowed).",
+                            "Otherwise, this value is the vertical height (in degrees)",
+                            "  of the keyhole in which the crosshair can freely move.",
+                            "  Recommended value: 45°"} ;
                 case KEYHOLE_HEAD_RELATIVE:
                     return new String[] {
                             "Determines if the \"keyhole\" used for aiming moves ",
@@ -227,12 +265,6 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  OFF: No, the only way to control pitch is your head",
                             "  ON: Yes, moving the mouse up and down will move the",
                             "     camera up and down", };
-                case DECOUPLE_LOOK_AIM_PITCH:
-                    return new String[] {
-                            "Adjusts whether the crosshair is fixed to your head",
-                            "  vertically (tilt up and down)",
-                            "  OFF: Yes, the only way to aim is with your head",
-                            "  ON:  No, the crosshair is free to move"};
                 case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
                     return new String[] {
                             "Sets the controller used for move/aim control.",

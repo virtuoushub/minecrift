@@ -24,8 +24,6 @@ import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.control.JoystickAim;
 
 import net.minecraft.src.*;
-import org.lwjgl.util.glu.GLU;
-import org.lwjgl.util.glu.PartialDisk;
 
 import paulscode.sound.SoundSystem;
 
@@ -456,6 +454,7 @@ public class VRRenderer extends EntityRenderer
             this.mc.vrSettings.posTrackResetPosition = false;
         }
 
+        GL11.glFinish();
         PluginManager.pollAll();
         if(JoystickAim.selectedJoystickMode != null)
         	JoystickAim.selectedJoystickMode.update( renderPartialTicks );
@@ -506,12 +505,12 @@ public class VRRenderer extends EntityRenderer
         	
         }
 
-        if( this.mc.vrSettings.lookAimYawDecoupled )
+        if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 )
         	aimYaw    = mc.lookaimController.getAimYaw();
         else
         	aimYaw = cameraYaw;
 
-        if( this.mc.vrSettings.lookAimPitchDecoupled )
+        if( this.mc.vrSettings.keyholeHeight > 0 )
 	        aimPitch  = mc.lookaimController.getAimPitch();
         else 
         	aimPitch = cameraPitch;
@@ -636,7 +635,7 @@ public class VRRenderer extends EntityRenderer
         }
 
 
-        if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI)
+        if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI )
         {
 			//Disable any forge gui crosshairs and helmet overlay (pumkinblur)
 			if( Reflector.ForgeGuiIngame_renderCrosshairs.exists())
@@ -647,6 +646,7 @@ public class VRRenderer extends EntityRenderer
 			//Draw in game GUI
             this.mc.ingameGUI.renderGameOverlay(renderPartialTicks, this.mc.currentScreen != null, mouseX, mouseY);
             guiAchievement.updateAchievementWindow();
+	    	GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT );
         }
 
         if( this.mc.currentScreen != null )
@@ -738,6 +738,7 @@ public class VRRenderer extends EntityRenderer
         		GL11.glPushMatrix();
 
         		this.renderWorld(renderPartialTicks, 0L, renderSceneNumber );
+		        this.disableLightmap(renderPartialTicks);
 
 		        GL11.glMatrixMode(GL11.GL_MODELVIEW );
         		GL11.glPopMatrix();
@@ -776,16 +777,12 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glRotatef(guiPitch, 1f, 0f, 0f);
 				GL11.glTranslatef (0.0f, 0.0f, this.mc.vrSettings.hudDistance);
 				GL11.glRotatef( 180f, 0f, 1f, 0f);//Not sure why this is necessary... normals/backface culling maybe?
-				if( this.mc.vrSettings.hudOpacity )
-				{
-			        GL11.glEnable(GL11.GL_BLEND);
-			        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				}
-				else
-				{
-			        GL11.glDisable(GL11.GL_BLEND);
-				}
-
+		        GL11.glEnable(GL11.GL_BLEND);
+		        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		        if( this.mc.theWorld != null )
+		        	GL11.glColor4f(1, 1, 1, this.mc.vrSettings.hudOpacity);
+		        else
+		        	GL11.glColor4f(1, 1, 1, 1);
 		        if (!this.mc.vrSettings.hudOcclusion)
                     GL11.glDisable(GL11.GL_DEPTH_TEST);
 
@@ -796,7 +793,6 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glPopMatrix();
 		
 		        unbindTexture();
-		        //this.mc.renderEngine.resetBoundTexture();
 	        	mc.checkGLError("GUI");
         	}
 

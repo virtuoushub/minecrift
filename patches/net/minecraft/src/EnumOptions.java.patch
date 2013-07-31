@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,77 @@
+@@ -97,7 +97,79 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -13,7 +13,7 @@
 +    HUD_SCALE("HUD Scale", true, false),
 +    HUD_DISTANCE("HUD Distance", true, false),
 +    HUD_PITCH("HUD Pitch Offset", true, false),
-+    HUD_OPACITY("HUD Opacity", false, true),
++    HUD_OPACITY("HUD Opacity", true, false),
 +    HUD_HIDE("Hide HUD (F1)", false, true),
 +    HUD_OCCLUSION("HUD Occlusion", false, true),
 +    HEAD_TRACKING("Head Tracking", false, true),
@@ -68,10 +68,12 @@
 +    MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
 +    PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true),
 +    JOYSTICK_SENSITIVITY("Joystick Sensitivity",true,false),
-+    DECOUPLE_LOOK_AIM_PITCH("Free Aim - Vertical",false,true),
++    JOYSTICK_DEADZONE("Joystick Deadzone",true,false),
 +    KEYHOLE_WIDTH("Keyhole Width",true,false),
++    KEYHOLE_HEIGHT("Keyhole Height",true,false),
 +    KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true),
 +    MOVEAIM_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
++    JOYSTICK_AIM_TYPE("Aim Type", false, false),
 +
 +    // Calibration
 +    CALIBRATION_STRATEGY("Initial Calibration", false, false);
