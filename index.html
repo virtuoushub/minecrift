@@ -29,7 +29,7 @@
 
 		<p class="header">This project is maintained by <a class="header name" href="https://github.com/mabrowning">mabrowning</a> and <a class="header name" href="https://github.com/StellaArtois">StellaArtois</a></p>
 
-<p class="header"><a href="https://minecraftvr.ci.cloudbees.com/job/minecrift/"><img class="header" style="left:-40px"src="http://www.cloudbees.com/sites/default/files/Button-Powered-by-CB.png" alt="Powered By CloudBees"></a></p>
+<p class="header"><a href="https://minecraftvr.ci.cloudbees.com/job/minecrift-1.6.2/"><img class="header" style="left:-40px"src="http://www.cloudbees.com/sites/default/files/Button-Powered-by-CB.png" alt="Powered By CloudBees"></a></p>
 
 
       </header>
@@ -37,19 +37,18 @@
         <h1>
 <a name="minecrift-mod-for-minecraft" class="anchor" href="#minecrift-mod-for-minecraft"><span class="octicon octicon-link"></span></a>Minecrift Mod for Minecraft</h1>
 
-<p>Current Version: 1.0 beta</p>
+<p>Current Version: 1.1 beta</p>
 
 <h2>
 <a name="what-is-minecrift" class="anchor" href="#what-is-minecrift"><span class="octicon octicon-link"></span></a>What is Minecrift?</h2>
 
-<p>The cheesy name apart, Minecrift attempts to update Minecraft to support the
+<p>
+The cheesy name apart, Minecrift attempts to update Minecraft to support the
 Oculus Rift. Initially this means allowing head-tracking input and using the
 correct stereo rendering parameters for the Rift. We also are in the progress
 of supporting different control schemes and positional head tracking. Minecraft
-for various control schemes. Minecrift is also meant as a kick up the arse to
-Mojang, so that they can add official Oculus support in the near future. If and
-when Minecraft officially supports the Rift, Minecrift development might cease
-(unless they make a complete hash of it), but probably not.
+for various control schemes. If and when Minecraft officially supports the
+Rift, Minecrift development might cease, but probably not.
 With thanks to:</p>
 
 <ul>
@@ -63,12 +62,9 @@ job of de-obfuscating it is beyond me!</li>
 inspired me to get off my arse and get modding. See
 <a href="http://www.reddit.com/r/oculus/comments/1c1vh0/java_wrapper_for_devs/">this Reddit thread</a>
 </li>
-<li>shakesoda and Ben (and others?) at MTBS for creating the GLSL version of the
+<li>shakesoda and Ben (and others?) at MTBS for creating the initial GLSL version of the
 Oculus distortion shader.</li>
 <li>The guys at Valve for giving some good advice on updating a game for VR.</li>
-<li>
-@PyramidHead76 for building the MacOS libs, and toiling to produce the
-installation guide!!</li>
 <li>Brad Larson and his GPUImage library, for the Lanczos GLSL shader
 implementation for the FSAA.</li>
 <li>All the feedback and support of the folks in the MTBS3D forums!</li>
@@ -78,102 +74,24 @@ implementation for the FSAA.</li>
 <p>We make regular releases and update the MTBS3D forum thread when a release is 
 ready for general use. However, if you can't wait that long, we do have a 
 continuous integration service generously provided by 
-<a href="http://www.cloudbees.com">CloudBees</a>. </p>
+<a href="http://www.cloudbees.com">CloudBees</a>. Click the CloudBees button on the left-hand bar to go to the download site.</p>
+
+<h2> <a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Download and run the latest minecrift-1.6.2-b###-installer.exe/jar.</p>
+<p> <b>WINDOWS USERS: IMPORTANT </b> (but only required once). Install the Microsoft
+VS2010 C++ redists (both x86 and x64) from
+<a href="http://www.microsoft.com/en-us/download/details.aspx?id=5555">here</a></p>
 
 
-<hr><h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+<h2><a name="controller" class="anchor" href="#controller"><span class="octicon octicon-link"></span></a>Controllers/JoyPads</h2>
+Version 1.2 supports many different controllers. Change VR->Move/Aim Mode: to 
+'Controller' and then remap the keys that best fit your controller in 'Remap 
+Controls'.
 
-<p>REQUIRES Minecraft 1.5.2 With <a href="http://www.minecraftforum.net/topic/249637-152-optifine-hd-d3-fps-boost-hd-textures-aa-af-and-much-more/">Optifine HD D3</a></p>
+<h2><a name="razer-hydra" class="anchor" href="#razer-hydra"><span class="octicon octicon-link"></span></a>Razer Hydra</h2>
 
-<h3>
-<a name="magic-launcher" class="anchor" href="#magic-launcher"><span class="octicon octicon-link"></span></a>Magic Launcher</h3>
-
-<p>The recommended way to install Minecrift is use the <a href="http://www.minecraftforum.net/topic/939149-launcher-magic-launcher-114-mods-options-profiles-news/">magic
-launcher</a>,
-which is available for Windows, OSX, and Linux.</p>
-
-<ul>
-<li>Download Optifine HD D3, but don't extract.</li>
-<li>Extract the minecrift_1.0_beta.zip</li>
-<li>Open the Magic Launcher.</li>
-<li>Click the 'Setup' configuration button.</li>
-<li>Create a new Configuration and call it "minecrift" (or whatever you prefer)</li>
-<li>Add these zips, in order:
-
-<ul>
-<li>OptiFine_1.5.2_HD_U_D3.zip </li>
-<li>JRift.jar </li>
-<li>SixenseJava.jar (if you have a Razer Hydra)</li>
-<li>minecrift_1.0_beta_classes.zip </li>
-</ul>
-</li>
-<li>Click 'Test' to make sure it works.</li>
-<li>When satisfied, click 'OK' to Save the configuration.</li>
-<li>From now on, just start Magic Launcher and use the "minecrift" configuration
-to play!</li>
-</ul><p>In addition, you will need to <a href="http://www.minecraftwiki.net/wiki/LWJGL">update LWJGL to the latest version</a>. Older versions are unsupported.</p>
-
-<h3>
-<a name="manual" class="anchor" href="#manual"><span class="octicon octicon-link"></span></a>Manual</h3>
-
-<p>It is possible to install Minecrift without using the Magic launcher, but this
-way hasn't been tested as well. Use the steps below according to your operating
-system. You'll still need to update LWJGL according to the tutorial linked above.</p>
-
-<h3>
-<a name="windows" class="anchor" href="#windows"><span class="octicon octicon-link"></span></a>Windows</h3>
-
-<p>Minecrift for Windows requires Vista or above and a graphics card &amp; driver capable of at least OpenGL 3.3 support.</p>
-
-<ul>
-<li>Download <a href="http://www.minecraftforum.net/topic/249637-152-optifine-hd-d3-fps-boost-hd-textures-aa-af-and-much-more/">Optifine HD D3</a>
-</li>
-<li>Change directory to %APPDATA%\.minecraft\bin</li>
-<li>Open your minecraft.jar file using 7-zip, winzip etc. </li>
-<li>Select all, and drag and drop in the <em>entire contents</em> of the
-OptiFine_1.5.2_HD_U_D3.zip into the minecraft.jar.</li>
-<li>Select all, and drag and drop in the <em>entire contents</em> of the
-/minecrift_1.0_beta_classes.zip (but not the zip itself) from the Minecrift
-zip into the minecraft.jar archive.</li>
-<li>Select all, and drag and drop in the <em>entire contents</em> of the
-/JRift.jar (but not the zip itself) from the Minecrift
-zip into the minecraft.jar archive.</li>
-<li>If you have a Razer Hydra and would like to use it, Select all, and drag and
-drop in the <em>entire contents</em> of the /SixenseJava.jar (but not the zip
-itself) from the Minecrift zip into the minecraft.jar archive.</li>
-<li>Make sure to delete the META-INF folder in minecraft.jar. Close 7zip /
-winzip.</li>
-<li>
-<em>IMPORTANT</em> (but only required once). Install the Microsoft VS2012 C++
-redists (both x86 and x64) from
-<a href="http://www.microsoft.com/visualstudio/11/en-us/downloads/vc-redist#vc-redist">here</a>
-</li>
-<li>Start up Minecraft and off you go. If you get a black screen on login, trying
-running an admin command prompt, cd to your minecraft.exe dir and enter the
-command 
-&gt;java -cp Minecraft.exe net.minecraft.LauncherFrame
-This should allow any exceptions or errors on Minecraft startup to show up in
-the console.</li>
-</ul><h3>
-<a name="macos" class="anchor" href="#macos"><span class="octicon octicon-link"></span></a>MacOS</h3>
-
-<p>Follow the same steps for Windows, but use ~/Library/Application
-Support/minecraft instead of \.minecraft.</p>
-
-<ul>
-<li>The VS2012 C++ redistribute is not required.</li>
-</ul><h3>
-<a name="linux" class="anchor" href="#linux"><span class="octicon octicon-link"></span></a>Linux</h3>
-
-<p>Follow the same steps for MacOS, but use ~/.minecraft/ instead of
-~/Library/Application Support/minecraft.</p>
-
-<h2>
-<a name="razer-hydra" class="anchor" href="#razer-hydra"><span class="octicon octicon-link"></span></a>Razer Hydra</h2>
-
-<p>Version 1.0 is the first to include full Razer Hydra support. If you have one, 
-include SixenseJava.jar in your modlist to enable the functionality.</p>
+<p>Version 1.0 is the first to include full Razer Hydra support.</p>
 
 <ul>
 <li>OrientationTracker: If you don't have an Oculus Rift, you can use the left
@@ -261,14 +179,7 @@ own risk!</p></li>
 
 <ul>
 <li>FSAA (Super Sampling) doesn't work on OSX and is disabled.</li>
-<li>Linux doesn't support Oculus Rift head tracker (yet).</li>
-<li>A white line can sometimes be seen at the top or bottom edge of the HUD. No
-known workaround.</li>
-<li>When using both the joystick and the mouse to navigate menus, the cursor 
-does not respond to clicks where it appears. For now, only use one or the other.</li>
-<li>Sometimes, the Hydra calibration text does not appear... if the hydra isn't 
-responding, try doing the calibration steps: point at base with left, click, 
-point at base with right, click.</li>
+<li> There are quite a small bugs that can be seen on the <a href="https://github.com/mabrowning/minecrift/issues">GitHub issue tracker</li>
 </ul><h2>
 <a name="feedback-bug-reporting" class="anchor" href="#feedback-bug-reporting"><span class="octicon octicon-link"></span></a>Feedback, bug reporting</h2>
 
