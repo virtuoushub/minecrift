@@ -63,7 +63,6 @@ public class VRSettings {
     public float headTrackSensitivity = 1.0f;
     public boolean useSupersample = false;
     public float superSampleScaleFactor = 2.0f;
-    public boolean useMipMaps = false;
     public boolean lookMoveDecoupled = false;
     public boolean useOculusProfile = false;
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;

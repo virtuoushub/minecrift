@@ -3,6 +3,8 @@ import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
 import subprocess, shlex
 
+mc_ver ="1.6.2"
+
 try:
     WindowsError
 except NameError:
@@ -37,6 +39,71 @@ def zipmerge( target_file, source_file ):
     os.remove( target_file )
     shutil.copy( out_filename, target_file )
 
+def process_json( addon, version ):
+    json_id = "minecrift-"+version+addon
+    lib_id = "com.mtbs3d:minecrift:"+version
+    time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S-05:00")
+    with  open(os.path.join("installer",mc_ver+addon+".json"),"rb") as f:
+        json_obj = json.load(f)
+        json_obj["id"] = json_id
+        json_obj["time"] = time
+        json_obj["releaseTime"] = time
+        json_obj["libraries"].insert(0,{"name":lib_id}) #Insert at beginning
+        json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
+        return json.dumps( json_obj, indent=1 )
+
+def create_install(mcp_dir):
+    print("Creating Installer...")
+    reobf = os.path.join(mcp_dir,'reobf','minecraft')
+    
+    in_mem_zip = StringIO.StringIO()
+    with zipfile.ZipFile( in_mem_zip,'w', zipfile.ZIP_DEFLATED) as zipout:
+        for abs_path, _, filelist in os.walk(reobf, followlinks=True):
+            arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
+            for cur_file in fnmatch.filter(filelist, '*.class'):
+                if cur_file=='blk.class': #skip SoundManager
+                    continue
+                in_file= os.path.join(abs_path,cur_file) 
+                arcname =  arc_path + cur_file
+                zipout.write(in_file, arcname)
+
+    os.chdir( base_dir )
+
+    
+    in_mem_zip.seek(0)
+    if os.getenv("RELEASE_VERSION"):
+        version = os.getenv("RELEASE_VERSION")
+    elif os.getenv("BUILD_NUMBER"):
+        version = "b"+os.getenv("BUILD_NUMBER")
+    else:
+        version = "LOCAL"
+
+    version = mc_ver+"-"+version
+	
+    artifact_id = "minecrift-"+version
+    installer_id = artifact_id+"-installer"
+    installer = os.path.join( installer_id+".jar" ) 
+    shutil.copy( os.path.join("installer","installer.jar"), installer )
+    with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
+        install_out.writestr( "version.json", process_json("", version))
+        install_out.writestr( "version-forge.json", process_json("-forge", version))
+        install_out.writestr( "version-nohydra.json", process_json("-nohydra", version))
+        install_out.writestr( "version-forge-nohydra.json", process_json("-forge-nohydra", version))
+        install_out.writestr( "version.jar", in_mem_zip.read() )
+        install_out.writestr( "version", artifact_id+":"+version )
+
+    print("Creating Installer exe...")
+    with open( os.path.join("installer","launch4j.xml"),"r" ) as inlaunch:
+        with open( "launch4j.xml", "w" ) as outlaunch:
+            outlaunch.write( inlaunch.read().replace("installer",installer_id))
+    subprocess.Popen( 
+        cmdsplit("java -jar \"%s\" \"%s\""% (
+                os.path.join( base_dir,"installer","launch4j","launch4j.jar"),
+                os.path.join( base_dir, "launch4j.xml"))), 
+            cwd=os.path.join(base_dir,"installer","launch4j"),
+            bufsize=-1).communicate()
+    os.unlink( "launch4j.xml" )
+
 def main(mcp_dir):
     print 'Using mcp dir: %s' % mcp_dir
     print 'Using base dir: %s' % base_dir
@@ -59,67 +126,7 @@ def main(mcp_dir):
     print("Reobfuscating...")
     commands.creatergcfg(reobf=True, keep_lvt=True, keep_generics=True, srg_names=False)
     reobfuscate_side( commands, CLIENT )
-
-    print("Creating Installer...")
-    
-    in_mem_zip = StringIO.StringIO()
-    with zipfile.ZipFile( in_mem_zip,'w', zipfile.ZIP_DEFLATED) as zipout:
-        for abs_path, _, filelist in os.walk(reobf, followlinks=True):
-            arc_path = os.path.relpath( abs_path, reobf ).replace('\\','/').replace('.','')+'/'
-            for cur_file in fnmatch.filter(filelist, '*.class'):
-                if cur_file=='blk.class': #skip SoundManager
-                    continue
-                in_file= os.path.join(abs_path,cur_file) 
-                arcname =  arc_path + cur_file
-                zipout.write(in_file, arcname)
-
-    os.chdir( base_dir )
-
-    
-    in_mem_zip.seek(0)
-    json_str = ""
-
-    mc_ver ="1.6.2"
-    if os.getenv("RELEASE_VERSION"):
-        version = os.getenv("RELEASE_VERSION")
-    elif os.getenv("BUILD_NUMBER"):
-        version = "b"+os.getenv("BUILD_NUMBER")
-    else:
-        version = "LOCAL"
-
-    version = mc_ver+"-"+version
-    json_id = "minecrift-"+version
-    lib_id = "com.mtbs3d:minecrift:"+version
-    
-    with  open(os.path.join("installer",mc_ver+".json"),"rb") as f:
-        json_obj = json.load(f)
-        time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S-05:00")
-        json_obj["id"] = json_id
-        json_obj["time"] = time
-        json_obj["releaseTime"] = time
-        json_obj["libraries"].insert(0,{"name":lib_id}) #Insert at beginning
-        json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
-        json_str = json.dumps( json_obj, indent=1 )
-
-    installer_id = json_id+"-installer"
-    installer = os.path.join( installer_id+".jar" ) 
-    shutil.copy( os.path.join("installer","installer.jar"), installer )
-    with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
-        install_out.writestr( "version.json", json_str )
-        install_out.writestr( "version.jar", in_mem_zip.read() )
-        install_out.writestr( "version", json_id+":"+version )
-
-    print("Creating Installer exe...")
-    with open( os.path.join("installer","launch4j.xml"),"r" ) as inlaunch:
-        with open( "launch4j.xml", "w" ) as outlaunch:
-            outlaunch.write( inlaunch.read().replace("installer",installer_id))
-    subprocess.Popen( 
-        cmdsplit("java -jar \"%s\" \"%s\""% (
-                os.path.join( base_dir,"installer","launch4j","launch4j.jar"),
-                os.path.join( base_dir, "launch4j.xml"))), 
-            cwd=os.path.join(base_dir,"installer","launch4j"),
-            bufsize=-1).communicate()
-    os.unlink( "launch4j.xml" )
+    create_install( mcp_dir )
     
 if __name__ == '__main__':
     parser = OptionParser()

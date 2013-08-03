@@ -5,20 +5,16 @@ import java.beans.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.Random;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -37,6 +33,7 @@ import javax.swing.border.LineBorder;
  */
 public class Installer extends JPanel  implements PropertyChangeListener {
 	private static final long serialVersionUID = -562178983462626162L;
+	private static final String MC_VERSION = "1.6.2";
 	private static final String OF_VERSION = "1.6.2_HD_U_B3";
 	private InstallTask task;
 
@@ -49,6 +46,11 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	private Frame emptyFrame;
 	private String jar_id;
 	private String version;
+	private String mod;
+	private JCheckBox useForge;
+	private JComboBox forgeVersion;
+	private JCheckBox useHydra;
+	static private final String forgeNotFound = "Forge not found..." ;
 
 	class InstallTask extends SwingWorker<Void, Void>{
 		private boolean DownloadOptiFine()
@@ -57,14 +59,14 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			    File fod = new File(targetDir,"libraries/net/optifine/OptiFine/"+OF_VERSION);
 			    fod.mkdirs();
 			    File fo = new File(fod,"OptiFine-"+OF_VERSION+".jar");
-			    if( !fo.exists() )
-			    {
-					URL url = new URL("http://optifine.net/download.php?f=OptiFine_"+OF_VERSION+".zip");
-				    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-				    FileOutputStream fos = new FileOutputStream(fo);
-				    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);	
-			    }
-			    return true;
+			    if( fo.exists() && fo.length() > 375500 ) return true;
+
+				URL url = new URL("http://optifine.net/download.php?f=OptiFine_"+OF_VERSION+".zip");
+			    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+			    FileOutputStream fos = new FileOutputStream(fo);
+			    boolean success =  fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE) > 0 ;
+			    fos.close();
+			    return success;
 			} catch (Exception e) {
 				finalMessage += "Error: "+e.getLocalizedMessage();
 			}
@@ -72,12 +74,12 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		}
 
 		private boolean SetupMinecraftAsLibrary() {
-			File lib_dir = new File(targetDir,"libraries/net/minecraft/Minecraft/1.6.2/");
+			File lib_dir = new File(targetDir,"libraries/net/minecraft/Minecraft/"+MC_VERSION );
 			lib_dir.mkdirs();
-			File lib_file = new File(lib_dir,"Minecraft-1.6.2.jar");
-			if( lib_file.exists())return true;
+			File lib_file = new File(lib_dir,"Minecraft-"+MC_VERSION+".jar");
+			if( lib_file.exists() && lib_file.length() > 4500000 )return true; //TODO: should md5sum it here, I suppose
 			try {
-				ZipInputStream input_jar = new ZipInputStream(new FileInputStream(new File(targetDir,"versions/1.6.2/1.6.2.jar")));
+				ZipInputStream input_jar = new ZipInputStream(new FileInputStream(new File(targetDir,"versions/"+MC_VERSION+"/"+MC_VERSION+".jar")));
 				ZipOutputStream lib_jar= new ZipOutputStream(new FileOutputStream(lib_file));
 				
 				ZipEntry ze = null;
@@ -108,8 +110,42 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		private boolean ExtractVersion() {
 			if( jar_id != null )
 			{
-				InputStream version_json =Installer.class.getResourceAsStream("version.json");
-				InputStream version_jar = Installer.class.getResourceAsStream("version.jar");
+				InputStream version_json; 
+				if(useForge.isSelected() && forgeVersion.getSelectedItem() != forgeNotFound ) {
+					String filename;
+					if( useHydra.isSelected() ) {
+						filename = "version-forge.json";
+						mod="-forge";
+					} else {
+						filename = "version-forge-nohydra.json";
+						mod="-forge-nohydra";
+					}
+
+					version_json = new FilterInputStream( Installer.class.getResourceAsStream(filename) ) {
+						public int read(byte[] buff) throws IOException {
+							int ret = in.read(buff);
+							if( ret > 0 ) {
+								String s = new String( buff,0, ret, "UTF-8");
+								s = s.replace("$FORGE_VERSION", (String)forgeVersion.getSelectedItem());
+								ret = s.length();
+								System.arraycopy(s.getBytes("UTF-8"), 0, buff, 0, ret);
+							}
+							return ret;
+						}
+						
+					};
+				} else {
+					String filename;
+					if( useHydra.isSelected() ) {
+						filename = "version.json";
+					} else {
+						filename = "version-nohydra.json";
+						mod="-nohydra";
+					}
+					version_json = Installer.class.getResourceAsStream(filename);
+				}
+				jar_id += mod;
+				InputStream version_jar =Installer.class.getResourceAsStream("version.jar");
 				if( version_jar != null && version_json != null )
 				try {
 					File ver_dir = new File(new File(targetDir,"versions"),jar_id);
@@ -117,7 +153,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 					File ver_json_file = new File (ver_dir, jar_id+".json");
 					FileOutputStream ver_json = new FileOutputStream(ver_json_file); 
 					int d;
-					byte data[] = new byte[1024];
+					byte data[] = new byte[40960];
 					
 					// Extract json
 	                while ((d = version_json.read(data)) != -1) {
@@ -165,7 +201,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				return null;
 			}
 			setProgress(50);
-			finalMessage = "Failed: Couldn't setup Minecraft 1.6.2 as library. Have you run 1.6.2 at least once yet?";
+			finalMessage = "Failed: Couldn't setup Minecraft "+MC_VERSION+" as library. Have you run "+MC_VERSION+"at least once yet?";
 			if(!SetupMinecraftAsLibrary())
 			{
 				return null;
@@ -176,7 +212,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			{
 				return null;
 			}
-			finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-"+version;
+			finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-"+version+mod;
 			setProgress(100);
 			return null;
 		}
@@ -354,6 +390,35 @@ public class Installer extends JPanel  implements PropertyChangeListener {
         fileEntryPanel.setAlignmentX(CENTER_ALIGNMENT);
         fileEntryPanel.setAlignmentY(TOP_ALIGNMENT);
         this.add(fileEntryPanel);
+        this.add(Box.createVerticalStrut(5));
+
+		JPanel optPanel = new JPanel();
+		optPanel.setLayout( new BoxLayout(optPanel, BoxLayout.Y_AXIS));
+        optPanel.setAlignmentX(LEFT_ALIGNMENT);
+        optPanel.setAlignmentY(TOP_ALIGNMENT);
+
+        //Add forge options
+		JPanel forgePanel = new JPanel();
+		forgePanel.setLayout( new BoxLayout(forgePanel, BoxLayout.X_AXIS));
+        //Create forge: no/yes buttons
+		useForge = new JCheckBox("Install with Forge",false);
+		forgeVersion = new JComboBox();
+
+		//Add "yes" and "which version" to the forgePanel
+		useForge.setAlignmentX(LEFT_ALIGNMENT);
+		forgeVersion.setAlignmentX(LEFT_ALIGNMENT);
+		forgePanel.add(useForge);
+		forgePanel.add(forgeVersion);
+		
+		useHydra = new JCheckBox("Include Razer Hydra support",false);
+		useHydra.setAlignmentX(LEFT_ALIGNMENT);
+
+		//Add option panels option panel
+		forgePanel.setAlignmentX(LEFT_ALIGNMENT);
+		optPanel.add(forgePanel);
+		optPanel.add(useHydra);
+		this.add(optPanel);
+
 
         this.add(Box.createVerticalGlue());
 		JLabel website = linkify("Minecraft VR is Open Source (LGPL)! Check back here for updates.","http://minecraft-vr.com","http://minecraft-vr.com") ;
@@ -362,7 +427,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		website.setAlignmentX(CENTER_ALIGNMENT);
 		optifine.setAlignmentX(CENTER_ALIGNMENT);
 		this.add(Box.createRigidArea(new Dimension(5,20)));
-		this.add( website);
+		this.add( website );
 		this.add( optifine );
 
         this.setAlignmentX(LEFT_ALIGNMENT);
@@ -373,9 +438,16 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 
     private void updateFilePath()
     {
+    	String[] forgeVersions = null;
         try
         {
             targetDir = targetDir.getCanonicalFile();
+            if( targetDir.exists() ) {
+            	File ForgeDir = new File( targetDir, "libraries"+File.separator+"net"+File.separator+"minecraftforge"+File.separator+"minecraftforge");
+            	if( ForgeDir.isDirectory() ) {
+            		forgeVersions = ForgeDir.list();
+            	}
+            }
             selectedDirText.setText(targetDir.getPath());
             selectedDirText.setForeground(Color.BLACK);
             infoLabel.setVisible(false);
@@ -399,6 +471,9 @@ public class Installer extends JPanel  implements PropertyChangeListener {
                 dialog.pack();
             }
         }
+        if( forgeVersions == null || forgeVersions.length == 0 )
+        	forgeVersions =  new String[] { };
+        forgeVersion.setModel( new DefaultComboBoxModel(forgeVersions));
     }
 
     

@@ -150,6 +150,7 @@ public class VRRenderer extends EntityRenderer
 	private CalibrationHelper calibrationHelper;
     private float INITIAL_CALIBRATION_TEXT_SCALE = 0.0065f;
     private int CALIBRATION_TEXT_WORDWRAP_LEN = 40;
+	private boolean sndSystemReflect = true;
 
     public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv)
     {
@@ -386,7 +387,7 @@ public class VRRenderer extends EntityRenderer
         SoundSystem sndSystem = null;
 
         // Use reflection to get the sndManager
-        if (_soundManagerSndSystemField == null)
+        if (sndSystemReflect && _soundManagerSndSystemField == null)
         {
 	        try
 	        {
@@ -400,13 +401,17 @@ public class VRRenderer extends EntityRenderer
 		        	System.out.println("VRRender: Reflected obfuscated b");
 		        }
 		        catch (NoSuchFieldException e1) { 
-		        	if( this.mc.sndManager != null )
-		        		sndSystem = this.mc.sndManager.sndSystem;
-		        	System.out.println("VRRender: got field directly");
+		        	System.out.println("VRRender: got sndSystem directly");
+		        	sndSystemReflect = false;
 		        };
 	        }
 	       	if (_soundManagerSndSystemField != null)
 	       		_soundManagerSndSystemField.setAccessible(true);
+        } 
+        if(!sndSystemReflect ){
+        	if( this.mc.sndManager != null )
+        		sndSystem = this.mc.sndManager.sndSystem;
+        	
         }
         
         

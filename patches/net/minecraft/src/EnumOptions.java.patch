@@ -12,7 +12,7 @@
 +    USE_VR("VR mode", false, true),
 +    HUD_SCALE("HUD Scale", true, false),
 +    HUD_DISTANCE("HUD Distance", true, false),
-+    HUD_PITCH("HUD Pitch Offset", true, false),
++    HUD_PITCH("HUD Vertical Offset", true, false),
 +    HUD_OPACITY("HUD Opacity", true, false),
 +    HUD_HIDE("Hide HUD (F1)", false, true),
 +    HUD_OCCLUSION("HUD Occlusion", false, true),

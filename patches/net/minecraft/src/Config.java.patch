@@ -1,0 +1,31 @@
+--- a/net/minecraft/src/Config.java
++++ b/net/minecraft/src/Config.java
+@@ -1425,27 +1425,7 @@
+                 }
+ 
+                 Display.setDisplayModeAndFullscreen(newMode);
+-                minecraft.displayWidth = Display.getDisplayMode().getWidth();
+-                minecraft.displayHeight = Display.getDisplayMode().getHeight();
+-
+-                if (minecraft.displayWidth <= 0)
+-                {
+-                    minecraft.displayWidth = 1;
+-                }
+-
+-                if (minecraft.displayHeight <= 0)
+-                {
+-                    minecraft.displayHeight = 1;
+-                }
+-
+-                if (minecraft.currentScreen != null)
+-                {
+-                    ScaledResolution sr = new ScaledResolution(minecraft.gameSettings, minecraft.displayWidth, minecraft.displayHeight);
+-                    int sw = sr.getScaledWidth();
+-                    int sh = sr.getScaledHeight();
+-                    minecraft.currentScreen.setWorldAndResolution(minecraft, sw, sh);
+-                }
+-
++                minecraft.resize(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
+                 minecraft.gameSettings.updateVSync();
+                 Display.update();
+                 GL11.glEnable(GL11.GL_TEXTURE_2D);
