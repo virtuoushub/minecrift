@@ -46,7 +46,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	private Frame emptyFrame;
 	private String jar_id;
 	private String version;
-	private String mod;
+	private String mod = "";
 	private JCheckBox useForge;
 	private JComboBox forgeVersion;
 	private JCheckBox useHydra;
