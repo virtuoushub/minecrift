@@ -446,6 +446,16 @@ public class VRSettings {
                         this.hudOcclusion = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("chatOffsetX"))
+                    {
+                        this.chatOffsetX = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("chatOffsetY"))
+                    {
+                        this.chatOffsetY = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("joystickSensitivity"))
                     {
                         this.joystickSensitivity = this.parseFloat(optionTokens[1]);
@@ -1222,6 +1232,8 @@ public class VRSettings {
             var5.println("oculusProfileIpd:" + this.oculusProfileIpd);
             var5.println("oculusProfilePlayerEyeHeight:" + this.oculusProfilePlayerEyeHeight);
             var5.println("crosshairScale:" + this.crosshairScale);
+            var5.println("chatOffsetX:" + this.chatOffsetX);
+            var5.println("chatOffsetY:" + this.chatOffsetY);
 
             var5.close();
         }
