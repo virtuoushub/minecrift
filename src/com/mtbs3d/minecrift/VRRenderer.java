@@ -150,6 +150,7 @@ public class VRRenderer extends EntityRenderer
 	private CalibrationHelper calibrationHelper;
     private float INITIAL_CALIBRATION_TEXT_SCALE = 0.0065f;
     private int CALIBRATION_TEXT_WORDWRAP_LEN = 40;
+	private boolean sndSystemReflect = true;
 
     public VRRenderer(Minecraft par1Minecraft, GuiAchievement guiAchiv)
     {
@@ -386,7 +387,7 @@ public class VRRenderer extends EntityRenderer
         SoundSystem sndSystem = null;
 
         // Use reflection to get the sndManager
-        if (_soundManagerSndSystemField == null)
+        if (sndSystemReflect && _soundManagerSndSystemField == null)
         {
 	        try
 	        {
@@ -400,13 +401,17 @@ public class VRRenderer extends EntityRenderer
 		        	System.out.println("VRRender: Reflected obfuscated b");
 		        }
 		        catch (NoSuchFieldException e1) { 
-		        	if( this.mc.sndManager != null )
-		        		sndSystem = this.mc.sndManager.sndSystem;
-		        	System.out.println("VRRender: got field directly");
+		        	System.out.println("VRRender: got sndSystem directly");
+		        	sndSystemReflect = false;
 		        };
 	        }
 	       	if (_soundManagerSndSystemField != null)
 	       		_soundManagerSndSystemField.setAccessible(true);
+        } 
+        if(!sndSystemReflect ){
+        	if( this.mc.sndManager != null )
+        		sndSystem = this.mc.sndManager.sndSystem;
+        	
         }
         
         
@@ -420,18 +425,28 @@ public class VRRenderer extends EntityRenderer
         	catch (IllegalAccessException e) { };
         }
 
+        float PIOVER180 = (float)(Math.PI/180);
+
+        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
+        up.rotateAroundZ(-cameraRoll * PIOVER180);
+        up.rotateAroundX(-cameraPitch* PIOVER180);
+        up.rotateAroundY(-cameraYaw  * PIOVER180);
         if ( sndSystem != null && this.mc.gameSettings.soundVolume != 0.0F)
         {
             sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
-	        float PIOVER180 = (float)(Math.PI/180);
-
-	        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
-	        up.rotateAroundZ(-cameraRoll * PIOVER180);
-	        up.rotateAroundX(-cameraPitch* PIOVER180);
-	        up.rotateAroundY(-cameraYaw  * PIOVER180);
 
             sndSystem.setListenerOrientation(lookX, lookY, lookZ, 
             								(float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
+        }
+        if( mc.mumbleLink != null ) {
+	        Vec3 forward = Vec3.createVectorHelper(0, 0 , -1);
+	        forward.rotateAroundZ(-cameraRoll * PIOVER180);
+	        forward.rotateAroundX(-cameraPitch* PIOVER180);
+	        forward.rotateAroundY(-cameraYaw  * PIOVER180);
+        	mc.mumbleLink.updateMumble(
+        			 (float)renderOriginX,  (float)renderOriginY,  (float)renderOriginZ,
+        			(float)forward.xCoord, (float)forward.yCoord, (float)forward.zCoord,
+            			 (float)up.xCoord,      (float)up.yCoord,      (float)up.zCoord);
         }
     }
     

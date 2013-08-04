@@ -1,0 +1,40 @@
+--- a/net/minecraft/src/GuiNewChat.java
++++ b/net/minecraft/src/GuiNewChat.java
+@@ -5,6 +5,8 @@
+ import java.util.List;
+ import org.lwjgl.opengl.GL11;
+ 
++import com.mtbs3d.minecrift.settings.VRSettings;
++
+ public class GuiNewChat extends Gui
+ {
+     /** The Minecraft instance. */
+@@ -28,7 +30,7 @@
+     {
+         if (this.mc.gameSettings.chatVisibility != 2)
+         {
+-            int var2 = this.func_96127_i();
++            int var2 = this.func_96127_i(); //number of rows
+             boolean var3 = false;
+             int var4 = 0;
+             int var5 = this.field_96134_d.size();
+@@ -41,10 +43,16 @@
+                     var3 = true;
+                 }
+ 
+-                float var7 = this.func_96131_h();
+-                int var8 = MathHelper.ceiling_float_int((float)this.func_96126_f() / var7);
++                float var7 = this.func_96131_h();//chat scale
++                int chatWidthPixels = this.func_96126_f() ;
++                int chatFullHeightPixels = func_96130_b(this.mc.gameSettings.chatHeightFocused );
++                int var8 = MathHelper.ceiling_float_int((float)chatWidthPixels/ var7);
++
++                ScaledResolution res = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
++                int offsetX =  (int)(VRSettings.inst.chatOffsetX*(res.getScaledWidth()  - chatWidthPixels -2 ));
++                int offsetY = -(int)(VRSettings.inst.chatOffsetY*(res.getScaledHeight() - chatFullHeightPixels -20 ));
+                 GL11.glPushMatrix();
+-                GL11.glTranslatef(2.0F, 20.0F, 0.0F);
++                GL11.glTranslatef(2.0F + offsetX, 20 + offsetY, 0.0F);
+                 GL11.glScalef(var7, var7, 1.0F);
+                 int var9;
+                 int var11;

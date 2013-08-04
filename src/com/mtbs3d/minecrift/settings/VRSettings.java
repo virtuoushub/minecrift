@@ -63,7 +63,6 @@ public class VRSettings {
     public float headTrackSensitivity = 1.0f;
     public boolean useSupersample = false;
     public float superSampleScaleFactor = 2.0f;
-    public boolean useMipMaps = false;
     public boolean lookMoveDecoupled = false;
     public boolean useOculusProfile = false;
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
@@ -109,6 +108,8 @@ public class VRSettings {
     public boolean alwaysRenderBlockOutline = false;
     public boolean crosshairRollsWithHead = true;
     public boolean hudOcclusion = false;
+	public float chatOffsetX = 0;
+	public float chatOffsetY = 0;
     
     private Minecraft mc;
 
@@ -445,6 +446,16 @@ public class VRSettings {
                         this.hudOcclusion = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("chatOffsetX"))
+                    {
+                        this.chatOffsetX = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("chatOffsetY"))
+                    {
+                        this.chatOffsetY = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("joystickSensitivity"))
                     {
                         this.joystickSensitivity = this.parseFloat(optionTokens[1]);
@@ -518,741 +529,543 @@ public class VRSettings {
         String var4 = var3;
         String var5;
 
-        if (par1EnumOptions == EnumOptions.USE_VR)
-        {
-            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
+        switch( par1EnumOptions) {
+	        case USE_VR:
+	            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
+	        case EYE_HEIGHT:
+	            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
+	        case EYE_PROTRUSION:
+	            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
+	        case NECK_LENGTH:
+	            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.neckBaseToEyeHeight) });
+	        case MOVEMENT_MULTIPLIER:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.movementSpeedMultiplier) });
+	        case USE_DISTORTION:
+	            return this.useDistortion ? var4 + "ON" : var4 + "OFF";
+	        case HEAD_TRACKING:
+	            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
+	        case HEAD_TRACK_PREDICTION:
+	            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
+	        case IPD:
+	            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getIPD() * 1000) });
+	        case HEAD_TRACK_PREDICTION_TIME:
+	            return var4 + String.format("%.0fms", new Object[] { Float.valueOf(this.headTrackPredictionTimeSecs * 1000) });
+	        case HUD_OPACITY:
+	        	if( this.hudOpacity > 0.99)
+	        		return var4 +" Opaque";
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudOpacity) });
+	        case RENDER_OWN_HEADWEAR:
+	            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
+	        case HUD_HIDE:
+	            return this.mc.gameSettings.hideGUI ? var4 + "YES" : var4 + "NO";
+	        case RENDER_FULL_FIRST_PERSON_MODEL:
+	            return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
+	        case CHROM_AB_CORRECTION:
+	            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
+	        case HUD_SCALE:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
+	        case RENDER_PLAYER_OFFSET:
+	            if (this.renderPlayerOffset < 0.01f)
+	                return var4 + "None";
+	            else
+	                return var4 + String.format("%.2fcm", new Object[] { Float.valueOf(this.renderPlayerOffset) });
+	        case PITCH_AFFECTS_CAMERA:
+	            return this.allowMousePitchInput ? var4 + "ON" : var4 + "OFF";
+	        case HUD_DISTANCE:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
+	        case HUD_PITCH:
+	            return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudPitchOffset) });
+	        case FOV_SCALE_FACTOR:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
+	        case DISTORTION_FIT_POINT:
+	            if (this.distortionFitPoint < 1)
+	                return var4 + "None";
+	            else if (this.distortionFitPoint > 13)
+	                return var4 + "Large";
+	            else if (this.distortionFitPoint == 5)
+	                return var4 + "Normal";
+	            else
+	                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
+	        case CALIBRATION_STRATEGY:
+	            if (this.calibrationStrategy < 1)
+	                return var4 + "At Startup";
+	//            else if (this.calibrationStrategy == 1) // TODO: Some sort of cached scheme - cache Hydra hemi-sphere & controller 'hand', Rift mag-cal, origin
+	//                return var4 + "Cached";
+	            else
+	                return var4 + "Skip";
+	        case HEAD_TRACK_SENSITIVITY:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.headTrackSensitivity) });
+	        case SUPERSAMPLING:
+	            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
+	        case SUPERSAMPLE_SCALEFACTOR:
+	            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
+	        case DECOUPLE_LOOK_MOVE:
+	            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
+	        case JOYSTICK_SENSITIVITY:
+	            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.joystickSensitivity) });
+	        case JOYSTICK_DEADZONE:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.joystickDeadzone) });
+	        case JOYSTICK_AIM_TYPE:
+	            return var4 + JOYSTICK_AIM_TYPE[joystickAimType];
+	        case KEYHOLE_WIDTH:
+	        	if(this.aimKeyholeWidthDegrees>0)
+		            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.aimKeyholeWidthDegrees) });
+	        	else
+	        		return var4 + "Fully Coupled";
+	        case KEYHOLE_HEIGHT:
+	        	if(this.keyholeHeight>0)
+		            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.keyholeHeight) });
+	        	else
+	        		return var4 + "Fully Coupled";
+	        case POS_TRACK_HYDRALOC:
+	            String s = var4 + "Unknown";
+	
+	            if (this.posTrackHydraLoc >= 0 && this.posTrackHydraLoc < POS_TRACK_HYDRA_LOC.length)
+	                s = var4 + POS_TRACK_HYDRA_LOC[this.posTrackHydraLoc];
+	
+	            return s;
+	        case POS_TRACK_HYDRA_OFFSET_X:
+	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetX() * 1000) });
+	        case POS_TRACK_HYDRA_OFFSET_Y:
+	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetY() * 1000) });
+	        case POS_TRACK_HYDRA_OFFSET_Z:
+	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetZ() * 1000) });
+	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
+	            return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.posTrackHydraDistanceScale) });
+	        case CROSSHAIR_SCALE:
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.crosshairScale) });
+	        case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
+	            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.posTrackHydraYAxisDistanceSkewAngleDeg) });
+	        case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
+	            if (this.posTrackHydraLoc == VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
+	                return var4 + "Both";
+	
+	            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
+	        case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
+	            if (this.posTrackHydraLoc == VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
+	                return var4 + "Neither!";
+	
+	            return this.posTrackHydraUseController1? var4 + "Right" : var4 + "Left";
+	        case POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT:
+	            return this.posTrackHydraBIsPointingLeft ? var4 + "To the Left" : var4 + "To the Right";
+	        case OCULUS_PROFILE:
+	            return this.useOculusProfile ? var4 + "YES" : var4 + "NO";
+	        case OCULUS_PROFILE_NAME:
+	            return var4 + this.oculusProfileName;
+	        case OCULUS_PROFILE_GENDER:
+	            return var4 + this.oculusProfileGender;
+	        case HYDRA_USE_FILTER:
+	            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
+	        case CROSSHAIR_ALWAYS_SHOW:
+	            return this.alwaysRenderInGameCrosshair ? var4 + "Always" : var4 + "With HUD";
+	        case BLOCK_OUTLINE_ALWAYS_SHOW:
+	            return this.alwaysRenderBlockOutline ? var4 + "Always" : var4 + "With HUD";
+	        case CROSSHAIR_ROLL:
+	            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
+	        case HUD_OCCLUSION:
+	            return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
+	        case KEYHOLE_HEAD_RELATIVE:
+	            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
+	        case VR_HEAD_ORIENTATION:
+	            if (this.mc.headTracker != null)
+	                return this.mc.headTracker.getName();
+	
+	            return "None";
+	        case VR_HEAD_POSITION:
+	            if (this.mc.positionTracker != null)
+	            {
+	                String posTrackName = this.mc.positionTracker.getName();
+	                if ( this.mc.positionTracker instanceof MCHydra )
+	                {
+	                    if (this.posTrackHydraUseController1)
+	                    {
+	                        return "Left " + posTrackName;
+	                    }
+	                    else
+	                    {
+	                        return "Right " + posTrackName;
+	                    }
+	                }
+	
+	                return posTrackName;
+	            }
+	            return "None";
+	        case VR_CONTROLLER:
+	            if (this.mc.lookaimController != null)
+	            {
+	                String controllerName = this.mc.lookaimController.getName();
+	                if ( this.mc.lookaimController instanceof MCHydra )
+	                {
+	                    if (this.posTrackHydraUseController1)
+	                    {
+	                        return "Right " + controllerName;
+	                    }
+	                    else
+	                    {
+	                        return "Left " + controllerName;
+	                    }
+	                }
+	                return controllerName;
+	            }
+	            return "None";
+	        case CHAT_OFFSET_X:
+	            return var4 + String.format("%.0f%%", new Object[] { Float.valueOf(100*this.chatOffsetX) });
+	        case CHAT_OFFSET_Y:
+	            return var4 + String.format("%.0f%%", new Object[] { Float.valueOf(100*this.chatOffsetY) });
+	        default:
+	        	return "";
         }
-        else if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
-        {
-            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
-        }
-        else if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
-        {
-            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
-        }
-        else if (par1EnumOptions == EnumOptions.NECK_LENGTH)
-        {
-            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.neckBaseToEyeHeight) });
-        }
-        else if (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.movementSpeedMultiplier) });
-        }
-        else if (par1EnumOptions == EnumOptions.USE_DISTORTION)
-        {
-            return this.useDistortion ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.HEAD_TRACKING)
-        {
-            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
-        {
-            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.IPD)
-        {
-            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getIPD() * 1000) });
-        }
-        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME)
-        {
-            return var4 + String.format("%.0fms", new Object[] { Float.valueOf(this.headTrackPredictionTimeSecs * 1000) });
-        }
-        else if (par1EnumOptions == EnumOptions.HUD_OPACITY)
-        {
-        	if( this.hudOpacity > 0.99)
-        		return var4 +" Opaque";
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudOpacity) });
-        }
-        else if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
-        {
-            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.HUD_HIDE)
-        {
-            return this.mc.gameSettings.hideGUI ? var4 + "YES" : var4 + "NO";
-        }
-        else if (par1EnumOptions == EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL)
-        {
-            return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
-        }
-        else if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
-        {
-            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.HUD_SCALE)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
-        }
-        else if (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET)
-        {
-            if (this.renderPlayerOffset < 0.01f)
-                return var4 + "None";
-            else
-                return var4 + String.format("%.2fcm", new Object[] { Float.valueOf(this.renderPlayerOffset) });
-        }
-        else if (par1EnumOptions == EnumOptions.PITCH_AFFECTS_CAMERA)
-        {
-            return this.allowMousePitchInput ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
-        }
-        else if (par1EnumOptions == EnumOptions.HUD_PITCH)
-        {
-            return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudPitchOffset) });
-        }
-        else if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
-        }
-        else if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
-        {
-            if (this.distortionFitPoint < 1)
-                return var4 + "None";
-            else if (this.distortionFitPoint > 13)
-                return var4 + "Large";
-            else if (this.distortionFitPoint == 5)
-                return var4 + "Normal";
-            else
-                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
-        }
-        else if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
-        {
-            if (this.calibrationStrategy < 1)
-                return var4 + "At Startup";
-//            else if (this.calibrationStrategy == 1) // TODO: Some sort of cached scheme - cache Hydra hemi-sphere & controller 'hand', Rift mag-cal, origin
-//                return var4 + "Cached";
-            else
-                return var4 + "Skip";
-        }
-        else if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.headTrackSensitivity) });
-        }
-        else if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
-        {
-            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-        {
-            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
-        }
-        else if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_MOVE)
-        {
-            return this.lookMoveDecoupled? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
-        {
-            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.joystickSensitivity) });
-        }
-        else if (par1EnumOptions == EnumOptions.JOYSTICK_DEADZONE)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.joystickDeadzone) });
-        }
-        else if (par1EnumOptions == EnumOptions.JOYSTICK_AIM_TYPE)
-        {
-            return var4 + JOYSTICK_AIM_TYPE[joystickAimType];
-        }
-        else if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
-        {
-        	if(this.aimKeyholeWidthDegrees>0)
-	            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.aimKeyholeWidthDegrees) });
-        	else
-        		return var4 + "Fully Coupled";
-        }
-        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT)
-        {
-        	if(this.keyholeHeight>0)
-	            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.keyholeHeight) });
-        	else
-        		return var4 + "Fully Coupled";
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
-        {
-            String s = var4 + "Unknown";
-
-            if (this.posTrackHydraLoc >= 0 && this.posTrackHydraLoc < POS_TRACK_HYDRA_LOC.length)
-                s = var4 + POS_TRACK_HYDRA_LOC[this.posTrackHydraLoc];
-
-            return s;
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X)
-        {
-            float value = 0.0f;
-
-            switch (this.posTrackHydraLoc)
-            {
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    value = this.posTrackHydraLROffsetX;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    value = this.posTrackHydraLOffsetX;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    value = this.posTrackHydraROffsetX;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    value = this.posTrackHydraTOffsetX;
-                    break;
-                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.posTrackHydraBIsPointingLeft)
-                        value = this.posTrackHydraBLOffsetX;
-                    else
-                        value = this.posTrackHydraBROffsetX;
-                    break;
-            }
-
-            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y)
-        {
-            float value = 0.0f;
-
-            switch (this.posTrackHydraLoc)
-            {
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    value = this.posTrackHydraLROffsetY;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    value = this.posTrackHydraLOffsetY;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    value = this.posTrackHydraROffsetY;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    value = this.posTrackHydraTOffsetY;
-                    break;
-                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.posTrackHydraBIsPointingLeft)
-                        value = this.posTrackHydraBLOffsetY;
-                    else
-                        value = this.posTrackHydraBROffsetY;
-                    break;
-            }
-
-            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
-        {
-            float value = 0.0f;
-
-            switch (this.posTrackHydraLoc)
-            {
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    value = this.posTrackHydraLROffsetZ;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    value = this.posTrackHydraLOffsetZ;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    value = this.posTrackHydraROffsetZ;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    value = this.posTrackHydraTOffsetZ;
-                    break;
-                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.posTrackHydraBIsPointingLeft)
-                        value = this.posTrackHydraBLOffsetZ;
-                    else
-                        value = this.posTrackHydraBROffsetZ;
-                    break;
-            }
-
-            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(value * 1000) });
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
-        {
-            return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.posTrackHydraDistanceScale) });
-        }
-        else if (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE)
-        {
-            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.crosshairScale) });
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW)
-        {
-            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.posTrackHydraYAxisDistanceSkewAngleDeg) });
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
-        {
-            if (this.posTrackHydraLoc == VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
-                return var4 + "Both";
-
-            return this.posTrackHydraUseController1? var4 + "Left" : var4 + "Right";
-        }
-        else if (par1EnumOptions == EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE)
-        {
-            if (this.posTrackHydraLoc == VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT)
-                return var4 + "Neither!";
-
-            return this.posTrackHydraUseController1? var4 + "Right" : var4 + "Left";
-        }
-        else if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
-        {
-            return this.posTrackHydraBIsPointingLeft ? var4 + "To the Left" : var4 + "To the Right";
-        }
-        else if (par1EnumOptions == EnumOptions.OCULUS_PROFILE)
-        {
-            return this.useOculusProfile ? var4 + "YES" : var4 + "NO";
-        }
-        else if (par1EnumOptions == EnumOptions.OCULUS_PROFILE_NAME)
-        {
-            return var4 + this.oculusProfileName;
-        }
-        else if (par1EnumOptions == EnumOptions.OCULUS_PROFILE_GENDER)
-        {
-            return var4 + this.oculusProfileGender;
-        }
-        else if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
-        {
-            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.CROSSHAIR_ALWAYS_SHOW)
-        {
-            return this.alwaysRenderInGameCrosshair ? var4 + "Always" : var4 + "With HUD";
-        }
-        else if (par1EnumOptions == EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW)
-        {
-            return this.alwaysRenderBlockOutline ? var4 + "Always" : var4 + "With HUD";
-        }
-        else if (par1EnumOptions == EnumOptions.CROSSHAIR_ROLL)
-        {
-            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
-        }
-        else if (par1EnumOptions == EnumOptions.HUD_OCCLUSION)
-        {
-            return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
-        }
-        else if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
-        {
-            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
-        }
-        else if (par1EnumOptions == EnumOptions.VR_HEAD_ORIENTATION)
-        {
-            if (this.mc.headTracker != null)
-                return this.mc.headTracker.getName();
-
-            return "None";
-        }
-        else if (par1EnumOptions == EnumOptions.VR_HEAD_POSITION)
-        {
-            if (this.mc.positionTracker != null)
-            {
-                String posTrackName = this.mc.positionTracker.getName();
-                if ( this.mc.positionTracker instanceof MCHydra )
-                {
-                    if (this.posTrackHydraUseController1)
-                    {
-                        return "Left " + posTrackName;
-                    }
-                    else
-                    {
-                        return "Right " + posTrackName;
-                    }
-                }
-
-                return posTrackName;
-            }
-
-            return "None";
-        }
-        else if (par1EnumOptions == EnumOptions.VR_CONTROLLER)
-        {
-            if (this.mc.lookaimController != null)
-            {
-                String controllerName = this.mc.lookaimController.getName();
-                if ( this.mc.lookaimController instanceof MCHydra )
-                {
-                    if (this.posTrackHydraUseController1)
-                    {
-                        return "Right " + controllerName;
-                    }
-                    else
-                    {
-                        return "Left " + controllerName;
-                    }
-                }
-
-                return controllerName;
-            }
-
-            return "None";
-        }
-		return "";
     }
 
     public float getOptionFloatValue(EnumOptions par1EnumOptions)
     {
-        return par1EnumOptions == EnumOptions.EYE_HEIGHT ? getPlayerEyeHeight() :
-              (par1EnumOptions == EnumOptions.EYE_PROTRUSION ? this.eyeProtrusion :
-              (par1EnumOptions == EnumOptions.NECK_LENGTH ? this.neckBaseToEyeHeight :
-              (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER ? this.movementSpeedMultiplier :
-              (par1EnumOptions == EnumOptions.IPD ? getIPD() :
-              (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME) ? this.headTrackPredictionTimeSecs :
-              (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY) ? this.joystickSensitivity:
-              (par1EnumOptions == EnumOptions.JOYSTICK_DEADZONE) ? this.joystickDeadzone:
-              (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH) ? this.aimKeyholeWidthDegrees:
-              (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT) ? this.keyholeHeight:
-              (par1EnumOptions == EnumOptions.HUD_SCALE ? this.hudScale :
-              (par1EnumOptions == EnumOptions.HUD_OPACITY ? this.hudOpacity :
-              (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET ? this.renderPlayerOffset :
-              (par1EnumOptions == EnumOptions.HUD_DISTANCE ? this.hudDistance :
-              (par1EnumOptions == EnumOptions.HUD_PITCH ? this.hudPitchOffset :
-              (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR ? this.fovScaleFactor :
-              (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY ? this.headTrackSensitivity :
-              (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR ? this.superSampleScaleFactor :
-              (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT ? (float)this.distortionFitPoint :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetX :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetX :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetX :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetX :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft ? this.posTrackHydraBLOffsetX :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft ? this.posTrackHydraBROffsetX :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetY :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetY :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetY :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetY :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBLOffsetY :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetY :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT ? this.posTrackHydraLROffsetZ :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_LEFT ? this.posTrackHydraLOffsetZ :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_RIGHT ? this.posTrackHydraROffsetZ :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_HMD_TOP ? this.posTrackHydraTOffsetZ :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBLOffsetZ :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z && this.posTrackHydraLoc == POS_TRACK_HYDRA_LOC_BACK_OF_HEAD && !this.posTrackHydraBIsPointingLeft  ? this.posTrackHydraBROffsetZ :
-              (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ? this.posTrackHydraDistanceScale :
-              (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE ? this.crosshairScale :
-              (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW ? this.posTrackHydraYAxisDistanceSkewAngleDeg : 0.0F))))))))))))))))))))))))))))))))));
+    	switch( par1EnumOptions ) {
+			case EYE_HEIGHT :
+				return getPlayerEyeHeight() ;
+			case EYE_PROTRUSION :
+				return this.eyeProtrusion ;
+			case NECK_LENGTH :
+				return this.neckBaseToEyeHeight ;
+			case MOVEMENT_MULTIPLIER :
+				return this.movementSpeedMultiplier ;
+			case IPD :
+				return getIPD() ;
+			case HEAD_TRACK_PREDICTION_TIME :
+				return this.headTrackPredictionTimeSecs ;
+			case JOYSTICK_SENSITIVITY :
+				return this.joystickSensitivity;
+			case JOYSTICK_DEADZONE :
+				return this.joystickDeadzone;
+			case KEYHOLE_WIDTH :
+				return this.aimKeyholeWidthDegrees;
+			case KEYHOLE_HEIGHT :
+				return this.keyholeHeight;
+			case HUD_SCALE :
+				return this.hudScale ;
+			case HUD_OPACITY :
+				return this.hudOpacity ;
+			case RENDER_PLAYER_OFFSET :
+				return this.renderPlayerOffset ;
+			case HUD_DISTANCE :
+				return this.hudDistance ;
+			case HUD_PITCH :
+				return this.hudPitchOffset ;
+			case FOV_SCALE_FACTOR :
+				return this.fovScaleFactor ;
+			case HEAD_TRACK_SENSITIVITY :
+				return this.headTrackSensitivity ;
+			case SUPERSAMPLE_SCALEFACTOR :
+				return this.superSampleScaleFactor ;
+			case DISTORTION_FIT_POINT :
+				return (float)this.distortionFitPoint ;
+			case POS_TRACK_HYDRA_OFFSET_X:
+			  	switch( this.posTrackHydraLoc )
+			  	{
+			  	case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT :
+			  		return this.posTrackHydraLROffsetX ;
+			  	case POS_TRACK_HYDRA_LOC_HMD_LEFT :
+			  		return this.posTrackHydraLOffsetX ;
+			  	case POS_TRACK_HYDRA_LOC_HMD_RIGHT :
+			  		return this.posTrackHydraROffsetX ;
+			  	case POS_TRACK_HYDRA_LOC_HMD_TOP :
+			  		return this.posTrackHydraTOffsetX ;
+			  	case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD: 
+			  		if(this.posTrackHydraBIsPointingLeft)
+			  			return this.posTrackHydraBLOffsetX;
+			  		else 
+			  			return this.posTrackHydraBROffsetX;
+			  	 }
+			case POS_TRACK_HYDRA_OFFSET_Y:
+			  	switch( this.posTrackHydraLoc )
+			  	{
+			  	case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT :
+			  		return this.posTrackHydraLROffsetY ;
+			  	case POS_TRACK_HYDRA_LOC_HMD_LEFT :
+			  		return this.posTrackHydraLOffsetY ;
+			  	case POS_TRACK_HYDRA_LOC_HMD_RIGHT :
+			  		return this.posTrackHydraROffsetY ;
+			  	case POS_TRACK_HYDRA_LOC_HMD_TOP :
+			  		return this.posTrackHydraTOffsetY ;
+			  	case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD: 
+			  		if(this.posTrackHydraBIsPointingLeft)
+			  			return this.posTrackHydraBLOffsetY;
+			  		else 
+			  			return this.posTrackHydraBROffsetY;
+			  	}
+			case POS_TRACK_HYDRA_OFFSET_Z:
+			  	 switch( this.posTrackHydraLoc )
+			  	 {
+			  		case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT :
+			  			return this.posTrackHydraLROffsetZ ;
+			  		case POS_TRACK_HYDRA_LOC_HMD_LEFT :
+			  			return this.posTrackHydraLOffsetZ ;
+			  		case POS_TRACK_HYDRA_LOC_HMD_RIGHT :
+			  			return this.posTrackHydraROffsetZ ;
+			  		case POS_TRACK_HYDRA_LOC_HMD_TOP :
+			  			return this.posTrackHydraTOffsetZ ;
+			  		case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD: 
+			  			if(this.posTrackHydraBIsPointingLeft)
+			  				return this.posTrackHydraBLOffsetZ;
+			  			else 
+			  				return this.posTrackHydraBROffsetZ;
+			  	 }
+			case POS_TRACK_HYDRA_DISTANCE_SCALE :
+				return this.posTrackHydraDistanceScale ;
+			case CROSSHAIR_SCALE :
+				return this.crosshairScale ;
+			case POS_TRACK_Y_AXIS_DISTANCE_SKEW :
+				return this.posTrackHydraYAxisDistanceSkewAngleDeg;
+			case CHAT_OFFSET_X:
+				return this.chatOffsetX;
+			case CHAT_OFFSET_Y:
+				return this.chatOffsetY;
+			default:
+				return 0.0f;
+    	}
     }
     /**
      * For non-float options. Toggles the option on/off, or cycles through the list i.e. render distances.
      */
     public void setOptionValue(EnumOptions par1EnumOptions, int par2)
     {
-        if (par1EnumOptions == EnumOptions.USE_VR)
-        {
-            this.useVRRenderer = !this.useVRRenderer;
-            mc.setUseVRRenderer(useVRRenderer);
-        }
-
-        if (par1EnumOptions == EnumOptions.USE_DISTORTION)
-        {
-            this.useDistortion = !this.useDistortion;
-        }
-
-        if (par1EnumOptions == EnumOptions.HEAD_TRACKING)
-        {
-            this.useHeadTracking = !this.useHeadTracking;
-        }
-
-        if (par1EnumOptions == EnumOptions.RENDER_OWN_HEADWEAR)
-        {
-            this.renderHeadWear = !this.renderHeadWear;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_HIDE)
-        {
-            this.mc.gameSettings.hideGUI = !this.mc.gameSettings.hideGUI;
-        }
-
-        if (par1EnumOptions == EnumOptions.RENDER_FULL_FIRST_PERSON_MODEL)
-        {
-            this.renderFullFirstPersonModel = !this.renderFullFirstPersonModel;
-        }
-
-        if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION)
-        {
-            this.useHeadTrackPrediction = !this.useHeadTrackPrediction;
-        }
-
-        if (par1EnumOptions == EnumOptions.CHROM_AB_CORRECTION)
-        {
-            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
-        }
-
-        if (par1EnumOptions == EnumOptions.PITCH_AFFECTS_CAMERA)
-        {
-            this.allowMousePitchInput = !this.allowMousePitchInput;
-        }
-
-        if (par1EnumOptions == EnumOptions.SUPERSAMPLING)
-        {
-            this.useSupersample = !this.useSupersample;
-        }
-
-        if (par1EnumOptions == EnumOptions.DECOUPLE_LOOK_MOVE)
-        {
-            this.lookMoveDecoupled = !this.lookMoveDecoupled;
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRALOC)
-        {
-            this.posTrackHydraLoc += 1;
-            if (this.posTrackHydraLoc > POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)
-            {
-                this.posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
-            }
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
-        {
-            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
-        }
-
-        if (par1EnumOptions == EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE)
-        {
-            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
-        }
-
-        if (par1EnumOptions == EnumOptions.OCULUS_PROFILE)
-        {
-            this.useOculusProfile = !this.useOculusProfile;
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
-        {
-            this.posTrackHydraBIsPointingLeft = !this.posTrackHydraBIsPointingLeft;
-        }
-        
-        if( par1EnumOptions == EnumOptions.JOYSTICK_AIM_TYPE )
-        {
-        	this.joystickAimType ++;
-        	if( joystickAimType >= JOYSTICK_AIM_TYPE.length )
-        		joystickAimType = 0;
-        }
-
-        if (par1EnumOptions == EnumOptions.HYDRA_USE_FILTER)
-        {
-            this.hydraUseFilter = !this.hydraUseFilter;
-        }
-
-        if (par1EnumOptions == EnumOptions.CROSSHAIR_ALWAYS_SHOW)
-        {
-            this.alwaysRenderInGameCrosshair = !this.alwaysRenderInGameCrosshair;
-        }
-
-        if (par1EnumOptions == EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW)
-        {
-            this.alwaysRenderBlockOutline = !this.alwaysRenderBlockOutline;
-        }
-
-        if (par1EnumOptions == EnumOptions.CROSSHAIR_ROLL)
-        {
-            this.crosshairRollsWithHead = !this.crosshairRollsWithHead;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_OCCLUSION)
-        {
-            this.hudOcclusion = !this.hudOcclusion;
-        }
-
-        if (par1EnumOptions == EnumOptions.KEYHOLE_HEAD_RELATIVE)
-        {
-        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
-        }
-
-        if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
-        {
-            this.calibrationStrategy += 1;
-            if (this.calibrationStrategy > 1)
-                this.calibrationStrategy = 0;
-        }
+    	switch( par1EnumOptions )
+    	{
+	        case USE_VR:
+	            this.useVRRenderer = !this.useVRRenderer;
+	            mc.setUseVRRenderer(useVRRenderer);
+	            break;
+	        case USE_DISTORTION:
+	            this.useDistortion = !this.useDistortion;
+	            break;
+	        case HEAD_TRACKING:
+	            this.useHeadTracking = !this.useHeadTracking;
+	            break;
+	        case RENDER_OWN_HEADWEAR:
+	            this.renderHeadWear = !this.renderHeadWear;
+	            break;
+	        case HUD_HIDE:
+	            this.mc.gameSettings.hideGUI = !this.mc.gameSettings.hideGUI;
+	            break;
+	        case RENDER_FULL_FIRST_PERSON_MODEL:
+	            this.renderFullFirstPersonModel = !this.renderFullFirstPersonModel;
+	            break;
+	        case HEAD_TRACK_PREDICTION:
+	            this.useHeadTrackPrediction = !this.useHeadTrackPrediction;
+	            break;
+	        case CHROM_AB_CORRECTION:
+	            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
+	            break;
+	        case PITCH_AFFECTS_CAMERA:
+	            this.allowMousePitchInput = !this.allowMousePitchInput;
+	            break;
+	        case SUPERSAMPLING:
+	            this.useSupersample = !this.useSupersample;
+	            break;
+	        case DECOUPLE_LOOK_MOVE:
+	            this.lookMoveDecoupled = !this.lookMoveDecoupled;
+	            break;
+	        case POS_TRACK_HYDRALOC:
+	            this.posTrackHydraLoc += 1;
+	            if (this.posTrackHydraLoc > POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)
+	                this.posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
+	            break;
+	        case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
+	            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
+	            break;
+	        case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
+	            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
+	            break;
+	        case OCULUS_PROFILE:
+	            this.useOculusProfile = !this.useOculusProfile;
+	            break;
+	        case POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT:
+	            this.posTrackHydraBIsPointingLeft = !this.posTrackHydraBIsPointingLeft;
+	            break;
+	        case JOYSTICK_AIM_TYPE:
+	        	this.joystickAimType ++;
+	        	if( joystickAimType >= JOYSTICK_AIM_TYPE.length )
+	        		joystickAimType = 0;
+	        	break;
+	        case HYDRA_USE_FILTER:
+	            this.hydraUseFilter = !this.hydraUseFilter;
+	            break;
+	        case CROSSHAIR_ALWAYS_SHOW:
+	            this.alwaysRenderInGameCrosshair = !this.alwaysRenderInGameCrosshair;
+	            break;
+	        case BLOCK_OUTLINE_ALWAYS_SHOW:
+	            this.alwaysRenderBlockOutline = !this.alwaysRenderBlockOutline;
+	            break;
+	        case CROSSHAIR_ROLL:
+	            this.crosshairRollsWithHead = !this.crosshairRollsWithHead;
+	            break;
+	        case HUD_OCCLUSION:
+	            this.hudOcclusion = !this.hudOcclusion;
+	            break;
+	        case KEYHOLE_HEAD_RELATIVE:
+	        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
+	            break;
+	        case CALIBRATION_STRATEGY:
+	            this.calibrationStrategy += 1;
+	            if (this.calibrationStrategy > 1)
+	                this.calibrationStrategy = 0;
+	            break;
+	        default:
+	        	break;
+    	}
 
         this.saveOptions();
     }
 
     public void setOptionFloatValue(EnumOptions par1EnumOptions, float par2)
     {
-        if (par1EnumOptions == EnumOptions.EYE_HEIGHT)
-        {
-            this.playerEyeHeight = par2;
-        }
+    	switch( par1EnumOptions ) {
+	        case EYE_HEIGHT:
+	            this.playerEyeHeight = par2;
+	            break;
+	        case EYE_PROTRUSION:
+	            this.eyeProtrusion = par2;
+	            break;
+	        case NECK_LENGTH:
+	            this.neckBaseToEyeHeight = par2;
+	            break;
+	        case MOVEMENT_MULTIPLIER:
+	            this.movementSpeedMultiplier = par2;
+	            break;
+	        case IPD:
+	            this.ipd = par2;
+	        	break;
+	        case HEAD_TRACK_PREDICTION_TIME:
+	            this.headTrackPredictionTimeSecs = par2;
+	        	break;
+	        case JOYSTICK_SENSITIVITY:
+	            this.joystickSensitivity = par2;
+	        	break;
+	        case JOYSTICK_DEADZONE:
+	            this.joystickDeadzone = par2;
+	        	break;
+	        case KEYHOLE_WIDTH:
+	            this.aimKeyholeWidthDegrees = par2;
+	        	break;
+	        case KEYHOLE_HEIGHT:
+	            this.keyholeHeight = par2;
+	        	break;
+	        case HUD_SCALE:
+	            this.hudScale = par2;
+	        	break;
+	        case HUD_OPACITY:
+	            this.hudOpacity = par2;
+	        	break;
+	        case RENDER_PLAYER_OFFSET:
+	            this.renderPlayerOffset = par2;
+	        	break;
+	        case HUD_DISTANCE:
+	            this.hudDistance = par2;
+	        	break;
+	        case HUD_PITCH:
+	            this.hudPitchOffset = par2;
+	        	break;
+	        case FOV_SCALE_FACTOR:
+	            this.fovScaleFactor = par2;
+	        	break;
+	        case HEAD_TRACK_SENSITIVITY:
+	            this.headTrackSensitivity = par2;
+	        	break;
+	        case SUPERSAMPLE_SCALEFACTOR:
+	            this.superSampleScaleFactor = par2;
+	        	break;
+	        case DISTORTION_FIT_POINT:
+	            this.distortionFitPoint = (int)Math.floor(par2);
+	        	break;
+	        case CALIBRATION_STRATEGY:
+	            this.calibrationStrategy = (int)Math.floor(par2);
+	        	break;
+	        case POS_TRACK_HYDRA_OFFSET_X:
+	            switch (this.posTrackHydraLoc)
+	            {
+	                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
+	                    this.posTrackHydraLROffsetX = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
+	                    this.posTrackHydraLOffsetX = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
+	                    this.posTrackHydraROffsetX = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_TOP:
+	                    this.posTrackHydraTOffsetX = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+	                    if (this.posTrackHydraBIsPointingLeft)
+	                        this.posTrackHydraBLOffsetX = par2;
+	                    else
+	                        this.posTrackHydraBROffsetX = par2;
+	                    break;
+	            }
+	        	break;
 
-        if (par1EnumOptions == EnumOptions.EYE_PROTRUSION)
-        {
-            this.eyeProtrusion = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.NECK_LENGTH)
-        {
-            this.neckBaseToEyeHeight = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.MOVEMENT_MULTIPLIER)
-        {
-            this.movementSpeedMultiplier = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.IPD)
-        {
-            this.ipd = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.HEAD_TRACK_PREDICTION_TIME)
-        {
-            this.headTrackPredictionTimeSecs = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.JOYSTICK_SENSITIVITY)
-        {
-            this.joystickSensitivity = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.JOYSTICK_DEADZONE)
-        {
-            this.joystickDeadzone = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.KEYHOLE_WIDTH)
-        {
-            this.aimKeyholeWidthDegrees = par2;
-        }
-        if (par1EnumOptions == EnumOptions.KEYHOLE_HEIGHT)
-        {
-            this.keyholeHeight = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_SCALE)
-        {
-            this.hudScale = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_OPACITY)
-        {
-            this.hudOpacity = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.RENDER_PLAYER_OFFSET)
-        {
-            this.renderPlayerOffset = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_DISTANCE)
-        {
-            this.hudDistance = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.HUD_PITCH)
-        {
-            this.hudPitchOffset = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.FOV_SCALE_FACTOR)
-        {
-            this.fovScaleFactor = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.HEAD_TRACK_SENSITIVITY)
-        {
-            this.headTrackSensitivity = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-        {
-            this.superSampleScaleFactor = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.DISTORTION_FIT_POINT)
-        {
-            this.distortionFitPoint = (int)Math.floor(par2);
-        }
-
-        if (par1EnumOptions == EnumOptions.CALIBRATION_STRATEGY)
-        {
-            this.calibrationStrategy = (int)Math.floor(par2);
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_X)
-        {
-            switch (this.posTrackHydraLoc)
-            {
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    this.posTrackHydraLROffsetX = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    this.posTrackHydraLOffsetX = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    this.posTrackHydraROffsetX = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    this.posTrackHydraTOffsetX = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.posTrackHydraBIsPointingLeft)
-                        this.posTrackHydraBLOffsetX = par2;
-                    else
-                        this.posTrackHydraBROffsetX = par2;
-                    break;
-            }
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Y)
-        {
-            switch (this.posTrackHydraLoc)
-            {
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    this.posTrackHydraLROffsetY = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    this.posTrackHydraLOffsetY = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    this.posTrackHydraROffsetY = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    this.posTrackHydraTOffsetY = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.posTrackHydraBIsPointingLeft)
-                        this.posTrackHydraBLOffsetY = par2;
-                    else
-                        this.posTrackHydraBROffsetY = par2;
-                    break;
-            }
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_OFFSET_Z)
-        {
-            switch (this.posTrackHydraLoc)
-            {
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
-                    this.posTrackHydraLROffsetZ = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
-                    this.posTrackHydraLOffsetZ = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
-                    this.posTrackHydraROffsetZ = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_HMD_TOP:
-                    this.posTrackHydraTOffsetZ = par2;
-                    break;
-                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
-                    if (this.posTrackHydraBIsPointingLeft)
-                        this.posTrackHydraBLOffsetZ = par2;
-                    else
-                        this.posTrackHydraBROffsetZ = par2;
-                    break;
-            }
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
-        {
-            this.posTrackHydraDistanceScale = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW)
-        {
-            this.posTrackHydraYAxisDistanceSkewAngleDeg = par2;
-        }
-
-        if (par1EnumOptions == EnumOptions.CROSSHAIR_SCALE)
-        {
-            this.crosshairScale = par2;
-        }
-
+	        case POS_TRACK_HYDRA_OFFSET_Y:
+	            switch (this.posTrackHydraLoc)
+	            {
+	                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
+	                    this.posTrackHydraLROffsetY = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
+	                    this.posTrackHydraLOffsetY = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
+	                    this.posTrackHydraROffsetY = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_TOP:
+	                    this.posTrackHydraTOffsetY = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+	                    if (this.posTrackHydraBIsPointingLeft)
+	                        this.posTrackHydraBLOffsetY = par2;
+	                    else
+	                        this.posTrackHydraBROffsetY = par2;
+	                    break;
+	            }
+	        case POS_TRACK_HYDRA_OFFSET_Z:
+	            switch (this.posTrackHydraLoc)
+	            {
+	                case POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT:
+	                    this.posTrackHydraLROffsetZ = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_LEFT:
+	                    this.posTrackHydraLOffsetZ = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_RIGHT:
+	                    this.posTrackHydraROffsetZ = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_HMD_TOP:
+	                    this.posTrackHydraTOffsetZ = par2;
+	                    break;
+	                case POS_TRACK_HYDRA_LOC_BACK_OF_HEAD:
+	                    if (this.posTrackHydraBIsPointingLeft)
+	                        this.posTrackHydraBLOffsetZ = par2;
+	                    else
+	                        this.posTrackHydraBROffsetZ = par2;
+	                    break;
+	            }
+	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
+	            this.posTrackHydraDistanceScale = par2;
+	        	break;
+	        case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
+	            this.posTrackHydraYAxisDistanceSkewAngleDeg = par2;
+	        	break;
+	        case CROSSHAIR_SCALE:
+	            this.crosshairScale = par2;
+	        	break;
+	        case CHAT_OFFSET_X:
+	        	this.chatOffsetX = par2;
+	        	break;
+	        case CHAT_OFFSET_Y:
+	        	this.chatOffsetY = par2;
+	        	break;
+	        default:
+	        	break;
+    	}
+	
         this.saveOptions();
     }
 
@@ -1419,6 +1232,8 @@ public class VRSettings {
             var5.println("oculusProfileIpd:" + this.oculusProfileIpd);
             var5.println("oculusProfilePlayerEyeHeight:" + this.oculusProfilePlayerEyeHeight);
             var5.println("crosshairScale:" + this.crosshairScale);
+            var5.println("chatOffsetX:" + this.chatOffsetX);
+            var5.println("chatOffsetY:" + this.chatOffsetY);
 
             var5.close();
         }

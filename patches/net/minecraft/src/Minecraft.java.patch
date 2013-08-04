@@ -8,8 +8,12 @@
  import java.nio.ByteBuffer;
  import java.text.DecimalFormat;
  import java.text.SimpleDateFormat;
-@@ -17,6 +18,10 @@
+@@ -15,8 +16,14 @@
+ import java.util.Iterator;
+ import java.util.List;
  import javax.imageio.ImageIO;
++
++import net.aib42.mumblelink.MumbleLink;
  import net.minecraft.client.ClientBrandRetriever;
  import net.minecraft.server.MinecraftServer;
 +
@@ -19,7 +23,7 @@
  import org.lwjgl.LWJGLException;
  import org.lwjgl.Sys;
  import org.lwjgl.input.Keyboard;
-@@ -30,6 +35,19 @@
+@@ -30,6 +37,17 @@
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
  
@@ -32,8 +36,6 @@
 +import com.mtbs3d.minecrift.api.PluginManager;
 +import com.mtbs3d.minecrift.control.ControlBinding;
 +import com.mtbs3d.minecrift.control.JoystickAim;
-+
-+import cpw.mods.fml.relauncher.Side;
 +
 +
  public class Minecraft implements IPlayerUsage
@@ -55,15 +57,16 @@
      private Timer timer = new Timer(20.0F);
  
      /** Instance of PlayerUsageSnooper. */
-@@ -85,6 +110,7 @@
+@@ -85,6 +110,8 @@
      public GuiScreen currentScreen;
      public LoadingScreenRenderer loadingScreen;
      public EntityRenderer entityRenderer;
 +    public VRRenderer vrRenderer;
++    public MumbleLink mumbleLink;
  
      /** Mouse left click counter */
      private int leftClickCounter;
-@@ -110,6 +136,7 @@
+@@ -110,6 +137,7 @@
  
      /** The game settings that currently hold effect. */
      public GameSettings gameSettings;
@@ -71,7 +74,7 @@
      public SoundManager sndManager;
  
      /** Mouse helper instance. */
-@@ -119,12 +146,13 @@
+@@ -119,12 +147,13 @@
      private final String field_110447_Z;
      private final Proxy field_110453_aa;
      private ISaveFormat saveLoader;
@@ -87,7 +90,7 @@
  
      /**
       * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
-@@ -186,6 +214,21 @@
+@@ -186,6 +215,21 @@
      /** Profiler currently displayed in the debug screen pie chart */
      private String debugProfilerName = "root";
  
@@ -109,7 +112,7 @@
      public Minecraft(Session par1Session, int par2, int par3, boolean par4, boolean par5, File par6File, File par7File, File par8File, Proxy par9Proxy, String par10Str)
      {
          theMinecraft = this;
-@@ -202,8 +245,7 @@
+@@ -202,8 +246,7 @@
          this.field_94139_O.logInfo("Setting user: " + par1Session.func_111285_a());
          this.field_94139_O.logInfo("(Session ID is " + par1Session.func_111286_b() + ")");
          this.isDemo = par5;
@@ -119,7 +122,7 @@
          this.tempDisplayWidth = par2;
          this.tempDisplayHeight = par3;
          this.fullscreen = par4;
-@@ -262,36 +304,27 @@
+@@ -262,36 +305,27 @@
      private void startGame() throws LWJGLException
      {
          this.gameSettings = new GameSettings(this, this.mcDataDir);
@@ -163,7 +166,7 @@
          this.getLogAgent().logInfo("LWJGL Version: " + Sys.getVersion());
  
          if (Util.func_110647_a() != EnumOS.MACOS)
-@@ -350,6 +383,17 @@
+@@ -350,6 +384,23 @@
          this.field_110451_am.func_110542_a(this.sndManager);
          this.loadScreen();
          this.fontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
@@ -176,12 +179,18 @@
 +        
 +        if( fmlClientHandler != null)
 +        {
-+        	Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[]{this});
++        	try {
++        		Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[]{this,this.field_110449_ao});
++        	} catch ( IllegalArgumentException iae ) {
++        		try {
++        			Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[]{this,this.field_110449_ao,this.field_110451_am});
++        		} catch ( Exception e ) { Config.dbg("Couldn't call FMLClientHandler.beginMinecraftLoading THINGS ARE BROKEN!");} 
++        	}
 +        }
  
          if (this.gameSettings.language != null)
          {
-@@ -363,10 +407,30 @@
+@@ -363,10 +414,37 @@
          this.field_110451_am.func_110542_a(new GrassColorReloadListener());
          this.field_110451_am.func_110542_a(new FoliageColorReloadListener());
          RenderManager.instance.itemRenderer = new ItemRenderer(this);
@@ -197,6 +206,13 @@
 +		} catch( Exception e1) {
 +			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
 +		}
++        try {
++        	MumbleLink.loadLibrary();
++        	mumbleLink = new MumbleLink("MinecraftVR", "Minecraft VR");
++        	mumbleLink.setIdentityAndContext(this.session.func_111285_a(), "Minecraft"/*TODO: get the servername? */);
++        } catch( Exception e ) {
++			System.err.println("Couldn't load MumbleLink"+e.toString());
++        }
 +        new MCController();
 +        new MCMouse(); //create and register mouse ILookAimMoveController plugin
 +        new NullCenterEyePosition(); //create and register "None" head position plugin
@@ -213,7 +229,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -383,15 +447,45 @@
+@@ -383,15 +461,45 @@
          this.renderGlobal = new RenderGlobal(this);
          this.renderEngine.func_130088_a(TextureMap.field_110575_b, new TextureMap(0, "textures/blocks"));
          this.renderEngine.func_130088_a(TextureMap.field_110576_c, new TextureMap(1, "textures/items"));
@@ -261,7 +277,7 @@
          else
          {
              this.displayGuiScreen(new GuiMainMenu());
-@@ -403,6 +497,11 @@
+@@ -403,6 +511,11 @@
          {
              this.toggleFullscreen();
          }
@@ -273,7 +289,17 @@
      }
  
      public void func_110436_a()
-@@ -595,21 +694,28 @@
+@@ -495,8 +608,7 @@
+         }
+ 
+         Display.setDisplayMode(var2);
+-        this.displayWidth = var2.getWidth();
+-        this.displayHeight = var2.getHeight();
++        resize(var2.getWidth(),var2.getHeight());
+     }
+ 
+     /**
+@@ -595,21 +707,28 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -306,7 +332,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -652,6 +758,8 @@
+@@ -652,6 +771,8 @@
              }
  
              this.sndManager.closeMinecraft();
@@ -315,7 +341,7 @@
          }
          finally
          {
-@@ -683,6 +791,7 @@
+@@ -683,6 +804,7 @@
              return;
          }
  
@@ -323,7 +349,7 @@
          try
          {
              while (this.running)
-@@ -782,7 +891,8 @@
+@@ -782,7 +904,8 @@
          this.checkGLError("Pre render");
          RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;
          this.mcProfiler.endStartSection("sound");
@@ -333,7 +359,7 @@
  
          if (!this.isGamePaused)
          {
-@@ -808,9 +918,44 @@
+@@ -808,9 +931,44 @@
  
          if (!this.skipRenderWorld)
          {
@@ -378,7 +404,7 @@
          }
  
          GL11.glFlush();
-@@ -837,7 +982,7 @@
+@@ -837,7 +995,7 @@
              this.prevFrameTime = System.nanoTime();
          }
  
@@ -387,7 +413,7 @@
          this.mcProfiler.startSection("root");
          Thread.yield();
  
-@@ -850,20 +995,9 @@
+@@ -850,20 +1008,9 @@
  
          if (!this.fullscreen && Display.wasResized())
          {
@@ -411,7 +437,7 @@
          }
  
          this.checkGLError("Post render");
-@@ -901,7 +1035,7 @@
+@@ -901,7 +1048,7 @@
  
      private int func_90020_K()
      {
@@ -420,7 +446,7 @@
      }
  
      public void freeMemory()
-@@ -950,7 +1084,7 @@
+@@ -950,7 +1097,7 @@
              if (!this.isTakingScreenshot)
              {
                  this.isTakingScreenshot = true;
@@ -429,7 +455,27 @@
              }
          }
          else
-@@ -1139,15 +1273,25 @@
+@@ -1009,7 +1156,7 @@
+             GL11.glMatrixMode(GL11.GL_PROJECTION);
+             GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+             GL11.glLoadIdentity();
+-            GL11.glOrtho(0.0D, (double)this.displayWidth, (double)this.displayHeight, 0.0D, 1000.0D, 3000.0D);
++            GL11.glOrtho(0.0D, (double)this.displayFBWidth, (double)this.displayFBHeight, 0.0D, 1000.0D, 3000.0D);
+             GL11.glMatrixMode(GL11.GL_MODELVIEW);
+             GL11.glLoadIdentity();
+             GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
+@@ -1017,8 +1164,8 @@
+             GL11.glDisable(GL11.GL_TEXTURE_2D);
+             Tessellator var5 = Tessellator.instance;
+             short var6 = 160;
+-            int var7 = this.displayWidth - var6 - 10;
+-            int var8 = this.displayHeight - var6 * 2;
++            int var7 = this.displayFBWidth - var6 - 10;
++            int var8 = this.displayFBHeight - var6 * 2;
+             GL11.glEnable(GL11.GL_BLEND);
+             var5.startDrawingQuads();
+             var5.setColorRGBA_I(0, 200);
+@@ -1139,15 +1286,25 @@
      }
  
      /**
@@ -460,7 +506,7 @@
          }
      }
  
-@@ -1158,6 +1302,7 @@
+@@ -1158,6 +1315,7 @@
      {
          if (this.currentScreen == null)
          {
@@ -468,7 +514,7 @@
              this.displayGuiScreen(new GuiIngameMenu());
  
              if (this.isSingleplayer() && !this.theIntegratedServer.getPublic())
-@@ -1200,7 +1345,7 @@
+@@ -1200,7 +1358,7 @@
       * Called whenever the mouse is clicked. Button clicked is 0 for left clicking and 1 for right clicking. Args:
       * buttonClicked
       */
@@ -477,7 +523,7 @@
      {
          if (par1 != 0 || this.leftClickCounter <= 0)
          {
-@@ -1297,39 +1442,12 @@
+@@ -1297,39 +1455,12 @@
              if (this.fullscreen)
              {
                  this.func_110441_Q();
@@ -519,7 +565,7 @@
              }
  
              Display.setFullscreen(this.fullscreen);
-@@ -1345,17 +1463,34 @@
+@@ -1345,17 +1476,34 @@
      /**
       * Called to resize the current screen.
       */
@@ -537,8 +583,8 @@
 -            ScaledResolution var3 = new ScaledResolution(this.gameSettings, par1, par2);
 +        	if( this.vrSettings.useVRRenderer )
 +        	{
-+        		this.displayWidth = this.displayFBWidth * 2;
-+        		this.displayHeight = this.displayFBHeight * 2;
++        		this.displayWidth = 1440;
++        		this.displayHeight = 900;
 +        	}
 +        	else
 +        	{
@@ -560,7 +606,7 @@
          }
      }
  
-@@ -1364,10 +1499,23 @@
+@@ -1364,10 +1512,24 @@
       */
      public void runTick()
      {
@@ -569,9 +615,10 @@
 +    	{
 +    		fmlCommonHandler = Reflector.call(Reflector.FMLCommonHandler_instance, new Object[0]);
 +    	}
-+    	if( fmlCommonHandler != null )
++    	if( fmlCommonHandler != null && Reflector.FMLSide.exists() )
 +    	{
-+    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_rescheduleTicks, new Object[]{Side.CLIENT});
++    		Object client = Reflector.FMLSide.getTargetClass().getEnumConstants()[0];//Client
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_rescheduleTicks, new Object[]{client});
 +    	}
          if (this.rightClickDelayTimer > 0)
          {
@@ -584,7 +631,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1375,6 +1523,8 @@
+@@ -1375,6 +1537,8 @@
  
          if (!this.isGamePaused)
          {
@@ -593,7 +640,7 @@
              this.ingameGUI.updateTick();
          }
  
-@@ -1394,21 +1544,24 @@
+@@ -1394,21 +1558,24 @@
              this.renderEngine.func_110550_d();
          }
  
@@ -627,7 +674,7 @@
  
          if (this.currentScreen != null)
          {
-@@ -1504,7 +1657,7 @@
+@@ -1504,7 +1671,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -636,7 +683,7 @@
                      }
                  }
              }
-@@ -1562,6 +1715,11 @@
+@@ -1562,6 +1729,11 @@
                                  this.displayInGameMenu();
                              }
  
@@ -648,7 +695,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.func_110436_a();
-@@ -1605,7 +1763,7 @@
+@@ -1605,7 +1777,7 @@
                                  this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
                              }
  
@@ -657,7 +704,7 @@
                              {
                                  this.gameSettings.showDebugInfo = !this.gameSettings.showDebugInfo;
                                  this.gameSettings.showDebugProfilerChart = GuiScreen.isShiftKeyDown();
-@@ -1738,6 +1896,12 @@
+@@ -1738,6 +1910,12 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
@@ -670,7 +717,7 @@
  
          if (this.theWorld != null)
          {
-@@ -1824,6 +1988,11 @@
+@@ -1824,6 +2002,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -682,7 +729,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1850,8 +2019,43 @@
+@@ -1850,8 +2033,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -726,7 +773,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(I18n.func_135053_a("menu.loadingLevel"));
  
-@@ -1905,6 +2109,11 @@
+@@ -1905,6 +2123,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -738,7 +785,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -1941,6 +2150,7 @@
+@@ -1941,6 +2164,7 @@
          {
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -746,7 +793,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2096,107 +2306,114 @@
+@@ -2096,107 +2320,114 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -756,7 +803,8 @@
              int var5;
 -
 -            if (this.objectMouseOver.typeOfHit == EnumMovingObjectType.TILE)
--            {
++            if(!Reflector.ForgeHooks_onPickBlock.exists())
+             {
 -                var5 = this.objectMouseOver.blockX;
 -                int var6 = this.objectMouseOver.blockY;
 -                int var7 = this.objectMouseOver.blockZ;
@@ -779,8 +827,7 @@
 -                var3 = Block.blocksList[var9].getDamageValue(this.theWorld, var5, var6, var7);
 -            }
 -            else
-+            if(!Reflector.ForgeHooks_onPickBlock.exists())
-             {
+-            {
 -                if (this.objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
 -                {
 -                    return;
@@ -956,7 +1003,7 @@
  
              if (var1)
              {
-@@ -2282,8 +2499,13 @@
+@@ -2282,8 +2513,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -970,7 +1017,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2291,6 +2513,7 @@
+@@ -2291,6 +2527,7 @@
  
              if (var1 != 0)
              {
@@ -978,7 +1025,7 @@
                  return var0;
              }
          }
-@@ -2376,7 +2599,7 @@
+@@ -2376,7 +2613,7 @@
      {
          return this.field_94139_O;
      }
@@ -987,7 +1034,7 @@
      public Session func_110432_I()
      {
          return this.session;
-@@ -2416,4 +2639,61 @@
+@@ -2416,4 +2653,61 @@
      {
          return par0Minecraft.field_135017_as;
      }
