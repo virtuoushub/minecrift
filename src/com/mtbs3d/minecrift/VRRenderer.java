@@ -426,11 +426,11 @@ public class VRRenderer extends EntityRenderer
         }
 
         float PIOVER180 = (float)(Math.PI/180);
+
         Vec3 up = Vec3.createVectorHelper(0, 1, 0);
         up.rotateAroundZ(-cameraRoll * PIOVER180);
         up.rotateAroundX(-cameraPitch* PIOVER180);
         up.rotateAroundY(-cameraYaw  * PIOVER180);
-
         if ( sndSystem != null && this.mc.gameSettings.soundVolume != 0.0F)
         {
             sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
@@ -439,10 +439,14 @@ public class VRRenderer extends EntityRenderer
             								(float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
         }
         if( mc.mumbleLink != null ) {
+	        Vec3 forward = Vec3.createVectorHelper(0, 0 , -1);
+	        forward.rotateAroundZ(-cameraRoll * PIOVER180);
+	        forward.rotateAroundX(-cameraPitch* PIOVER180);
+	        forward.rotateAroundY(-cameraYaw  * PIOVER180);
         	mc.mumbleLink.updateMumble(
-        			(float)renderOriginX, (float)renderOriginY, (float)renderOriginZ,
-        						   lookX,                lookY,                lookZ, 
-            			(float)up.xCoord,     (float)up.yCoord,     (float)up.zCoord);
+        			 (float)renderOriginX,  (float)renderOriginY,  (float)renderOriginZ,
+        			(float)forward.xCoord, (float)forward.yCoord, (float)forward.zCoord,
+            			 (float)up.xCoord,      (float)up.yCoord,      (float)up.zCoord);
         }
     }
     
