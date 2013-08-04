@@ -73,6 +73,10 @@
 	  "serverreq": true
 	},
     {
+      "name": "net.aib42.mumblelink:JMumble:1.0",
+	  "url": "http://repo.minecraft-vr.com/"
+    },
+    {
       "name": "org.lwjgl.lwjgl:lwjgl:2.9.0",
       "rules": [
         {
@@ -129,6 +133,20 @@
     },
     {
       "name": "net.java.jinput:jinput-platform:2.0.5",
+      "natives": {
+        "linux": "natives-linux",
+        "windows": "natives-windows",
+        "osx": "natives-osx"
+      },
+      "extract": {
+        "exclude": [
+          "META-INF/"
+        ]
+      }
+    },
+    {
+      "name": "net.aib42.mumblelink:JMumbleLibrary:1.0",
+	  "url": "http://repo.minecraft-vr.com/",
       "natives": {
         "linux": "natives-linux",
         "windows": "natives-windows",

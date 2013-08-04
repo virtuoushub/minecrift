@@ -425,18 +425,24 @@ public class VRRenderer extends EntityRenderer
         	catch (IllegalAccessException e) { };
         }
 
+        float PIOVER180 = (float)(Math.PI/180);
+        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
+        up.rotateAroundZ(-cameraRoll * PIOVER180);
+        up.rotateAroundX(-cameraPitch* PIOVER180);
+        up.rotateAroundY(-cameraYaw  * PIOVER180);
+
         if ( sndSystem != null && this.mc.gameSettings.soundVolume != 0.0F)
         {
             sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
-	        float PIOVER180 = (float)(Math.PI/180);
-
-	        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
-	        up.rotateAroundZ(-cameraRoll * PIOVER180);
-	        up.rotateAroundX(-cameraPitch* PIOVER180);
-	        up.rotateAroundY(-cameraYaw  * PIOVER180);
 
             sndSystem.setListenerOrientation(lookX, lookY, lookZ, 
             								(float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
+        }
+        if( mc.mumbleLink != null ) {
+        	mc.mumbleLink.updateMumble(
+        			(float)renderOriginX, (float)renderOriginY, (float)renderOriginZ,
+        						   lookX,                lookY,                lookZ, 
+            			(float)up.xCoord,     (float)up.yCoord,     (float)up.zCoord);
         }
     }
     
