@@ -7,3 +7,6 @@
 [submodule "repo"]
 	path = repo
 	url = https://github.com/mabrowning/minecrift-repo.git
+[submodule "JMumbleLink"]
+	path = JMumbleLink
+	url = https://github.com/mabrowning/java-mumble-link.git
