@@ -144,6 +144,7 @@ public class VRRenderer extends EntityRenderer
 	float aimPitch;
     
     boolean superSampleSupported;
+    boolean vboSupported;
 	private boolean guiShowingLastFrame = false; //Used for detecting when UI is shown, fixing the guiYaw 
 
 	// Calibration
@@ -156,11 +157,13 @@ public class VRRenderer extends EntityRenderer
     {
     	super( par1Minecraft );
     	this.guiAchievement = guiAchiv;
+
+        vboSupported = GLContext.getCapabilities().GL_ARB_vertex_buffer_object;  // TODO: We need to unify the supersampleSupported / vboSupported properties
     	
     	try
     	{
     		GL30.glBindVertexArray(0);
-    		superSampleSupported = true;
+    		superSampleSupported = vboSupported;
     		
     	}
     	catch( IllegalStateException e )
@@ -874,9 +877,10 @@ public class VRRenderer extends EntityRenderer
             	if( postSuperSampleFBO != null )
 	            	postSuperSampleFBO.delete();
             	postSuperSampleFBO = null;
-	
-	            destroyVBO();
             }
+
+            if (vboSupported)
+                destroyVBO();
         }
 
         if (!_FBOInitialised)
@@ -901,11 +905,17 @@ public class VRRenderer extends EntityRenderer
 
             if (this.mc.vrSettings.useChromaticAbCorrection)
             {
-                _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION, false);
+                if (vboSupported)
+                    _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER_VBO, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION, true);
+                else
+                    _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION, false);
             }
             else
             {
-                _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION, false);
+                if (vboSupported)
+                    _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER_VBO, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION, true);
+                else
+                    _shaderProgramId = initOculusShaders(OCULUS_BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION, false);
             }
             mc.checkGLError("FBO init shader");
 
@@ -914,29 +924,32 @@ public class VRRenderer extends EntityRenderer
             
             if( superSampleSupported )
             {
-	
+
 	            if (this.mc.vrSettings.useSupersample)
 	            {
 		            // Lanczos downsample FBOs
 		            postDistortionFBO = new FBOParams("postDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
 		            postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
-		
+
 		            mc.checkGLError("Lanczos FBO create");
 
 	                _Lanczos_shaderProgramId = initOculusShaders(LANCZOS_SAMPLER_VERTEX_SHADER, LANCZOS_SAMPLER_FRAGMENT_SHADER, true);
 	                mc.checkGLError("@1");
-	
-	
+
+
 	                GL20.glValidateProgram(_Lanczos_shaderProgramId);
-	
+
 	                mc.checkGLError("FBO init Lanczos shader");
-	
-	                setupVBO();
 	            }
 	            else
 	            {
 	                _Lanczos_shaderProgramId = -1;
 	            }
+            }
+
+            if (vboSupported)
+            {
+                setupVBO();
             }
 
             _FBOInitialised = true;
@@ -985,7 +998,6 @@ public class VRRenderer extends EntityRenderer
         {
         	FBWidth  = (int)ceil(this.mc.displayFBWidth  * this.mc.vrSettings.superSampleScaleFactor);
         	FBHeight = (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor);
-        	
         }
     	
         if (mc.vrSettings.useDistortion)
@@ -1056,27 +1068,51 @@ public class VRRenderer extends EntityRenderer
             ARBShaderObjects.glUniform4fARB(ARBShaderObjects.glGetUniformLocationARB(_shaderProgramId, "HmdWarpParam"), hmdInfo.DistortionK[0], hmdInfo.DistortionK[1], hmdInfo.DistortionK[2], hmdInfo.DistortionK[3]);
             ARBShaderObjects.glUniform4fARB(ARBShaderObjects.glGetUniformLocationARB(_shaderProgramId, "ChromAbParam"), hmdInfo.ChromaticAb[0], hmdInfo.ChromaticAb[1], hmdInfo.ChromaticAb[2], hmdInfo.ChromaticAb[3]);
 
-            GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-            GL11.glPushMatrix();
-            GL11.glLoadIdentity();
-            GL11.glMatrixMode(GL11.GL_PROJECTION);
-            GL11.glPushMatrix();
-            GL11.glLoadIdentity();
-            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            if (!vboSupported)
+            {
+                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+                GL11.glPushMatrix();
+                GL11.glLoadIdentity();
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glPushMatrix();
+                GL11.glLoadIdentity();
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
-            GL11.glTranslatef (0.0f, 0.0f, -0.7f);                               // Translate 6 Units Into The Screen and then rotate
-            GL11.glColor3f(1, 1, 1);                                               // set the color to white
+                GL11.glTranslatef (0.0f, 0.0f, -0.7f);                               // Translate 6 Units Into The Screen and then rotate
+                GL11.glColor3f(1, 1, 1);                                               // set the color to white
 
-            drawQuad();                                                      // draw the box
+                drawQuad();                                                      // draw the box
+
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glPopMatrix();
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+                GL11.glPopMatrix();
+                GL11.glPopAttrib();
+            }
+            else
+            {
+                // Bind to the VAO that has all the information about the vertices
+                GL30.glBindVertexArray(vaoId);
+                GL20.glEnableVertexAttribArray(0);
+                GL20.glEnableVertexAttribArray(1);
+                GL20.glEnableVertexAttribArray(2);
+
+                // Bind to the index VBO that has all the information about the order of the vertices
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId);
+
+                // Draw the vertices
+                GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0);
+
+                // Put everything back to default (deselect)
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL20.glDisableVertexAttribArray(0);
+                GL20.glDisableVertexAttribArray(1);
+                GL20.glDisableVertexAttribArray(2);
+                GL30.glBindVertexArray(0);
+            }
 
             // Stop shader use
             ARBShaderObjects.glUseProgramObjectARB(0);
-
-            GL11.glMatrixMode(GL11.GL_PROJECTION);
-            GL11.glPopMatrix();
-            GL11.glMatrixMode(GL11.GL_MODELVIEW);
-            GL11.glPopMatrix();
-            GL11.glPopAttrib();
 
             OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
 
@@ -1610,106 +1646,122 @@ public class VRRenderer extends EntityRenderer
 
     public final String OCULUS_BASIC_VERTEX_SHADER =
 
-        "#version 110\n" +
-        "\n" +
-        "void main() {\n" +
-        "    gl_Position = ftransform(); //Transform the vertex position\n" +
-        "    gl_TexCoord[0] = gl_MultiTexCoord0; // Use Texture unit 0\n" +
-        "    //glTexCoord is an openGL defined varying array of vec4. Different elements in the array can be used for multi-texturing with\n" +
-        "    //different textures, each requiring their own coordinates.\n" +
-        "    //gl_MultiTexCoord0 is an openGl defined attribute vec4 containing the texture coordinates for unit 0 (I'll explain units soon) that\n" +
-        "    //you give with calls to glTexCoord2f, glTexCoordPointer etc. gl_MultiTexCoord1 contains unit 1, gl_MultiTexCoord2  unit 2 etc.\n" +
-        "}\n";
+            "#version 110\n" +
+                    "\n" +
+                    "varying vec4 textCoord;\n" +
+                    "void main() {\n" +
+                    "    gl_Position = ftransform(); //Transform the vertex position\n" +
+                    "    textCoord = gl_MultiTexCoord0; // Use Texture unit 0\n" +
+                    "    //glTexCoord is an openGL defined varying array of vec4. Different elements in the array can be used for multi-texturing with\n" +
+                    "    //different textures, each requiring their own coordinates.\n" +
+                    "    //gl_MultiTexCoord0 is an openGl defined attribute vec4 containing the texture coordinates for unit 0 (I'll explain units soon) that\n" +
+                    "    //you give with calls to glTexCoord2f, glTexCoordPointer etc. gl_MultiTexCoord1 contains unit 1, gl_MultiTexCoord2  unit 2 etc.\n" +
+                    "}\n";
+
+    public final String OCULUS_BASIC_VERTEX_SHADER_VBO =
+
+        "#version 120\n" +
+                "\n" +
+                " attribute vec4 in_Position;//position;\n" +
+                " attribute vec4 in_Color;//position;\n" +
+                " attribute vec2 in_TextureCoord;//inputTextureCoordinate;\n" +
+                " varying vec4 textCoord;\n" +
+                "void main() {\n" +
+                "    gl_Position = vec4(in_Position.x, in_Position.y, 0.0, 1.0);\n" +
+                "    textCoord = vec4(in_TextureCoord.s, in_TextureCoord.t, 0.0, 0.0);\n" +
+                "}\n";
 
     public final String OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION =
 
-        "#version 120\n" +
-        "\n" +
-        "uniform sampler2D bgl_RenderTexture;\n" +
-        "uniform int half_screenWidth;\n" +
-        "uniform vec2 LeftLensCenter;\n" +
-        "uniform vec2 RightLensCenter;\n" +
-        "uniform vec2 LeftScreenCenter;\n" +
-        "uniform vec2 RightScreenCenter;\n" +
-        "uniform vec2 Scale;\n" +
-        "uniform vec2 ScaleIn;\n" +
-        "uniform vec4 HmdWarpParam;\n" +
-        "uniform vec4 ChromAbParam;\n" +
-        "\n" +
-        "// Scales input texture coordinates for distortion.\n" +
-        "vec2 HmdWarp(vec2 in01, vec2 LensCenter)\n" +
-        "{\n" +
-        "    vec2 theta = (in01 - LensCenter) * ScaleIn; // Scales to [-1, 1]\n" +
-        "    float rSq = theta.x * theta.x + theta.y * theta.y;\n" +
-        "    vec2 rvector = theta * (HmdWarpParam.x + HmdWarpParam.y * rSq +\n" +
-        "            HmdWarpParam.z * rSq * rSq +\n" +
-        "            HmdWarpParam.w * rSq * rSq * rSq);\n" +
-        "    return LensCenter + Scale * rvector;\n" +
-        "}\n" +
-        "\n" +
-        "void main()\n" +
-        "{\n" +
-        "    // The following two variables need to be set per eye\n" +
-        "    vec2 LensCenter = gl_FragCoord.x < half_screenWidth ? LeftLensCenter : RightLensCenter;\n" +
-        "    vec2 ScreenCenter = gl_FragCoord.x < half_screenWidth ? LeftScreenCenter : RightScreenCenter;\n" +
-        "\n" +
-        "    vec2 oTexCoord = gl_TexCoord[0].xy;\n" +
-        "    //vec2 oTexCoord = (gl_FragCoord.xy + vec2(0.5, 0.5)) / vec2(screenWidth, screenHeight);\n" +
-        "\n" +
-        "    vec2 tc = HmdWarp(oTexCoord, LensCenter);\n" +
-        "    if (any(bvec2(clamp(tc,ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)) - tc)))\n" +
-        "    {\n" +
-        "        gl_FragColor = vec4(vec3(0.0), 1.0);\n" +
-        "        return;\n" +
-        "    }\n" +
-        "\n" +
-        "    //tc.x = gl_FragCoord.x < half_screenWidth ? (2.0 * tc.x) : (2.0 * (tc.x - 0.5));\n" +
-        "    //gl_FragColor = texture2D(bgl_RenderTexture, tc).aaaa * texture2D(bgl_RenderTexture, tc);\n" +
-        "    gl_FragColor = texture2D(bgl_RenderTexture, tc);\n" +
-        "}\n";
+            "#version 120\n" +
+                    "\n" +
+                    "uniform sampler2D bgl_RenderTexture;\n" +
+                    "uniform int half_screenWidth;\n" +
+                    "uniform vec2 LeftLensCenter;\n" +
+                    "uniform vec2 RightLensCenter;\n" +
+                    "uniform vec2 LeftScreenCenter;\n" +
+                    "uniform vec2 RightScreenCenter;\n" +
+                    "uniform vec2 Scale;\n" +
+                    "uniform vec2 ScaleIn;\n" +
+                    "uniform vec4 HmdWarpParam;\n" +
+                    "uniform vec4 ChromAbParam;\n" +
+                    "varying vec4 textCoord;\n" +
+                    "\n" +
+                    "// Scales input texture coordinates for distortion.\n" +
+                    "vec2 HmdWarp(vec2 in01, vec2 LensCenter)\n" +
+                    "{\n" +
+                    "    vec2 theta = (in01 - LensCenter) * ScaleIn; // Scales to [-1, 1]\n" +
+                    "    float rSq = theta.x * theta.x + theta.y * theta.y;\n" +
+                    "    vec2 rvector = theta * (HmdWarpParam.x + HmdWarpParam.y * rSq +\n" +
+                    "            HmdWarpParam.z * rSq * rSq +\n" +
+                    "            HmdWarpParam.w * rSq * rSq * rSq);\n" +
+                    "    return LensCenter + Scale * rvector;\n" +
+                    "}\n" +
+                    "\n" +
+                    "void main()\n" +
+                    "{\n" +
+                    "    // The following two variables need to be set per eye\n" +
+                    "    vec2 LensCenter = gl_FragCoord.x < half_screenWidth ? LeftLensCenter : RightLensCenter;\n" +
+                    "    vec2 ScreenCenter = gl_FragCoord.x < half_screenWidth ? LeftScreenCenter : RightScreenCenter;\n" +
+                    "\n" +
+                    "    vec2 oTexCoord = textCoord.xy;\n" +
+                    "    //vec2 oTexCoord = (gl_FragCoord.xy + vec2(0.5, 0.5)) / vec2(screenWidth, screenHeight);\n" +
+                    "\n" +
+                    "    vec2 tc = HmdWarp(oTexCoord, LensCenter);\n" +
+                    "    if (any(bvec2(clamp(tc,ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)) - tc)))\n" +
+                    "    {\n" +
+                    "        gl_FragColor = vec4(vec3(0.0), 1.0);\n" +
+                    "        return;\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    //tc.x = gl_FragCoord.x < half_screenWidth ? (2.0 * tc.x) : (2.0 * (tc.x - 0.5));\n" +
+                    "    //gl_FragColor = texture2D(bgl_RenderTexture, tc).aaaa * texture2D(bgl_RenderTexture, tc);\n" +
+                    "    gl_FragColor = texture2D(bgl_RenderTexture, tc);\n" +
+                    "}\n";
 
     public final String OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION =
 
-        "#version 120\n" +
-        "\n" +
-        "uniform sampler2D bgl_RenderTexture;\n" +
-        "uniform int half_screenWidth;\n" +
-        "uniform vec2 LeftLensCenter;\n" +
-        "uniform vec2 RightLensCenter;\n" +
-        "uniform vec2 LeftScreenCenter;\n" +
-        "uniform vec2 RightScreenCenter;\n" +
-        "uniform vec2 Scale;\n" +
-        "uniform vec2 ScaleIn;\n" +
-        "uniform vec4 HmdWarpParam;\n" +
-        "uniform vec4 ChromAbParam;\n" +
-        "\n" +
-        "void main()\n" +
-        "{\n" +
-        "    vec2 LensCenter = gl_FragCoord.x < half_screenWidth ? LeftLensCenter : RightLensCenter;\n" +
-        "    vec2 ScreenCenter = gl_FragCoord.x < half_screenWidth ? LeftScreenCenter : RightScreenCenter;\n" +
-        "\n" +
-        "    vec2 theta = (gl_TexCoord[0].xy - LensCenter) * ScaleIn;\n" +
-        "    float rSq = theta.x * theta.x + theta.y * theta.y;\n" +
-        "    vec2 theta1 = theta * (HmdWarpParam.x + HmdWarpParam.y * rSq + HmdWarpParam.z * rSq * rSq + HmdWarpParam.w * rSq * rSq * rSq);\n" +
-        "\n" +
-        "    vec2 thetaBlue = theta1 * (ChromAbParam.w * rSq + ChromAbParam.z);\n" +
-        "    vec2 tcBlue = thetaBlue * Scale + LensCenter;\n" +
-        "\n" +
-        "    if (any(bvec2(clamp(tcBlue, ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)) - tcBlue))) {\n" +
-        "        gl_FragColor = vec4(vec3(0.0), 1.0);\n" +
-        "        return;\n" +
-        "    }\n" +
-        "    float blue = texture2D(bgl_RenderTexture, tcBlue).b;\n" +
-        "\n" +
-        "    vec2 tcGreen = theta1 * Scale + LensCenter;\n" +
-        "    float green = texture2D(bgl_RenderTexture, tcGreen).g;\n" +
-        "\n" +
-        "    vec2 thetaRed = theta1 * (ChromAbParam.y * rSq + ChromAbParam.x);\n" +
-        "    vec2 tcRed = thetaRed * Scale + LensCenter;\n" +
-        "    float red = texture2D(bgl_RenderTexture, tcRed).r;\n" +
-        "\n" +
-        "    gl_FragColor = vec4(red, green, blue, 1.0);\n" +
-        "}\n";
+            "#version 120\n" +
+                    "\n" +
+                    "uniform sampler2D bgl_RenderTexture;\n" +
+                    "uniform int half_screenWidth;\n" +
+                    "uniform vec2 LeftLensCenter;\n" +
+                    "uniform vec2 RightLensCenter;\n" +
+                    "uniform vec2 LeftScreenCenter;\n" +
+                    "uniform vec2 RightScreenCenter;\n" +
+                    "uniform vec2 Scale;\n" +
+                    "uniform vec2 ScaleIn;\n" +
+                    "uniform vec4 HmdWarpParam;\n" +
+                    "uniform vec4 ChromAbParam;\n" +
+                    "varying vec4 textCoord;\n" +
+                    "\n" +
+                    "void main()\n" +
+                    "{\n" +
+                    "    vec2 LensCenter = gl_FragCoord.x < half_screenWidth ? LeftLensCenter : RightLensCenter;\n" +
+                    "    vec2 ScreenCenter = gl_FragCoord.x < half_screenWidth ? LeftScreenCenter : RightScreenCenter;\n" +
+                    "\n" +
+                    "    vec2 theta = (textCoord.xy - LensCenter) * ScaleIn;\n" +
+                    "    float rSq = theta.x * theta.x + theta.y * theta.y;\n" +
+                    "    vec2 theta1 = theta * (HmdWarpParam.x + HmdWarpParam.y * rSq + HmdWarpParam.z * rSq * rSq + HmdWarpParam.w * rSq * rSq * rSq);\n" +
+                    "\n" +
+                    "    vec2 thetaBlue = theta1 * (ChromAbParam.w * rSq + ChromAbParam.z);\n" +
+                    "    vec2 tcBlue = thetaBlue * Scale + LensCenter;\n" +
+                    "\n" +
+                    "    if (any(bvec2(clamp(tcBlue, ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)) - tcBlue))) {\n" +
+                    "        gl_FragColor = vec4(vec3(0.0), 1.0);\n" +
+                    "        return;\n" +
+                    "    }\n" +
+                    "    float blue = texture2D(bgl_RenderTexture, tcBlue).b;\n" +
+                    "\n" +
+                    "    vec2 tcGreen = theta1 * Scale + LensCenter;\n" +
+                    "    float green = texture2D(bgl_RenderTexture, tcGreen).g;\n" +
+                    "\n" +
+                    "    vec2 thetaRed = theta1 * (ChromAbParam.y * rSq + ChromAbParam.x);\n" +
+                    "    vec2 tcRed = thetaRed * Scale + LensCenter;\n" +
+                    "    float red = texture2D(bgl_RenderTexture, tcRed).r;\n" +
+                    "\n" +
+                    "    gl_FragColor = vec4(red, green, blue, 1.0);\n" +
+                    "}\n";
 
     public final String OCULUS_BASIC_FRAGMENT_SHADER =
 
