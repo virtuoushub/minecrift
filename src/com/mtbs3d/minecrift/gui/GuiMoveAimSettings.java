@@ -31,6 +31,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         EnumOptions.KEYHOLE_HEIGHT,
         EnumOptions.DECOUPLE_LOOK_MOVE,
         EnumOptions.PITCH_AFFECTS_CAMERA,
+        EnumOptions.AIM_PITCH_OFFSET,
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
     static EnumOptions[] controllerMoveAimOptions = new EnumOptions[] {
@@ -121,6 +122,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 	maxValue = 180f;
                 	increment= 1.0f;
                 }
+                else if( var8 == EnumOptions.AIM_PITCH_OFFSET )
+                {
+                	minValue = -90f;
+                	maxValue = 90f;
+                	increment= 1.0f;
+                }
 
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 this.buttonList.add(slider);
@@ -190,6 +197,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                     this.guivrSettings.lookMoveDecoupled = false;
                     this.guivrSettings.allowMousePitchInput = true;
                 }
+                this.guivrSettings.aimPitchOffset = 0;
                 this.guivrSettings.saveOptions();
                 this.reinit = true;
             }
@@ -271,6 +279,14 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  Sets which controller is used. Will be the opposite",
                             "  controller to that used for positional tracking."
                     } ;
+                case AIM_PITCH_OFFSET:
+                	return new String[] {
+                			"Vertical Crosshair Offset",
+                			"  If your headset doesn't sit straight on your face,",
+                			"  this setting allows you to set the 'fixed' crosshair",
+                			"  lower or higher than center of the screen.",
+                			"  Recommended value: 0.0"
+                	} ;
                 default:
                     return null;
             }

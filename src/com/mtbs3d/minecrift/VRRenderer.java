@@ -159,6 +159,7 @@ public class VRRenderer extends EntityRenderer
     	this.guiAchievement = guiAchiv;
 
         vboSupported = GLContext.getCapabilities().GL_ARB_vertex_buffer_object;  // TODO: We need to unify the supersampleSupported / vboSupported properties
+        vboSupported = false;
     	
     	try
     	{
@@ -532,6 +533,8 @@ public class VRRenderer extends EntityRenderer
 	        aimPitch  = mc.lookaimController.getAimPitch();
         else 
         	aimPitch = cameraPitch;
+        
+        aimPitch -= this.mc.vrSettings.aimPitchOffset;
         
 
         //TODO: not sure if headPitch or cameraPitch is better here... they really should be the same; silly
@@ -1089,7 +1092,7 @@ public class VRRenderer extends EntityRenderer
                 GL11.glPopMatrix();
                 GL11.glPopAttrib();
             }
-            else
+            else if( superSampleSupported )
             {
                 // Bind to the VAO that has all the information about the vertices
                 GL30.glBindVertexArray(vaoId);
@@ -1458,7 +1461,8 @@ public class VRRenderer extends EntityRenderer
     private void destroyVBO()
     {
         // Select the VAO
-        GL30.glBindVertexArray(vaoId);
+    	if(superSampleSupported)
+    		GL30.glBindVertexArray(vaoId);
 
         // Disable the VBO index from the VAO attributes list
         GL20.glDisableVertexAttribArray(0);
@@ -1475,9 +1479,12 @@ public class VRRenderer extends EntityRenderer
         vboiId = 0;
 
         // Delete the VAO
-        GL30.glBindVertexArray(0);
-        GL30.glDeleteVertexArrays(vaoId);
-        vaoId = 0;
+        if( superSampleSupported )
+        {
+	        GL30.glBindVertexArray(0);
+	        GL30.glDeleteVertexArrays(vaoId);
+	        vaoId = 0;
+        }
 
         this.mc.checkGLError("destroyVBO");
     }
@@ -1514,8 +1521,11 @@ public class VRRenderer extends EntityRenderer
         indicesBuffer.flip();
 
         // Create a new Vertex Array Object in memory and select it (bind)
-        vaoId = GL30.glGenVertexArrays();
-        GL30.glBindVertexArray(vaoId);
+        if( superSampleSupported ) 
+        {
+	        vaoId = GL30.glGenVertexArrays();
+	        GL30.glBindVertexArray(vaoId);
+        }
 
         // Create a new Vertex Buffer Object in memory and select it (bind)
         vboId = GL15.glGenBuffers();
@@ -1535,7 +1545,8 @@ public class VRRenderer extends EntityRenderer
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
         // Deselect (bind to 0) the VAO
-        GL30.glBindVertexArray(0);
+        if( superSampleSupported )
+        	GL30.glBindVertexArray(0);
 
         // Create a new VBO for the indices and select it (bind) - INDICES
         vboiId = GL15.glGenBuffers();
