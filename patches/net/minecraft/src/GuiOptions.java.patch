@@ -31,6 +31,15 @@
              {
                  this.buttonList.add(new GuiSlider(var5.returnEnumOrdinal(), this.width / 2 - 155 + var1 % 2 * 160, this.height / 6 - 12 + 24 * (var1 >> 1), var5, this.options.getKeyBinding(var5), this.options.getOptionFloatValue(var5)));
              }
+@@ -58,7 +65,7 @@
+             ++var1;
+         }
+ 
+-        this.buttonList.add(new GuiButton(101, this.width / 2 - 152, this.height / 6 + 96 - 6, 150, 20, I18n.func_135053_a("options.video")));
++        this.buttonList.add(new GuiButton(101, this.width / 2 - 152, this.height / 6 + 96 - 6, 150, 20, "OptiFine Settings..."));
+         this.buttonList.add(new GuiButton(100, this.width / 2 + 2, this.height / 6 + 96 - 6, 150, 20, I18n.func_135053_a("options.controls")));
+         this.buttonList.add(new GuiButton(102, this.width / 2 - 152, this.height / 6 + 120 - 6, 150, 20, I18n.func_135053_a("options.language")));
+         this.buttonList.add(new GuiButton(103, this.width / 2 + 2, this.height / 6 + 120 - 6, 150, 20, I18n.func_135053_a("options.multiplayer.title")));
 @@ -121,6 +128,12 @@
                  this.mc.gameSettings.saveOptions();
                  this.mc.displayGuiScreen(new GuiScreenTemporaryResourcePackSelect(this, this.options));
