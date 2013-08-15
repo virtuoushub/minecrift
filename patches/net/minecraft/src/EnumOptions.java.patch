@@ -9,7 +9,7 @@
      AF_LEVEL("Anisotropic Filtering", false, false),
      RENDER_DISTANCE_FINE("Render Distance", true, false),
      ANIMATED_TEXTURES("Textures Animated", false, false),
-@@ -97,7 +97,84 @@
+@@ -97,7 +97,85 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -88,6 +88,7 @@
 +    KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true),
 +    MOVEAIM_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
 +    JOYSTICK_AIM_TYPE("Aim Type", false, false),
++    AIM_PITCH_OFFSET("Vertical Crosshair Offset",true,false),
 +
 +    // Calibration
 +    CALIBRATION_STRATEGY("Initial Calibration", false, false);

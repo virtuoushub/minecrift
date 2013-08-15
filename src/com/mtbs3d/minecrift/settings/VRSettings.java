@@ -113,6 +113,7 @@ public class VRSettings {
     public boolean hudOcclusion = false;
 	public float chatOffsetX = 0;
 	public float chatOffsetY = 0;
+	public float aimPitchOffset = 0;
     
     private Minecraft mc;
 
@@ -474,6 +475,11 @@ public class VRSettings {
                         this.chatOffsetY = this.parseFloat(optionTokens[1]);
                     }
 
+                    if (optionTokens[0].equals("aimPitchOffset"))
+                    {
+                        this.aimPitchOffset = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("joystickSensitivity"))
                     {
                         this.joystickSensitivity = this.parseFloat(optionTokens[1]);
@@ -736,6 +742,8 @@ public class VRSettings {
 	            return var4 + String.format("%.0f%%", new Object[] { Float.valueOf(100*this.chatOffsetX) });
 	        case CHAT_OFFSET_Y:
 	            return var4 + String.format("%.0f%%", new Object[] { Float.valueOf(100*this.chatOffsetY) });
+	        case AIM_PITCH_OFFSET:
+	            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.aimPitchOffset) });
 	        default:
 	        	return "";
         }
@@ -845,6 +853,8 @@ public class VRSettings {
 				return this.chatOffsetX;
 			case CHAT_OFFSET_Y:
 				return this.chatOffsetY;
+			case AIM_PITCH_OFFSET:
+				return aimPitchOffset;
 			default:
 				return 0.0f;
     	}
@@ -1097,6 +1107,8 @@ public class VRSettings {
 	        case CHAT_OFFSET_Y:
 	        	this.chatOffsetY = par2;
 	        	break;
+	        case AIM_PITCH_OFFSET:
+	        	this.aimPitchOffset = par2;
 	        default:
 	        	break;
     	}
@@ -1272,6 +1284,7 @@ public class VRSettings {
             var5.println("crosshairScale:" + this.crosshairScale);
             var5.println("chatOffsetX:" + this.chatOffsetX);
             var5.println("chatOffsetY:" + this.chatOffsetY);
+            var5.println("aimPitchOffset:" + this.aimPitchOffset);
 
             var5.close();
         }
