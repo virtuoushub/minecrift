@@ -12,13 +12,15 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 {
     /** An array of all of EnumOption's video options. */
     static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
-            //EnumOptions.IPD,
-            EnumOptions.FOV_SCALE_FACTOR,
-            EnumOptions.CHROM_AB_CORRECTION,
-            EnumOptions.USE_DISTORTION,
-            EnumOptions.DISTORTION_FIT_POINT,
             EnumOptions.SUPERSAMPLING,
             EnumOptions.SUPERSAMPLE_SCALEFACTOR,
+            EnumOptions.DUMMY,
+            EnumOptions.DUMMY,
+            EnumOptions.USE_DISTORTION,
+            EnumOptions.FOV_SCALE_FACTOR,
+            EnumOptions.DISTORTION_FIT_POINT,
+            EnumOptions.CHROM_AB_CORRECTION,
+            EnumOptions.TEXTURE_LOOKUP_OPT,
     };
 
 
@@ -39,7 +41,6 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
 
-        int var9 = 0;
         EnumOptions[] var10 = minecriftDisplayOptions;
         int var11 = var10.length;
 
@@ -48,6 +49,9 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             EnumOptions var8 = var10[var12];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
+
+            if (var8 == EnumOptions.DUMMY)
+                continue;
 
             if (var8.getEnumFloat())
             {
@@ -81,14 +85,21 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 }
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
+                if (mc.vrRenderer != null && !mc.vrRenderer.superSampleSupported && var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
+                {
+                    slider.enabled = false;
+                }
                 this.buttonList.add(slider);
             }
             else
             {
-                this.buttonList.add(new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8)));
+                GuiSmallButtonEx button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8));
+                if (mc.vrRenderer != null && !mc.vrRenderer.superSampleSupported && var8 == EnumOptions.SUPERSAMPLING)
+                {
+                    button.enabled = false;
+                }
+                this.buttonList.add(button);
             }
-
-            ++var9;
         }
     }
 
@@ -119,6 +130,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 			    this.mc.vrSettings.distortionFitPoint = 5;
 			    this.mc.vrSettings.useSupersample = false;
 			    this.mc.vrSettings.superSampleScaleFactor = 2.0f;
+                this.mc.vrSettings.useDistortionTextureLookupOptimisation = false;
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
 			    this.mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
@@ -127,8 +139,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 
             if (num == EnumOptions.USE_DISTORTION ||
 	            num == EnumOptions.SUPERSAMPLING ||
-	            num == EnumOptions.IPD ||
-	            num == EnumOptions.CHROM_AB_CORRECTION)
+	            num == EnumOptions.CHROM_AB_CORRECTION ||
+                num == EnumOptions.TEXTURE_LOOKUP_OPT)
 	        {
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
@@ -140,7 +152,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     public void event(int id, EnumOptions enumm)
     {
         if (enumm == EnumOptions.DISTORTION_FIT_POINT ||
-            enumm == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
+            enumm == EnumOptions.SUPERSAMPLE_SCALEFACTOR ||
+            enumm == EnumOptions.FOV_SCALE_FACTOR)
         {
             if (vrRenderer != null)
                 vrRenderer._FBOInitialised = false;
@@ -179,12 +192,23 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     				"  Higher values limit the amount of rendering if the FOV",
     				"    is constrained for some reason (e.g. wearing glasses)"
     				};
+        case TEXTURE_LOOKUP_OPT:
+            return new String[] {
+                    "Method for applying the barrel distortion lens.",
+                    "  Brute Force: Distortion is calculated every frame.",
+                    "  Texture Lookup: Distortion is pre-calculated.",
+                    "Choose whichever option gives the highest FPS on your",
+                    "graphics hardware. Pre-calculation is not necessarily",
+                    "faster!"
+                    };
     	case SUPERSAMPLING:
     		return new String[] {
     				"Full-Screen AntiAliasing (supersampling)",
     				"  Recommended: ON; greatly improves visual quality",
     				"  ON:  game is rendered at a higher resolution",
-    				"  OFF: game is rendered at the native resolution"};
+    				"  OFF: game is rendered at the native resolution",
+                    "Will only be available if supported by your graphics",
+                    "driver."};
     	case SUPERSAMPLE_SCALEFACTOR:
     		return new String[] {
     				"Full-Screen AntiAliasing Render Scale",

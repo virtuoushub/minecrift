@@ -8,9 +8,11 @@ public class GuiHUDSettings extends BaseGuiSettings
 {
     static EnumOptions[] hudOptions = new EnumOptions[] {
             EnumOptions.HUD_HIDE,
+            EnumOptions.HUD_LOCK_TO,
             EnumOptions.HUD_SCALE,
-            EnumOptions.HUD_PITCH,
             EnumOptions.HUD_DISTANCE,
+            EnumOptions.HUD_PITCH,
+            EnumOptions.HUD_YAW,
             EnumOptions.HUD_OPACITY,
             EnumOptions.HUD_OCCLUSION,
             EnumOptions.CROSSHAIR_SCALE,
@@ -42,6 +44,9 @@ public class GuiHUDSettings extends BaseGuiSettings
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
+            if (var8 == EnumOptions.DUMMY)
+                continue;
+
             if (var8.getEnumFloat())
             {
                 float minValue = 0.0f;
@@ -70,6 +75,12 @@ public class GuiHUDSettings extends BaseGuiSettings
                 {
                     minValue = -45f;
                     maxValue = 45f;
+                    increment = 1f;
+                }
+                else if (var8 == EnumOptions.HUD_YAW)
+                {
+                    minValue = -100f;
+                    maxValue = 100f;
                     increment = 1f;
                 }
                 else if (var8 == EnumOptions.HUD_OPACITY)
@@ -111,8 +122,10 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guivrSettings.hudDistance = 1.0f;
                 this.guivrSettings.hudScale = 1.0f;
                 this.guivrSettings.hudPitchOffset = 0f;
+                this.guivrSettings.hudYawOffset = 0f;
                 this.mc.gameSettings.hideGUI = false;
                 this.guivrSettings.hudOpacity = 1.0f;
+                this.guivrSettings.hudLockToHead = false;
                 this.guivrSettings.hudOcclusion = false;
                 this.guivrSettings.crosshairScale = 1.0f;
                 this.guivrSettings.alwaysRenderBlockOutline = false;
@@ -152,6 +165,12 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "The vertical offset of the HUD, in degrees.",
                             "  Negative values are down, positive up."
                     };
+                case HUD_YAW:
+                    return new String[] {
+                            "The horizontal offset of the HUD, in degrees.",
+                            "  Negative values are to the left, positive to",
+                            "  the right."
+                    };
                 case HUD_DISTANCE:
                     return new String[] {
                             "Distance the floating HUD is drawn in front of your body",
@@ -165,6 +184,17 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "       be hidden completely in confined environments!",
                             "  OFF: The HUD is always visible. Stereo depth issues",
                             "       may be noticable."
+                    };
+                case HUD_LOCK_TO:
+                    return new String[] {
+                            "Specifies to which orientation the HUD is locked to.",
+                            "  BODY:  The HUD when visible will appear locked",
+                            "         relative to your body orientation. This allows",
+							"         free look around the HUD.",
+                            "  HEAD:  The HUD appears locked to your head",
+                            "         orientation. The HUD may have to be scaled to",
+							"         fit within your visible field of view. Edges",
+							"         may be blurred!"
                     };
                 case CROSSHAIR_ALWAYS_SHOW:
                     return new String[] {

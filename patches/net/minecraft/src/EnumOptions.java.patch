@@ -1,6 +1,15 @@
 --- a/net/minecraft/src/EnumOptions.java
 +++ b/net/minecraft/src/EnumOptions.java
-@@ -97,7 +97,81 @@
+@@ -87,7 +87,7 @@
+     CUSTOM_COLORS("Custom Colors", false, false),
+     SHOW_CAPES("Show Capes", false, false),
+     CONNECTED_TEXTURES("Connected Textures", false, false),
+-    AA_LEVEL("Antialiasing", false, false),
++    AA_LEVEL("MSAA Antialiasing", false, false),
+     AF_LEVEL("Anisotropic Filtering", false, false),
+     RENDER_DISTANCE_FINE("Render Distance", true, false),
+     ANIMATED_TEXTURES("Textures Animated", false, false),
+@@ -97,7 +97,84 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -13,6 +22,8 @@
 +    HUD_SCALE("HUD Scale", true, false),
 +    HUD_DISTANCE("HUD Distance", true, false),
 +    HUD_PITCH("HUD Vertical Offset", true, false),
++    HUD_YAW("HUD Horiz. Offset", true, false),
++    HUD_LOCK_TO("HUD Orientation Lock", false, true),
 +    HUD_OPACITY("HUD Opacity", true, false),
 +    HUD_HIDE("Hide HUD (F1)", false, true),
 +    HUD_OCCLUSION("HUD Occlusion", false, true),
@@ -43,6 +54,7 @@
 +    //HMD/render
 +    USE_DISTORTION("Distortion", false, true),
 +    CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
++    TEXTURE_LOOKUP_OPT("Dist. Method", false, true),
 +    FOV_SCALE_FACTOR("FOV Scale", true, false),
 +    DISTORTION_FIT_POINT("Distortion Border", true, false),
 +    SUPERSAMPLING("FSAA", false, true),

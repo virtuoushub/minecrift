@@ -54,14 +54,17 @@ public class VRSettings {
     public boolean renderFullFirstPersonModel = true;
     public float renderPlayerOffset = 0.25f;
     public boolean useChromaticAbCorrection = true;
+    public boolean useDistortionTextureLookupOptimisation = false;
     public float hudScale = 0.65f;
     public boolean allowMousePitchInput = false;
     public float hudDistance = 1.25f;
     public float hudPitchOffset = 0.0f;
+    public float hudYawOffset = 0.0f;
+    public boolean hudLockToHead = false;
     public float fovScaleFactor = 1.0f;
     public int distortionFitPoint = 5;
     public float headTrackSensitivity = 1.0f;
-    public boolean useSupersample = false;
+    public boolean useSupersample = true;
     public float superSampleScaleFactor = 2.0f;
     public boolean lookMoveDecoupled = false;
     public boolean useOculusProfile = false;
@@ -236,6 +239,11 @@ public class VRSettings {
                         this.useChromaticAbCorrection = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("useDistortionTextureLookupOptimisation"))
+                    {
+                        this.useDistortionTextureLookupOptimisation = optionTokens[1].equals("true");
+                    }
+
                     if (optionTokens[0].equals("hudScale"))
                     {
                         this.hudScale = this.parseFloat(optionTokens[1]);
@@ -251,6 +259,11 @@ public class VRSettings {
                         this.allowMousePitchInput = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("hudLockToHead"))
+                    {
+                        this.hudLockToHead = optionTokens[1].equals("true");
+                    }
+
                     if (optionTokens[0].equals("hudDistance"))
                     {
                         this.hudDistance = this.parseFloat(optionTokens[1]);
@@ -259,6 +272,11 @@ public class VRSettings {
                     if (optionTokens[0].equals("hudPitchOffset"))
                     {
                         this.hudPitchOffset = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("hudYawOffset"))
+                    {
+                        this.hudYawOffset = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("useSupersample"))
@@ -562,6 +580,8 @@ public class VRSettings {
 	            return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
 	        case CHROM_AB_CORRECTION:
 	            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
+            case TEXTURE_LOOKUP_OPT:
+                return this.useDistortionTextureLookupOptimisation ? var4 + "Texture Lookup" : var4 + "Brute Force";
 	        case HUD_SCALE:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
 	        case RENDER_PLAYER_OFFSET:
@@ -571,10 +591,14 @@ public class VRSettings {
 	                return var4 + String.format("%.2fcm", new Object[] { Float.valueOf(this.renderPlayerOffset) });
 	        case PITCH_AFFECTS_CAMERA:
 	            return this.allowMousePitchInput ? var4 + "ON" : var4 + "OFF";
+            case HUD_LOCK_TO:
+                return this.hudLockToHead ? var4 + "Head" : var4 + "Body";
 	        case HUD_DISTANCE:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudDistance) });
 	        case HUD_PITCH:
 	            return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudPitchOffset) });
+            case HUD_YAW:
+                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudYawOffset) });
 	        case FOV_SCALE_FACTOR:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
 	        case DISTORTION_FIT_POINT:
@@ -750,6 +774,8 @@ public class VRSettings {
 				return this.hudDistance ;
 			case HUD_PITCH :
 				return this.hudPitchOffset ;
+            case HUD_YAW :
+                return this.hudYawOffset ;
 			case FOV_SCALE_FACTOR :
 				return this.fovScaleFactor ;
 			case HEAD_TRACK_SENSITIVITY :
@@ -855,9 +881,15 @@ public class VRSettings {
 	        case CHROM_AB_CORRECTION:
 	            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
 	            break;
+            case TEXTURE_LOOKUP_OPT:
+                this.useDistortionTextureLookupOptimisation = !this.useDistortionTextureLookupOptimisation;
+                break;
 	        case PITCH_AFFECTS_CAMERA:
 	            this.allowMousePitchInput = !this.allowMousePitchInput;
 	            break;
+            case HUD_LOCK_TO:
+                this.hudLockToHead = !this.hudLockToHead;
+                break;
 	        case SUPERSAMPLING:
 	            this.useSupersample = !this.useSupersample;
 	            break;
@@ -964,6 +996,9 @@ public class VRSettings {
 	        case HUD_PITCH:
 	            this.hudPitchOffset = par2;
 	        	break;
+            case HUD_YAW:
+                this.hudYawOffset = par2;
+                break;
 	        case FOV_SCALE_FACTOR:
 	            this.fovScaleFactor = par2;
 	        	break;
@@ -1181,11 +1216,14 @@ public class VRSettings {
             var5.println("hideGUI:" + this.mc.gameSettings.hideGUI);
             var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
+            var5.println("useDistortionTextureLookupOptimisation:" + this.useDistortionTextureLookupOptimisation);
             var5.println("hudScale:" + this.hudScale);
             var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
             var5.println("allowMousePitchInput:" + this.allowMousePitchInput);
+            var5.println("hudLockToHead:" + this.hudLockToHead);
             var5.println("hudDistance:" + this.hudDistance);
             var5.println("hudPitchOffset:" + this.hudPitchOffset);
+            var5.println("hudYawOffset:" + this.hudYawOffset);
             var5.println("useSupersample:" + this.useSupersample);
             var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
             var5.println("fovScaleFactor:" + this.fovScaleFactor);

@@ -37,11 +37,35 @@ public class VRHotkeys {
 	            mc.vrSettings.useChromaticAbCorrection = !mc.vrSettings.useChromaticAbCorrection;
 	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+
+                if (mc.vrSettings.useChromaticAbCorrection)
+                    mc.printChatMessage("Chromatic Aberration Correction ON");
+                else
+                    mc.printChatMessage("Chromatic Aberration Correction OFF");
 	        }
 	        else
 	        {
-	            mc.vrSettings.useDistortion = !mc.vrSettings.useDistortion;
-	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                if (mc.vrSettings.useDistortion == false)
+                {
+                    mc.vrSettings.useDistortion = true;
+                    mc.vrSettings.useDistortionTextureLookupOptimisation = false;
+                    mc.printChatMessage("Distortion ON [Brute Force]");
+                }
+                else if (mc.vrSettings.useDistortion == true && mc.vrSettings.useDistortionTextureLookupOptimisation == false)
+                {
+                    mc.vrSettings.useDistortion = true;
+                    mc.vrSettings.useDistortionTextureLookupOptimisation = true;
+                    mc.printChatMessage("Distortion ON [Texture Lookup]");
+                }
+                else
+                {
+                    mc.vrSettings.useDistortion = false;
+                    mc.vrSettings.useDistortionTextureLookupOptimisation = false;
+                    mc.printChatMessage("Distortion OFF");
+                }
+
+                mc.vrSettings.saveOptions();
+                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
 	        }
 	    }
 	

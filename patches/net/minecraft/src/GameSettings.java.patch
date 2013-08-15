@@ -1,0 +1,52 @@
+--- a/net/minecraft/src/GameSettings.java
++++ b/net/minecraft/src/GameSettings.java
+@@ -216,6 +216,10 @@
+         this.mc = par1Minecraft;
+         this.optionsFile = new File(par2File, "options.txt");
+         this.optionsFileOF = new File(par2File, "optionsof.txt");
++
++        // Setup the Optifine or general option defaults specific to Minecrift
++        setupMinecriftDefaults();
++
+         this.loadOptions();
+         Config.initGameSettings(this);
+     }
+@@ -230,6 +234,28 @@
+         this.noclipRate = 1.0F;
+         this.debugCamRate = 1.0F;
+         this.language = "en_US";
++
++        // Setup the Optifine or general option defaults specific to Minecrift
++        setupMinecriftDefaults();
++    }
++
++    protected void setupMinecriftDefaults()
++    {
++        this.ofMipmapLevel = 1;  // Mipmap level 1
++        this.ofMipmapType = 1;   // Mipmap type 'Linear'
++        this.ofChunkLoading = 1; // Smooth chunk loading
++        this.ofClouds = 1;       // Flat clouds by default. 'Fancy' (previous default) seems to cause a disproportionate fps hit.
++        this.advancedOpengl = true;
++        this.ofOcclusionFancy = false;
++
++        // Max FPS
++        this.ofLimitFramerateFine = 0;
++        this.limitFramerate = 0;
++        this.enableVsync = false;
++
++        // TODO Fullscreen - doesn't seem to work currently, hence disabled
++//        this.fullScreen = true;
++//        this.ofFullscreenMode = "Default";
+     }
+ 
+     public String getKeyBindingDescription(int par1)
+@@ -2600,6 +2626,9 @@
+         this.updateWaterOpacity();
+         this.mc.renderGlobal.setAllRenderersVisible();
+         this.mc.func_110436_a();
++
++        setupMinecriftDefaults();
++
+         this.saveOptions();
+     }
+ 

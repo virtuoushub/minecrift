@@ -20,14 +20,27 @@ public class FBOParams
 
     protected static FBO_SUPPORT fboSupport = FBO_SUPPORT.USE_EXT_UNKNOWN;
 
-	public FBOParams(String fboName, boolean useHighPrecisionBuffer, int fboWidth, int fboHeight )
+	public FBOParams(String fboName, boolean useFloatBuffer, int fboWidth, int fboHeight )
 	{
         int nBufferFormat = GL11.GL_RGBA8;
+        int nPixelFormat = GL11.GL_RGBA;
+        int nPixelType = GL11.GL_INT;
 
         Minecraft mc = Minecraft.getMinecraft();
-        if (useHighPrecisionBuffer)
+        if (useFloatBuffer)
         {
-            nBufferFormat = GL11.GL_RGBA16;
+            nPixelType = GL11.GL_FLOAT;
+
+            if (fboSupport == FBO_SUPPORT.USE_GL30)
+            {
+                nBufferFormat = GL30.GL_RG32F;
+                nPixelFormat = GL30.GL_RG;
+            }
+            else
+            {
+                nBufferFormat = ARBTextureRg.GL_RG32F;
+                nPixelFormat = ARBTextureRg.GL_RG;
+            }
         }
 
         if (fboSupport == FBO_SUPPORT.USE_EXT_UNKNOWN)
@@ -74,19 +87,24 @@ public class FBOParams
 
             GL11.glEnable(GL11.GL_TEXTURE_2D);
             GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+            GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
             GL11.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, nBufferFormat, fboWidth, fboHeight, 0, GL11.GL_RGBA, GL11.GL_INT, (java.nio.ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, nBufferFormat, fboWidth, fboHeight, 0, nPixelFormat, nPixelType, (java.nio.ByteBuffer) null);
+
             System.out.println("[Minecrift] FBO '" + fboName + "': w: " + fboWidth + ", h: " + fboHeight);
 
             GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, _colorTextureId, 0);
 
             mc.checkGLError("FBO bind texture framebuffer");
 
-            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, _depthRenderBufferId);                // bind the depth renderbuffer
-            GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT24, fboWidth, fboHeight); // get the data space for it
-            GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, _depthRenderBufferId);
-            mc.checkGLError("FBO bind depth framebuffer");
+            if (!useFloatBuffer)
+            {
+                GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, _depthRenderBufferId);                // bind the depth renderbuffer
+                GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT24, fboWidth, fboHeight); // get the data space for it
+                GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, _depthRenderBufferId);
+                mc.checkGLError("FBO bind depth framebuffer");
+            }
         }
         else
         {
@@ -101,19 +119,28 @@ public class FBOParams
 
             GL11.glEnable(GL11.GL_TEXTURE_2D);
             GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+            GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
             GL11.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, nBufferFormat, fboWidth, fboHeight, 0, GL11.GL_RGBA, GL11.GL_INT, (java.nio.ByteBuffer) null);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, nBufferFormat, fboWidth, fboHeight, 0, nPixelFormat, nPixelType, (java.nio.ByteBuffer) null);
             System.out.println("[Minecrift] FBO '" + fboName + "': w: " + fboWidth + ", h: " + fboHeight);
 
             EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, GL11.GL_TEXTURE_2D, _colorTextureId, 0);
 
             mc.checkGLError("FBO bind texture framebuffer");
 
-            EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, _depthRenderBufferId);                // bind the depth renderbuffer
-            EXTFramebufferObject.glRenderbufferStorageEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, GL14.GL_DEPTH_COMPONENT24, fboWidth, fboHeight); // get the data space for it
-            EXTFramebufferObject.glFramebufferRenderbufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT, EXTFramebufferObject.GL_RENDERBUFFER_EXT, _depthRenderBufferId);
-            mc.checkGLError("FBO bind depth framebuffer");
+            if (useFloatBuffer)
+            {
+                EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, _depthRenderBufferId);                // bind the depth renderbuffer
+                EXTFramebufferObject.glRenderbufferStorageEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, GL14.GL_DEPTH_COMPONENT24, fboWidth, fboHeight); // get the data space for it
+                EXTFramebufferObject.glFramebufferRenderbufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT, EXTFramebufferObject.GL_RENDERBUFFER_EXT, _depthRenderBufferId);
+                mc.checkGLError("FBO bind depth framebuffer");
+            }
+        }
+
+        if (!checkFramebufferStatus())
+        {
+            int i = 0;
         }
 	}
 	
@@ -129,6 +156,17 @@ public class FBOParams
 	{
         OpenGlHelper.setActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, _colorTextureId);
+    }
+
+    public void bindTexture_Unit1()
+    {
+        OpenGlHelper.setActiveTexture(GL13.GL_TEXTURE1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, _colorTextureId);
+    }
+
+    public int getColorTextureId()
+    {
+        return _colorTextureId;
     }
 	
 	public void delete()
@@ -159,7 +197,53 @@ public class FBOParams
             _frameBufferId = -1;
         }
 	}
-	
+
+    // check FBO completeness
+    public static boolean checkFramebufferStatus()
+    {
+        // check FBO status
+        int status = ARBFramebufferObject.glCheckFramebufferStatus(ARBFramebufferObject.GL_FRAMEBUFFER);
+        switch(status)
+        {
+            case ARBFramebufferObject.GL_FRAMEBUFFER_COMPLETE:
+                System.out.println("[Minecrift] Framebuffer complete.");
+                return true;
+
+            case ARBFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                System.out.println("[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
+                return false;
+
+            case ARBFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                System.out.println("[ERROR] Framebuffer incomplete: No image is attached to FBO.");
+                return false;
+
+//            case GL30.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+//                System.out.println("[ERROR] Framebuffer incomplete: Attached images have different dimensions.");
+//                return false;
+//
+//            case ARBFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+//                System.out.println("[ERROR] Framebuffer incomplete: Color attached images have different internal formats.");
+//                return false;
+
+            case ARBFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                System.out.println("[ERROR] Framebuffer incomplete: Draw buffer.");
+                return false;
+
+            case ARBFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+                System.out.println("[ERROR] Framebuffer incomplete: Read buffer.");
+                return false;
+
+            case ARBFramebufferObject.GL_FRAMEBUFFER_UNSUPPORTED:
+                System.out.println("[ERROR] Framebuffer incomplete: Unsupported by FBO implementation.");
+                return false;
+
+            default:
+                System.out.println("[ERROR] Framebuffer incomplete: Unknown error.");
+                return false;
+        }
+    }
+
+
     int _frameBufferId = -1;
     int _colorTextureId = -1;
     int _depthRenderBufferId = -1;
