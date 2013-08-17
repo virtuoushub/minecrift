@@ -43,7 +43,6 @@ public class DistortionParams
                             int FBWidth,
                             int FBHeight,
                             boolean useChromaticAbCorrection,
-                            boolean superSampleSupported,
                             boolean useSuperSample,
                             float superSampleScaleFactor)
     {
@@ -53,7 +52,7 @@ public class DistortionParams
         DistortionK[0] = hmdInfo.DistortionK[0]; DistortionK[1] = hmdInfo.DistortionK[1]; DistortionK[2] = hmdInfo.DistortionK[2]; DistortionK[3] = hmdInfo.DistortionK[3];
         ChromaticAb[0] = hmdInfo.ChromaticAb[0]; ChromaticAb[1] = hmdInfo.ChromaticAb[1]; ChromaticAb[2] = hmdInfo.ChromaticAb[2]; ChromaticAb[3] = hmdInfo.ChromaticAb[3];
 
-        if ( !superSampleSupported || !useSuperSample)
+        if (!useSuperSample)
             superSampleScaleFactor = 1f;
 
         FBWidth  = (int)ceil(FBWidth  * superSampleScaleFactor);
@@ -255,7 +254,8 @@ public class DistortionParams
 
     // TODO: It would be possible to remove all calculations in the in-game ab chrom shader if we cached
     // all color component lookup vectors to a 2D texture array. However I'm not so sure the increased
-    // number of texture lookups in game would out-weight the extra math currently...
+    // number of texture lookups in game (and implementation effort!) would out-weight the reduction in math
+    // currently...
 
     public final String OCULUS_DISTORTION_MAP_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION =
 

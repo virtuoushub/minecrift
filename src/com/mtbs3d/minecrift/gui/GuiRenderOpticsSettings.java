@@ -12,15 +12,16 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 {
     /** An array of all of EnumOption's video options. */
     static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
-            EnumOptions.SUPERSAMPLING,
-            EnumOptions.SUPERSAMPLE_SCALEFACTOR,
-            EnumOptions.DUMMY,
-            EnumOptions.DUMMY,
             EnumOptions.USE_DISTORTION,
             EnumOptions.FOV_SCALE_FACTOR,
             EnumOptions.DISTORTION_FIT_POINT,
             EnumOptions.CHROM_AB_CORRECTION,
             EnumOptions.TEXTURE_LOOKUP_OPT,
+            EnumOptions.DUMMY,
+            EnumOptions.DUMMY,
+            EnumOptions.DUMMY,
+            EnumOptions.SUPERSAMPLING,
+            EnumOptions.SUPERSAMPLE_SCALEFACTOR,
     };
 
 
@@ -85,19 +86,11 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 }
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
-                if (mc.vrRenderer != null && !mc.vrRenderer.superSampleSupported && var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
-                {
-                    slider.enabled = false;
-                }
                 this.buttonList.add(slider);
             }
             else
             {
                 GuiSmallButtonEx button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8));
-                if (mc.vrRenderer != null && !mc.vrRenderer.superSampleSupported && var8 == EnumOptions.SUPERSAMPLING)
-                {
-                    button.enabled = false;
-                }
                 this.buttonList.add(button);
             }
         }

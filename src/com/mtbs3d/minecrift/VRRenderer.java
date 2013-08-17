@@ -170,7 +170,6 @@ public class VRRenderer extends EntityRenderer
 	float aimYaw;
 	float aimPitch;
     
-    public boolean superSampleSupported;
     boolean vboSupported;
 	private boolean guiShowingLastFrame = false; //Used for detecting when UI is shown, fixing the guiYaw 
 
@@ -185,21 +184,22 @@ public class VRRenderer extends EntityRenderer
     	super( par1Minecraft );
     	this.guiAchievement = guiAchiv;
 
-        vboSupported = GLContext.getCapabilities().GL_ARB_vertex_buffer_object;  // TODO: We need to unify the supersampleSupported / vboSupported properties
+        // TODO: Either consider removing VBO/VBA support on distortion / AA if there
+        // is no performance benefit, or perform a proper check for VBO/VBA support
+
+        // VBO disabled for now anyway
+        vboSupported = GLContext.getCapabilities().GL_ARB_vertex_buffer_object;
         vboSupported = false;
     	
     	try
     	{
     		GL30.glBindVertexArray(0);
-    		superSampleSupported = vboSupported;
+            //vboSupported = true;
     	}
     	catch( IllegalStateException e )
     	{
-    		superSampleSupported = false;
+            vboSupported = false;
     	}
-
-        if (!superSampleSupported)
-            this.mc.vrSettings.useSupersample = false;
 
         if (this.mc.vrSettings.calibrationStrategy == VRSettings.CALIBRATION_STRATEGY_AT_STARTUP)
     	    startCalibration();
@@ -249,14 +249,14 @@ public class VRRenderer extends EntityRenderer
             // Left eye
             FloatBuffer leftProj = eyeRenderParams.gl_getLeftProjectionMatrix();
             GL11.glLoadMatrix(leftProj);
-            mc.checkGLError("Set left projection");
+            //mc.checkGLError("Set left projection");
         }
         else
         {
             // Right eye
             FloatBuffer rightProj = eyeRenderParams.gl_getRightProjectionMatrix();
             GL11.glLoadMatrix(rightProj);
-            mc.checkGLError("Set right projection");
+            //mc.checkGLError("Set right projection");
         }
         float var5;
 
@@ -710,7 +710,7 @@ public class VRRenderer extends EntityRenderer
         {
             preDistortionFBO.bindRenderTarget();
         }
-        else if ( superSampleSupported && this.mc.vrSettings.useSupersample)
+        else if (this.mc.vrSettings.useSupersample)
         {
             postDistortionFBO.bindRenderTarget();
             eyeRenderParams._renderScale = 1.0f;
@@ -860,7 +860,7 @@ public class VRRenderer extends EntityRenderer
 		        GL11.glPopMatrix();
 		
 		        unbindTexture();
-	        	mc.checkGLError("GUI");
+	        	//mc.checkGLError("GUI");
         	}
 
 	    	if( calibrationHelper != null )
@@ -898,6 +898,8 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         doDistortionAndSuperSample();
+
+        mc.checkGLError("After render world and GUI");
     }
     
     private void setupFBOs()
@@ -929,16 +931,13 @@ public class VRRenderer extends EntityRenderer
 	            guiFBO.delete();
             guiFBO = null;
 
-            if( superSampleSupported )
-            {
-            	if( postDistortionFBO != null )
-	            	postDistortionFBO.delete();
-            	postDistortionFBO = null;
+            if( postDistortionFBO != null )
+                postDistortionFBO.delete();
+            postDistortionFBO = null;
 
-            	if( postSuperSampleFBO != null )
-	            	postSuperSampleFBO.delete();
-            	postSuperSampleFBO = null;
-            }
+            if( postSuperSampleFBO != null )
+                postSuperSampleFBO.delete();
+            postSuperSampleFBO = null;
 
             _LanczosShader_texelWidthOffsetUniform = -1;
             _LanczosShader_texelHeightOffsetUniform = -1;
@@ -954,7 +953,7 @@ public class VRRenderer extends EntityRenderer
         if (!_FBOInitialised)
         {
             //Setup eye render params
-            if ( superSampleSupported && this.mc.vrSettings.useSupersample)
+            if (this.mc.vrSettings.useSupersample)
             {
                 eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
                         0,
@@ -983,12 +982,12 @@ public class VRRenderer extends EntityRenderer
             System.out.println("[Minecrift] Distortion: " + (this.mc.vrSettings.useDistortion ? "ON" : "OFF"));
             System.out.println("[Minecrift] Display w: " + this.mc.displayFBWidth + ", h: " + this.mc.displayFBHeight);
             System.out.println("[Minecrift] Renderscale: " + eyeRenderParams._renderScale);
-            if (superSampleSupported && this.mc.vrSettings.useSupersample)
+            if (this.mc.vrSettings.useSupersample)
                 System.out.println("[Minecrift] FSAA Scale: " + this.mc.vrSettings.superSampleScaleFactor);
             else
                 System.out.println("[Minecrift] FSAA OFF");
 
-            if ( superSampleSupported && this.mc.vrSettings.useSupersample)
+            if (this.mc.vrSettings.useSupersample)
             {
                 preDistortionFBO = new FBOParams("preDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor));
             }
@@ -1051,35 +1050,35 @@ public class VRRenderer extends EntityRenderer
             // GUI FBO
             guiFBO = new FBOParams("guiFBO", false, this.mc.displayWidth, this.mc.displayHeight);
             
-            if( superSampleSupported )
+            if (this.mc.vrSettings.useSupersample)
             {
+                // Lanczos downsample FBOs
+                postDistortionFBO = new FBOParams("postDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
+                postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
 
-	            if (this.mc.vrSettings.useSupersample)
-	            {
-		            // Lanczos downsample FBOs
-		            postDistortionFBO = new FBOParams("postDistortionFBO (SS)", false, (int)ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
-		            postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", false, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
+                mc.checkGLError("Lanczos FBO create");
 
-		            mc.checkGLError("Lanczos FBO create");
+                if (vboSupported)
+                    _Lanczos_shaderProgramId = ShaderHelper.initShaders(LANCZOS_SAMPLER_VERTEX_SHADER_VBO, LANCZOS_SAMPLER_FRAGMENT_SHADER, true);
+                else
+                    _Lanczos_shaderProgramId = ShaderHelper.initShaders(LANCZOS_SAMPLER_VERTEX_SHADER, LANCZOS_SAMPLER_FRAGMENT_SHADER, true);
 
-	                _Lanczos_shaderProgramId = ShaderHelper.initShaders(LANCZOS_SAMPLER_VERTEX_SHADER, LANCZOS_SAMPLER_FRAGMENT_SHADER, true);
-	                mc.checkGLError("@1");
-                    GL20.glValidateProgram(_Lanczos_shaderProgramId);
+                mc.checkGLError("@1");
+                GL20.glValidateProgram(_Lanczos_shaderProgramId);
 
-                    // Setup uniform IDs
-                    _LanczosShader_texelWidthOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelWidthOffset");
-                    _LanczosShader_texelHeightOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelHeightOffset");
-                    _LanczosShader_inputImageTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "inputImageTexture");
+                // Setup uniform IDs
+                _LanczosShader_texelWidthOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelWidthOffset");
+                _LanczosShader_texelHeightOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelHeightOffset");
+                _LanczosShader_inputImageTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "inputImageTexture");
 
-	                mc.checkGLError("FBO init Lanczos shader");
-	            }
-	            else
-	            {
-	                _Lanczos_shaderProgramId = -1;
-                    _LanczosShader_texelWidthOffsetUniform = -1;
-                    _LanczosShader_texelHeightOffsetUniform = -1;
-                    _LanczosShader_inputImageTextureUniform = -1;
-	            }
+                mc.checkGLError("FBO init Lanczos shader");
+            }
+            else
+            {
+                _Lanczos_shaderProgramId = -1;
+                _LanczosShader_texelWidthOffsetUniform = -1;
+                _LanczosShader_texelHeightOffsetUniform = -1;
+                _LanczosShader_inputImageTextureUniform = -1;
             }
 
             if (vboSupported)
@@ -1093,7 +1092,6 @@ public class VRRenderer extends EntityRenderer
                                                  this.mc.displayFBWidth,
                                                  this.mc.displayFBHeight,
                                                  this.mc.vrSettings.useChromaticAbCorrection,
-                                                 this.superSampleSupported,
                                                  this.mc.vrSettings.useSupersample,
                                                  this.mc.vrSettings.superSampleScaleFactor);
 
@@ -1132,14 +1130,26 @@ public class VRRenderer extends EntityRenderer
                            (int)ceil(eyeRenderParams._rightViewPortH * eyeRenderParams._renderScale));
         }
 
-        mc.checkGLError("FBO viewport / scissor setup");
+        //mc.checkGLError("FBO viewport / scissor setup");
     }
     
     private void doDistortionAndSuperSample()
     {
     	int FBWidth = this.mc.displayFBWidth;
     	int FBHeight = this.mc.displayFBHeight;
-        if ( superSampleSupported && this.mc.vrSettings.useSupersample)
+
+        if ((this.mc.vrSettings.useDistortion || this.mc.vrSettings.useSupersample) && !this.vboSupported)
+        {
+            // Setup ortho projection
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glLoadIdentity();
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glLoadIdentity();
+
+            GL11.glTranslatef (0.0f, 0.0f, -0.7f);
+        }
+
+        if (this.mc.vrSettings.useSupersample)
         {
         	FBWidth  = (int)ceil(this.mc.displayFBWidth  * this.mc.vrSettings.superSampleScaleFactor);
         	FBHeight = (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor);
@@ -1151,7 +1161,7 @@ public class VRRenderer extends EntityRenderer
 
             preDistortionFBO.bindTexture();
 
-            if ( superSampleSupported && this.mc.vrSettings.useSupersample)
+            if (this.mc.vrSettings.useSupersample)
             {
             	//chain into the superSample FBO
                 postDistortionFBO.bindRenderTarget();
@@ -1192,26 +1202,9 @@ public class VRRenderer extends EntityRenderer
 
             if (!vboSupported)
             {
-                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPushMatrix();
-                GL11.glLoadIdentity();
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-
-                GL11.glTranslatef (0.0f, 0.0f, -0.7f);                               // Translate 6 Units Into The Screen and then rotate
-                GL11.glColor3f(1, 1, 1);                                               // set the color to white
-
-                drawQuad();                                                      // draw the box
-
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glPopMatrix();
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glPopMatrix();
-                GL11.glPopAttrib();
+                drawQuad();
             }
-            else if( superSampleSupported )
+            else
             {
                 // Bind to the VAO that has all the information about the vertices
                 GL30.glBindVertexArray(vaoId);
@@ -1240,7 +1233,7 @@ public class VRRenderer extends EntityRenderer
             //mc.checkGLError("After distortion");
         }
 
-        if (superSampleSupported && this.mc.vrSettings.useSupersample)
+        if (this.mc.vrSettings.useSupersample)
         {
             // Now switch to 1st pass target framebuffer
         	postSuperSampleFBO.bindRenderTarget();
@@ -1263,28 +1256,34 @@ public class VRRenderer extends EntityRenderer
             ARBShaderObjects.glUniform1fARB(_LanczosShader_texelHeightOffsetUniform, 0.0f);
             ARBShaderObjects.glUniform1iARB(_LanczosShader_inputImageTextureUniform, 0);
 
-            // Pass 1
-
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+			
+            // Pass 1
+            if (!vboSupported)
+            {
+                drawQuad();
+            }
+            else
+            {
+                // Bind to the VAO that has all the information about the vertices
+                GL30.glBindVertexArray(vaoId);
+                GL20.glEnableVertexAttribArray(0);
+                GL20.glEnableVertexAttribArray(1);
+                GL20.glEnableVertexAttribArray(2);
 
-            // Bind to the VAO that has all the information about the vertices
-            GL30.glBindVertexArray(vaoId);
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glEnableVertexAttribArray(1);
-            GL20.glEnableVertexAttribArray(2);
+                // Bind to the index VBO that has all the information about the order of the vertices
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId);
 
-            // Bind to the index VBO that has all the information about the order of the vertices
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId);
+                // Draw the vertices
+                GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0);
 
-            // Draw the vertices
-            GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0);
-
-            // Put everything back to default (deselect)
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-            GL20.glDisableVertexAttribArray(0);
-            GL20.glDisableVertexAttribArray(1);
-            GL20.glDisableVertexAttribArray(2);
-            GL30.glBindVertexArray(0);
+                // Put everything back to default (deselect)
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL20.glDisableVertexAttribArray(0);
+                GL20.glDisableVertexAttribArray(1);
+                GL20.glDisableVertexAttribArray(2);
+                GL30.glBindVertexArray(0);
+            }
 
            // mc.checkGLError("After Lanczos Pass1");
 
@@ -1306,24 +1305,31 @@ public class VRRenderer extends EntityRenderer
             ARBShaderObjects.glUniform1fARB(_LanczosShader_texelHeightOffsetUniform, 1.0f / (3.0f * (float)this.mc.displayFBHeight));
             ARBShaderObjects.glUniform1iARB(_LanczosShader_inputImageTextureUniform, 0);
 
-            // Bind to the VAO that has all the information about the vertices
-            GL30.glBindVertexArray(vaoId);
-            GL20.glEnableVertexAttribArray(0);
-            GL20.glEnableVertexAttribArray(1);
-            GL20.glEnableVertexAttribArray(2);
+            if (!vboSupported)
+            {
+                drawQuad();
+            }
+            else
+            {
+                // Bind to the VAO that has all the information about the vertices
+                GL30.glBindVertexArray(vaoId);
+                GL20.glEnableVertexAttribArray(0);
+                GL20.glEnableVertexAttribArray(1);
+                GL20.glEnableVertexAttribArray(2);
 
-            // Bind to the index VBO that has all the information about the order of the vertices
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId);
+                // Bind to the index VBO that has all the information about the order of the vertices
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId);
 
-            // Draw the vertices
-            GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0);
+                // Draw the vertices
+                GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0);
 
-            // Put everything back to default (deselect)
-            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-            GL20.glDisableVertexAttribArray(0);
-            GL20.glDisableVertexAttribArray(1);
-            GL20.glDisableVertexAttribArray(2);
-            GL30.glBindVertexArray(0);
+                // Put everything back to default (deselect)
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL20.glDisableVertexAttribArray(0);
+                GL20.glDisableVertexAttribArray(1);
+                GL20.glDisableVertexAttribArray(2);
+                GL30.glBindVertexArray(0);
+            }
 
             // Stop shader use
             ARBShaderObjects.glUseProgramObjectARB(0);
@@ -1571,8 +1577,7 @@ public class VRRenderer extends EntityRenderer
     private void destroyVBO()
     {
         // Select the VAO
-    	if(superSampleSupported)
-    		GL30.glBindVertexArray(vaoId);
+   		GL30.glBindVertexArray(vaoId);
 
         // Disable the VBO index from the VAO attributes list
         GL20.glDisableVertexAttribArray(0);
@@ -1589,12 +1594,9 @@ public class VRRenderer extends EntityRenderer
         vboiId = 0;
 
         // Delete the VAO
-        if( superSampleSupported )
-        {
-	        GL30.glBindVertexArray(0);
-	        GL30.glDeleteVertexArrays(vaoId);
-	        vaoId = 0;
-        }
+        GL30.glBindVertexArray(0);
+        GL30.glDeleteVertexArrays(vaoId);
+        vaoId = 0;
 
         this.mc.checkGLError("destroyVBO");
     }
@@ -1631,11 +1633,8 @@ public class VRRenderer extends EntityRenderer
         indicesBuffer.flip();
 
         // Create a new Vertex Array Object in memory and select it (bind)
-        if( superSampleSupported ) 
-        {
-	        vaoId = GL30.glGenVertexArrays();
-	        GL30.glBindVertexArray(vaoId);
-        }
+        vaoId = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(vaoId);
 
         // Create a new Vertex Buffer Object in memory and select it (bind)
         vboId = GL15.glGenBuffers();
@@ -1655,8 +1654,7 @@ public class VRRenderer extends EntityRenderer
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
         // Deselect (bind to 0) the VAO
-        if( superSampleSupported )
-        	GL30.glBindVertexArray(0);
+       	GL30.glBindVertexArray(0);
 
         // Create a new VBO for the indices and select it (bind) - INDICES
         vboiId = GL15.glGenBuffers();
@@ -1901,11 +1899,48 @@ public class VRRenderer extends EntityRenderer
                     "}\n";
 
     public final String LANCZOS_SAMPLER_VERTEX_SHADER =
+            "#version 120\n" +
+                    "\n" +
+                    " uniform float texelWidthOffset;\n" +
+                    " uniform float texelHeightOffset;\n" +
+                    "\n" +
+                    " varying vec2 centerTextureCoordinate;\n" +
+                    " varying vec2 oneStepLeftTextureCoordinate;\n" +
+                    " varying vec2 twoStepsLeftTextureCoordinate;\n" +
+                    " varying vec2 threeStepsLeftTextureCoordinate;\n" +
+                    " varying vec2 fourStepsLeftTextureCoordinate;\n" +
+                    " varying vec2 oneStepRightTextureCoordinate;\n" +
+                    " varying vec2 twoStepsRightTextureCoordinate;\n" +
+                    " varying vec2 threeStepsRightTextureCoordinate;\n" +
+                    " varying vec2 fourStepsRightTextureCoordinate;\n" +
+                    "\n" +
+                    " void main()\n" +
+                    " {\n" +
+                    "     gl_Position = ftransform();\n" +
+                    "\n" +
+                    "     vec2 firstOffset = vec2(texelWidthOffset, texelHeightOffset);\n" +
+                    "     vec2 secondOffset = vec2(2.0 * texelWidthOffset, 2.0 * texelHeightOffset);\n" +
+                    "     vec2 thirdOffset = vec2(3.0 * texelWidthOffset, 3.0 * texelHeightOffset);\n" +
+                    "     vec2 fourthOffset = vec2(4.0 * texelWidthOffset, 4.0 * texelHeightOffset);\n" +
+                    "\n" +
+                    "     vec2 textCoord = gl_MultiTexCoord0.xy;\n" +
+                    "     centerTextureCoordinate = textCoord;\n" +
+                    "     oneStepLeftTextureCoordinate = textCoord - firstOffset;\n" +
+                    "     twoStepsLeftTextureCoordinate = textCoord - secondOffset;\n" +
+                    "     threeStepsLeftTextureCoordinate = textCoord - thirdOffset;\n" +
+                    "     fourStepsLeftTextureCoordinate = textCoord - fourthOffset;\n" +
+                    "     oneStepRightTextureCoordinate = textCoord + firstOffset;\n" +
+                    "     twoStepsRightTextureCoordinate = textCoord + secondOffset;\n" +
+                    "     threeStepsRightTextureCoordinate = textCoord + thirdOffset;\n" +
+                    "     fourStepsRightTextureCoordinate = textCoord + fourthOffset;\n" +
+                    " }\n";
+
+    public final String LANCZOS_SAMPLER_VERTEX_SHADER_VBO =
         "#version 120\n" +
         "\n" +
-        " attribute vec4 in_Position;//position;\n" +
-        " attribute vec4 in_Color;//position;\n" +
-        " attribute vec2 in_TextureCoord;//inputTextureCoordinate;\n" +
+        " attribute vec4 in_Position;\n" +
+        " attribute vec4 in_Color;\n" +
+        " attribute vec2 in_TextureCoord;\n" +
         "\n" +
         " uniform float texelWidthOffset;\n" +
         " uniform float texelHeightOffset;\n" +
@@ -1922,14 +1957,14 @@ public class VRRenderer extends EntityRenderer
         "\n" +
         " void main()\n" +
         " {\n" +
-        "     gl_Position = in_Position;//position;\n" +
+        "     gl_Position = in_Position;\n" +
         "\n" +
         "     vec2 firstOffset = vec2(texelWidthOffset, texelHeightOffset);\n" +
         "     vec2 secondOffset = vec2(2.0 * texelWidthOffset, 2.0 * texelHeightOffset);\n" +
         "     vec2 thirdOffset = vec2(3.0 * texelWidthOffset, 3.0 * texelHeightOffset);\n" +
         "     vec2 fourthOffset = vec2(4.0 * texelWidthOffset, 4.0 * texelHeightOffset);\n" +
         "\n" +
-        "     centerTextureCoordinate = in_TextureCoord;//inputTextureCoordinate;\n" +
+        "     centerTextureCoordinate = in_TextureCoord;\n" +
         "     oneStepLeftTextureCoordinate = in_TextureCoord - firstOffset;\n" +
         "     twoStepsLeftTextureCoordinate = in_TextureCoord - secondOffset;\n" +
         "     threeStepsLeftTextureCoordinate = in_TextureCoord - thirdOffset;\n" +
@@ -2190,14 +2225,14 @@ public class VRRenderer extends EntityRenderer
                 // Left eye
                 FloatBuffer leftProj = eyeRenderParams.gl_getLeftProjectionMatrix();
                 GL11.glLoadMatrix(leftProj);
-                mc.checkGLError("Set left projection");
+                //mc.checkGLError("Set left projection");
             }
             else
             {
                 // Right eye
                 FloatBuffer rightProj = eyeRenderParams.gl_getRightProjectionMatrix();
                 GL11.glLoadMatrix(rightProj);
-                mc.checkGLError("Set right projection");
+                //mc.checkGLError("Set right projection");
             }
             float var3 = 0.07F;
 
