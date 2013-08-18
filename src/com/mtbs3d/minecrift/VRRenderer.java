@@ -2146,7 +2146,8 @@ public class VRRenderer extends EntityRenderer
             this.mc.pointedEntityLiving = null;
             double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
             double entityReachDistance = blockReachDistance;
-            Vec3 pos = Vec3.createVectorHelper(renderOriginX + camRelX, renderOriginY + camRelY, renderOriginZ + camRelZ); 
+            float cameraYOffset = 1.62f - (this.mc.vrSettings.getPlayerEyeHeight() - this.mc.vrSettings.neckBaseToEyeHeight);
+            Vec3 pos = Vec3.createVectorHelper(renderOriginX + camRelX, renderOriginY + camRelY - cameraYOffset, renderOriginZ + camRelZ);
             Vec3 aim = Vec3.createVectorHelper(aimX, aimY, aimZ);
             Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
 
