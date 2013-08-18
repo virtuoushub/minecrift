@@ -543,11 +543,13 @@
      {
          if (par1 != 0 || this.leftClickCounter <= 0)
          {
-@@ -1290,46 +1459,23 @@
+@@ -1290,46 +1459,25 @@
       */
      public void toggleFullscreen()
      {
 +        this.fullscreen = !this.fullscreen;
++        this.gameSettings.fullScreen = this.fullscreen;
++        this.gameSettings.saveOptions();
 +        setFullscreen(this.fullscreen);
 +    }
 +
@@ -599,7 +601,7 @@
              }
  
              Display.setFullscreen(this.fullscreen);
-@@ -1345,17 +1491,34 @@
+@@ -1345,17 +1493,34 @@
      /**
       * Called to resize the current screen.
       */
@@ -640,7 +642,7 @@
          }
      }
  
-@@ -1364,10 +1527,24 @@
+@@ -1364,10 +1529,24 @@
       */
      public void runTick()
      {
@@ -665,7 +667,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1375,6 +1552,8 @@
+@@ -1375,6 +1554,8 @@
  
          if (!this.isGamePaused)
          {
@@ -674,7 +676,7 @@
              this.ingameGUI.updateTick();
          }
  
-@@ -1394,21 +1573,24 @@
+@@ -1394,21 +1575,24 @@
              this.renderEngine.func_110550_d();
          }
  
@@ -708,7 +710,7 @@
  
          if (this.currentScreen != null)
          {
-@@ -1504,7 +1686,7 @@
+@@ -1504,7 +1688,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -717,7 +719,7 @@
                      }
                  }
              }
-@@ -1562,6 +1744,11 @@
+@@ -1562,6 +1746,11 @@
                                  this.displayInGameMenu();
                              }
  
@@ -729,7 +731,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.func_110436_a();
-@@ -1605,7 +1792,7 @@
+@@ -1605,7 +1794,7 @@
                                  this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
                              }
  
@@ -738,7 +740,7 @@
                              {
                                  this.gameSettings.showDebugInfo = !this.gameSettings.showDebugInfo;
                                  this.gameSettings.showDebugProfilerChart = GuiScreen.isShiftKeyDown();
-@@ -1738,6 +1925,12 @@
+@@ -1738,6 +1927,12 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
@@ -751,7 +753,7 @@
  
          if (this.theWorld != null)
          {
-@@ -1824,6 +2017,11 @@
+@@ -1824,6 +2019,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -763,7 +765,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1850,8 +2048,43 @@
+@@ -1850,8 +2050,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -807,7 +809,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(I18n.func_135053_a("menu.loadingLevel"));
  
-@@ -1905,6 +2138,11 @@
+@@ -1905,6 +2140,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -819,7 +821,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -1941,6 +2179,7 @@
+@@ -1941,6 +2181,7 @@
          {
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -827,7 +829,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2096,107 +2335,114 @@
+@@ -2096,107 +2337,114 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1037,7 +1039,7 @@
  
              if (var1)
              {
-@@ -2282,8 +2528,13 @@
+@@ -2282,8 +2530,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1051,7 +1053,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2291,6 +2542,7 @@
+@@ -2291,6 +2544,7 @@
  
              if (var1 != 0)
              {
@@ -1059,7 +1061,7 @@
                  return var0;
              }
          }
-@@ -2376,7 +2628,7 @@
+@@ -2376,7 +2630,7 @@
      {
          return this.field_94139_O;
      }
@@ -1068,7 +1070,7 @@
      public Session func_110432_I()
      {
          return this.session;
-@@ -2416,4 +2668,61 @@
+@@ -2416,4 +2670,61 @@
      {
          return par0Minecraft.field_135017_as;
      }
