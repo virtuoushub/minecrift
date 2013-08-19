@@ -56,6 +56,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
         if (Minecraft.getMinecraft().vrRenderer != null &&
             Minecraft.getMinecraft().hmdInfo != null)
         {
+            // Gets the current profile
             profile = Minecraft.getMinecraft().hmdInfo.getProfileData();
             if (profile != null)
             {

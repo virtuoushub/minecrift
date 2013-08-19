@@ -253,4 +253,26 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
         return userProfile;
     }
+
+    @Override
+    public String[] getUserProfiles()
+    {
+        String[] profileNames = null;
+
+        if (isInitialized())
+        {
+            profileNames = _getUserProfiles();
+        }
+
+        return profileNames;
+    }
+
+    @Override
+    public boolean loadProfile(String profileName)
+    {
+        if (!isInitialized())
+            return false;
+
+        return _loadUserProfile(profileName);
+    }
 }

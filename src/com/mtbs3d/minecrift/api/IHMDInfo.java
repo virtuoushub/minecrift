@@ -52,6 +52,12 @@ public interface IHMDInfo extends IBasePlugin
      */
     public float getIPD();
 
-    /* Get the profile data */
+    /* Gets the current user profile data */
     public UserProfileData getProfileData();
+
+    /* Gets a list of all available user profiles */
+    public String[] getUserProfiles();
+
+    /* Select the named user profile */
+    public boolean loadProfile(String profileName);
 }
