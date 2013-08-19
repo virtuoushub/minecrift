@@ -83,6 +83,7 @@ public class GuiSliderEx extends GuiButtonEx
         {
             if (this.dragging && par2 != this.lastMouseX)
             {
+                float startValue = this.lastValue;
                 this.lastMouseX = -1;
                 this.sliderValue = (float)(par2 - (this.xPosition + 4)) / (float)(this.width - 8);
 
@@ -102,7 +103,7 @@ public class GuiSliderEx extends GuiButtonEx
                 par1Minecraft.vrSettings.setOptionFloatValue(this.idFloat, this.lastValue);
                 this.displayString = par1Minecraft.vrSettings.getKeyBinding(this.idFloat);
 
-                if (_eventHandler != null)
+                if (_eventHandler != null && startValue != this.lastValue)
                     _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, this.idFloat);
             }
 
@@ -153,7 +154,6 @@ public class GuiSliderEx extends GuiButtonEx
             this.displayString = par1Minecraft.vrSettings.getKeyBinding(this.idFloat);
             this.lastMouseX = par2;
             this.dragging = true;
-
 
             if (_eventHandler != null)
                 _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, this.idFloat);
