@@ -1,0 +1,47 @@
+--- a/net/minecraft/src/ItemStack.java
++++ b/net/minecraft/src/ItemStack.java
+@@ -639,13 +639,13 @@
+ 
+             if (this.stackTagCompound.hasKey("display"))
+             {
+-                NBTTagCompound var17 = this.stackTagCompound.getCompoundTag("display");
++                NBTTagCompound var16 = this.stackTagCompound.getCompoundTag("display");
+ 
+-                if (var17.hasKey("color"))
++                if (var16.hasKey("color"))
+                 {
+                     if (par2)
+                     {
+-                        var3.add("Color: #" + Integer.toHexString(var17.getInteger("color")).toUpperCase());
++                        var3.add("Color: #" + Integer.toHexString(var16.getInteger("color")).toUpperCase());
+                     }
+                     else
+                     {
+@@ -653,9 +653,9 @@
+                     }
+                 }
+ 
+-                if (var17.hasKey("Lore"))
++                if (var16.hasKey("Lore"))
+                 {
+-                    NBTTagList var19 = var17.getTagList("Lore");
++                    NBTTagList var19 = var16.getTagList("Lore");
+ 
+                     if (var19.tagCount() > 0)
+                     {
+@@ -668,12 +668,12 @@
+             }
+         }
+ 
+-        Multimap var16 = this.func_111283_C();
++        Multimap var17 = this.func_111283_C();
+ 
+-        if (!var16.isEmpty())
++        if (!var17.isEmpty())
+         {
+             var3.add("");
+-            Iterator var15 = var16.entries().iterator();
++            Iterator var15 = var17.entries().iterator();
+ 
+             while (var15.hasNext())
+             {

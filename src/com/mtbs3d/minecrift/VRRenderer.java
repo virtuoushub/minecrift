@@ -2013,6 +2013,100 @@ public class VRRenderer extends EntityRenderer
         "     gl_FragColor = fragmentColor;\n" +
         " }\n";
 
+    public final String FXAA_FRAGMENT_SHADER =
+
+        "// FXAA fragment shader by Timothy Lottes\n" +
+        "// http://timothylottes.blogspot.com/\n" +
+        "// GLSL version by Geeks3D \n" +
+        "// http://www.geeks3d.com/\n" +
+        "// modified and adapted to BGE by Martins Upitis\n" +
+        "// http://devlog-martinsh.blogspot.com/\n" +
+        "// QC / Texture2DRect conversion by vade \n" +
+        "// http://v002.info\n" +
+        "\n" +
+        "\n" +
+            "#version 120\n" +
+            "\n" +
+            "uniform sampler2DRect bgl_RenderedTexture; //redered scene texture \n" +
+            "uniform float bgl_RenderedTextureWidth; //texture width \n" +
+            "uniform float bgl_RenderedTextureHeight; //texture height \n" +
+            "\n" +
+            "float width = bgl_RenderedTextureWidth;\n" +
+            "float height = bgl_RenderedTextureHeight; \n" +
+            "\n" +
+            "\n" +
+            "const vec3 luma = vec3(0.299, 0.587, 0.114);\n" +
+            "const float FXAA_SUBPIX_SHIFT = 1.0/4.0; \n" +
+            "\n" +
+            "vec2 rcpFrame = vec2(1.0/width, 1.0/height);\n" +
+            "\n" +
+            "vec4 posPos = vec4(gl_TexCoord[0].st,gl_TexCoord[0].st -((0.5 + FXAA_SUBPIX_SHIFT))); \n" +
+            "\n" +
+            "\n" +
+            "vec4 FxaaPixelShader( \n" +
+            "     vec4 posPos, // Output of FxaaVertexShader interpolated across screen.   \n" +
+            "     sampler2DRect tex, // Input texture.   \n" +
+            "     vec2 rcpFrame) // Constant {1.0/frameWidth, 1.0/frameHeight}. \n" +
+            "{\n" +
+                "/*---------------------------------------------------------*/ \n" +
+                "#define FXAA_REDUCE_MIN   (1.0/128.0)  \n" +
+                "#define FXAA_REDUCE_MUL   (1.0/8.0)\n" +
+                "#define FXAA_SPAN_MAX     8.0  \n" +
+                "/*---------------------------------------------------------*/\n" +
+                "vec3 rgbNW = texture2DRect(tex, posPos.zw).xyz;\n" +
+                "vec3 rgbNE = texture2DRect(tex, posPos.zw + vec2(1.0,0.0)).xyz; \n" +
+                "vec3 rgbSW = texture2DRect(tex, posPos.zw + vec2(0.0,1.0)).xyz;\n" +
+                "vec3 rgbSE = texture2DRect(tex, posPos.zw + vec2(1.0,1.0)).xyz; \n" +
+                "vec3 rgbM  = texture2DRect(tex, posPos.xy).xyz;     \n" +
+                "/*---------------------------------------------------------*/ \n" +
+                "float lumaNW = dot(rgbNW, luma);  \n" +
+                "float lumaNE = dot(rgbNE, luma); \n" +
+                "float lumaSW = dot(rgbSW, luma);  \n" +
+                "float lumaSE = dot(rgbSE, luma);  \n" +
+                "float lumaM  = dot(rgbM,  luma);  \n" +
+                "/*---------------------------------------------------------*/\n" +
+                "float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE))); \n" +
+                "float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE))); \n" +
+                "/*---------------------------------------------------------*/ \n" +
+                "vec2 dir; \n" +
+                "dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE)); \n" +
+                "dir.y =  ((lumaNW + lumaSW) - (lumaNE + lumaSE)); \n" +
+                "/*---------------------------------------------------------*/ \n" +
+                "float dirReduce = max( \n" +
+                "(lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * FXAA_REDUCE_MUL),\n" +
+                "FXAA_REDUCE_MIN); \n" +
+                "float rcpDirMin = 1.0/(min(abs(dir.x), abs(dir.y)) + dirReduce); \n" +
+                "dir = min(vec2( FXAA_SPAN_MAX,  FXAA_SPAN_MAX), \n" +
+                "max(vec2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX), \n" +
+                "dir * rcpDirMin)); //* rcpFrame.xy;  \n" +
+                "/*--------------------------------------------------------*/  \n" +
+                "vec4 rgbA = (1.0/2.0) * (          \n" +
+                "texture2DRect(tex, posPos.xy + dir * (1.0/3.0 - 0.5)) +  \n" +
+                "texture2DRect(tex, posPos.xy + dir * (2.0/3.0 - 0.5)));  \n" +
+                "vec4 rgbB = rgbA * (1.0/2.0) + (1.0/4.0) * (     \n" +
+                "texture2DRect(tex, posPos.xy + dir * (0.0/3.0 - 0.5)) +  \n" +
+                "        texture2DRect(tex, posPos.xy + dir * (3.0/3.0 - 0.5)));  \n" +
+                "float lumaB = dot(rgbB, vec4(luma, 0.0));     \n" +
+                "if((lumaB < lumaMin) || (lumaB > lumaMax)) return rgbA;  \n" +
+                "return rgbB;\n" +
+            "}   \n" +
+            "\n" +
+            "vec4 PostFX(sampler2DRect tex, vec2 uv) \n" +
+            "{   \n" +
+                "vec4 c = vec4(0.0); \n" +
+                "vec2 rcpFrame = vec2(1.0/width, 1.0/height);\n" +
+                "c = FxaaPixelShader(posPos, tex, rcpFrame); \n" +
+                "//c.rgb = 1.0 - texture2D(bgl_RenderedTexture, posPos.xy).rgb; \n" +
+                "//c.a = 1.0; \n" +
+                "return c; \n" +
+            "}\n" +
+            "\n" +
+            "void main() \n" +
+            "{   \n" +
+            "    vec2 uv = gl_TexCoord[0].st; \n" +
+            "    gl_FragColor = PostFX(bgl_RenderedTexture, uv);  \n" +
+            "}   \n";
+
    private float getDistortionFitY()
     {
         float fit = 0.0f;
