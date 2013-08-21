@@ -102,7 +102,7 @@ public class DistortionParams
         }
 
         // Create FBO
-        distortionMapFBO = new FBOParams("distortionMap", true, (int)ceil(FBWidth), (int)ceil(FBHeight));
+        distortionMapFBO = new FBOParams("distortionMap", GL11.GL_TEXTURE_2D, ARBTextureRg.GL_RG32F, ARBTextureRg.GL_RG, GL11.GL_FLOAT, (int)ceil(FBWidth), (int)ceil(FBHeight));
 
         // Bind as active
         distortionMapFBO.bindRenderTarget();

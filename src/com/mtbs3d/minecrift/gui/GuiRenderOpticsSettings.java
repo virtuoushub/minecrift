@@ -22,6 +22,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             EnumOptions.DUMMY,
             EnumOptions.SUPERSAMPLING,
             EnumOptions.SUPERSAMPLE_SCALEFACTOR,
+            EnumOptions.FXAA,
     };
 
 
@@ -124,6 +125,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 			    this.mc.vrSettings.useSupersample = false;
 			    this.mc.vrSettings.superSampleScaleFactor = 2.0f;
                 this.mc.vrSettings.useDistortionTextureLookupOptimisation = false;
+                this.mc.vrSettings.useFXAA = false;
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
 			    this.mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
@@ -133,7 +135,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             if (num == EnumOptions.USE_DISTORTION ||
 	            num == EnumOptions.SUPERSAMPLING ||
 	            num == EnumOptions.CHROM_AB_CORRECTION ||
-                num == EnumOptions.TEXTURE_LOOKUP_OPT)
+                num == EnumOptions.TEXTURE_LOOKUP_OPT ||
+                num == EnumOptions.FXAA)
 	        {
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
@@ -196,7 +199,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     };
     	case SUPERSAMPLING:
     		return new String[] {
-    				"Full-Screen AntiAliasing (supersampling)",
+    				"Full-Scene AntiAliasing (supersampling)",
     				"  Recommended: ON; greatly improves visual quality",
     				"  ON:  game is rendered at a higher resolution",
     				"  OFF: game is rendered at the native resolution",
@@ -207,6 +210,16 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     				"Full-Screen AntiAliasing Render Scale",
     				"  What multiple of native resolution should be rendered?",
     				"  Recommended value: 2.0"};
+        case FXAA:
+            return new String[] {
+                    "Fast approXimate AntiAliasing",
+                    "  Recommended: OFF; use FSAA instead if performance",
+                    "  allows. Will improve visual quality to some degree.",
+                    "  However the image may be somewhat blurred. Very",
+                    "  fast however; use when FSAA is too slow.",
+                    "  ON:  game is rendered with FXAA filter.",
+                    "  OFF: no FXAA filter applied."
+                };
     	default:
     		return null;
     	}

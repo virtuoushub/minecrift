@@ -55,6 +55,7 @@ public class VRSettings {
     public float renderPlayerOffset = 0.25f;
     public boolean useChromaticAbCorrection = true;
     public boolean useDistortionTextureLookupOptimisation = false;
+    public boolean useFXAA = false;
     public float hudScale = 0.65f;
     public boolean allowMousePitchInput = false;
     public float hudDistance = 1.25f;
@@ -243,6 +244,11 @@ public class VRSettings {
                     if (optionTokens[0].equals("useDistortionTextureLookupOptimisation"))
                     {
                         this.useDistortionTextureLookupOptimisation = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useFXAA"))
+                    {
+                        this.useFXAA = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("hudScale"))
@@ -588,6 +594,8 @@ public class VRSettings {
 	            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
             case TEXTURE_LOOKUP_OPT:
                 return this.useDistortionTextureLookupOptimisation ? var4 + "Texture Lookup" : var4 + "Brute Force";
+            case FXAA:
+                return this.useFXAA ? var4 + "ON" : var4 + "OFF";
 	        case HUD_SCALE:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudScale) });
 	        case RENDER_PLAYER_OFFSET:
@@ -893,6 +901,9 @@ public class VRSettings {
 	            break;
             case TEXTURE_LOOKUP_OPT:
                 this.useDistortionTextureLookupOptimisation = !this.useDistortionTextureLookupOptimisation;
+                break;
+            case FXAA:
+                this.useFXAA = !this.useFXAA;
                 break;
 	        case PITCH_AFFECTS_CAMERA:
 	            this.allowMousePitchInput = !this.allowMousePitchInput;
@@ -1229,6 +1240,7 @@ public class VRSettings {
             var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
             var5.println("useDistortionTextureLookupOptimisation:" + this.useDistortionTextureLookupOptimisation);
+            var5.println("useFXAA:" + this.useFXAA);
             var5.println("hudScale:" + this.hudScale);
             var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
             var5.println("allowMousePitchInput:" + this.allowMousePitchInput);
