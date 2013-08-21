@@ -30,6 +30,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private long lastUpdateAt = 0L;
     private int calibrationStep = NOT_CALIBRATING;
     private int MagCalSampleCount = 0;
+    private boolean forceMagCalibration = false; // Don't force mag cal initially
 
     public static UserProfileData theProfileData = null;
 
@@ -176,9 +177,34 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             case CALIBRATE_AT_FIRST_ORIGIN:
             {
                 _reset();
-                _beginAutomaticCalibration();
-                MagCalSampleCount = 0;
-                calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
+
+                // When calibration is called the first time after startup,
+                // don't force mag calibration if the mag cal is already setup
+                // (probably from the Oculus profile). After that, always
+                // force.
+
+                boolean doCalibration = true;
+                if (!forceMagCalibration)
+                {
+                    if (_isCalibrated())
+                        doCalibration = false;
+
+                    // From now on force calibration
+                    forceMagCalibration = true;
+                }
+
+                if (doCalibration)
+                {
+                    _beginAutomaticCalibration();
+                    MagCalSampleCount = 0;
+                    calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
+                }
+                else
+                {
+                    MagCalSampleCount = 0;
+                    lastUpdateAt = 0;
+                    calibrationStep = CALIBRATE_AT_SECOND_ORIGIN;
+                }
                 break;
             }
             case CALIBRATE_AWAITING_MAG_CAL:
