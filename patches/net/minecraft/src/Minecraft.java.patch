@@ -187,7 +187,7 @@
 +        		Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[]{this,this.field_110449_ao});
 +        	} catch ( IllegalArgumentException iae ) {
 +        		try {
-+        			Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[]{this,this.field_110449_ao,this.field_110451_am});
++        			Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading2, new Object[]{this,this.field_110449_ao,this.field_110451_am});
 +        		} catch ( Exception e ) { Config.dbg("Couldn't call FMLClientHandler.beginMinecraftLoading THINGS ARE BROKEN!");} 
 +        	}
 +        }
