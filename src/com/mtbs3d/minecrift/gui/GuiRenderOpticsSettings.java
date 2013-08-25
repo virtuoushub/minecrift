@@ -61,12 +61,6 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 float maxValue = 1.0f;
                 float increment = 0.001f;
 
-                if (var8 == EnumOptions.IPD)
-                {
-                    minValue = 0.055f;
-                    maxValue = 0.075f;
-                    increment = 0.0001f;
-                }
                 if (var8 == EnumOptions.FOV_SCALE_FACTOR)
                 {
                     minValue = 0.5f;

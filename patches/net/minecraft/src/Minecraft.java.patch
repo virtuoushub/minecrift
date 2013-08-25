@@ -1067,7 +1067,7 @@
      public Session func_110432_I()
      {
          return this.session;
-@@ -2416,4 +2667,61 @@
+@@ -2416,4 +2667,63 @@
      {
          return par0Minecraft.field_135017_as;
      }
@@ -1089,6 +1089,8 @@
 +
 +                // ...then set IPD
 +                hmdInfo.setIPD(this.vrSettings.getIPD());
++                if (this.vrRenderer != null)
++                    this.vrRenderer._FBOInitialised = false;
 +
 +                // Set configured headtracker parameters
 +                headTracker.setPrediction(this.vrSettings.headTrackPredictionTimeSecs, this.vrSettings.useHeadTrackPrediction);

@@ -73,6 +73,11 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
             this.guivrSettings.useOculusProfile = false;
         }
 
+        // Set IPD
+        mc.hmdInfo.setIPD(this.guivrSettings.getIPD());
+        if (mc.vrRenderer != null)
+            mc.vrRenderer._FBOInitialised = false;
+
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
 
@@ -203,6 +208,8 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                 this.guivrSettings.neckBaseToEyeHeight = 0.225f;
 
                 this.guivrSettings.saveOptions();
+                if (mc.vrRenderer != null)
+                    mc.vrRenderer._FBOInitialised = false;
                 this.reinit = true;
             }
         }
@@ -297,10 +304,15 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
         if (enumm == EnumOptions.IPD)
         {
             mc.hmdInfo.setIPD(this.mc.vrSettings.getIPD());
+            if (mc.vrRenderer != null)
+                mc.vrRenderer._FBOInitialised = false;
         }
-        if (enumm == EnumOptions.OCULUS_PROFILE)
+        else if (enumm == EnumOptions.OCULUS_PROFILE)
         {
             this.reinit = true;
+            if (mc.vrRenderer != null)
+                if (mc.vrRenderer != null)
+                    mc.vrRenderer._FBOInitialised = false;
         }
     }
 }
