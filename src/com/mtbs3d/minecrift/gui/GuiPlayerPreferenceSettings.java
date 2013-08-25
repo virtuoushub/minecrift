@@ -311,8 +311,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
         {
             this.reinit = true;
             if (mc.vrRenderer != null)
-                if (mc.vrRenderer != null)
-                    mc.vrRenderer._FBOInitialised = false;
+                mc.vrRenderer._FBOInitialised = false;
         }
     }
 }
