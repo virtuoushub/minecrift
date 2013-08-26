@@ -42,7 +42,7 @@
 +                if (var7 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping() )
 +                {
 +                	renderPlayer.setVR(true,this.mc.vrSettings.renderHeadWear, this.mc.vrSettings.renderPlayerOffset);
-+                    if (this.mc.vrSettings.renderFullFirstPersonModel == false)
++                    if (this.mc.vrSettings.renderFullFirstPersonModel == false || this.mc.vrRenderer == null)
 +                        render = false;
 +                }
 +

@@ -338,7 +338,7 @@
  
 +        if (var2 != null)
 +        {
-+            if (checkAspectRatio)
++            if (checkAspectRatio && this.mc.vrRenderer != null)
 +            {
 +                if (this.mc.hmdInfo != null && !this.mc.hmdInfo.getHMDInfo().isFakeData)
 +                {

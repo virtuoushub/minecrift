@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/GuiMainMenu.java
++++ b/net/minecraft/src/GuiMainMenu.java
+@@ -360,7 +360,7 @@
+         GL11.glMatrixMode(GL11.GL_PROJECTION);
+         GL11.glPushMatrix();
+         GL11.glLoadIdentity();
+-        Project.gluPerspective(120.0F, 1.0F, 0.05F, 10.0F);
++            Project.gluPerspective(120.0F, 1.0F, 0.05F, 10.0F);
+         GL11.glMatrixMode(GL11.GL_MODELVIEW);
+         GL11.glPushMatrix();
+         GL11.glLoadIdentity();
+@@ -550,6 +550,8 @@
+             var9 = var9 + " Demo";
+         }
+ 
++        var9 = var9 + "  Minecrift 1.1 Beta  " + this.mc.debugFPS + "fps";
++
+         this.drawString(this.fontRenderer, var9, 2, this.height - 10, 16777215);
+         String var10 = "Copyright Mojang AB. Do not distribute!";
+         this.drawString(this.fontRenderer, var10, this.width - this.fontRenderer.getStringWidth(var10) - 2, this.height - 10, 16777215);
