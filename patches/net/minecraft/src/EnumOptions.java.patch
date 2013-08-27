@@ -9,7 +9,7 @@
      AF_LEVEL("Anisotropic Filtering", false, false),
      RENDER_DISTANCE_FINE("Render Distance", true, false),
      ANIMATED_TEXTURES("Textures Animated", false, false),
-@@ -97,7 +97,86 @@
+@@ -97,7 +97,88 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -57,7 +57,9 @@
 +    TEXTURE_LOOKUP_OPT("Dist. Method", false, true),
 +    FXAA("FXAA", false, true),
 +    FOV_SCALE_FACTOR("FOV Scale", true, false),
++    LENS_SEPARATION_SCALE_FACTOR("Lens Sep. Scale", true, false),
 +    DISTORTION_FIT_POINT("Distortion Border", true, false),
++    ASPECT_RATIO_CORRECTION("Asp. Correction", false, false),
 +    SUPERSAMPLING("FSAA", false, true),
 +    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
 +

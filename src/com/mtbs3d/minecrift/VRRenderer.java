@@ -940,8 +940,10 @@ public class VRRenderer extends EntityRenderer
                         0.05F,
                         this.farPlaneDistance * 2.0F,
                         this.mc.vrSettings.fovScaleFactor,
+                        this.mc.vrSettings.lensSeparationScaleFactor,
                         getDistortionFitX(),
-                        getDistortionFitY());
+                        getDistortionFitY(),
+                        this.mc.vrSettings.getAspectRatioCorrectionMode());
             }
             else
             {
@@ -952,8 +954,10 @@ public class VRRenderer extends EntityRenderer
                         0.05F,
                         this.farPlaneDistance * 2.0F,
                         this.mc.vrSettings.fovScaleFactor,
+                        this.mc.vrSettings.lensSeparationScaleFactor,
                         getDistortionFitX(),
-                        getDistortionFitY());
+                        getDistortionFitY(),
+                        this.mc.vrSettings.getAspectRatioCorrectionMode());
             }
 
             System.out.println("[Minecrift] INITIALISE Display");

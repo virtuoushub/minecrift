@@ -4,10 +4,7 @@
  */
 package com.mtbs3d.minecrift.api;
 
-import de.fruitfly.ovr.EyeRenderParams;
-import de.fruitfly.ovr.HMDInfo;
-import de.fruitfly.ovr.SensorInfo;
-import de.fruitfly.ovr.UserProfileData;
+import de.fruitfly.ovr.*;
 
 /**
  * Implement this class to inform Minecrift of distortion, resolution, and
@@ -28,7 +25,8 @@ public interface IHMDInfo extends IBasePlugin
                                               int viewPortHeight,
                                               float clipNear,
                                               float clipFar,
-                                              float eyeToScreenDistanceScaleFactor );
+                                              float eyeToScreenDistanceScaleFactor,
+                                              float lensSeparationScaleFactor);
     public EyeRenderParams getEyeRenderParams(int viewPortX,
                                               int viewPortY,
                                               int viewPortWidth,
@@ -36,8 +34,10 @@ public interface IHMDInfo extends IBasePlugin
                                               float clipNear,
                                               float clipFar,
                                               float eyeToScreenDistanceScaleFactor,
+                                              float lensSeparationScaleFactor,
                                               float distortionFitX,
-                                              float distortionFitY);
+                                              float distortionFitY,
+                                              IOculusRift.AspectCorrectionType aspectCorrectionType);
     /**
      * Sets/saves the IPD for use in the eyeRenderParams
      * 

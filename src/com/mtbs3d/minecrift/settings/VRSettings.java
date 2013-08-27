@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 
 import com.mtbs3d.minecrift.MCHydra;
 
+import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.src.Config;
 import net.minecraft.src.EnumOptions;
 import net.minecraft.src.I18n;
@@ -63,6 +64,9 @@ public class VRSettings {
     public float hudYawOffset = 0.0f;
     public boolean hudLockToHead = false;
     public float fovScaleFactor = 1.0f;
+    public float lensSeparationScaleFactor = 1.0f;
+    private IOculusRift.AspectCorrectionType aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_AUTO;
+    private int aspectRatioCorrection = aspectRatioCorrectionMode.getValue();
     public int distortionFitPoint = 5;
     public float headTrackSensitivity = 1.0f;
     public boolean useSupersample = true;
@@ -301,9 +305,20 @@ public class VRSettings {
                         this.fovScaleFactor = this.parseFloat(optionTokens[1]);
                     }
 
+                    if (optionTokens[0].equals("lensSeparationScaleFactor"))
+                    {
+                        this.lensSeparationScaleFactor = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("distortionFitPoint"))
                     {
                         this.distortionFitPoint = Integer.parseInt(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("aspectRatioCorrection"))
+                    {
+                        this.aspectRatioCorrection = Integer.parseInt(optionTokens[1]);
+                        setAspectCorrectionMode(this.aspectRatioCorrection);
                     }
 
                     if (optionTokens[0].equals("calibrationStrategy1"))      // Deliberately using a new value to get people using the 'At startup' setting again by default.
@@ -615,6 +630,8 @@ public class VRSettings {
                 return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudYawOffset) });
 	        case FOV_SCALE_FACTOR:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
+            case LENS_SEPARATION_SCALE_FACTOR:
+                return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.lensSeparationScaleFactor) });
 	        case DISTORTION_FIT_POINT:
 	            if (this.distortionFitPoint < 1)
 	                return var4 + "None";
@@ -655,6 +672,15 @@ public class VRSettings {
 		            return var4 + String.format("%.0f°", new Object[] { Float.valueOf(this.keyholeHeight) });
 	        	else
 	        		return var4 + "Fully Coupled";
+            case ASPECT_RATIO_CORRECTION:
+                if (this.aspectRatioCorrection == IOculusRift.AspectCorrectionType.CORRECTION_16_10_TO_16_9.getValue())
+                    return var4 + "16:10->16:9";
+                else if (this.aspectRatioCorrection == IOculusRift.AspectCorrectionType.CORRECTION_16_9_TO_16_10.getValue())
+                    return var4 + "16:9->16:10";
+                else if (this.aspectRatioCorrection == IOculusRift.AspectCorrectionType.CORRECTION_AUTO.getValue())
+                    return var4 + "Auto";
+                else
+                    return var4 + "None";
 	        case POS_TRACK_HYDRALOC:
 	            String s = var4 + "Unknown";
 	
@@ -794,6 +820,8 @@ public class VRSettings {
                 return this.hudYawOffset ;
 			case FOV_SCALE_FACTOR :
 				return this.fovScaleFactor ;
+            case LENS_SEPARATION_SCALE_FACTOR:
+                return this.lensSeparationScaleFactor ;
 			case HEAD_TRACK_SENSITIVITY :
 				return this.headTrackSensitivity ;
 			case SUPERSAMPLE_SCALEFACTOR :
@@ -917,11 +945,18 @@ public class VRSettings {
 	        case DECOUPLE_LOOK_MOVE:
 	            this.lookMoveDecoupled = !this.lookMoveDecoupled;
 	            break;
-	        case POS_TRACK_HYDRALOC:
-	            this.posTrackHydraLoc += 1;
-	            if (this.posTrackHydraLoc > POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)
-	                this.posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
+	        case ASPECT_RATIO_CORRECTION:
+	            this.aspectRatioCorrection += 1;
+	            if (this.aspectRatioCorrection > IOculusRift.AspectCorrectionType.CORRECTION_AUTO.getValue())
+	                this.aspectRatioCorrection = IOculusRift.AspectCorrectionType.CORRECTION_NONE.getValue();
+
+                setAspectCorrectionMode(this.aspectRatioCorrection);
 	            break;
+            case POS_TRACK_HYDRALOC:
+                this.posTrackHydraLoc += 1;
+                if (this.posTrackHydraLoc > POS_TRACK_HYDRA_LOC_BACK_OF_HEAD)
+                    this.posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT;
+                break;
 	        case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
 	            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
 	            break;
@@ -1023,6 +1058,9 @@ public class VRSettings {
 	        case FOV_SCALE_FACTOR:
 	            this.fovScaleFactor = par2;
 	        	break;
+            case LENS_SEPARATION_SCALE_FACTOR:
+                this.lensSeparationScaleFactor = par2;
+                break;
 	        case HEAD_TRACK_SENSITIVITY:
 	            this.headTrackSensitivity = par2;
 	        	break;
@@ -1251,11 +1289,13 @@ public class VRSettings {
             var5.println("useSupersample:" + this.useSupersample);
             var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
             var5.println("fovScaleFactor:" + this.fovScaleFactor);
+            var5.println("lensSeparationScaleFactor:" + this.lensSeparationScaleFactor);
             var5.println("distortionFitPoint:" + this.distortionFitPoint);
             var5.println("calibrationStrategy1:" + this.calibrationStrategy);    // Deliberately using a new value to get people using the 'At startup' setting again by default.
             var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
             var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
             var5.println("lookMoveDecoupled:" + this.lookMoveDecoupled);
+            var5.println("aspectRatioCorrection:" + this.aspectRatioCorrection);
             var5.println("posTrackHydraLoc:" + this.posTrackHydraLoc);
             var5.println("posTrackHydraLROffsetX:" + this.posTrackHydraLROffsetX);
             var5.println("posTrackHydraLROffsetY:" + this.posTrackHydraLROffsetY);
@@ -1349,5 +1389,34 @@ public class VRSettings {
     private float parseFloat(String par1Str)
     {
         return par1Str.equals("true") ? 1.0F : (par1Str.equals("false") ? 0.0F : Float.parseFloat(par1Str));
+    }
+
+    private void setAspectCorrectionMode(int mode)
+    {
+        switch(mode)
+        {
+            case 1:
+                this.aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_16_9_TO_16_10;
+                break;
+            case 2:
+                this.aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_16_10_TO_16_9;
+                break;
+            case 3:
+                this.aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_AUTO;
+                break;
+            default:
+                this.aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_NONE;
+                break;
+        }
+    }
+
+    public IOculusRift.AspectCorrectionType getAspectRatioCorrectionMode()
+    {
+        return this.aspectRatioCorrectionMode;
+    }
+
+    public void setAspectRatioCorrectionMode(IOculusRift.AspectCorrectionType mode)
+    {
+        this.aspectRatioCorrection = mode.getValue();
     }
 }

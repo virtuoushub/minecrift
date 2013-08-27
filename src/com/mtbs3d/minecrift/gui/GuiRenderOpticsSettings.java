@@ -6,6 +6,7 @@ package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
 
+import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.src.*;
 
 public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEventEx
@@ -15,9 +16,11 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             EnumOptions.USE_DISTORTION,
             EnumOptions.FOV_SCALE_FACTOR,
             EnumOptions.DISTORTION_FIT_POINT,
-            EnumOptions.CHROM_AB_CORRECTION,
+            EnumOptions.LENS_SEPARATION_SCALE_FACTOR,
             EnumOptions.TEXTURE_LOOKUP_OPT,
+            EnumOptions.CHROM_AB_CORRECTION,
             EnumOptions.DUMMY,
+            EnumOptions.ASPECT_RATIO_CORRECTION,
             EnumOptions.DUMMY,
             EnumOptions.DUMMY,
             EnumOptions.SUPERSAMPLING,
@@ -67,6 +70,12 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     maxValue = 1.5f;
                     increment = 0.01f;
                 }
+                if (var8 == EnumOptions.LENS_SEPARATION_SCALE_FACTOR)
+                {
+                    minValue = 0.5f;
+                    maxValue = 1.5f;
+                    increment = 0.001f;
+                }
                 if (var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
                 {
                     minValue = 1.5f;
@@ -115,12 +124,14 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 			    this.mc.vrSettings.useDistortion = true;
 			    this.mc.vrSettings.useChromaticAbCorrection = true;
 			    this.mc.vrSettings.fovScaleFactor = 1.0f;
+                this.mc.vrSettings.lensSeparationScaleFactor = 1.0f;
 			    this.mc.vrSettings.distortionFitPoint = 5;
 			    this.mc.vrSettings.useSupersample = false;
-			    this.mc.vrSettings.superSampleScaleFactor = 2.0f;
+                this.mc.vrSettings.superSampleScaleFactor = 2.0f;
                 this.mc.vrSettings.useDistortionTextureLookupOptimisation = false;
                 this.mc.vrSettings.useFXAA = false;
-	            if (vrRenderer != null)
+                this.mc.vrSettings.setAspectRatioCorrectionMode(IOculusRift.AspectCorrectionType.CORRECTION_AUTO);
+                if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
 			    this.mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
 			    this.guivrSettings.saveOptions();
@@ -130,7 +141,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 	            num == EnumOptions.SUPERSAMPLING ||
 	            num == EnumOptions.CHROM_AB_CORRECTION ||
                 num == EnumOptions.TEXTURE_LOOKUP_OPT ||
-                num == EnumOptions.FXAA)
+                num == EnumOptions.FXAA ||
+                num == EnumOptions.ASPECT_RATIO_CORRECTION)
 	        {
 	            if (vrRenderer != null)
 	                vrRenderer._FBOInitialised = false;
@@ -143,7 +155,8 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     {
         if (enumm == EnumOptions.DISTORTION_FIT_POINT ||
             enumm == EnumOptions.SUPERSAMPLE_SCALEFACTOR ||
-            enumm == EnumOptions.FOV_SCALE_FACTOR)
+            enumm == EnumOptions.FOV_SCALE_FACTOR ||
+            enumm == EnumOptions.LENS_SEPARATION_SCALE_FACTOR)
         {
             if (vrRenderer != null)
                 vrRenderer._FBOInitialised = false;
@@ -164,11 +177,17 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     				"  OFF - no correction", 
     				"  ON - correction applied"} ;
     	case FOV_SCALE_FACTOR:
-    		return new String[] {
-    				"Set this to override the computed Field-of-View", 
-    				"  You might set this if your eyes aren't at the usual", 
-    				"  distance from the lenses (closer or further away)"} ;
-    		
+            return new String[] {
+                    "Set this to override the computed Field-of-View",
+                    "  You might set this if your eyes aren't at the usual",
+                    "  distance from the lenses (closer or further away)"} ;
+        case LENS_SEPARATION_SCALE_FACTOR:
+            return new String[] {
+                    "[Advanced] Allows you to set the lens separation",
+                    "scale factor. Useful for modified HMDs with a",
+                    "different lens separation distance from standard.",
+                    "Defaults to 1.0 (recommended)."
+            };
     	case USE_DISTORTION:
     		return new String[] {
     				"Apply barrel distortion to counteract lenses",
@@ -214,6 +233,17 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     "  ON:  game is rendered with FXAA filter.",
                     "  OFF: no FXAA filter applied."
                 };
+        case ASPECT_RATIO_CORRECTION:
+            return new String[] {
+                    "Sets the type of aspect ratio correction applied",
+                    "during creation of the stereo views.",
+                    "  AUTO: Recommended. Will in most cases set the",
+                    "  correct aspect ratio for your HMD dependent upon",
+                    "  the input resolution. This is the default.",
+                    "  OTHERS: With some resolutions the view may exhibit",
+                    "  distortion (most noticable on head roll). If so, try the",
+                    "  other settings. It *may* correct the aspect ratio."
+            };
     	default:
     		return null;
     	}
