@@ -12,15 +12,16 @@ REV=$1
 	BODY=$(git log --pretty=format:"%B" -1 $REV | sed '/Merge/s/of http[^ \t\n\r]*/of private-repo/' )
 	GIT_WORK_TREE=$WORK_TREE git checkout $REV
 	./getchanges.sh
-	GIT_DIR=.git git add -A src patches
+	echo "$REV" > .public_rev
+	GIT_DIR=.git git add -A src patches .public_rev
 	GIT_DIR=.git git commit --author="$AUTHOR" --date="$DATE" -m "$BODY"
-	git tag -f public
 }
 
+PUBLIC=$(cat .public_rev)
 WORK_TREE=mcp804/src/minecraft
 export GIT_DIR=$WORK_TREE/.git
 if [ "$#" -ne 1 ] ; then
-	git rev-list --reverse public..master | while read REV; do
+	git rev-list --reverse $PUBLIC..master | while read REV; do
 		sync_rev $REV
 	done
 else
