@@ -890,9 +890,10 @@ public class VRRenderer extends EntityRenderer
             if (rgba != null)
             {
                 // Latency tester is expecting a colored quad on screen...
-                GL11.glLoadIdentity();
                 drawLatencyTesterColoredQuad(rgba[0], rgba[1], rgba[2], rgba[3]);
             }
+
+            //drawLatencyTesterColoredQuad(1f, 0f, 0f, 0.80f);
 
             // Get any latency tester results...
             String latencyTestResults = this.mc.hmdInfo.latencyTesterGetResultsString();
@@ -1586,20 +1587,29 @@ public class VRRenderer extends EntityRenderer
     public void drawLatencyTesterColoredQuad(float r, float g, float b, float a)
     {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
 
-        // Cover the entire left side of the screen with the colored quad
+        // Setup ortho projection
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glLoadIdentity();
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glLoadIdentity();
+
+        GL11.glTranslatef (0.0f, 0.0f, -0.7f);
+
+        // Cover the appropriate areas of the screen with the colored quad
         GL11.glBegin(GL11.GL_QUADS);
 
         GL11.glColor4f(r, g, b, a);
 
-        // Front Face
-        GL11.glVertex3f(-1.0f, -1.0f,  0.0f);  // Bottom Left Of The Texture and Quad
-        GL11.glVertex3f( 0.0f, -1.0f,  0.0f);  // Bottom Right Of The Texture and Quad
-        GL11.glVertex3f( 0.0f,  1.0f,  0.0f);  // Top Right Of The Texture and Quad
-        GL11.glVertex3f(-1.0f,  1.0f,  0.0f);  // Top Left Of The Texture and Quad
+        GL11.glVertex3f(-0.6f, -0.6f,  0.0f);  // Bottom Left Of The Texture and Quad
+        GL11.glVertex3f( 0.6f, -0.6f,  0.0f);  // Bottom Right Of The Texture and Quad
+        GL11.glVertex3f( 0.6f,  0.6f,  0.0f);  // Top Right Of The Texture and Quad
+        GL11.glVertex3f(-0.6f,  0.6f,  0.0f);  // Top Left Of The Texture and Quad
 
         GL11.glEnd();
 
+        GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
