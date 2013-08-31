@@ -60,4 +60,8 @@ public interface IHMDInfo extends IBasePlugin
 
     /* Select the named user profile */
     public boolean loadProfile(String profileName);
+
+    /* Oculus latency tester info */
+    public float[] latencyTesterDisplayScreenColor();
+    public String latencyTesterGetResultsString();
 }

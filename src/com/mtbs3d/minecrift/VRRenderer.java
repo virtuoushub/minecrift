@@ -875,8 +875,34 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         doDistortionAndSuperSample();
+        checkLatencyTester();
 
         mc.checkGLError("After render world and GUI");
+    }
+
+    private void checkLatencyTester()
+    {
+        // Latency tester
+        if (this.mc.hmdInfo != null)
+        {
+            // Get any 'test in progress' quad to draw
+            float[] rgba = this.mc.hmdInfo.latencyTesterDisplayScreenColor();
+            if (rgba != null)
+            {
+                // Latency tester is expecting a colored quad on screen...
+                GL11.glLoadIdentity();
+                drawLatencyTesterColoredQuad(rgba[0], rgba[1], rgba[2], rgba[3]);
+            }
+
+            // Get any latency tester results...
+            String latencyTestResults = this.mc.hmdInfo.latencyTesterGetResultsString();
+            if (latencyTestResults != null)
+            {
+                // Display results
+                this.mc.printChatMessage(latencyTestResults);
+                System.out.println(latencyTestResults);
+            }
+        }
     }
     
     private void setupFBOs()
@@ -1555,6 +1581,26 @@ public class VRRenderer extends EntityRenderer
         GL11.glTexCoord2f(0.0f, 1.0f); GL11.glVertex3f(-1.0f,  1.0f,  0.0f);  // Top Left Of The Texture and Quad
 
         GL11.glEnd();
+    }
+
+    public void drawLatencyTesterColoredQuad(float r, float g, float b, float a)
+    {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+        // Cover the entire left side of the screen with the colored quad
+        GL11.glBegin(GL11.GL_QUADS);
+
+        GL11.glColor4f(r, g, b, a);
+
+        // Front Face
+        GL11.glVertex3f(-1.0f, -1.0f,  0.0f);  // Bottom Left Of The Texture and Quad
+        GL11.glVertex3f( 0.0f, -1.0f,  0.0f);  // Bottom Right Of The Texture and Quad
+        GL11.glVertex3f( 0.0f,  1.0f,  0.0f);  // Top Right Of The Texture and Quad
+        GL11.glVertex3f(-1.0f,  1.0f,  0.0f);  // Top Left Of The Texture and Quad
+
+        GL11.glEnd();
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
     public void drawQuad2(float displayWidth, float displayHeight, float scale)
