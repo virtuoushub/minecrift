@@ -21,11 +21,13 @@ public class VRHotkeys {
     	{
     		return;
     	}
+
 	    //  Reinitialise head tracking
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
             PluginManager.destroyAll();
 	    	mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
+            mc.printChatMessage("Re-initialising all plugins...");
 	    }
 
 	    // Distortion on / off
@@ -82,12 +84,14 @@ public class VRHotkeys {
 	            }
 	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false;
+                mc.printChatMessage(String.format("FSAA scale factor: %.1f", new Object[]{Float.valueOf(mc.vrSettings.superSampleScaleFactor)}));
 	        }
 	        else
 	        {
 	            mc.vrSettings.useSupersample = !mc.vrSettings.useSupersample;
 	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage("FSAA: " + (mc.vrSettings.useSupersample ? "On" : "Off"));
 	        }
 	    }
 	
@@ -99,10 +103,15 @@ public class VRHotkeys {
 	            mc.vrSettings.useHeadTrackPrediction = !mc.vrSettings.useHeadTrackPrediction;
                 mc.headTracker.setPrediction(mc.vrSettings.headTrackPredictionTimeSecs, mc.vrSettings.useHeadTrackPrediction);
 	            mc.vrSettings.saveOptions();
+                if (mc.vrSettings.useHeadTrackPrediction)
+                    mc.printChatMessage(String.format("Head tracking prediction: On (%.2fms)", new Object[]{Float.valueOf(mc.vrSettings.headTrackPredictionTimeSecs * 1000)}));
+                else
+                    mc.printChatMessage("Head tracking prediction: Off");
 	        }
 	        else
 	        {
 	            mc.vrSettings.useHeadTracking = !mc.vrSettings.useHeadTracking;
+                mc.printChatMessage("Head tracking: " + (mc.vrSettings.useHeadTracking ? "On" : "Off"));
 	        }
 	    }
 	
@@ -118,6 +127,7 @@ public class VRHotkeys {
 	                mc.vrSettings.hudScale = 1.25f;
 	            }
 	            mc.vrSettings.saveOptions();
+                mc.printChatMessage(String.format("HUD scale: %.2f", new Object[]{Float.valueOf(mc.vrSettings.hudScale)}));
 	        }
 	        else
 	        {
@@ -127,7 +137,7 @@ public class VRHotkeys {
 	                mc.vrSettings.hudDistance = 1.25f;
 	            }
 	            mc.vrSettings.saveOptions();
-	            //mc.vrSettings.lockHud = !mc.vrSettings.lockHud; // TOOD: HUD lock removed for now
+                mc.printChatMessage(String.format("HUD distance: %.2f", new Object[]{Float.valueOf(mc.vrSettings.hudDistance)}));
 	        }
 	    }
 	
@@ -138,6 +148,7 @@ public class VRHotkeys {
 	        if( mc.vrSettings.hudOpacity < 0.15f)
 	        	mc.vrSettings.hudOpacity = 0.15f;
 	        mc.vrSettings.saveOptions();
+            mc.printChatMessage(String.format("HUD opacity: %.2f%%", new Object[]{Float.valueOf(mc.vrSettings.hudOpacity)}));
 	    }
 	
 	    // Render headwear / ON/off
@@ -145,6 +156,7 @@ public class VRHotkeys {
 	    {
 	        mc.vrSettings.renderHeadWear = !mc.vrSettings.renderHeadWear;
 	        mc.vrSettings.saveOptions();
+            mc.printChatMessage("Render headwear: " + (mc.vrSettings.renderHeadWear ? "On" : "Off"));
 	    }
 	
 	    // Allow mouse pitch
@@ -152,6 +164,7 @@ public class VRHotkeys {
 	    {
 	        mc.vrSettings.allowMousePitchInput = !mc.vrSettings.allowMousePitchInput;
 	        mc.vrSettings.saveOptions();
+            mc.printChatMessage("Allow mouse pitch input: " + (mc.vrSettings.allowMousePitchInput ? "On" : "Off"));
 	    }
 	
 	    // FOV+
@@ -165,12 +178,15 @@ public class VRHotkeys {
 	                mc.vrSettings.distortionFitPoint = 14;
 	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage(String.format("Distortion fit point: %.0f", new Object[]{Float.valueOf(mc.vrSettings.distortionFitPoint)}));
 	        }
 	        else
 	        {
 	            // FOV
 	            mc.vrSettings.fovScaleFactor += 0.001f;
 	            mc.vrSettings.saveOptions();
+                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage(String.format("FOV scale factor: %.3f", new Object[]{Float.valueOf(mc.vrSettings.fovScaleFactor)}));
 	        }
 	    }
 	
@@ -185,12 +201,15 @@ public class VRHotkeys {
 	                mc.vrSettings.distortionFitPoint = 0;
 	            mc.vrSettings.saveOptions();
 	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage(String.format("Distortion fit point: %.0f", new Object[]{Float.valueOf(mc.vrSettings.distortionFitPoint)}));
 	        }
 	        else
 	        {
 	            // FOV
 	            mc.vrSettings.fovScaleFactor -= 0.001f;
 	            mc.vrSettings.saveOptions();
+                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage(String.format("FOV scale factor: %.3f", new Object[]{Float.valueOf(mc.vrSettings.fovScaleFactor)}));
 	        }
 	    }
 	
@@ -203,40 +222,59 @@ public class VRHotkeys {
 	            mc.vrSettings.headTrackSensitivity = 0.5f;
 	        }
 	        mc.vrSettings.saveOptions();
+            mc.printChatMessage(String.format("Head track sensitivity: * %.1f", new Object[]{Float.valueOf(mc.vrSettings.headTrackSensitivity)}));
 	    }
 	
 	    // Increase IPD
 	    if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        float newIpd;
-	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
-	        {
-	            newIpd = mc.vrSettings.getIPD() + 0.0001f;
-	        }
-	        else
-	        {
-	            newIpd = mc.vrSettings.getIPD() + 0.0005f;
-	        }
-	        mc.hmdInfo.setIPD(newIpd);
-	        mc.vrSettings.setMinecraftIpd(newIpd);
-	        mc.vrSettings.saveOptions();
+            if (mc.vrSettings.useOculusProfile)
+            {
+                mc.printChatMessage("IPD unchanged (set via Oculus Profile)");
+            }
+            else
+            {
+                float newIpd;
+                if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+                {
+                    newIpd = mc.vrSettings.getIPD() + 0.0005f;
+                }
+                else
+                {
+                    newIpd = mc.vrSettings.getIPD() + 0.0001f;
+                }
+                mc.hmdInfo.setIPD(newIpd);
+                mc.vrSettings.setMinecraftIpd(newIpd);
+                mc.vrSettings.saveOptions();
+                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage(String.format("IPD: %.1fmm", new Object[]{Float.valueOf(mc.vrSettings.getIPD() * 1000f)}));
+            }
 	    }
 	
 	    // Decrease IPD
 	    if (Keyboard.getEventKey() == Keyboard.KEY_MINUS && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        float newIpd;
-	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
-	        {
-	            newIpd = mc.vrSettings.getIPD() - 0.0001f;
-	        }
-	        else
-	        {
-	            newIpd = mc.vrSettings.getIPD() - 0.0005f;
-	        }
-	        mc.hmdInfo.setIPD(newIpd);
-	        mc.vrSettings.setMinecraftIpd(newIpd);
-	        mc.vrSettings.saveOptions();
+            if (mc.vrSettings.useOculusProfile)
+            {
+                mc.printChatMessage("IPD unchanged (set via Oculus Profile)");
+            }
+            else
+            {
+                float newIpd;
+                if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
+                {
+                    newIpd = mc.vrSettings.getIPD() - 0.0005f;
+                }
+                else
+                {
+                    newIpd = mc.vrSettings.getIPD() - 0.0001f;
+                }
+                mc.hmdInfo.setIPD(newIpd);
+                mc.vrSettings.setMinecraftIpd(newIpd);
+                mc.vrSettings.saveOptions();
+                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                mc.printChatMessage(String.format("IPD: %.1fmm", new Object[]{Float.valueOf(mc.vrSettings.getIPD() * 1000f)}));
+            }
 	    }
 
         // Render full player model or just an disembodied hand...
@@ -244,12 +282,14 @@ public class VRHotkeys {
         {
             mc.vrSettings.renderFullFirstPersonModel = !mc.vrSettings.renderFullFirstPersonModel;
             mc.vrSettings.saveOptions();
+            mc.printChatMessage("First person model: " + (mc.vrSettings.renderFullFirstPersonModel ? "Full" : "Hand only"));
         }
 
         // Reset positional track origin
         if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
             mc.vrSettings.posTrackResetPosition = true;
+            mc.printChatMessage("Reset origin: done");
         }
 
         // If an orientation plugin is performing calibration, space also sets the origin
