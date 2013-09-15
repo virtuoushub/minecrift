@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/EntityRenderer.java
 +++ b/net/minecraft/src/EntityRenderer.java
-@@ -9,26 +9,28 @@
+@@ -9,29 +9,31 @@
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
  import org.lwjgl.opengl.Display;
@@ -33,7 +33,11 @@
 +    protected int rendererUpdateCount;
  
      /** Pointed entity */
-     private Entity pointedEntity;
+-    private Entity pointedEntity;
++    protected Entity pointedEntity;
+     private MouseFilter mouseFilterXAxis = new MouseFilter();
+     private MouseFilter mouseFilterYAxis = new MouseFilter();
+ 
 @@ -46,33 +48,31 @@
  
      /** Mouse filter dummy 4 */

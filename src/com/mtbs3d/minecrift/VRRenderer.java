@@ -10,6 +10,8 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.render.DistortionParams;
@@ -70,6 +72,8 @@ public class VRRenderer extends EntityRenderer
     FBOParams preDistortionFBO; //This is where the world is rendered  
     FBOParams postDistortionFBO; 
     FBOParams postSuperSampleFBO;
+
+    AxisAlignedBB bb;
 
     // Render
     DistortionParams distortParams;
@@ -1483,6 +1487,21 @@ public class VRRenderer extends EntityRenderer
             GL11.glEnable(GL11.GL_ALPHA_TEST);
         }
 
+        if (this.mc.currentScreen == null && this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && !renderViewEntity.isInsideOfMaterial(Material.water) && renderOutline && this.mc.vrSettings.showEntityOutline)
+        {
+            var18 = (EntityPlayer)renderViewEntity;
+            if (var18 != null)
+            {
+                GL11.glDisable(GL11.GL_ALPHA_TEST);
+                this.mc.mcProfiler.endStartSection("entityOutline");
+
+                if (this.bb != null)
+                    drawBoundingBox(var18, this.bb, renderPartialTicks);
+
+                GL11.glEnable(GL11.GL_ALPHA_TEST);
+            }
+        }
+
         this.mc.mcProfiler.endStartSection("destroyProgress");
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
@@ -2160,15 +2179,27 @@ public class VRRenderer extends EntityRenderer
                 blockReachDistance = entityReachDistance;
             }
 
+            Vec3 otherpos = mc.renderViewEntity.getPosition(renderPartialTicks);
+            otherpos.yCoord -= (1.62f - (this.mc.vrSettings.getPlayerEyeHeight()));   // Adjust for eye height - TODO: Need to account for neck model?
+            getPointedEntity(otherpos, aim, blockReachDistance, entityReachDistance);
+
+            // Get bounding box of pointedEntity
+            if (this.pointedEntity != null && this.pointedEntity.boundingBox != null)
+            {
+                this.bb = this.pointedEntity.boundingBox.expand(this.pointedEntity.getCollisionBorderSize(),
+                                                                this.pointedEntity.getCollisionBorderSize(),
+                                                                this.pointedEntity.getCollisionBorderSize());
+
+                // TODO: How to get distance from eye pos to bounding box ray trace intercept,
+                // and draw crosshair at that depth...?
+            }
+
+            // Set up crosshair position
             crossX = (float)(aim.xCoord * crossDistance + pos.xCoord - renderOriginX);
             crossY = (float)(aim.yCoord * crossDistance + pos.yCoord - renderOriginY);
             crossZ = (float)(aim.zCoord * crossDistance + pos.zCoord - renderOriginZ);
-
-            Vec3 otherpos = mc.renderViewEntity.getPosition(renderPartialTicks);
-            getPointedEntity(otherpos, aim, blockReachDistance, entityReachDistance);
         }
     }
-    
 
     public void getMouseOver(float par1)
     {
@@ -2285,5 +2316,80 @@ public class VRRenderer extends EntityRenderer
             GL11.glPopMatrix();
             GL11.glMatrixMode(GL11.GL_MODELVIEW);
         }
+    }
+
+    public void drawBoundingBox(EntityPlayer par1EntityPlayer, AxisAlignedBB bb, float par4)
+    {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
+        GL11.glLineWidth(2.0F);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDepthMask(false);
+        float var5 = 0.002F;
+        double var7 = par1EntityPlayer.lastTickPosX + (par1EntityPlayer.posX - par1EntityPlayer.lastTickPosX) * (double)par4;
+        double var9 = par1EntityPlayer.lastTickPosY + (par1EntityPlayer.posY - par1EntityPlayer.lastTickPosY) * (double)par4;
+        double var11 = par1EntityPlayer.lastTickPosZ + (par1EntityPlayer.posZ - par1EntityPlayer.lastTickPosZ) * (double)par4;
+        drawOutlinedBoundingBox(bb.expand((double) var5, (double) var5, (double) var5).getOffsetBoundingBox(-var7, -var9, -var11));
+
+        GL11.glDepthMask(true);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+    }
+
+    public void drawLine(EntityPlayer par1EntityPlayer, Vec3 start, Vec3 end, float par4)
+    {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
+        GL11.glLineWidth(2.0F);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDepthMask(false);
+        float var5 = 0.002F;
+        double var7 = par1EntityPlayer.lastTickPosX + (par1EntityPlayer.posX - par1EntityPlayer.lastTickPosX) * (double)par4;
+        double var9 = par1EntityPlayer.lastTickPosY + (par1EntityPlayer.posY - par1EntityPlayer.lastTickPosY) * (double)par4;
+        double var11 = par1EntityPlayer.lastTickPosZ + (par1EntityPlayer.posZ - par1EntityPlayer.lastTickPosZ) * (double)par4;
+
+        Tessellator var2 = Tessellator.instance;
+        var2.startDrawing(GL11.GL_LINE_STRIP);
+        var2.addVertex(start.xCoord, start.yCoord, start.zCoord);
+        var2.addVertex(end.xCoord, end.yCoord, end.zCoord);
+        var2.draw();
+
+        GL11.glDepthMask(true);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+    }
+
+    /**
+     * Draws lines for the edges of the bounding box.
+     */
+    public void drawOutlinedBoundingBox(AxisAlignedBB par1AxisAlignedBB)
+    {
+        Tessellator var2 = Tessellator.instance;
+        var2.startDrawing(3);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.minY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.minY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.minY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.minY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.minY, par1AxisAlignedBB.minZ);
+        var2.draw();
+        var2.startDrawing(3);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.minZ);
+        var2.draw();
+        var2.startDrawing(1);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.minY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.minY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.minZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.minY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.maxX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.minY, par1AxisAlignedBB.maxZ);
+        var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.maxZ);
+        var2.draw();
     }
 }

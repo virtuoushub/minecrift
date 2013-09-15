@@ -114,6 +114,7 @@ public class VRSettings {
     public float crosshairScale = 1.0f;
     public boolean alwaysRenderInGameCrosshair = false;
     public boolean alwaysRenderBlockOutline = false;
+    public boolean showEntityOutline = false;
     public boolean crosshairRollsWithHead = true;
     public boolean hudOcclusion = false;
 	public float chatOffsetX = 0;
@@ -474,6 +475,11 @@ public class VRSettings {
                     if (optionTokens[0].equals("alwaysRenderBlockOutline"))
                     {
                         this.alwaysRenderBlockOutline = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("showEntityOutline"))
+                    {
+                        this.showEntityOutline = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("crosshairRollsWithHead"))
@@ -1322,6 +1328,7 @@ public class VRSettings {
             var5.println("hydraUseFilter:" + this.hydraUseFilter);
             var5.println("alwaysRenderInGameCrosshair:" + this.alwaysRenderInGameCrosshair);
             var5.println("alwaysRenderBlockOutline:" + this.alwaysRenderBlockOutline);
+            var5.println("showEntityOutline:" + this.showEntityOutline);
             var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
             var5.println("hudOcclusion:" + this.hudOcclusion);
             var5.println("joystickSensitivity:" + this.joystickSensitivity);
