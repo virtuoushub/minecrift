@@ -606,11 +606,6 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 
     @Override
-    public boolean isCorrecting() {
-        return false;
-    }
-
-    @Override
 	public void resetOriginRotation() {
 		resetOriginRotation = true;
 

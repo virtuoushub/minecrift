@@ -16,18 +16,12 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     public static final int NOT_CALIBRATING = 0;
     public static final int CALIBRATE_AWAITING_FIRST_ORIGIN = 1;
     public static final int CALIBRATE_AT_FIRST_ORIGIN = 2;
-    public static final int CALIBRATE_AWAITING_MAG_CAL = 3;
-    public static final int CALIBRATE_MAG_CAL_WAIT = 4;
-    public static final int CALIBRATE_AWAITING_SECOND_ORIGIN = 5;
-    public static final int CALIBRATE_AT_SECOND_ORIGIN = 6;
     public static final int CALIBRATE_COOLDOWN = 7;
 
     public static final long COOLDOWNTIME_MS = 1000L;
-    public static final long MAG_CAL_REPOLL_TIME_MS = 200L;
 
     private boolean isCalibrated = false;
     private long coolDownStart = 0L;
-    private long lastUpdateAt = 0L;
     private int calibrationStep = NOT_CALIBRATING;
     private int MagCalSampleCount = 0;
     private boolean forceMagCalibration = false; // Don't force mag cal initially
@@ -46,14 +40,6 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	
 	@Override
 	public void resetOrigin() {
-    }
-
-    @Override
-    public boolean isCorrecting() {
-        if (!isInitialized())
-            return false;
-
-        return _isYawCorrectionInProgress();
     }
 
     @Override
@@ -86,32 +72,11 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         switch (calibrationStep)
         {
             case CALIBRATE_AWAITING_FIRST_ORIGIN:
-            case CALIBRATE_AWAITING_SECOND_ORIGIN:
             {
                 step = "Look ahead and press SPACEBAR";
                 break;
             }
             case CALIBRATE_AT_FIRST_ORIGIN:
-            case CALIBRATE_AWAITING_MAG_CAL:
-            case CALIBRATE_MAG_CAL_WAIT:
-            {
-                switch (MagCalSampleCount)
-                {
-                    case 0:
-                        step = String.format("Look forward (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
-                        break;
-                    case 1:
-                        step = String.format("Look all the way left (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
-                        break;
-                    case 2:
-                        step = String.format("Look all the way right (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
-                        break;
-                    default:
-                        step = String.format("Look all the way up (%d/4)", new Object[] {Integer.valueOf(MagCalSampleCount)});
-                        break;
-                }
-                break;
-            }
             case CALIBRATE_COOLDOWN:
             {
                 step = "Done!";
@@ -132,11 +97,6 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 if (calibrationStep == CALIBRATE_AWAITING_FIRST_ORIGIN)
                 {
                     calibrationStep = CALIBRATE_AT_FIRST_ORIGIN;
-                    processCalibration();
-                }
-                else if (calibrationStep == CALIBRATE_AWAITING_SECOND_ORIGIN)
-                {
-                    calibrationStep = CALIBRATE_AT_SECOND_ORIGIN;
                     processCalibration();
                 }
                 break;
@@ -178,65 +138,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             {
                 _reset();
 
-                // When calibration is called the first time after startup,
-                // don't force mag calibration if the mag cal is already setup
-                // (probably from the Oculus profile). After that, always
-                // force.
+                // Calibration of Mag cal is now handled solely by the Oculus config utility.
 
-                boolean doCalibration = true;
-                if (!forceMagCalibration)
-                {
-                    if (_isCalibrated())
-                        doCalibration = false;
-
-                    // From now on force calibration
-                    forceMagCalibration = true;
-                }
-
-                if (doCalibration)
-                {
-                    _beginAutomaticCalibration();
-                    MagCalSampleCount = 0;
-                    calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
-                }
-                else
-                {
-                    MagCalSampleCount = 0;
-                    lastUpdateAt = 0;
-                    calibrationStep = CALIBRATE_AT_SECOND_ORIGIN;
-                }
-                break;
-            }
-            case CALIBRATE_AWAITING_MAG_CAL:
-            {
-                MagCalSampleCount = _updateAutomaticCalibration();
-                if (_isCalibrated())
-                {
-                    lastUpdateAt = 0;
-                    calibrationStep = CALIBRATE_AWAITING_SECOND_ORIGIN;
-                }
-                else
-                {
-                    lastUpdateAt = System.currentTimeMillis();
-                    calibrationStep = CALIBRATE_MAG_CAL_WAIT;
-                }
-                break;
-            }
-            case CALIBRATE_MAG_CAL_WAIT:
-            {
-                if ((System.currentTimeMillis() - lastUpdateAt) > MAG_CAL_REPOLL_TIME_MS)
-                {
-                    lastUpdateAt = 0;
-                    calibrationStep = CALIBRATE_AWAITING_MAG_CAL;
-                }
-                break;
-            }
-            case CALIBRATE_AT_SECOND_ORIGIN:
-            {
+                MagCalSampleCount = 0;
                 coolDownStart = System.currentTimeMillis();
                 calibrationStep = CALIBRATE_COOLDOWN;
                 resetOrigin();
                 notifyListeners(IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN);
+
                 break;
             }
             case CALIBRATE_COOLDOWN:
