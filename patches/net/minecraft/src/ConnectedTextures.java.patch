@@ -1,0 +1,240 @@
+--- a/net/minecraft/src/ConnectedTextures.java
++++ b/net/minecraft/src/ConnectedTextures.java
+@@ -308,25 +308,18 @@
+             {
+                 case 1:
+                     return getConnectedTextureCtm(cp, blockAccess, block, x, y, z, side, icon, metadata);
+-
+                 case 2:
+                     return getConnectedTextureHorizontal(cp, blockAccess, block, x, y, z, side, icon, metadata);
+-
+                 case 3:
+                     return getConnectedTextureTop(cp, blockAccess, block, x, y, z, side, icon, metadata);
+-
+                 case 4:
+                     return getConnectedTextureRandom(cp, x, y, z, side);
+-
+                 case 5:
+                     return getConnectedTextureRepeat(cp, x, y, z, side);
+-
+                 case 6:
+                     return getConnectedTextureVertical(cp, blockAccess, block, x, y, z, side, icon, metadata);
+-
+                 case 7:
+                     return getConnectedTextureFixed(cp);
+-
+                 default:
+                     return null;
+             }
+@@ -345,50 +338,42 @@
+         {
+             case 0:
+                 return side;
+-
+             case 1:
++
+                 switch (side)
+                 {
+                     case 0:
+                         return 4;
+-
+                     case 1:
+                         return 5;
+-
+                     case 2:
+                     case 3:
+                     default:
+                         return side;
+-
+                     case 4:
+                         return 1;
+-
+                     case 5:
+                         return 0;
+                 }
+ 
+             case 2:
++
+                 switch (side)
+                 {
+                     case 0:
+                         return 2;
+-
+                     case 1:
+                         return 3;
+-
+                     case 2:
+                         return 1;
+-
+                     case 3:
+                         return 0;
+-
+                     default:
+                         return side;
+                 }
+ 
+             case 3:
+                 return 2;
+-
+             default:
+                 return side;
+         }
+@@ -451,27 +436,22 @@
+                     nx = x;
+                     ny = z;
+                     break;
+-
+                 case 1:
+                     nx = x;
+                     ny = z;
+                     break;
+-
+                 case 2:
+                     nx = -x - 1;
+                     ny = -y;
+                     break;
+-
+                 case 3:
+                     nx = x;
+                     ny = -y;
+                     break;
+-
+                 case 4:
+                     nx = z;
+                     ny = -y;
+                     break;
+-
+                 case 5:
+                     nx = -z - 1;
+                     ny = -y;
+@@ -508,28 +488,24 @@
+                 borders[2] = isNeighbour(cp, blockAccess, block, x, y, z + 1, side, icon, metadata);
+                 borders[3] = isNeighbour(cp, blockAccess, block, x, y, z - 1, side, icon, metadata);
+                 break;
+-
+             case 2:
+                 borders[0] = isNeighbour(cp, blockAccess, block, x + 1, y, z, side, icon, metadata);
+                 borders[1] = isNeighbour(cp, blockAccess, block, x - 1, y, z, side, icon, metadata);
+                 borders[2] = isNeighbour(cp, blockAccess, block, x, y - 1, z, side, icon, metadata);
+                 borders[3] = isNeighbour(cp, blockAccess, block, x, y + 1, z, side, icon, metadata);
+                 break;
+-
+             case 3:
+                 borders[0] = isNeighbour(cp, blockAccess, block, x - 1, y, z, side, icon, metadata);
+                 borders[1] = isNeighbour(cp, blockAccess, block, x + 1, y, z, side, icon, metadata);
+                 borders[2] = isNeighbour(cp, blockAccess, block, x, y - 1, z, side, icon, metadata);
+                 borders[3] = isNeighbour(cp, blockAccess, block, x, y + 1, z, side, icon, metadata);
+                 break;
+-
+             case 4:
+                 borders[0] = isNeighbour(cp, blockAccess, block, x, y, z - 1, side, icon, metadata);
+                 borders[1] = isNeighbour(cp, blockAccess, block, x, y, z + 1, side, icon, metadata);
+                 borders[2] = isNeighbour(cp, blockAccess, block, x, y - 1, z, side, icon, metadata);
+                 borders[3] = isNeighbour(cp, blockAccess, block, x, y + 1, z, side, icon, metadata);
+                 break;
+-
+             case 5:
+                 borders[0] = isNeighbour(cp, blockAccess, block, x, y, z + 1, side, icon, metadata);
+                 borders[1] = isNeighbour(cp, blockAccess, block, x, y, z - 1, side, icon, metadata);
+@@ -617,28 +593,24 @@
+                     edges[2] = !isNeighbour(cp, blockAccess, block, x + 1, y, z - 1, side, icon, metadata);
+                     edges[3] = !isNeighbour(cp, blockAccess, block, x - 1, y, z - 1, side, icon, metadata);
+                     break;
+-
+                 case 2:
+                     edges[0] = !isNeighbour(cp, blockAccess, block, x - 1, y - 1, z, side, icon, metadata);
+                     edges[1] = !isNeighbour(cp, blockAccess, block, x + 1, y - 1, z, side, icon, metadata);
+                     edges[2] = !isNeighbour(cp, blockAccess, block, x - 1, y + 1, z, side, icon, metadata);
+                     edges[3] = !isNeighbour(cp, blockAccess, block, x + 1, y + 1, z, side, icon, metadata);
+                     break;
+-
+                 case 3:
+                     edges[0] = !isNeighbour(cp, blockAccess, block, x + 1, y - 1, z, side, icon, metadata);
+                     edges[1] = !isNeighbour(cp, blockAccess, block, x - 1, y - 1, z, side, icon, metadata);
+                     edges[2] = !isNeighbour(cp, blockAccess, block, x + 1, y + 1, z, side, icon, metadata);
+                     edges[3] = !isNeighbour(cp, blockAccess, block, x - 1, y + 1, z, side, icon, metadata);
+                     break;
+-
+                 case 4:
+                     edges[0] = !isNeighbour(cp, blockAccess, block, x, y - 1, z + 1, side, icon, metadata);
+                     edges[1] = !isNeighbour(cp, blockAccess, block, x, y - 1, z - 1, side, icon, metadata);
+                     edges[2] = !isNeighbour(cp, blockAccess, block, x, y + 1, z + 1, side, icon, metadata);
+                     edges[3] = !isNeighbour(cp, blockAccess, block, x, y + 1, z - 1, side, icon, metadata);
+                     break;
+-
+                 case 5:
+                     edges[0] = !isNeighbour(cp, blockAccess, block, x, y - 1, z - 1, side, icon, metadata);
+                     edges[1] = !isNeighbour(cp, blockAccess, block, x, y - 1, z + 1, side, icon, metadata);
+@@ -820,17 +792,7 @@
+             }
+             else
+             {
+-                Icon neighbourIcon;
+-
+-                if (side >= 0)
+-                {
+-                    neighbourIcon = neighbourBlock.getBlockTexture(iblockaccess, x, y, z, side);
+-                }
+-                else
+-                {
+-                    neighbourIcon = neighbourBlock.getBlockTexture(iblockaccess, x, y, z, 1);
+-                }
+-
++                Icon neighbourIcon = neighbourBlock.getBlockTexture(iblockaccess, x, y, z, side);
+                 return neighbourIcon == icon;
+             }
+         }
+@@ -858,17 +820,14 @@
+                     left = isNeighbour(cp, blockAccess, block, x + 1, y, z, side, icon, metadata);
+                     right = isNeighbour(cp, blockAccess, block, x - 1, y, z, side, icon, metadata);
+                     break;
+-
+                 case 3:
+                     left = isNeighbour(cp, blockAccess, block, x - 1, y, z, side, icon, metadata);
+                     right = isNeighbour(cp, blockAccess, block, x + 1, y, z, side, icon, metadata);
+                     break;
+-
+                 case 4:
+                     left = isNeighbour(cp, blockAccess, block, x, y, z - 1, side, icon, metadata);
+                     right = isNeighbour(cp, blockAccess, block, x, y, z + 1, side, icon, metadata);
+                     break;
+-
+                 case 5:
+                     left = isNeighbour(cp, blockAccess, block, x, y, z + 1, side, icon, metadata);
+                     right = isNeighbour(cp, blockAccess, block, x, y, z - 1, side, icon, metadata);
+@@ -959,7 +918,7 @@
+         defaultGlassTexture = false;
+         ResourcePack rp = Config.getResourcePack();
+         ResourceLocation loc = new ResourceLocation("textures/blocks/glass.png");
+-        boolean tpHasGlass = rp.resourceExists(loc);
++        boolean tpHasGlass = rp.func_110589_b(loc);
+         defaultGlassTexture = !tpHasGlass;
+         String[] names = collectFiles(rp, "mcpatcher/ctm/", ".properties");
+         Arrays.sort(names);
+@@ -974,7 +933,7 @@
+             try
+             {
+                 ResourceLocation e = new ResourceLocation(name);
+-                InputStream in = rp.getInputStream(e);
++                InputStream in = rp.func_110590_a(e);
+ 
+                 if (in == null)
+                 {
+@@ -1158,7 +1117,7 @@
+         else
+         {
+             AbstractResourcePack arp = (AbstractResourcePack)rp;
+-            File tpFile = arp.resourcePackFile;
++            File tpFile = arp.field_110597_b;
+             return tpFile == null ? new String[0] : (tpFile.isDirectory() ? collectFilesFolder(tpFile, "", prefix, suffix) : (tpFile.isFile() ? collectFilesZIP(tpFile, prefix, suffix) : new String[0]));
+         }
+     }
+@@ -1173,7 +1132,7 @@
+             String name = names[nameArr];
+             ResourceLocation loc = new ResourceLocation(name);
+ 
+-            if (rp.resourceExists(loc))
++            if (rp.func_110589_b(loc))
+             {
+                 list.add(name);
+             }

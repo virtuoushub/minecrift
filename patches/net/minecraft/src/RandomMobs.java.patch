@@ -1,80 +1,74 @@
 --- a/net/minecraft/src/RandomMobs.java
 +++ b/net/minecraft/src/RandomMobs.java
-@@ -99,7 +99,7 @@
-         }
-         else
-         {
--            ResourceLocation entity;
-+            ResourceLocation uuidLow;
- 
-             try
-             {
-@@ -110,45 +110,45 @@
-                     initialize();
-                 }
- 
--                if (renderGlobal != null)
-+                if (renderGlobal == null)
+@@ -113,32 +113,32 @@
+                 if (renderGlobal != null)
                  {
--                    Entity entity1 = renderGlobal.renderedEntity;
+                     Entity entity1 = renderGlobal.renderedEntity;
 -                    ResourceLocation name1;
-+                    ResourceLocation entity1 = loc;
-+                    return entity1;
-+                }
++                    ResourceLocation entityLiving1;
  
--                    if (entity1 == null)
--                    {
+                     if (entity1 == null)
+                     {
 -                        name1 = loc;
 -                        return name1;
--                    }
-+                Entity entity = renderGlobal.renderedEntity;
-+                ResourceLocation name1;
++                        entityLiving1 = loc;
++                        return entityLiving1;
+                     }
  
--                    if (!(entity1 instanceof EntityLiving))
--                    {
+                     if (!(entity1 instanceof EntityLiving))
+                     {
 -                        name1 = loc;
 -                        return name1;
--                    }
-+                if (entity == null)
-+                {
-+                    name1 = loc;
-+                    return name1;
-+                }
++                        entityLiving1 = loc;
++                        return entityLiving1;
+                     }
  
 -                    String name = loc.getResourcePath();
-+                if (!(entity instanceof EntityLiving))
-+                {
-+                    name1 = loc;
-+                    return name1;
-+                }
++                    EntityLiving entityLiving = (EntityLiving)entity1;
++                    String name = loc.func_110623_a();
  
--                    if (!name.startsWith("textures/entity/"))
--                    {
+                     if (!name.startsWith("textures/entity/"))
+                     {
 -                        ResourceLocation uuidLow1 = loc;
 -                        return uuidLow1;
--                    }
-+                String name = loc.getResourcePath();
++                        ResourceLocation id1 = loc;
++                        return id1;
+                     }
  
 -                    long uuidLow = entity1.getUniqueID().getLeastSignificantBits();
 -                    int id = (int)(uuidLow & 2147483647L);
-+                if (name.startsWith("textures/entity/"))
-+                {
-+                    long uuidLow1 = entity.getUniqueID().getLeastSignificantBits();
-+                    int id = (int)(uuidLow1 & 2147483647L);
-                     ResourceLocation var6 = getTextureLocation(loc, id);
-                     return var6;
+-                    ResourceLocation var6 = getTextureLocation(loc, id);
+-                    return var6;
++                    int id = (int)entity1.func_110124_au().getLeastSignificantBits();
++                    ResourceLocation var5 = getTextureLocation(loc, id);
++                    return var5;
                  }
  
--                entity = loc;
-+                uuidLow = loc;
-             }
-             finally
-             {
-                 working = false;
-             }
- 
--            return entity;
-+            return uuidLow;
+                 entity = loc;
+@@ -160,7 +160,7 @@
          }
-     }
+         else
+         {
+-            String name = loc.getResourcePath();
++            String name = loc.func_110623_a();
+             ResourceLocation[] texLocs = (ResourceLocation[])((ResourceLocation[])textureVariantsMap.get(name));
+ 
+             if (texLocs == null)
+@@ -186,7 +186,7 @@
+     {
+         TextureUtils.getTexture(loc);
+         ResourceLocation[] texLocs = new ResourceLocation[0];
+-        String name = loc.getResourcePath();
++        String name = loc.func_110623_a();
+         int pointPos = name.lastIndexOf(46);
+ 
+         if (pointPos < 0)
+@@ -222,7 +222,7 @@
+                     {
+                         int texNum = i + 1;
+                         String texName = prefix + texNum + suffix;
+-                        texLocs[i] = new ResourceLocation(loc.getResourceDomain(), texName);
++                        texLocs[i] = new ResourceLocation(loc.func_110624_b(), texName);
+                         TextureUtils.getTexture(texLocs[i]);
+                     }
  
