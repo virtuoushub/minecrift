@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/TextureUtils$1.java
++++ b/net/minecraft/src/TextureUtils$1.java
+@@ -2,7 +2,7 @@
+ 
+ final class TextureUtils$1 implements ResourceManagerReloadListener
+ {
+-    public void onResourceManagerReload(ResourceManager var1)
++    public void func_110549_a(ResourceManager var1)
+     {
+         TextureUtils.resourcesReloaded(var1);
+     }

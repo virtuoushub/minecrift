@@ -1394,7 +1394,7 @@ public class VRRenderer extends EntityRenderer
         this.mc.mcProfiler.endStartSection("prepareterrain");
         this.setupFog(0, renderPartialTicks);
         GL11.glEnable(GL11.GL_FOG);
-        this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+        this.mc.func_110434_K().func_110577_a(TextureMap.field_110575_b);
         RenderHelper.disableStandardItemLighting();
         this.mc.mcProfiler.endStartSection("terrain");
         renderGlobal.sortAndRender(renderViewEntity, 0, (double) renderPartialTicks);
@@ -1437,7 +1437,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_CULL_FACE);
 
-        this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+        this.mc.func_110434_K().func_110577_a(TextureMap.field_110575_b);
         WrUpdates.resumeBackgroundUpdates();
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -1553,7 +1553,7 @@ public class VRRenderer extends EntityRenderer
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
-            this.mc.getTextureManager().bindTexture(Gui.icons);
+            this.mc.func_110434_K().func_110577_a(Gui.field_110324_m);
 
 	        float var7 = 0.00390625F;
 	        float var8 = 0.00390625F;
@@ -2127,7 +2127,7 @@ public class VRRenderer extends EntityRenderer
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glColor3f(1, 1, 1);
         this.mc.mcProfiler.endStartSection("mouse pointer");
-        this.mc.getTextureManager().bindTexture(Gui.icons);
+        this.mc.func_110434_K().func_110577_a(Gui.field_110324_m);
         this.mc.ingameGUI.drawTexturedModalRect(mouseX - 7, mouseY - 7, 0, 0, 16, 16);
         
         GL11.glEnable(GL11.GL_BLEND);

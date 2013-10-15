@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/TextureAnimations.java
++++ b/net/minecraft/src/TextureAnimations.java
+@@ -63,7 +63,7 @@
+         else
+         {
+             AbstractResourcePack arp = (AbstractResourcePack)rp;
+-            File tpFile = arp.resourcePackFile;
++            File tpFile = arp.field_110597_b;
+ 
+             if (tpFile == null)
+             {
+@@ -102,7 +102,7 @@
+                         try
+                         {
+                             ResourceLocation e = new ResourceLocation(propName);
+-                            InputStream in = rp.getInputStream(e);
++                            InputStream in = rp.func_110590_a(e);
+                             Properties props = new Properties();
+                             props.load(in);
+                             TextureAnimation anim = makeTextureAnimation(props, e);
+@@ -142,7 +142,7 @@
+         {
+             if (x >= 0 && y >= 0 && width >= 0 && height >= 0)
+             {
+-                String basePath = TextureUtils.getBasePath(propLoc.getResourcePath());
++                String basePath = TextureUtils.getBasePath(propLoc.func_110623_a());
+                 texFrom = TextureUtils.fixResourcePath(texFrom, basePath);
+                 texTo = TextureUtils.fixResourcePath(texTo, basePath);
+                 byte[] imageBytes = getCustomTextureData(texFrom, width);
+@@ -172,7 +172,7 @@
+                         }
+                         else
+                         {
+-                            int destTexId = destTex.getGlTextureId();
++                            int destTexId = destTex.func_110552_b();
+                             TextureAnimation anim = new TextureAnimation(texFrom, imageBytes, texTo, destTexId, x, y, width, height, props, 1);
+                             return anim;
+                         }

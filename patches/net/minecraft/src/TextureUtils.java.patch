@@ -1,0 +1,44 @@
+--- a/net/minecraft/src/TextureUtils.java
++++ b/net/minecraft/src/TextureUtils.java
+@@ -195,7 +195,7 @@
+ 
+     public static TextureObject getTexture(ResourceLocation loc)
+     {
+-        TextureObject tex = Config.getTextureManager().getTexture(loc);
++        TextureObject tex = Config.getTextureManager().func_110581_b(loc);
+ 
+         if (tex != null)
+         {
+@@ -208,7 +208,7 @@
+         else
+         {
+             SimpleTexture tex1 = new SimpleTexture(loc);
+-            Config.getTextureManager().loadTexture(loc, tex1);
++            Config.getTextureManager().func_110579_a(loc, tex1);
+             return tex1;
+         }
+     }
+@@ -228,7 +228,7 @@
+             CustomSky.update();
+             RandomMobs.resetTextures();
+             Config.updateTexturePackClouds();
+-            Config.getTextureManager().tick();
++            Config.getTextureManager().func_110550_d();
+         }
+     }
+ 
+@@ -248,12 +248,12 @@
+         {
+             ReloadableResourceManager tto = (ReloadableResourceManager)rm;
+             TextureUtils$1 ttol = new TextureUtils$1();
+-            tto.registerReloadListener(ttol);
++            tto.func_110542_a(ttol);
+         }
+ 
+         TextureUtils$2 tto1 = new TextureUtils$2();
+         ResourceLocation ttol1 = new ResourceLocation("optifine/TickableTextures");
+-        Config.getTextureManager().loadTickableTexture(ttol1, tto1);
++        Config.getTextureManager().func_110580_a(ttol1, tto1);
+     }
+ 
+     public static String fixResourcePath(String path, String basePath)

@@ -1,0 +1,10 @@
+--- a/net/minecraft/src/ICamera.java
++++ b/net/minecraft/src/ICamera.java
+@@ -7,7 +7,5 @@
+      */
+     boolean isBoundingBoxInFrustum(AxisAlignedBB var1);
+ 
+-    boolean isBoundingBoxInFrustumFully(AxisAlignedBB var1);
+-
+     void setPosition(double var1, double var3, double var5);
+ }
