@@ -1,0 +1,47 @@
+--- a/net/minecraft/src/ModelBiped.java
++++ b/net/minecraft/src/ModelBiped.java
+@@ -4,6 +4,9 @@
+ 
+ public class ModelBiped extends ModelBase
+ {
++    public boolean _renderHead = true;   
++    public boolean _renderHeadWear = true;   
++	public float vrOffset = 0.0F;
+     public ModelRenderer bipedHead;
+     public ModelRenderer bipedHeadwear;
+     public ModelRenderer bipedBody;
+@@ -84,7 +87,6 @@
+             GL11.glPushMatrix();
+             GL11.glScalef(1.5F / var8, 1.5F / var8, 1.5F / var8);
+             GL11.glTranslatef(0.0F, 16.0F * par7, 0.0F);
+-            this.bipedHead.render(par7);
+             GL11.glPopMatrix();
+             GL11.glPushMatrix();
+             GL11.glScalef(1.0F / var8, 1.0F / var8, 1.0F / var8);
+@@ -94,18 +96,23 @@
+             this.bipedLeftArm.render(par7);
+             this.bipedRightLeg.render(par7);
+             this.bipedLeftLeg.render(par7);
+-            this.bipedHeadwear.render(par7);
++            if (_renderHeadWear)
++                this.bipedHeadwear.render(par7);
+             GL11.glPopMatrix();
+         }
+         else
+         {
+-            this.bipedHead.render(par7);
++            GL11.glTranslatef(0.0F, 0.0F, vrOffset );
++            if (_renderHead)
++                this.bipedHead.render(par7);
+             this.bipedBody.render(par7);
+             this.bipedRightArm.render(par7);
+             this.bipedLeftArm.render(par7);
+             this.bipedRightLeg.render(par7);
+             this.bipedLeftLeg.render(par7);
+-            this.bipedHeadwear.render(par7);
++            if (_renderHeadWear)
++                this.bipedHeadwear.render(par7);
++            GL11.glTranslatef(0.0F, 0.0F, -vrOffset );
+         }
+     }
+ 

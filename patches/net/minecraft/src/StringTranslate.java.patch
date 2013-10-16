@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/StringTranslate.java
++++ b/net/minecraft/src/StringTranslate.java
+@@ -54,7 +54,7 @@
+     /**
+      * Return the StringTranslate singleton instance
+      */
+-    static StringTranslate getInstance()
++    public static StringTranslate getInstance()
+     {
+         return instance;
+     }

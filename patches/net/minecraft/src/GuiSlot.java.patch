@@ -1,0 +1,62 @@
+--- a/net/minecraft/src/GuiSlot.java
++++ b/net/minecraft/src/GuiSlot.java
+@@ -62,6 +62,18 @@
+     private boolean showSelectionBox = true;
+     private boolean field_77243_s;
+     private int field_77242_t;
++    
++    public int publicGetSize() { return getSize(); }
++    public int select( int item, boolean dblClick) { 
++    	amountScrolled = item * slotHeight;
++    	bindAmountScrolled();
++    	elementClicked(item, dblClick);
++    	
++    	if( !dblClick ) {
++    		return (int)(this.top + 4 - this.amountScrolled + (item+0.5) * this.slotHeight + this.field_77242_t);
++    	}
++    	return 0;
++	};
+ 
+     public GuiSlot(Minecraft par1Minecraft, int par2, int par3, int par4, int par5, int par6)
+     {
+@@ -326,16 +338,7 @@
+         GL11.glDisable(GL11.GL_LIGHTING);
+         GL11.glDisable(GL11.GL_FOG);
+         Tessellator var18 = Tessellator.instance;
+-        this.mc.getTextureManager().bindTexture(Gui.optionsBackground);
+-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-        float var17 = 32.0F;
+-        var18.startDrawingQuads();
+-        var18.setColorOpaque_I(2105376);
+-        var18.addVertexWithUV((double)this.left, (double)this.bottom, 0.0D, (double)((float)this.left / var17), (double)((float)(this.bottom + (int)this.amountScrolled) / var17));
+-        var18.addVertexWithUV((double)this.right, (double)this.bottom, 0.0D, (double)((float)this.right / var17), (double)((float)(this.bottom + (int)this.amountScrolled) / var17));
+-        var18.addVertexWithUV((double)this.right, (double)this.top, 0.0D, (double)((float)this.right / var17), (double)((float)(this.top + (int)this.amountScrolled) / var17));
+-        var18.addVertexWithUV((double)this.left, (double)this.top, 0.0D, (double)((float)this.left / var17), (double)((float)(this.top + (int)this.amountScrolled) / var17));
+-        var18.draw();
++        drawContainerBackground(var18);
+         var9 = this.width / 2 - 92 - 16;
+         var10 = this.top + 4 - (int)this.amountScrolled;
+ 
+@@ -456,7 +459,21 @@
+         GL11.glDisable(GL11.GL_BLEND);
+     }
+ 
+-    protected int getScrollBarX()
++    protected void drawContainerBackground(Tessellator var18) {
++    	/* Forge compatibility */
++        this.mc.getTextureManager().bindTexture(Gui.optionsBackground);
++        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
++        float var17 = 32.0F;
++        var18.startDrawingQuads();
++        var18.setColorOpaque_I(2105376);
++        var18.addVertexWithUV((double)this.left, (double)this.bottom, 0.0D, (double)((float)this.left / var17), (double)((float)(this.bottom + (int)this.amountScrolled) / var17));
++        var18.addVertexWithUV((double)this.right, (double)this.bottom, 0.0D, (double)((float)this.right / var17), (double)((float)(this.bottom + (int)this.amountScrolled) / var17));
++        var18.addVertexWithUV((double)this.right, (double)this.top, 0.0D, (double)((float)this.right / var17), (double)((float)(this.top + (int)this.amountScrolled) / var17));
++        var18.addVertexWithUV((double)this.left, (double)this.top, 0.0D, (double)((float)this.left / var17), (double)((float)(this.top + (int)this.amountScrolled) / var17));
++        var18.draw();
++	}
++
++	protected int getScrollBarX()
+     {
+         return this.width / 2 + 124;
+     }
