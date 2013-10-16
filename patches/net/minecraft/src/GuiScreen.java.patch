@@ -1,0 +1,100 @@
+--- a/net/minecraft/src/GuiScreen.java
++++ b/net/minecraft/src/GuiScreen.java
+@@ -23,7 +23,7 @@
+     public int height;
+ 
+     /** A list of all the buttons in this container. */
+-    protected List buttonList = new ArrayList();
++    public List<GuiButton> buttonList = new ArrayList<GuiButton>();
+     public boolean allowUserInput;
+ 
+     /** The FontRenderer used by GuiScreen */
+@@ -35,6 +35,12 @@
+     private long lastMouseEvent;
+     private int field_92018_d;
+ 
++	public int mouseOffsetX = 0;
++	public int mouseOffsetY = 0;
++	
++	public int joystickX = 0;
++	public int joystickY = 0;
++
+     /**
+      * Draws the screen and all the components in it.
+      */
+@@ -171,21 +177,72 @@
+             this.handleMouseInput();
+         }
+ 
+-        while (Keyboard.next())
++        while (Keyboard.isCreated() && Keyboard.next())
+         {
+             this.handleKeyboardInput();
+         }
+     }
++    
++    public void mouseDown( int rawX, int rawY, int button )
++    {
++        int var1 = rawX * this.width / this.mc.displayFBWidth;
++        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
++        this.eventButton = button;
++        this.lastMouseEvent = Minecraft.getSystemTime();
++        mouseClicked(var1, var2, button);
++    }
++    
++    public void mouseUp( int rawX, int rawY, int button )
++    {
++        int var1 = rawX * this.width / this.mc.displayFBWidth;
++        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
++        mouseMovedOrUp(var1, var2, button);
++    }
++    
++    public void mouseDrag( int rawX, int rawY )
++    {
++        int var1 = rawX * this.width / this.mc.displayFBWidth;
++        int var2 = this.height - rawY * this.height / this.mc.displayFBHeight - 1;
++        long var3 = Minecraft.getSystemTime() - this.lastMouseEvent;
++        this.mouseClickMove(var1, var2, this.eventButton, var3);
++    }
++
++    public void mouseGuiDown( int guiX, int guiY, int button )
++    {
++        this.eventButton = button;
++        this.lastMouseEvent = Minecraft.getSystemTime();
++        mouseClicked(guiX, guiY, button);
++    }
++    
++    public void mouseGuiUp( int guiX, int guiY, int button )
++    {
++        mouseMovedOrUp(guiX, guiY, button);
++    }
++    
++    public void mouseGuiDrag( int guiX, int guiY )
++    {
++        long var3 = Minecraft.getSystemTime() - this.lastMouseEvent;
++        this.mouseClickMove(guiX, guiY, this.eventButton, var3);
++    }
+ 
+     /**
+      * Handles mouse input.
+      */
+     public void handleMouseInput()
+     {
+-        int var1 = Mouse.getEventX() * this.width / this.mc.displayWidth;
+-        int var2 = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
++        int var1 = ( Mouse.getEventX() + mouseOffsetX ) * this.width  / this.mc.displayFBWidth;
++        int var2 = this.height - ( Mouse.getEventY()  + mouseOffsetY) * this.height/ this.mc.displayFBHeight - 1;
+         int var3 = Mouse.getEventButton();
+ 
++        mouseOffsetX = 0;
++        mouseOffsetY = 0;
++        if( joystickX > 0 )
++        {
++        	var1 = joystickX;
++        	var2 = joystickY;
++        	joystickX = 0;
++        	joystickY = 0;
++        }
+         if (Minecraft.isRunningOnMac && var3 == 0 && (Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157)))
+         {
+             var3 = 1;

@@ -1,0 +1,1106 @@
+--- a/net/minecraft/src/Minecraft.java
++++ b/net/minecraft/src/Minecraft.java
+@@ -5,6 +5,7 @@
+ import java.io.File;
+ import java.io.IOException;
+ import java.net.Proxy;
++import java.lang.reflect.InvocationTargetException;
+ import java.nio.ByteBuffer;
+ import java.text.DecimalFormat;
+ import java.text.SimpleDateFormat;
+@@ -15,8 +16,14 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import javax.imageio.ImageIO;
++
++import net.aib42.mumblelink.MumbleLink;
+ import net.minecraft.client.ClientBrandRetriever;
+ import net.minecraft.server.MinecraftServer;
++
++import com.mtbs3d.minecrift.*;
++
++import de.fruitfly.ovr.UserProfileData;
+ import org.lwjgl.LWJGLException;
+ import org.lwjgl.Sys;
+ import org.lwjgl.input.Keyboard;
+@@ -30,6 +37,17 @@
+ import org.lwjgl.opengl.PixelFormat;
+ import org.lwjgl.util.glu.GLU;
+ 
++import com.mtbs3d.minecrift.api.IHMDInfo;
++import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
++import com.mtbs3d.minecrift.api.IBodyAimController;
++import com.mtbs3d.minecrift.api.IOrientationProvider;
++import com.mtbs3d.minecrift.gui.GuiMinecriftSettings;
++import com.mtbs3d.minecrift.settings.VRSettings;
++import com.mtbs3d.minecrift.api.PluginManager;
++import com.mtbs3d.minecrift.control.ControlBinding;
++import com.mtbs3d.minecrift.control.JoystickAim;
++
++
+ public class Minecraft implements IPlayerUsage
+ {
+     private static final ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
+@@ -55,8 +73,15 @@
+ 
+     /** Instance of CrashReport. */
+     private CrashReport crashReporter;
++    
++    /* Size of GUI framebuffer */ 
+     public int displayWidth;
+     public int displayHeight;
++    
++    /* Actual size of the display buffer, only different than displayWidth when using VRRenderer */
++    public int displayFBWidth;
++    public int displayFBHeight;
++
+     private Timer timer = new Timer(20.0F);
+ 
+     /** Instance of PlayerUsageSnooper. */
+@@ -85,6 +110,8 @@
+     public GuiScreen currentScreen;
+     public LoadingScreenRenderer loadingScreen;
+     public EntityRenderer entityRenderer;
++    public VRRenderer vrRenderer;
++    public MumbleLink mumbleLink;
+ 
+     /** Mouse left click counter */
+     private int leftClickCounter;
+@@ -110,6 +137,7 @@
+ 
+     /** The game settings that currently hold effect. */
+     public GameSettings gameSettings;
++    public VRSettings vrSettings;
+     public SoundManager sndManager;
+ 
+     /** Mouse helper instance. */
+@@ -119,12 +147,13 @@
+     private final String launchedVersion;
+     private final Proxy proxy;
+     private ISaveFormat saveLoader;
+-
++    
++    private boolean resetMouse = false;
+     /**
+      * This is set to fpsCounter every debug screen update, and is shown on the debug screen. It's also sent as part of
+      * the usage snooping.
+      */
+-    private static int debugFPS;
++    public static int debugFPS;
+ 
+     /**
+      * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
+@@ -186,6 +215,21 @@
+     /** Profiler currently displayed in the debug screen pie chart */
+     private String debugProfilerName = "root";
+ 
++    /** Active VR HMDInfo Plugin **/
++    public IHMDInfo hmdInfo;
++
++    /** Active VR Head Tracker Plugin **/
++    public IOrientationProvider headTracker;
++
++    /** Active VR Eye Position Tracker Plugin **/
++    public ICenterEyePositionProvider  positionTracker;
++    
++    /** Active VR view/aim/move controller Plugin **/
++	public IBodyAimController lookaimController;
++	private int mouseFBX;
++	private int mouseFBY;
++
++
+     public Minecraft(Session par1Session, int par2, int par3, boolean par4, boolean par5, File par6File, File par7File, File par8File, Proxy par9Proxy, String par10Str)
+     {
+         theMinecraft = this;
+@@ -202,8 +246,7 @@
+         this.mcLogAgent.logInfo("Setting user: " + par1Session.getUsername());
+         this.mcLogAgent.logInfo("(Session ID is " + par1Session.getSessionID() + ")");
+         this.isDemo = par5;
+-        this.displayWidth = par2;
+-        this.displayHeight = par3;
++        resize( par2, par3 );
+         this.tempDisplayWidth = par2;
+         this.tempDisplayHeight = par3;
+         this.fullscreen = par4;
+@@ -262,36 +305,29 @@
+     private void startGame() throws LWJGLException
+     {
+         this.gameSettings = new GameSettings(this, this.mcDataDir);
++        this.vrSettings = new VRSettings(this, this.mcDataDir);
++        
+ 
+         if (this.gameSettings.overrideHeight > 0 && this.gameSettings.overrideWidth > 0)
+         {
+-            this.displayWidth = this.gameSettings.overrideWidth;
+-            this.displayHeight = this.gameSettings.overrideHeight;
++            this.displayFBWidth = this.gameSettings.overrideWidth;
++            this.displayFBHeight = this.gameSettings.overrideHeight;
+         }
+ 
++        Display.setResizable(true);
++        Display.setTitle("Minecraft 1.6.4 VR");
++
+         if (this.fullscreen)
+         {
+-            Display.setFullscreen(true);
+-            this.displayWidth = Display.getDisplayMode().getWidth();
+-            this.displayHeight = Display.getDisplayMode().getHeight();
+-
+-            if (this.displayWidth <= 0)
+-            {
+-                this.displayWidth = 1;
+-            }
+-
+-            if (this.displayHeight <= 0)
+-            {
+-                this.displayHeight = 1;
+-            }
++            // Set (or not) fullscreen mode
++            setFullscreen(this.fullscreen);
++            resize( Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight() );
+         }
+         else
+         {
+-            Display.setDisplayMode(new DisplayMode(this.displayWidth, this.displayHeight));
++            Display.setDisplayMode(new DisplayMode(this.displayFBWidth, this.displayFBHeight));
+         }
+ 
+-        Display.setResizable(true);
+-        Display.setTitle("Minecraft 1.6.4");
+         this.getLogAgent().logInfo("LWJGL Version: " + Sys.getVersion());
+ 
+         if (Util.getOSType() != EnumOS.MACOS)
+@@ -350,6 +386,19 @@
+         this.mcResourceManager.registerReloadListener(this.sndManager);
+         this.loadScreen();
+         this.fontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
++        
++        Object fmlClientHandler = null;
++        if( Reflector.FMLClientHandler_instance.exists())
++        {
++        	fmlClientHandler = Reflector.call( Reflector.FMLClientHandler_instance, new Object[0]);
++        }
++        
++        if( fmlClientHandler != null)
++        {
++			//One of these should work...
++            Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading2, new Object[] {this, this.defaultResourcePacks, this.mcResourceManager});
++            Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_beginMinecraftLoading, new Object[] {this, this.defaultResourcePacks});
++        }
+ 
+         if (this.gameSettings.language != null)
+         {
+@@ -363,10 +412,37 @@
+         this.mcResourceManager.registerReloadListener(new GrassColorReloadListener());
+         this.mcResourceManager.registerReloadListener(new FoliageColorReloadListener());
+         RenderManager.instance.itemRenderer = new ItemRenderer(this);
+-        this.entityRenderer = new EntityRenderer(this);
+         this.statFileWriter = new StatFileWriter(this.session, this.mcDataDir);
+         AchievementList.openInventory.setStatStringFormatter(new StatStringFormatKeyInv(this));
+         this.mouseHelper = new MouseHelper();
++        
++        try {
++			Class.forName("com.mtbs3d.minecrift.MCHydra").newInstance();//creates and registers MCHydra if it can be (if the libraries are found) 
++		} catch (NoClassDefFoundError e1) { 
++			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
++		} catch( Exception e1) {
++			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
++		}
++        try {
++        	MumbleLink.loadLibrary();
++        	mumbleLink = new MumbleLink("MinecraftVR", "Minecraft VR");
++        	mumbleLink.setIdentityAndContext(this.session.getUsername(), "Minecraft"/*TODO: get the servername? */);
++        } catch( Exception e ) {
++			System.err.println("Couldn't load MumbleLink"+e.toString());
++        }
++        new MCController();
++        new MCMouse(); //create and register mouse ILookAimMoveController plugin
++        new NullCenterEyePosition(); //create and register "None" head position plugin
++        PluginManager.register(new MCOculus()); // create and register new plugin
++
++    	hmdInfo           = PluginManager.configureHMD(this.vrSettings.hmdPluginID);
++    	headTracker       = PluginManager.configureOrientation(this.vrSettings.headTrackerPluginID);
++    	positionTracker   = PluginManager.configurePosition(this.vrSettings.headPositionPluginID);
++    	lookaimController = PluginManager.configureController(this.vrSettings.controllerPluginID);
++
++        //uses mouseHelper
++        setUseVRRenderer( vrSettings.useVRRenderer );
++
+         this.checkGLError("Pre startup");
+         GL11.glEnable(GL11.GL_TEXTURE_2D);
+         GL11.glShadeModel(GL11.GL_SMOOTH);
+@@ -383,15 +459,45 @@
+         this.renderGlobal = new RenderGlobal(this);
+         this.renderEngine.loadTextureMap(TextureMap.locationBlocksTexture, new TextureMap(0, "textures/blocks"));
+         this.renderEngine.loadTextureMap(TextureMap.locationItemsTexture, new TextureMap(1, "textures/items"));
+-        GL11.glViewport(0, 0, this.displayWidth, this.displayHeight);
++        GL11.glViewport(0, 0, this.displayFBWidth, this.displayHeight);
+         this.effectRenderer = new EffectRenderer(this.theWorld, this.renderEngine);
++        
++        if( fmlClientHandler != null )
++        {
++        	Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_finishMinecraftLoading, new Object[0]);
++        }
++        	
++
+         this.checkGLError("Post startup");
+-        this.ingameGUI = new GuiIngame(this);
++        if( Reflector.ForgeGuiIngame.exists())
++        {
++        	try {
++				this.ingameGUI = (GuiIngame)Reflector.ForgeGuiIngame_Constructor.getTargetConstructor().newInstance(new Object[]{this});
++			} catch (IllegalArgumentException e) {
++				e.printStackTrace();
++			} catch (InstantiationException e) {
++				e.printStackTrace();
++			} catch (IllegalAccessException e) {
++				e.printStackTrace();
++			} catch (InvocationTargetException e) {
++				e.printStackTrace();
++			}
++        }
++        else
++        {
++        	this.ingameGUI = new GuiIngame(this);
++        }
++
+ 
+         if (this.serverName != null)
+         {
+             this.displayGuiScreen(new GuiConnecting(new GuiMainMenu(), this, this.serverName, this.serverPort));
+         }
++        else if (!this.vrSettings.useVRRenderer )
++        {
++        	
++        	this.displayGuiScreen(new GuiMinecriftSettings( new GuiMainMenu(), vrSettings) );
++        }
+         else
+         {
+             this.displayGuiScreen(new GuiMainMenu());
+@@ -403,6 +509,11 @@
+         {
+             this.toggleFullscreen();
+         }
++        
++        if( fmlClientHandler != null )
++        {
++    		Reflector.callVoid(fmlClientHandler, Reflector.FMLClientHandler_onInitializationComplete, new Object[0]);
++        }
+     }
+ 
+     public void refreshResources()
+@@ -495,8 +606,7 @@
+         }
+ 
+         Display.setDisplayMode(var2);
+-        this.displayWidth = var2.getWidth();
+-        this.displayHeight = var2.getHeight();
++        resize(var2.getWidth(),var2.getHeight());
+     }
+ 
+     /**
+@@ -595,21 +705,27 @@
+         {
+             this.setIngameNotInFocus();
+             ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
+-            int var3 = var2.getScaledWidth();
+-            int var4 = var2.getScaledHeight();
+-            ((GuiScreen)par1GuiScreen).setWorldAndResolution(this, var3, var4);
++            int width = var2.getScaledWidth();
++            int height = var2.getScaledHeight();
++            ((GuiScreen)par1GuiScreen).setWorldAndResolution(this, width, height);
+             this.skipRenderWorld = false;
+         }
+         else
+         {
+             this.setIngameFocus();
+         }
++
++        if ((par1GuiScreen instanceof GuiMainMenu && this.theWorld == null)      ||
++            (par1GuiScreen instanceof GuiDisconnected && this.theWorld == null))
++        {
++            this.setIngameNotInFocus();        // TODO: Ensure disconnected menu has mouse pointer!
++        }
+     }
+ 
+     /**
+      * Checks for an OpenGL error. If there is one, prints the error ID and error string.
+      */
+-    private void checkGLError(String par1Str)
++    public void checkGLError(String par1Str)
+     {
+         int var2 = GL11.glGetError();
+ 
+@@ -622,6 +738,15 @@
+         }
+     }
+ 
++
++    public void printChatMessage(String message)
++    {
++        if (this.theWorld != null)
++        {
++            this.ingameGUI.getChatGUI().printChatMessage("\u00a7e[Minecrift]\u00a7f " + message);
++        }
++    }
++
+     /**
+      * Shuts down the minecraft applet by stopping the resource downloads, and clearing up GL stuff; called when the
+      * application (or web page) is exited.
+@@ -652,6 +777,8 @@
+             }
+ 
+             this.sndManager.cleanup();
++
++            PluginManager.destroyAll();
+         }
+         finally
+         {
+@@ -683,6 +810,7 @@
+             return;
+         }
+ 
++        ControlBinding.CreateBindingList(this.gameSettings);
+         try
+         {
+             while (this.running)
+@@ -782,7 +910,8 @@
+         this.checkGLError("Pre render");
+         RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;
+         this.mcProfiler.endStartSection("sound");
+-        this.sndManager.setListener(this.thePlayer, this.timer.renderPartialTicks);
++        if(!this.vrSettings.useVRRenderer)
++            this.sndManager.setListener(this.thePlayer, this.timer.renderPartialTicks);
+ 
+         if (!this.isGamePaused)
+         {
+@@ -808,9 +937,44 @@
+ 
+         if (!this.skipRenderWorld)
+         {
++	    	Object fmlCommonHandler = null;
++	    	if( Reflector.FMLCommonHandler_instance.exists())
++	    	{
++	    		fmlCommonHandler = Reflector.call(Reflector.FMLCommonHandler_instance, new Object[0]);
++	    	}
++	    	if( fmlCommonHandler != null )
++	    	{
++	    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onRenderTickStart, new Object[]{this.timer.renderPartialTicks});
++	    	}
+             this.mcProfiler.endStartSection("gameRenderer");
++                
++                
++            //VR mouse hack: transform the mouse coordinates from screen (framebuffer) size to GUI framebuffer coordinates
++            int mouseX=0;
++            int mouseY=0;
++            if(this.vrSettings.useVRRenderer)
++            {
++	            mouseX = Mouse.getX();
++	            mouseY = Mouse.getY();
++	            Mouse.setCursorPosition(mouseX*this.displayWidth/this.displayFBWidth, mouseY*this.displayHeight/this.displayFBHeight);
++            }
+             this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks);
++
++            if(this.vrSettings.useVRRenderer)
++            {
++            	if( resetMouse ) {
++            		Mouse.setCursorPosition(this.mouseFBX, this.mouseFBY);
++            		resetMouse = false;
++            	} else {
++            		Mouse.setCursorPosition(mouseX, mouseY);
++            	}
++            }
++
+             this.mcProfiler.endSection();
++	    	if( fmlCommonHandler != null )
++	    	{
++	    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onRenderTickEnd, new Object[]{this.timer.renderPartialTicks});
++	    	}
+         }
+ 
+         GL11.glFlush();
+@@ -837,7 +1001,7 @@
+             this.prevFrameTime = System.nanoTime();
+         }
+ 
+-        this.guiAchievement.updateAchievementWindow();
++            //this.guiAchievement.updateAchievementWindow();
+         this.mcProfiler.startSection("root");
+         Thread.yield();
+ 
+@@ -850,20 +1014,9 @@
+ 
+         if (!this.fullscreen && Display.wasResized())
+         {
+-            this.displayWidth = Display.getWidth();
+-            this.displayHeight = Display.getHeight();
+-
+-            if (this.displayWidth <= 0)
+-            {
+-                this.displayWidth = 1;
+-            }
+-
+-            if (this.displayHeight <= 0)
+-            {
+-                this.displayHeight = 1;
+-            }
+-
+-            this.resize(this.displayWidth, this.displayHeight);
++            this.displayFBWidth = Display.getWidth();
++            this.displayFBHeight = Display.getHeight();
++            this.resize(this.displayFBWidth, this.displayFBHeight);
+         }
+ 
+         this.checkGLError("Post render");
+@@ -901,7 +1054,7 @@
+ 
+     private int getLimitFramerate()
+     {
+-        return this.currentScreen != null && this.currentScreen instanceof GuiMainMenu ? 2 : this.gameSettings.limitFramerate;
++        return this.gameSettings.limitFramerate;
+     }
+ 
+     public void freeMemory()
+@@ -950,7 +1103,7 @@
+             if (!this.isTakingScreenshot)
+             {
+                 this.isTakingScreenshot = true;
+-                this.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(this.mcDataDir, this.displayWidth, this.displayHeight));
++                this.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(this.mcDataDir, this.displayFBWidth, this.displayFBHeight));
+             }
+         }
+         else
+@@ -1009,7 +1162,7 @@
+             GL11.glMatrixMode(GL11.GL_PROJECTION);
+             GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+             GL11.glLoadIdentity();
+-            GL11.glOrtho(0.0D, (double)this.displayWidth, (double)this.displayHeight, 0.0D, 1000.0D, 3000.0D);
++            GL11.glOrtho(0.0D, (double)this.displayFBWidth, (double)this.displayFBHeight, 0.0D, 1000.0D, 3000.0D);
+             GL11.glMatrixMode(GL11.GL_MODELVIEW);
+             GL11.glLoadIdentity();
+             GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
+@@ -1017,8 +1170,8 @@
+             GL11.glDisable(GL11.GL_TEXTURE_2D);
+             Tessellator var5 = Tessellator.instance;
+             short var6 = 160;
+-            int var7 = this.displayWidth - var6 - 10;
+-            int var8 = this.displayHeight - var6 * 2;
++            int var7 = this.displayFBWidth - var6 - 10;
++            int var8 = this.displayFBHeight - var6 * 2;
+             GL11.glEnable(GL11.GL_BLEND);
+             var5.startDrawingQuads();
+             var5.setColorRGBA_I(0, 200);
+@@ -1145,9 +1298,19 @@
+     {
+         if (this.inGameHasFocus)
+         {
+-            KeyBinding.unPressAllKeys();
+-            this.inGameHasFocus = false;
+-            this.mouseHelper.ungrabMouseCursor();
++	        KeyBinding.unPressAllKeys();
++	        this.inGameHasFocus = false;
++	        if( vrSettings.useVRRenderer )
++	        {
++		        int var1 = Display.getWidth();
++		        int var2 = Display.getHeight();
++		
++		        Mouse.setCursorPosition(var1 / 2, var2 / 2);
++	        }
++	        else
++	        {
++	            this.mouseHelper.ungrabMouseCursor();
++	        }
+         }
+     }
+ 
+@@ -1200,7 +1363,7 @@
+      * Called whenever the mouse is clicked. Button clicked is 0 for left clicking and 1 for right clicking. Args:
+      * buttonClicked
+      */
+-    private void clickMouse(int par1)
++    public void clickMouse(int par1)
+     {
+         if (par1 != 0 || this.leftClickCounter <= 0)
+         {
+@@ -1290,46 +1453,25 @@
+      */
+     public void toggleFullscreen()
+     {
++        this.fullscreen = !this.fullscreen;
++        this.gameSettings.fullScreen = this.fullscreen;
++        this.gameSettings.saveOptions();
++        setFullscreen(this.fullscreen);
++    }
++
++    public void setFullscreen(boolean enable)
++    {
+         try
+         {
+-            this.fullscreen = !this.fullscreen;
+-
+-            if (this.fullscreen)
++            if (enable)
+             {
+                 this.updateDisplayMode();
+-                this.displayWidth = Display.getDisplayMode().getWidth();
+-                this.displayHeight = Display.getDisplayMode().getHeight();
+-
+-                if (this.displayWidth <= 0)
+-                {
+-                    this.displayWidth = 1;
+-                }
+-
+-                if (this.displayHeight <= 0)
+-                {
+-                    this.displayHeight = 1;
+-                }
++                resize(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
+             }
+             else
+             {
+                 Display.setDisplayMode(new DisplayMode(this.tempDisplayWidth, this.tempDisplayHeight));
+-                this.displayWidth = this.tempDisplayWidth;
+-                this.displayHeight = this.tempDisplayHeight;
+-
+-                if (this.displayWidth <= 0)
+-                {
+-                    this.displayWidth = 1;
+-                }
+-
+-                if (this.displayHeight <= 0)
+-                {
+-                    this.displayHeight = 1;
+-                }
+-            }
+-
+-            if (this.currentScreen != null)
+-            {
+-                this.resize(this.displayWidth, this.displayHeight);
++                resize( this.tempDisplayWidth, this.tempDisplayHeight );
+             }
+ 
+             Display.setFullscreen(this.fullscreen);
+@@ -1345,17 +1487,35 @@
+     /**
+      * Called to resize the current screen.
+      */
+-    private void resize(int par1, int par2)
++    public void resize(int par1, int par2)
+     {
+-        this.displayWidth = par1 <= 0 ? 1 : par1;
+-        this.displayHeight = par2 <= 0 ? 1 : par2;
++        this.displayFBWidth = par1 <= 0 ? 1 : par1;
++        this.displayFBHeight = par2 <= 0 ? 1 : par2;
+ 
+-        if (this.currentScreen != null)
++        if ( this.gameSettings != null )
+         {
+-            ScaledResolution var3 = new ScaledResolution(this.gameSettings, par1, par2);
++        	if( this.vrSettings.useVRRenderer )
++        	{
++				// Ensure use resolution multiplier for screen sizes > 1920X1200
++        		this.displayWidth = this.displayFBWidth * 2;
++        		this.displayHeight = this.displayFBHeight * 2;
++        	}
++        	else
++        	{
++	        	this.displayWidth = this.displayFBWidth;
++	        	this.displayHeight = this.displayFBHeight;
++        	}
++            ScaledResolution var3 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
+             int var4 = var3.getScaledWidth();
+             int var5 = var3.getScaledHeight();
+-            this.currentScreen.setWorldAndResolution(this, var4, var5);
++
++            if(this.currentScreen != null)
++	            this.currentScreen.setWorldAndResolution(this, var4, var5);
++        }
++        else
++        {
++        	this.displayWidth = this.displayFBWidth;
++        	this.displayHeight = this.displayFBHeight;
+         }
+     }
+ 
+@@ -1364,10 +1524,24 @@
+      */
+     public void runTick()
+     {
++    	Object fmlCommonHandler = null;
++    	if( Reflector.FMLCommonHandler_instance.exists())
++    	{
++    		fmlCommonHandler = Reflector.call(Reflector.FMLCommonHandler_instance, new Object[0]);
++    	}
++    	if( fmlCommonHandler != null && Reflector.FMLSide.exists() )
++    	{
++    		Object client = Reflector.FMLSide.getTargetClass().getEnumConstants()[0];//Client
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_rescheduleTicks, new Object[]{client});
++    	}
+         if (this.rightClickDelayTimer > 0)
+         {
+             --this.rightClickDelayTimer;
+         }
++    	if( fmlCommonHandler != null )
++    	{
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onPreClientTick, new Object[0]);
++    	}
+ 
+         this.mcProfiler.startSection("stats");
+         this.statFileWriter.func_77449_e();
+@@ -1375,6 +1549,8 @@
+ 
+         if (!this.isGamePaused)
+         {
++        	if( JoystickAim.selectedJoystickMode != null )
++        		JoystickAim.selectedJoystickMode.updateTick();
+             this.ingameGUI.updateTick();
+         }
+ 
+@@ -1394,21 +1570,24 @@
+             this.renderEngine.tick();
+         }
+ 
+-        if (this.currentScreen == null && this.thePlayer != null)
++        if (this.theWorld == null)    // TODO: Only display if world null - otherwise display in render
+         {
+-            if (this.thePlayer.getHealth() <= 0.0F)
++            if (this.currentScreen == null && this.thePlayer != null)
+             {
+-                this.displayGuiScreen((GuiScreen)null);
++                if (this.thePlayer.getHealth() <= 0.0F)
++                {
++                    this.displayGuiScreen((GuiScreen)null);
++                }
++                else if (this.thePlayer.isPlayerSleeping() && this.theWorld != null)
++                {
++                    this.displayGuiScreen(new GuiSleepMP());
++                }
+             }
+-            else if (this.thePlayer.isPlayerSleeping() && this.theWorld != null)
++            else if (this.currentScreen != null && this.currentScreen instanceof GuiSleepMP && !this.thePlayer.isPlayerSleeping())
+             {
+-                this.displayGuiScreen(new GuiSleepMP());
++                this.displayGuiScreen((GuiScreen)null);
+             }
+         }
+-        else if (this.currentScreen != null && this.currentScreen instanceof GuiSleepMP && !this.thePlayer.isPlayerSleeping())
+-        {
+-            this.displayGuiScreen((GuiScreen)null);
+-        }
+ 
+         if (this.currentScreen != null)
+         {
+@@ -1504,7 +1683,7 @@
+                     }
+                     else if (this.currentScreen != null)
+                     {
+-                        this.currentScreen.handleMouseInput();
++                        this.currentScreen.handleInput();
+                     }
+                 }
+             }
+@@ -1562,6 +1741,11 @@
+                                 this.displayInGameMenu();
+                             }
+ 
++                            if (vrSettings.useVRRenderer)
++                            {
++                            	VRHotkeys.handleKeyboardInputs(this);
++                            }
++
+                             if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
+                             {
+                                 this.refreshResources();
+@@ -1607,6 +1791,7 @@
+ 
+                             if (Keyboard.getEventKey() == 61)
+                             {
++								// F3
+                                 this.gameSettings.showDebugInfo = !this.gameSettings.showDebugInfo;
+                                 this.gameSettings.showDebugProfilerChart = GuiScreen.isShiftKeyDown();
+                             }
+@@ -1738,6 +1923,12 @@
+ 
+             this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
+         }
++        else if( this.vrSettings.useVRRenderer )
++        {
++            // TODO: No way to go back to the first buffered keyboard event e.g. Keyboard.first()?
++            // Don't bother with buffered events, just read the current keyboard state
++            VRHotkeys.handleKeyboardInputs(this);
++        }
+ 
+         if (this.theWorld != null)
+         {
+@@ -1824,6 +2015,11 @@
+             this.myNetworkManager.processReadPackets();
+         }
+ 
++    	if( fmlCommonHandler != null )
++    	{
++    		Reflector.callVoid(fmlCommonHandler, Reflector.FMLCommonHandler_onPostClientTick, new Object[0]);
++    	}
++
+         this.mcProfiler.endSection();
+         this.systemTime = getSystemTime();
+     }
+@@ -1850,8 +2046,43 @@
+         }
+ 
+         this.statFileWriter.readStat(StatList.startGameStat, 1);
++        
++        boolean fmlGameData = Reflector.FMLGameData.exists();
++        if( fmlGameData )
++        {
++        	Reflector.callVoid(Reflector.FMLGameData_initializeServerGate, new Object[]{2});
++        }
++
++
+         this.theIntegratedServer = new IntegratedServer(this, par1Str, par2Str, par3WorldSettings);
+         this.theIntegratedServer.startServerThread();
++        
++        if( fmlGameData  )
++        {
++			Object idDifferences = Reflector.call(Reflector.FMLGameData_gateWorldLoadingForValidation, new Object[0]);
++			if( idDifferences == null )
++			{
++				System.out.println("idDiff == null, continueLoading");
++				Reflector.call(Reflector.FMLGameData_releaseGate, new Object[]{true});
++				continueWorldLoading();
++			}
++			else
++			{
++		        Object var1 = Reflector.call(Reflector.FMLClientHandler_instance, new Object[0]);
++		        Reflector.call( var1, Reflector.FMLClientHandler_warnIDMismatch, new Object[]{idDifferences, true });
++			}
++        	
++        }
++        else
++        {
++			System.out.println("fmlGameData == null , continueLoading");
++        	continueWorldLoading();
++        }
++    }
++
++    public void continueWorldLoading() 
++    {
++        
+         this.integratedServerIsRunning = true;
+         this.loadingScreen.displayProgressMessage(I18n.getString("menu.loadingLevel"));
+ 
+@@ -1905,6 +2136,11 @@
+     public void loadWorld(WorldClient par1WorldClient, String par2Str)
+     {
+         this.statFileWriter.syncStats();
++        
++        if (this.theWorld != null && Reflector.EventBus.exists())
++        {
++            Reflector.postForgeBusEvent(Reflector.WorldEvent_Unload_Constructor, new Object[] {this.theWorld});
++        }
+ 
+         if (par1WorldClient == null)
+         {
+@@ -1941,6 +2177,7 @@
+         {
+             this.setServerData((ServerData)null);
+             this.integratedServerIsRunning = false;
++            this.setIngameNotInFocus();
+         }
+ 
+         this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
+@@ -2096,107 +2333,114 @@
+         if (this.objectMouseOver != null)
+         {
+             boolean var1 = this.thePlayer.capabilities.isCreativeMode;
+-            int var3 = 0;
+-            boolean var4 = false;
+-            int var2;
+             int var5;
+-
+-            if (this.objectMouseOver.typeOfHit == EnumMovingObjectType.TILE)
+-            {
+-                var5 = this.objectMouseOver.blockX;
+-                int var6 = this.objectMouseOver.blockY;
+-                int var7 = this.objectMouseOver.blockZ;
+-                Block var8 = Block.blocksList[this.theWorld.getBlockId(var5, var6, var7)];
+-
+-                if (var8 == null)
+-                {
+-                    return;
+-                }
+-
+-                var2 = var8.idPicked(this.theWorld, var5, var6, var7);
+-
+-                if (var2 == 0)
+-                {
+-                    return;
+-                }
+-
+-                var4 = Item.itemsList[var2].getHasSubtypes();
+-                int var9 = var2 < 256 && !Block.blocksList[var8.blockID].isFlowerPot() ? var2 : var8.blockID;
+-                var3 = Block.blocksList[var9].getDamageValue(this.theWorld, var5, var6, var7);
+-            }
+-            else
++            if(!Reflector.ForgeHooks_onPickBlock.exists())
+             {
+-                if (this.objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
+-                {
+-                    return;
+-                }
+-
+-                if (this.objectMouseOver.entityHit instanceof EntityPainting)
+-                {
+-                    var2 = Item.painting.itemID;
+-                }
++	            int var3 = 0;
++	            boolean var4 = false;
++	            int var2;
++	
++	            if (this.objectMouseOver.typeOfHit == EnumMovingObjectType.TILE)
++	            {
++	                var5 = this.objectMouseOver.blockX;
++	                int var6 = this.objectMouseOver.blockY;
++	                int var7 = this.objectMouseOver.blockZ;
++	                Block var8 = Block.blocksList[this.theWorld.getBlockId(var5, var6, var7)];
++	
++	                if (var8 == null)
++	                {
++	                    return;
++	                }
++	
++	                var2 = var8.idPicked(this.theWorld, var5, var6, var7);
++	
++	                if (var2 == 0)
++	                {
++	                    return;
++	                }
++	
++	                var4 = Item.itemsList[var2].getHasSubtypes();
++	                int var9 = var2 < 256 && !Block.blocksList[var8.blockID].isFlowerPot() ? var2 : var8.blockID;
++	                var3 = Block.blocksList[var9].getDamageValue(this.theWorld, var5, var6, var7);
++	            }
++	            else
++	            {
++	                if (this.objectMouseOver.typeOfHit != EnumMovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
++	                {
++	                    return;
++	                }
++	
++	                if (this.objectMouseOver.entityHit instanceof EntityPainting)
++	                {
++	                    var2 = Item.painting.itemID;
++	                }
+                 else if (this.objectMouseOver.entityHit instanceof EntityLeashKnot)
+                 {
+                     var2 = Item.leash.itemID;
+                 }
+-                else if (this.objectMouseOver.entityHit instanceof EntityItemFrame)
+-                {
+-                    EntityItemFrame var10 = (EntityItemFrame)this.objectMouseOver.entityHit;
+-
+-                    if (var10.getDisplayedItem() == null)
+-                    {
+-                        var2 = Item.itemFrame.itemID;
+-                    }
+-                    else
+-                    {
+-                        var2 = var10.getDisplayedItem().itemID;
+-                        var3 = var10.getDisplayedItem().getItemDamage();
+-                        var4 = true;
+-                    }
+-                }
+-                else if (this.objectMouseOver.entityHit instanceof EntityMinecart)
+-                {
+-                    EntityMinecart var11 = (EntityMinecart)this.objectMouseOver.entityHit;
+-
+-                    if (var11.getMinecartType() == 2)
+-                    {
+-                        var2 = Item.minecartPowered.itemID;
+-                    }
+-                    else if (var11.getMinecartType() == 1)
+-                    {
+-                        var2 = Item.minecartCrate.itemID;
+-                    }
+-                    else if (var11.getMinecartType() == 3)
+-                    {
+-                        var2 = Item.minecartTnt.itemID;
+-                    }
+-                    else if (var11.getMinecartType() == 5)
+-                    {
+-                        var2 = Item.minecartHopper.itemID;
+-                    }
+-                    else
+-                    {
+-                        var2 = Item.minecartEmpty.itemID;
+-                    }
+-                }
+-                else if (this.objectMouseOver.entityHit instanceof EntityBoat)
+-                {
+-                    var2 = Item.boat.itemID;
+-                }
+-                else
+-                {
+-                    var2 = Item.monsterPlacer.itemID;
+-                    var3 = EntityList.getEntityID(this.objectMouseOver.entityHit);
+-                    var4 = true;
+-
+-                    if (var3 <= 0 || !EntityList.entityEggs.containsKey(Integer.valueOf(var3)))
+-                    {
+-                        return;
+-                    }
+-                }
+-            }
+-
+-            this.thePlayer.inventory.setCurrentItem(var2, var3, var4, var1);
++	                else if (this.objectMouseOver.entityHit instanceof EntityItemFrame)
++	                {
++	                    EntityItemFrame var10 = (EntityItemFrame)this.objectMouseOver.entityHit;
++	
++	                    if (var10.getDisplayedItem() == null)
++	                    {
++	                        var2 = Item.itemFrame.itemID;
++	                    }
++	                    else
++	                    {
++	                        var2 = var10.getDisplayedItem().itemID;
++	                        var3 = var10.getDisplayedItem().getItemDamage();
++	                        var4 = true;
++	                    }
++	                }
++	                else if (this.objectMouseOver.entityHit instanceof EntityMinecart)
++	                {
++	                    EntityMinecart var11 = (EntityMinecart)this.objectMouseOver.entityHit;
++	
++	                    if (var11.getMinecartType() == 2)
++	                    {
++	                        var2 = Item.minecartPowered.itemID;
++	                    }
++	                    else if (var11.getMinecartType() == 1)
++	                    {
++	                        var2 = Item.minecartCrate.itemID;
++	                    }
++	                    else if (var11.getMinecartType() == 3)
++	                    {
++	                        var2 = Item.minecartTnt.itemID;
++	                    }
++	                    else if (var11.getMinecartType() == 5)
++	                    {
++	                        var2 = Item.minecartHopper.itemID;
++	                    }
++	                    else
++	                    {
++	                        var2 = Item.minecartEmpty.itemID;
++	                    }
++	                }
++	                else if (this.objectMouseOver.entityHit instanceof EntityBoat)
++	                {
++	                    var2 = Item.boat.itemID;
++	                }
++	                else
++	                {
++	                    var2 = Item.monsterPlacer.itemID;
++	                    var3 = EntityList.getEntityID(this.objectMouseOver.entityHit);
++	                    var4 = true;
++	
++	                    if (var3 <= 0 || !EntityList.entityEggs.containsKey(Integer.valueOf(var3)))
++	                    {
++	                        return;
++	                    }
++	                }
++	            }
++	
++	            this.thePlayer.inventory.setCurrentItem(var2, var3, var4, var1);
++	        }
++	        else if (!Reflector.callBoolean(Reflector.ForgeHooks_onPickBlock, new Object[]{this.objectMouseOver,this.thePlayer,this.theWorld}))
++	        {
++	        	return;
++	        }
+ 
+             if (var1)
+             {
+@@ -2282,8 +2526,13 @@
+     /**
+      * Used in the usage snooper.
+      */
++    private static int max_texture_size = -1;
+     public static int getGLMaximumTextureSize()
+     {
++    	if (max_texture_size != -1)
++    	{
++    		return max_texture_size;
++    	}
+         for (int var0 = 16384; var0 > 0; var0 >>= 1)
+         {
+             GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
+@@ -2291,6 +2540,7 @@
+ 
+             if (var1 != 0)
+             {
++            	max_texture_size = var0;
+                 return var0;
+             }
+         }
+@@ -2416,4 +2666,63 @@
+     {
+         return par0Minecraft.mcLanguageManager;
+     }
++
++    public void setUseVRRenderer( boolean useVRRenderer )
++    {
++        if( useVRRenderer )
++        {
++        	//Need HMDInfo, OrientationProvider and HeadPositionProvider
++			if( hmdInfo != null && headTracker != null && positionTracker != null && lookaimController != null )
++			{
++                // Get profile data first...
++                UserProfileData profile = hmdInfo.getProfileData();
++                if (profile != null)
++                {
++                    this.vrSettings.setOculusProfileIpd(profile._ipd);
++                    this.vrSettings.setOculusProfilePlayerEyeHeight(profile._eyeHeight);
++                }
++
++                // ...then set IPD
++                hmdInfo.setIPD(this.vrSettings.getIPD());
++                if (this.vrRenderer != null)
++                    this.vrRenderer._FBOInitialised = false;
++
++                // Set configured headtracker parameters
++                headTracker.setPrediction(this.vrSettings.headTrackPredictionTimeSecs, this.vrSettings.useHeadTrackPrediction);
++                //headTracker.setMagRefDistance(this.vrSettings.magRefDistance);
++
++                // Set configured position tracker parameters
++                positionTracker.setPrediction(0.0f, this.vrSettings.hydraUseFilter); // TODO: Need a more generic param
++
++				if( this.vrRenderer == null )
++				{
++					this.vrRenderer = new VRRenderer(this, guiAchievement);
++				}
++	        	this.entityRenderer = this.vrRenderer;
++		        this.mouseHelper.grabMouseCursor();
++			}
++			else
++			{
++				this.vrRenderer = null;
++        		this.vrSettings.useVRRenderer = false; //Can't for some reason
++	        	this.entityRenderer = new EntityRenderer(this);
++		        this.mouseHelper.ungrabMouseCursor();
++        	}
++        }
++        else
++        {
++        	this.entityRenderer = new EntityRenderer(this);
++	        this.mouseHelper.ungrabMouseCursor();
++        }
++
++        //Either way, resize framebuffers to be correct size
++        resize(this.displayFBWidth,this.displayFBHeight);
++    }
++    
++    public void resetMousePos(int mouseFBX, int mouseFBY ) {
++    	resetMouse = true;
++    	this.mouseFBX = mouseFBX;
++    	this.mouseFBY = mouseFBY;
++    }
++    
+ }

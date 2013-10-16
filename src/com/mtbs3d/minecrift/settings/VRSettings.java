@@ -569,7 +569,7 @@ public class VRSettings {
     
     public String getKeyBinding( EnumOptions par1EnumOptions )
     {
-        String var2 = I18n.func_135053_a(par1EnumOptions.getEnumString());
+        String var2 = I18n.getString(par1EnumOptions.getEnumString());
 
         if (var2 == null)
         {

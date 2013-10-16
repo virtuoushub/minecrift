@@ -1,0 +1,34 @@
+--- a/net/minecraft/src/GuiIngame.java
++++ b/net/minecraft/src/GuiIngame.java
+@@ -64,13 +64,6 @@
+             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+         }
+ 
+-        ItemStack var9 = this.mc.thePlayer.inventory.armorItemInSlot(3);
+-
+-        if (this.mc.gameSettings.thirdPersonView == 0 && var9 != null && var9.itemID == Block.pumpkin.blockID)
+-        {
+-            this.renderPumpkinBlur(var6, var7);
+-        }
+-
+         if (!this.mc.thePlayer.isPotionActive(Potion.confusion))
+         {
+             float var10 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * par1;
+@@ -94,10 +87,13 @@
+             this.drawTexturedModalRect(var6 / 2 - 91, var7 - 22, 0, 0, 182, 22);
+             this.drawTexturedModalRect(var6 / 2 - 91 - 1 + var31.currentItem * 20, var7 - 22 - 1, 0, 22, 24, 22);
+             this.mc.getTextureManager().bindTexture(icons);
+-            GL11.glEnable(GL11.GL_BLEND);
+-            GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
+-            this.drawTexturedModalRect(var6 / 2 - 7, var7 / 2 - 7, 0, 0, 16, 16);
+-            GL11.glDisable(GL11.GL_BLEND);
++            if( !this.mc.vrSettings.useVRRenderer )
++            {
++	            GL11.glEnable(GL11.GL_BLEND);
++	            GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
++	            this.drawTexturedModalRect(var6 / 2 - 7, var7 / 2 - 7, 0, 0, 16, 16);
++	            GL11.glDisable(GL11.GL_BLEND);
++            }
+             this.mc.mcProfiler.startSection("bossHealth");
+             this.renderBossHealth();
+             this.mc.mcProfiler.endSection();

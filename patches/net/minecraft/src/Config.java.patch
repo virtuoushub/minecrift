@@ -1,16 +1,13 @@
 --- a/net/minecraft/src/Config.java
 +++ b/net/minecraft/src/Config.java
-@@ -34,10 +34,10 @@
- public class Config
- {
+@@ -36,8 +36,8 @@
      public static final String OF_NAME = "OptiFine";
--    public static final String MC_VERSION = "1.6.4";
-+    public static final String MC_VERSION = "1.6.2";
+     public static final String MC_VERSION = "1.6.4";
      public static final String OF_EDITION = "HD_U";
 -    public static final String OF_RELEASE = "C6";
 -    public static final String VERSION = "OptiFine_1.6.4_HD_U_C6";
-+    public static final String OF_RELEASE = "B3";
-+    public static final String VERSION = "OptiFine_1.6.2_HD_U_B3";
++    public static final String OF_RELEASE = "C4";
++    public static final String VERSION = "OptiFine_1.6.4_HD_U_C4";
      private static String newRelease = null;
      private static GameSettings gameSettings = null;
      private static Minecraft minecraft = null;
@@ -19,179 +16,11 @@
      public static String getVersion()
      {
 -        return "OptiFine_1.6.4_HD_U_C6";
-+        return "OptiFine_1.6.2_HD_U_B3";
++        return "OptiFine_1.6.4_HD_U_C4";
      }
  
      public static void initGameSettings(GameSettings settings)
-@@ -222,26 +222,24 @@
-             {
-                 case 0:
-                     return 9984;
--
-                 case 1:
-                     return 9986;
--
-                 case 2:
-+
-                     if (isMultiTexture())
-                     {
-                         return 9985;
-                     }
- 
-                     return 9986;
--
-                 case 3:
-+
-                     if (isMultiTexture())
-                     {
-                         return 9987;
-                     }
- 
-                     return 9986;
--
-                 default:
-                     return 9984;
-             }
-@@ -366,7 +364,7 @@
-         {
-             try
-             {
--                InputStream e = rm.getResource(new ResourceLocation("color.properties")).getInputStream();
-+                InputStream e = rm.func_110536_a(new ResourceLocation("color.properties")).func_110527_b();
- 
-                 if (e == null)
-                 {
-@@ -595,33 +593,33 @@
- 
-     public static TextureManager getTextureManager()
-     {
--        return minecraft.getTextureManager();
-+        return minecraft.func_110434_K();
-     }
- 
-     public static ResourceManager getResourceManager()
-     {
--        return minecraft.getResourceManager();
-+        return minecraft.func_110442_L();
-     }
- 
-     public static Resource getResource(ResourceLocation location) throws IOException
-     {
--        return minecraft.getResourceManager().getResource(location);
-+        return minecraft.func_110442_L().func_110536_a(location);
-     }
- 
-     public static InputStream getResourceStream(ResourceLocation location) throws IOException
-     {
--        return getResourceStream(minecraft.getResourceManager(), location);
-+        return getResourceStream(minecraft.func_110442_L(), location);
-     }
- 
-     public static InputStream getResourceStream(ResourceManager resourceManager, ResourceLocation location) throws IOException
-     {
--        Resource res = resourceManager.getResource(location);
--        return res == null ? null : res.getInputStream();
-+        Resource res = resourceManager.func_110536_a(location);
-+        return res == null ? null : res.func_110527_b();
-     }
- 
-     public static Resource getResource(ResourceLocation location, boolean fallback) throws IOException
-     {
--        return !fallback && !getResourcePack().resourceExists(location) ? null : minecraft.getResourceManager().getResource(location);
-+        return !fallback && !getResourcePack().func_110589_b(location) ? null : minecraft.func_110442_L().func_110536_a(location);
-     }
- 
-     public static boolean hasResource(ResourceLocation location)
-@@ -646,7 +644,7 @@
-     {
-         try
-         {
--            Resource e = resourceManager.getResource(location);
-+            Resource e = resourceManager.func_110536_a(location);
-             return e != null;
-         }
-         catch (IOException var3)
-@@ -657,8 +655,8 @@
- 
-     public static ResourcePack getResourcePack()
-     {
--        ResourcePackRepository rep = minecraft.getResourcePackRepository();
--        List entries = rep.getRepositoryEntries();
-+        ResourcePackRepository rep = minecraft.func_110438_M();
-+        List entries = rep.func_110613_c();
- 
-         if (entries != null && entries.size() > 0)
-         {
-@@ -666,23 +664,23 @@
- 
-             if (entry == null)
-             {
--                return rep.rprDefaultResourcePack;
-+                return rep.field_110620_b;
-             }
-             else
-             {
--                ResourcePack rp = entry.getResourcePack();
-+                ResourcePack rp = entry.func_110514_c();
-                 return rp;
-             }
-         }
-         else
-         {
--            return rep.rprDefaultResourcePack;
-+            return rep.field_110620_b;
-         }
-     }
- 
-     public static ResourcePack getDefaultResourcePack()
-     {
--        return minecraft.getResourcePackRepository().rprDefaultResourcePack;
-+        return minecraft.func_110438_M().field_110620_b;
-     }
- 
-     public static RenderGlobal getRenderGlobal()
-@@ -721,15 +719,12 @@
-                     case 2:
-                         --z;
-                         break;
--
-                     case 3:
-                         ++z;
-                         break;
--
-                     case 4:
-                         --x;
-                         break;
--
-                     case 5:
-                         ++x;
-                 }
-@@ -761,15 +756,12 @@
-                     case 2:
-                         --z;
-                         break;
--
-                     case 3:
-                         ++z;
-                         break;
--
-                     case 4:
-                         --x;
-                         break;
--
-                     case 5:
-                         ++x;
-                 }
-@@ -1363,7 +1355,7 @@
-                 }
-             }
- 
--            if (Util.getOSType() != EnumOS.MACOS)
-+            if (Util.func_110647_a() != EnumOS.MACOS)
-             {
-                 try
-                 {
-@@ -1433,27 +1425,7 @@
+@@ -1433,27 +1433,7 @@
                  }
  
                  Display.setDisplayModeAndFullscreen(newMode);

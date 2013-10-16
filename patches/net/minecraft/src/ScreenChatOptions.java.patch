@@ -1,0 +1,61 @@
+--- a/net/minecraft/src/ScreenChatOptions.java
++++ b/net/minecraft/src/ScreenChatOptions.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.src;
+ 
++import com.mtbs3d.minecrift.settings.VRSettings;
++
+ public class ScreenChatOptions extends GuiScreen
+ {
+     /** An array of all EnumOptions which are to do with chat. */
+@@ -21,6 +23,29 @@
+         this.theSettings = par2GameSettings;
+     }
+ 
++    class GuiVRSlider extends GuiSlider {
++
++    	private EnumOptions vrOption;
++		public GuiVRSlider(int par1, int par2, int par3,
++				EnumOptions par4EnumOptions, String par5Str, float par6) {
++			super(par1, par2, par3, par4EnumOptions, par5Str, par6);
++			vrOption = par4EnumOptions;
++		}
++
++	    protected void mouseDragged(Minecraft par1Minecraft, int par2, int par3)
++	    {
++	    	super.mouseDragged(par1Minecraft, par2, par3);
++	    	VRSettings.inst.setOptionFloatValue(vrOption, sliderValue);
++            this.displayString = par1Minecraft.vrSettings.getKeyBinding(this.vrOption);
++	    }
++	    public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3) {
++	    	boolean ret =  super.mousePressed(par1Minecraft, par2, par3);
++	    	VRSettings.inst.setOptionFloatValue(vrOption, sliderValue);
++            this.displayString = par1Minecraft.vrSettings.getKeyBinding(this.vrOption);
++	    	return ret;
++	    }
++    }
++    
+     /**
+      * Adds the buttons (and other controls) to the screen in question.
+      */
+@@ -49,6 +74,11 @@
+ 
+             ++var1;
+         }
++        
++        this.buttonList.add(new GuiVRSlider(300, this.width / 2 - 155 + var1 % 2 * 160, this.height / 6 + 24 * (var1 >> 1), EnumOptions.CHAT_OFFSET_X, VRSettings.inst.getKeyBinding(EnumOptions.CHAT_OFFSET_X), VRSettings.inst.getOptionFloatValue(EnumOptions.CHAT_OFFSET_X)));
++        ++var1;
++        this.buttonList.add(new GuiVRSlider(301, this.width / 2 - 155 + var1 % 2 * 160, this.height / 6 + 24 * (var1 >> 1), EnumOptions.CHAT_OFFSET_Y, VRSettings.inst.getKeyBinding(EnumOptions.CHAT_OFFSET_Y), VRSettings.inst.getOptionFloatValue(EnumOptions.CHAT_OFFSET_Y)));
++        ++var1;
+ 
+         if (var1 % 2 == 1)
+         {
+@@ -76,7 +106,7 @@
+             ++var1;
+         }
+ 
+-        this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, I18n.getString("gui.done")));
++        this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 192, I18n.getString("gui.done")));
+     }
+ 
+     /**

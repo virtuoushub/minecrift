@@ -1,12 +1,6 @@
 --- a/net/minecraft/src/ThreadDownloadImage.java
 +++ b/net/minecraft/src/ThreadDownloadImage.java
-@@ -25,29 +25,28 @@
-         try
-         {
-             URL e = new URL(this.urlStr);
--            conn = (HttpURLConnection)e.openConnection(Minecraft.getMinecraft().getProxy());
-+            conn = (HttpURLConnection)e.openConnection(Minecraft.getMinecraft().func_110437_J());
-             conn.setDoInput(true);
+@@ -30,24 +30,23 @@
              conn.setDoOutput(false);
              conn.connect();
  
@@ -26,7 +20,7 @@
 -            if (this.imageBuffer != null)
 -            {
 -                var2 = this.imageBuffer.parseUserSkin(var2);
-+                this.parent.func_110556_a(var2);
++                this.parent.getBufferedImage(var2);
 +                return;
              }
 -
