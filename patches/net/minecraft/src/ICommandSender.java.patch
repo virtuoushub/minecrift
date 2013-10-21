@@ -1,9 +1,0 @@
---- a/net/minecraft/src/ICommandSender.java
-+++ b/net/minecraft/src/ICommandSender.java
-@@ -19,5 +19,5 @@
-      */
-     ChunkCoordinates getPlayerCoordinates();
- 
--    World getEntityWorld();
-+    World func_130014_f_();
- }

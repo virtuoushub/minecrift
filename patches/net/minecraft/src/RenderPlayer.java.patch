@@ -1,11 +1,6 @@
 --- a/net/minecraft/src/RenderPlayer.java
 +++ b/net/minecraft/src/RenderPlayer.java
-@@ -4,10 +4,13 @@
- 
- public class RenderPlayer extends RendererLivingEntity
- {
--    private static final ResourceLocation steveTextures = new ResourceLocation("textures/entity/steve.png");
-+    private static final ResourceLocation field_110826_a = new ResourceLocation("textures/entity/steve.png");
+@@ -8,6 +8,9 @@
      private ModelBiped modelBipedMain;
      private ModelBiped modelArmorChestplate;
      private ModelBiped modelArmor;
@@ -30,42 +25,6 @@
      /**
       * Set the specified armor model as the player model. Args: player, armorSlot, partialTick
       */
-@@ -31,7 +42,7 @@
-             if (var5 instanceof ItemArmor)
-             {
-                 ItemArmor var6 = (ItemArmor)var5;
--                this.bindTexture(RenderBiped.func_110857_a(var6, par2));
-+                this.func_110776_a(RenderBiped.func_110857_a(var6, par2));
-                 ModelBiped var7 = par2 == 2 ? this.modelArmor : this.modelArmorChestplate;
-                 var7.bipedHead.showModel = par2 == 0;
-                 var7.bipedHeadwear.showModel = par2 == 0;
-@@ -86,7 +97,7 @@
- 
-             if (var5 instanceof ItemArmor)
-             {
--                this.bindTexture(RenderBiped.func_110858_a((ItemArmor)var5, par2, "overlay"));
-+                this.func_110776_a(RenderBiped.func_110858_a((ItemArmor)var5, par2, "overlay"));
-                 float var6 = 1.0F;
-                 GL11.glColor3f(var6, var6, var6);
-             }
-@@ -122,7 +133,7 @@
-             var14 -= 0.125D;
-         }
- 
--        super.doRenderLiving(par1AbstractClientPlayer, par2, var14, par6, par8, par9);
-+        super.func_130000_a(par1AbstractClientPlayer, par2, var14, par6, par8, par9);
-         this.modelArmorChestplate.aimedBow = this.modelArmor.aimedBow = this.modelBipedMain.aimedBow = false;
-         this.modelArmorChestplate.isSneak = this.modelArmor.isSneak = this.modelBipedMain.isSneak = false;
-         this.modelArmorChestplate.heldItemRight = this.modelArmor.heldItemRight = this.modelBipedMain.heldItemRight = 0;
-@@ -130,7 +141,7 @@
- 
-     protected ResourceLocation func_110817_a(AbstractClientPlayer par1AbstractClientPlayer)
-     {
--        return par1AbstractClientPlayer.getLocationSkin();
-+        return par1AbstractClientPlayer.func_110306_p();
-     }
- 
-     /**
 @@ -150,9 +161,17 @@
              this.modelBipedMain.bipedHead.postRender(0.0625F);
              float var5;
@@ -86,35 +45,6 @@
                  {
                      var5 = 0.625F;
                      GL11.glTranslatef(0.0F, -0.25F, 0.0F);
-@@ -179,9 +198,9 @@
-             GL11.glPopMatrix();
-         }
- 
--        if (par1AbstractClientPlayer.getCommandSenderName().equals("deadmau5") && par1AbstractClientPlayer.getTextureSkin().isTextureUploaded())
-+        if (par1AbstractClientPlayer.getCommandSenderName().equals("deadmau5") && par1AbstractClientPlayer.func_110309_l().func_110557_a())
-         {
--            this.bindTexture(par1AbstractClientPlayer.getLocationSkin());
-+            this.func_110776_a(par1AbstractClientPlayer.func_110306_p());
- 
-             for (int var23 = 0; var23 < 2; ++var23)
-             {
-@@ -201,14 +220,14 @@
-             }
-         }
- 
--        boolean var24 = par1AbstractClientPlayer.getTextureCape().isTextureUploaded();
-+        boolean var24 = par1AbstractClientPlayer.func_110310_o().func_110557_a();
-         boolean var25 = !par1AbstractClientPlayer.isInvisible();
-         boolean var26 = !par1AbstractClientPlayer.getHideCape();
-         float var14;
- 
-         if (var24 && var25 && var26)
-         {
--            this.bindTexture(par1AbstractClientPlayer.getLocationCape());
-+            this.func_110776_a(par1AbstractClientPlayer.func_110303_q());
-             GL11.glPushMatrix();
-             GL11.glTranslatef(0.0F, 0.0F, 0.125F);
-             double var29 = par1AbstractClientPlayer.field_71091_bM + (par1AbstractClientPlayer.field_71094_bP - par1AbstractClientPlayer.field_71091_bM) * (double)par2 - (par1AbstractClientPlayer.prevPosX + (par1AbstractClientPlayer.posX - par1AbstractClientPlayer.prevPosX) * (double)par2);
 @@ -258,6 +277,7 @@
          if (var28 != null)
          {
@@ -137,27 +67,3 @@
                  {
                      int var11 = var28.getItem().getColorFromItemStack(var28, var33);
                      var32 = (float)(var11 >> 16 & 255) / 255.0F;
-@@ -475,15 +500,12 @@
-         this.renderPlayerSleep((AbstractClientPlayer)par1EntityLivingBase, par2, par4, par6);
-     }
- 
--    public void doRenderLiving(EntityLivingBase par1EntityLivingBase, double par2, double par4, double par6, float par8, float par9)
-+    public void func_130000_a(EntityLivingBase par1EntityLivingBase, double par2, double par4, double par6, float par8, float par9)
-     {
-         this.func_130009_a((AbstractClientPlayer)par1EntityLivingBase, par2, par4, par6, par8, par9);
-     }
- 
--    /**
--     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
--     */
--    protected ResourceLocation getEntityTexture(Entity par1Entity)
-+    protected ResourceLocation func_110775_a(Entity par1Entity)
-     {
-         return this.func_110817_a((AbstractClientPlayer)par1Entity);
-     }
-@@ -498,4 +520,5 @@
-     {
-         this.func_130009_a((AbstractClientPlayer)par1Entity, par2, par4, par6, par8, par9);
-     }
-+
- }

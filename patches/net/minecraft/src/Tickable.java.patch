@@ -1,9 +1,0 @@
---- a/net/minecraft/src/Tickable.java
-+++ b/net/minecraft/src/Tickable.java
-@@ -2,5 +2,5 @@
- 
- public interface Tickable
- {
--    void tick();
-+    void func_110550_d();
- }

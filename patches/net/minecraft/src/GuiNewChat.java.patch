@@ -38,12 +38,3 @@
                  GL11.glScalef(var7, var7, 1.0F);
                  int var9;
                  int var11;
-@@ -303,7 +311,7 @@
-      */
-     public void addTranslatedMessage(String par1Str, Object ... par2ArrayOfObj)
-     {
--        this.printChatMessage(I18n.getStringParams(par1Str, par2ArrayOfObj));
-+        this.printChatMessage(I18n.func_135052_a(par1Str, par2ArrayOfObj));
-     }
- 
-     /**

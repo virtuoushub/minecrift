@@ -8,7 +8,7 @@
  public class ScreenChatOptions extends GuiScreen
  {
      /** An array of all EnumOptions which are to do with chat. */
-@@ -21,14 +23,37 @@
+@@ -21,6 +23,29 @@
          this.theSettings = par2GameSettings;
      }
  
@@ -38,16 +38,6 @@
      /**
       * Adds the buttons (and other controls) to the screen in question.
       */
-     public void initGui()
-     {
-         int var1 = 0;
--        this.theChatOptions = I18n.getString("options.chat.title");
--        this.field_82268_n = I18n.getString("options.multiplayer.title");
-+        this.theChatOptions = I18n.func_135053_a("options.chat.title");
-+        this.field_82268_n = I18n.func_135053_a("options.multiplayer.title");
-         EnumOptions[] var2 = allScreenChatOptions;
-         int var3 = var2.length;
-         int var4;
 @@ -49,6 +74,11 @@
  
              ++var1;
@@ -65,7 +55,7 @@
          }
  
 -        this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, I18n.getString("gui.done")));
-+        this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 192, I18n.func_135053_a("gui.done")));
++        this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 192, I18n.getString("gui.done")));
      }
  
      /**

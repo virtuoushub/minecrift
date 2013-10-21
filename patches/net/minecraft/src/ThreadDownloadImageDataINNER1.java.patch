@@ -1,41 +1,35 @@
 --- a/net/minecraft/src/ThreadDownloadImageDataINNER1.java
 +++ b/net/minecraft/src/ThreadDownloadImageDataINNER1.java
-@@ -7,11 +7,11 @@
- 
- class ThreadDownloadImageDataINNER1 extends Thread
- {
--    final ThreadDownloadImageData theThreadDownloadImageData;
-+    final ThreadDownloadImageData field_110932_a;
- 
-     ThreadDownloadImageDataINNER1(ThreadDownloadImageData par1ThreadDownloadImageData)
-     {
--        this.theThreadDownloadImageData = par1ThreadDownloadImageData;
-+        this.field_110932_a = par1ThreadDownloadImageData;
-     }
- 
-     public void run()
-@@ -20,7 +20,7 @@
- 
-         try
-         {
--            var1 = (HttpURLConnection)(new URL(ThreadDownloadImageData.getImageUrl(this.theThreadDownloadImageData))).openConnection(Minecraft.getMinecraft().getProxy());
-+            var1 = (HttpURLConnection)(new URL(ThreadDownloadImageData.func_110554_a(this.field_110932_a))).openConnection(Minecraft.getMinecraft().func_110437_J());
-             var1.setDoInput(true);
+@@ -25,23 +25,23 @@
              var1.setDoOutput(false);
              var1.connect();
-@@ -29,12 +29,12 @@
+ 
+-            if (var1.getResponseCode() / 100 == 2)
++            if (var1.getResponseCode() / 100 != 2)
              {
-                 BufferedImage var2 = ImageIO.read(var1.getInputStream());
+-                BufferedImage var2 = ImageIO.read(var1.getInputStream());
++                return;
++            }
  
 -                if (ThreadDownloadImageData.getImageBuffer(this.theThreadDownloadImageData) != null)
-+                if (ThreadDownloadImageData.func_110555_b(this.field_110932_a) != null)
-                 {
+-                {
 -                    var2 = ThreadDownloadImageData.getImageBuffer(this.theThreadDownloadImageData).parseUserSkin(var2);
-+                    var2 = ThreadDownloadImageData.func_110555_b(this.field_110932_a).parseUserSkin(var2);
-                 }
+-                }
++            BufferedImage var2 = ImageIO.read(var1.getInputStream());
  
 -                this.theThreadDownloadImageData.getBufferedImage(var2);
-+                this.field_110932_a.func_110556_a(var2);
-                 return;
+-                return;
++            if (ThreadDownloadImageData.getImageBuffer(this.theThreadDownloadImageData) != null)
++            {
++                var2 = ThreadDownloadImageData.getImageBuffer(this.theThreadDownloadImageData).parseUserSkin(var2);
              }
++
++            this.theThreadDownloadImageData.getBufferedImage(var2);
          }
+         catch (Exception var6)
+         {
+             var6.printStackTrace();
+-            return;
+         }
+         finally
+         {
