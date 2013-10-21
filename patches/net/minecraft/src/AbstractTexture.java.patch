@@ -1,0 +1,23 @@
+--- a/net/minecraft/src/AbstractTexture.java
++++ b/net/minecraft/src/AbstractTexture.java
+@@ -2,15 +2,15 @@
+ 
+ public abstract class AbstractTexture implements TextureObject
+ {
+-    protected int glTextureId = -1;
++    protected int field_110553_a = -1;
+ 
+-    public int getGlTextureId()
++    public int func_110552_b()
+     {
+-        if (this.glTextureId == -1)
++        if (this.field_110553_a == -1)
+         {
+-            this.glTextureId = TextureUtil.glGenTextures();
++            this.field_110553_a = TextureUtil.func_110996_a();
+         }
+ 
+-        return this.glTextureId;
++        return this.field_110553_a;
+     }
+ }

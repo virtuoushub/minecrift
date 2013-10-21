@@ -1,0 +1,12 @@
+--- a/net/minecraft/src/MetadataSectionSerializer.java
++++ b/net/minecraft/src/MetadataSectionSerializer.java
+@@ -4,8 +4,5 @@
+ 
+ public interface MetadataSectionSerializer extends JsonDeserializer
+ {
+-    /**
+-     * The name of this section type as it appears in JSON.
+-     */
+-    String getSectionName();
++    String func_110483_a();
+ }

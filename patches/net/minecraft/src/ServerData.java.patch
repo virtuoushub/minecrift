@@ -1,0 +1,15 @@
+--- a/net/minecraft/src/ServerData.java
++++ b/net/minecraft/src/ServerData.java
+@@ -19,10 +19,10 @@
+ 
+     /** last server ping that showed up in the server browser */
+     public long pingToServer;
+-    public int field_82821_f = 78;
++    public int field_82821_f = 74;
+ 
+     /** Game version for this server. */
+-    public String gameVersion = "1.6.4";
++    public String gameVersion = "1.6.2";
+     public boolean field_78841_f;
+     private boolean field_78842_g = true;
+     private boolean acceptsTextures;

@@ -1,0 +1,132 @@
+--- a/net/minecraft/src/RenderItem.java
++++ b/net/minecraft/src/RenderItem.java
+@@ -6,7 +6,7 @@
+ 
+ public class RenderItem extends Render
+ {
+-    private static final ResourceLocation RES_ITEM_GLINT = new ResourceLocation("textures/misc/enchanted_item_glint.png");
++    private static final ResourceLocation field_110798_h = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+     private RenderBlocks itemRenderBlocks = new RenderBlocks();
+ 
+     /** The RNG used in RenderItem (for bobbing itemstacks on the ground) */
+@@ -28,7 +28,7 @@
+      */
+     public void doRenderItem(EntityItem par1EntityItem, double par2, double par4, double par6, float par8, float par9)
+     {
+-        this.bindEntityTexture(par1EntityItem);
++        this.func_110777_b(par1EntityItem);
+         this.random.setSeed(187L);
+         ItemStack var10 = par1EntityItem.getEntityItem();
+ 
+@@ -179,7 +179,7 @@
+ 
+     protected ResourceLocation func_110796_a(EntityItem par1EntityItem)
+     {
+-        return this.renderManager.renderEngine.getResourceLocation(par1EntityItem.getEntityItem().getItemSpriteNumber());
++        return this.renderManager.renderEngine.func_130087_a(par1EntityItem.getEntityItem().getItemSpriteNumber());
+     }
+ 
+     /**
+@@ -191,9 +191,9 @@
+ 
+         if (par2Icon == null)
+         {
+-            TextureManager var9 = Minecraft.getMinecraft().getTextureManager();
+-            ResourceLocation var10 = var9.getResourceLocation(par1EntityItem.getEntityItem().getItemSpriteNumber());
+-            par2Icon = ((TextureMap)var9.getTexture(var10)).getAtlasSprite("missingno");
++            TextureManager var9 = Minecraft.getMinecraft().func_110434_K();
++            ResourceLocation var10 = var9.func_130087_a(par1EntityItem.getEntityItem().getItemSpriteNumber());
++            par2Icon = ((TextureMap)var9.func_110581_b(var10)).func_110572_b("missingno");
+         }
+ 
+         float var25 = ((Icon)par2Icon).getMinU();
+@@ -249,21 +249,21 @@
+ 
+                 if (var18.getItemSpriteNumber() == 0 && Block.blocksList[var18.itemID] != null)
+                 {
+-                    this.bindTexture(TextureMap.locationBlocksTexture);
++                    this.func_110776_a(TextureMap.field_110575_b);
+                 }
+                 else
+                 {
+-                    this.bindTexture(TextureMap.locationItemsTexture);
++                    this.func_110776_a(TextureMap.field_110576_c);
+                 }
+ 
+                 GL11.glColor4f(par5, par6, par7, 1.0F);
+-                ItemRenderer.renderItemIn2D(var8, var26, var11, var25, var12, ((Icon)par2Icon).getIconWidth(), ((Icon)par2Icon).getIconHeight(), var16);
++                ItemRenderer.renderItemIn2D(var8, var26, var11, var25, var12, ((Icon)par2Icon).getOriginX(), ((Icon)par2Icon).getOriginY(), var16);
+ 
+                 if (var18.hasEffect())
+                 {
+                     GL11.glDepthFunc(GL11.GL_EQUAL);
+                     GL11.glDisable(GL11.GL_LIGHTING);
+-                    this.renderManager.renderEngine.bindTexture(RES_ITEM_GLINT);
++                    this.renderManager.renderEngine.func_110577_a(field_110798_h);
+                     GL11.glEnable(GL11.GL_BLEND);
+                     GL11.glBlendFunc(GL11.GL_SRC_COLOR, GL11.GL_ONE);
+                     float var21 = 0.76F;
+@@ -333,14 +333,14 @@
+         int var6 = par3ItemStack.itemID;
+         int var7 = par3ItemStack.getItemDamage();
+         Object var8 = par3ItemStack.getIconIndex();
+-        float var17;
+-        int var18;
+         float var12;
+         float var13;
++        float var17;
++        int var18;
+ 
+         if (par3ItemStack.getItemSpriteNumber() == 0 && RenderBlocks.renderItemIn3d(Block.blocksList[var6].getRenderType()))
+         {
+-            par2TextureManager.bindTexture(TextureMap.locationBlocksTexture);
++            par2TextureManager.func_110577_a(TextureMap.field_110575_b);
+             Block var15 = Block.blocksList[var6];
+             GL11.glPushMatrix();
+             GL11.glTranslatef((float)(par4 - 2), (float)(par5 + 3), -3.0F + this.zLevel);
+@@ -368,7 +368,7 @@
+         else if (Item.itemsList[var6].requiresMultipleRenderPasses())
+         {
+             GL11.glDisable(GL11.GL_LIGHTING);
+-            par2TextureManager.bindTexture(TextureMap.locationItemsTexture);
++            par2TextureManager.func_110577_a(TextureMap.field_110576_c);
+ 
+             for (int var9 = 0; var9 <= 1; ++var9)
+             {
+@@ -391,12 +391,12 @@
+         else
+         {
+             GL11.glDisable(GL11.GL_LIGHTING);
+-            ResourceLocation var16 = par2TextureManager.getResourceLocation(par3ItemStack.getItemSpriteNumber());
+-            par2TextureManager.bindTexture(var16);
++            ResourceLocation var16 = par2TextureManager.func_130087_a(par3ItemStack.getItemSpriteNumber());
++            par2TextureManager.func_110577_a(var16);
+ 
+             if (var8 == null)
+             {
+-                var8 = ((TextureMap)Minecraft.getMinecraft().getTextureManager().getTexture(var16)).getAtlasSprite("missingno");
++                var8 = ((TextureMap)Minecraft.getMinecraft().func_110434_K().func_110581_b(var16)).func_110572_b("missingno");
+             }
+ 
+             var18 = Item.itemsList[var6].getColorFromItemStack(par3ItemStack, 0);
+@@ -430,7 +430,7 @@
+                 GL11.glDepthFunc(GL11.GL_GREATER);
+                 GL11.glDisable(GL11.GL_LIGHTING);
+                 GL11.glDepthMask(false);
+-                par2TextureManager.bindTexture(RES_ITEM_GLINT);
++                par2TextureManager.func_110577_a(field_110798_h);
+                 this.zLevel -= 50.0F;
+                 GL11.glEnable(GL11.GL_BLEND);
+                 GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_DST_COLOR);
+@@ -550,10 +550,7 @@
+         var6.draw();
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+         return this.func_110796_a((EntityItem)par1Entity);
+     }

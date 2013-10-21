@@ -1,0 +1,104 @@
+--- a/net/minecraft/src/SimpleResource.java
++++ b/net/minecraft/src/SimpleResource.java
+@@ -11,49 +11,49 @@
+ 
+ public class SimpleResource implements Resource
+ {
+-    private final Map mapMetadataSections = Maps.newHashMap();
+-    private final ResourceLocation srResourceLocation;
+-    private final InputStream resourceInputStream;
+-    private final InputStream mcmetaInputStream;
+-    private final MetadataSerializer srMetadataSerializer;
+-    private boolean mcmetaJsonChecked;
+-    private JsonObject mcmetaJson;
++    private final Map field_110535_a = Maps.newHashMap();
++    private final ResourceLocation field_110533_b;
++    private final InputStream field_110534_c;
++    private final InputStream field_110531_d;
++    private final MetadataSerializer field_110532_e;
++    private boolean field_110529_f;
++    private JsonObject field_110530_g;
+ 
+     public SimpleResource(ResourceLocation par1ResourceLocation, InputStream par2InputStream, InputStream par3InputStream, MetadataSerializer par4MetadataSerializer)
+     {
+-        this.srResourceLocation = par1ResourceLocation;
+-        this.resourceInputStream = par2InputStream;
+-        this.mcmetaInputStream = par3InputStream;
+-        this.srMetadataSerializer = par4MetadataSerializer;
++        this.field_110533_b = par1ResourceLocation;
++        this.field_110534_c = par2InputStream;
++        this.field_110531_d = par3InputStream;
++        this.field_110532_e = par4MetadataSerializer;
+     }
+ 
+-    public InputStream getInputStream()
++    public InputStream func_110527_b()
+     {
+-        return this.resourceInputStream;
++        return this.field_110534_c;
+     }
+ 
+-    public boolean hasMetadata()
++    public boolean func_110528_c()
+     {
+-        return this.mcmetaInputStream != null;
++        return this.field_110531_d != null;
+     }
+ 
+-    public MetadataSection getMetadata(String par1Str)
++    public MetadataSection func_110526_a(String par1Str)
+     {
+-        if (!this.hasMetadata())
++        if (!this.func_110528_c())
+         {
+             return null;
+         }
+         else
+         {
+-            if (this.mcmetaJson == null && !this.mcmetaJsonChecked)
++            if (this.field_110530_g == null && !this.field_110529_f)
+             {
+-                this.mcmetaJsonChecked = true;
++                this.field_110529_f = true;
+                 BufferedReader var2 = null;
+ 
+                 try
+                 {
+-                    var2 = new BufferedReader(new InputStreamReader(this.mcmetaInputStream));
+-                    this.mcmetaJson = (new JsonParser()).parse(var2).getAsJsonObject();
++                    var2 = new BufferedReader(new InputStreamReader(this.field_110531_d));
++                    this.field_110530_g = (new JsonParser()).parse(var2).getAsJsonObject();
+                 }
+                 finally
+                 {
+@@ -61,11 +61,11 @@
+                 }
+             }
+ 
+-            MetadataSection var6 = (MetadataSection)this.mapMetadataSections.get(par1Str);
++            MetadataSection var6 = (MetadataSection)this.field_110535_a.get(par1Str);
+ 
+             if (var6 == null)
+             {
+-                var6 = this.srMetadataSerializer.parseMetadataSection(par1Str, this.mcmetaJson);
++                var6 = this.field_110532_e.func_110503_a(par1Str, this.field_110530_g);
+             }
+ 
+             return var6;
+@@ -81,7 +81,7 @@
+         else if (par1Obj instanceof SimpleResource)
+         {
+             SimpleResource var2 = (SimpleResource)par1Obj;
+-            return this.srResourceLocation != null ? this.srResourceLocation.equals(var2.srResourceLocation) : var2.srResourceLocation == null;
++            return this.field_110533_b != null ? this.field_110533_b.equals(var2.field_110533_b) : var2.field_110533_b == null;
+         }
+         else
+         {
+@@ -91,6 +91,6 @@
+ 
+     public int hashCode()
+     {
+-        return this.srResourceLocation == null ? 0 : this.srResourceLocation.hashCode();
++        return this.field_110533_b == null ? 0 : this.field_110533_b.hashCode();
+     }
+ }

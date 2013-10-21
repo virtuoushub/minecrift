@@ -1,0 +1,15 @@
+--- a/net/minecraft/src/ResourceManager.java
++++ b/net/minecraft/src/ResourceManager.java
+@@ -6,9 +6,9 @@
+ 
+ public interface ResourceManager
+ {
+-    Set getResourceDomains();
++    Set func_135055_a();
+ 
+-    Resource getResource(ResourceLocation var1) throws IOException;
++    Resource func_110536_a(ResourceLocation var1) throws IOException;
+ 
+-    List getAllResources(ResourceLocation var1) throws IOException;
++    List func_135056_b(ResourceLocation var1) throws IOException;
+ }

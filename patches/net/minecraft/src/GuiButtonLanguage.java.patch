@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/GuiButtonLanguage.java
++++ b/net/minecraft/src/GuiButtonLanguage.java
+@@ -16,7 +16,7 @@
+     {
+         if (this.drawButton)
+         {
+-            par1Minecraft.getTextureManager().bindTexture(GuiButton.buttonTextures);
++            par1Minecraft.func_110434_K().func_110577_a(GuiButton.field_110332_a);
+             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+             boolean var4 = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+             int var5 = 106;

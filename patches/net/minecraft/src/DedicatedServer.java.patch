@@ -1,0 +1,67 @@
+--- a/net/minecraft/src/DedicatedServer.java
++++ b/net/minecraft/src/DedicatedServer.java
+@@ -36,7 +36,7 @@
+         DedicatedServerCommandThread var1 = new DedicatedServerCommandThread(this);
+         var1.setDaemon(true);
+         var1.start();
+-        this.getLogAgent().logInfo("Starting minecraft server version 1.6.4");
++        this.getLogAgent().logInfo("Starting minecraft server version 1.6.2");
+ 
+         if (Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L)
+         {
+@@ -62,8 +62,7 @@
+         this.setAllowFlight(this.settings.getBooleanProperty("allow-flight", false));
+         this.setTexturePack(this.settings.getProperty("texture-pack", ""));
+         this.setMOTD(this.settings.getProperty("motd", "A Minecraft Server"));
+-        this.setForceGamemode(this.settings.getBooleanProperty("force-gamemode", false));
+-        this.func_143006_e(this.settings.getIntProperty("player-idle-timeout", 0));
++        this.func_104055_i(this.settings.getBooleanProperty("force-gamemode", false));
+ 
+         if (this.settings.getIntProperty("difficulty", 1) < 0)
+         {
+@@ -230,8 +229,8 @@
+     public CrashReport addServerInfoToCrashReport(CrashReport par1CrashReport)
+     {
+         par1CrashReport = super.addServerInfoToCrashReport(par1CrashReport);
+-        par1CrashReport.getCategory().addCrashSectionCallable("Is Modded", new CallableType(this));
+-        par1CrashReport.getCategory().addCrashSectionCallable("Type", new CallableServerType(this));
++        par1CrashReport.func_85056_g().addCrashSectionCallable("Is Modded", new CallableType(this));
++        par1CrashReport.func_85056_g().addCrashSectionCallable("Type", new CallableServerType(this));
+         return par1CrashReport;
+     }
+ 
+@@ -381,10 +380,7 @@
+         return this.settings.getIntProperty("spawn-protection", super.getSpawnProtectionSize());
+     }
+ 
+-    /**
+-     * Returns true if a player does not have permission to edit the block at the given coordinates.
+-     */
+-    public boolean isBlockProtected(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
++    public boolean func_96290_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+     {
+         if (par1World.provider.dimensionId != 0)
+         {
+@@ -394,7 +390,7 @@
+         {
+             return false;
+         }
+-        else if (this.getDedicatedPlayerList().isPlayerOpped(par5EntityPlayer.getCommandSenderName()))
++        else if (this.getDedicatedPlayerList().areCommandsAllowed(par5EntityPlayer.getCommandSenderName()))
+         {
+             return false;
+         }
+@@ -422,13 +418,6 @@
+         return this.settings.getIntProperty("op-permission-level", 4);
+     }
+ 
+-    public void func_143006_e(int par1)
+-    {
+-        super.func_143006_e(par1);
+-        this.settings.setProperty("player-idle-timeout", Integer.valueOf(par1));
+-        this.saveProperties();
+-    }
+-
+     public ServerConfigurationManager getConfigurationManager()
+     {
+         return this.getDedicatedPlayerList();

@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/GuiButtonNextPage.java
++++ b/net/minecraft/src/GuiButtonNextPage.java
+@@ -24,7 +24,7 @@
+         {
+             boolean var4 = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-            par1Minecraft.getTextureManager().bindTexture(GuiScreenBook.func_110404_g());
++            par1Minecraft.func_110434_K().func_110577_a(GuiScreenBook.func_110404_g());
+             int var5 = 0;
+             int var6 = 192;
+ 

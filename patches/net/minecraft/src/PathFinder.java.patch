@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/PathFinder.java
++++ b/net/minecraft/src/PathFinder.java
+@@ -235,7 +235,7 @@
+                         break;
+                     }
+ 
+-                    if (var9++ >= par1Entity.getMaxSafePointTries())
++                    if (var9++ >= par1Entity.func_82143_as())
+                     {
+                         return null;
+                     }

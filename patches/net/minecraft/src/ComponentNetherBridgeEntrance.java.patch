@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ComponentNetherBridgeEntrance.java
++++ b/net/minecraft/src/ComponentNetherBridgeEntrance.java
+@@ -5,8 +5,6 @@
+ 
+ public class ComponentNetherBridgeEntrance extends ComponentNetherBridgePiece
+ {
+-    public ComponentNetherBridgeEntrance() {}
+-
+     public ComponentNetherBridgeEntrance(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+     {
+         super(par1);

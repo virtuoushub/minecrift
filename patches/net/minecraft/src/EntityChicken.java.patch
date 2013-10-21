@@ -1,0 +1,18 @@
+--- a/net/minecraft/src/EntityChicken.java
++++ b/net/minecraft/src/EntityChicken.java
+@@ -34,11 +34,11 @@
+         return true;
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(4.0D);
+-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setAttribute(0.25D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(4.0D);
++        this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.25D);
+     }
+ 
+     /**

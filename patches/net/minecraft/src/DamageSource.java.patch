@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/DamageSource.java
++++ b/net/minecraft/src/DamageSource.java
+@@ -85,7 +85,7 @@
+ 
+     public static DamageSource setExplosionSource(Explosion par0Explosion)
+     {
+-        return par0Explosion != null && par0Explosion.getExplosivePlacedBy() != null ? (new EntityDamageSource("explosion.player", par0Explosion.getExplosivePlacedBy())).setDifficultyScaled().setExplosion() : (new DamageSource("explosion")).setDifficultyScaled().setExplosion();
++        return par0Explosion != null && par0Explosion.func_94613_c() != null ? (new EntityDamageSource("explosion.player", par0Explosion.func_94613_c())).setDifficultyScaled().setExplosion() : (new DamageSource("explosion")).setDifficultyScaled().setExplosion();
+     }
+ 
+     /**
+@@ -179,7 +179,7 @@
+         EntityLivingBase var2 = par1EntityLivingBase.func_94060_bK();
+         String var3 = "death.attack." + this.damageType;
+         String var4 = var3 + ".player";
+-        return var2 != null && StatCollector.func_94522_b(var4) ? ChatMessageComponent.createFromTranslationWithSubstitutions(var4, new Object[] {par1EntityLivingBase.getTranslatedEntityName(), var2.getTranslatedEntityName()}): ChatMessageComponent.createFromTranslationWithSubstitutions(var3, new Object[] {par1EntityLivingBase.getTranslatedEntityName()});
++        return var2 != null && StatCollector.func_94522_b(var4) ? ChatMessageComponent.func_111082_b(var4, new Object[] {par1EntityLivingBase.getTranslatedEntityName(), var2.getTranslatedEntityName()}): ChatMessageComponent.func_111082_b(var3, new Object[] {par1EntityLivingBase.getTranslatedEntityName()});
+     }
+ 
+     /**

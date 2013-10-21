@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/TileEntity.java
++++ b/net/minecraft/src/TileEntity.java
+@@ -163,7 +163,7 @@
+         if (this.worldObj != null)
+         {
+             this.blockMetadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+-            this.worldObj.markTileEntityChunkModified(this.xCoord, this.yCoord, this.zCoord, this);
++            this.worldObj.updateTileEntityChunkAndDoNothing(this.xCoord, this.yCoord, this.zCoord, this);
+ 
+             if (this.getBlockType() != null)
+             {
+@@ -254,7 +254,7 @@
+     public void func_85027_a(CrashReportCategory par1CrashReportCategory)
+     {
+         par1CrashReportCategory.addCrashSectionCallable("Name", new CallableTileEntityName(this));
+-        CrashReportCategory.addBlockCrashInfo(par1CrashReportCategory, this.xCoord, this.yCoord, this.zCoord, this.getBlockType().blockID, this.getBlockMetadata());
++        CrashReportCategory.func_85068_a(par1CrashReportCategory, this.xCoord, this.yCoord, this.zCoord, this.getBlockType().blockID, this.getBlockMetadata());
+         par1CrashReportCategory.addCrashSectionCallable("Actual block type", new CallableTileEntityID(this));
+         par1CrashReportCategory.addCrashSectionCallable("Actual block data value", new CallableTileEntityData(this));
+     }

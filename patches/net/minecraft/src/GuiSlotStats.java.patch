@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/GuiSlotStats.java
++++ b/net/minecraft/src/GuiSlotStats.java
+@@ -194,7 +194,7 @@
+                     var9 = this.func_77258_c(2);
+                 }
+ 
+-                var9 = ("" + I18n.getString(var9)).trim();
++                var9 = ("" + I18n.func_135053_a(var9)).trim();
+ 
+                 if (var9.length() > 0)
+                 {
+@@ -213,7 +213,7 @@
+         if (par1StatCrafting != null)
+         {
+             Item var4 = Item.itemsList[par1StatCrafting.getItemID()];
+-            String var5 = ("" + I18n.getString(var4.getUnlocalizedName() + ".name")).trim();
++            String var5 = ("" + I18n.func_135053_a(var4.getUnlocalizedName() + ".name")).trim();
+ 
+             if (var5.length() > 0)
+             {

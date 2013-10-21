@@ -1,0 +1,29 @@
+--- a/net/minecraft/src/DemoWorldManager.java
++++ b/net/minecraft/src/DemoWorldManager.java
+@@ -36,7 +36,7 @@
+         {
+             if (var3 <= 6L)
+             {
+-                this.thisPlayerMP.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("demo.day." + var3));
++                this.thisPlayerMP.sendChatToPlayer(ChatMessageComponent.func_111077_e("demo.day." + var3));
+             }
+         }
+         else if (var3 == 1L)
+@@ -56,7 +56,7 @@
+         }
+         else if (var3 == 5L && var1 % 24000L == 22000L)
+         {
+-            this.thisPlayerMP.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("demo.day.warning"));
++            this.thisPlayerMP.sendChatToPlayer(ChatMessageComponent.func_111077_e("demo.day.warning"));
+         }
+     }
+ 
+@@ -67,7 +67,7 @@
+     {
+         if (this.field_73104_e > 100)
+         {
+-            this.thisPlayerMP.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("demo.reminder"));
++            this.thisPlayerMP.sendChatToPlayer(ChatMessageComponent.func_111077_e("demo.reminder"));
+             this.field_73104_e = 0;
+         }
+     }

@@ -1,0 +1,23 @@
+--- a/net/minecraft/src/SoundManagerINNER1.java
++++ b/net/minecraft/src/SoundManagerINNER1.java
+@@ -4,16 +4,16 @@
+ 
+ class SoundManagerINNER1 implements Runnable
+ {
+-    final SoundManager theSoundManager;
++    final SoundManager field_130090_a;
+ 
+     SoundManagerINNER1(SoundManager par1SoundManager)
+     {
+-        this.theSoundManager = par1SoundManager;
++        this.field_130090_a = par1SoundManager;
+     }
+ 
+     public void run()
+     {
+-        SoundManager.func_130080_a(this.theSoundManager, new SoundSystem());
+-        SoundManager.func_130082_a(this.theSoundManager, true);
++        SoundManager.func_130080_a(this.field_130090_a, new SoundSystem());
++        SoundManager.func_130082_a(this.field_130090_a, true);
+     }
+ }

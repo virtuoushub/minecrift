@@ -1,0 +1,28 @@
+--- a/net/minecraft/src/GuiScreenOnlineServersSubscreen.java
++++ b/net/minecraft/src/GuiScreenOnlineServersSubscreen.java
+@@ -36,20 +36,20 @@
+ 
+     private void func_104070_b()
+     {
+-        this.field_104077_b = new String[] {I18n.getString("options.difficulty.peaceful"), I18n.getString("options.difficulty.easy"), I18n.getString("options.difficulty.normal"), I18n.getString("options.difficulty.hard")};
+-        this.field_104078_c = new String[] {I18n.getString("selectWorld.gameMode.survival"), I18n.getString("selectWorld.gameMode.creative"), I18n.getString("selectWorld.gameMode.adventure")};
+-        this.field_104075_d = new String[][] {{I18n.getString("selectWorld.gameMode.survival.line1"), I18n.getString("selectWorld.gameMode.survival.line2")}, {I18n.getString("selectWorld.gameMode.creative.line1"), I18n.getString("selectWorld.gameMode.creative.line2")}, {I18n.getString("selectWorld.gameMode.adventure.line1"), I18n.getString("selectWorld.gameMode.adventure.line2")}};
++        this.field_104077_b = new String[] {I18n.func_135053_a("options.difficulty.peaceful"), I18n.func_135053_a("options.difficulty.easy"), I18n.func_135053_a("options.difficulty.normal"), I18n.func_135053_a("options.difficulty.hard")};
++        this.field_104078_c = new String[] {I18n.func_135053_a("selectWorld.gameMode.survival"), I18n.func_135053_a("selectWorld.gameMode.creative"), I18n.func_135053_a("selectWorld.gameMode.adventure")};
++        this.field_104075_d = new String[][] {{I18n.func_135053_a("selectWorld.gameMode.survival.line1"), I18n.func_135053_a("selectWorld.gameMode.survival.line2")}, {I18n.func_135053_a("selectWorld.gameMode.creative.line1"), I18n.func_135053_a("selectWorld.gameMode.creative.line2")}, {I18n.func_135053_a("selectWorld.gameMode.adventure.line1"), I18n.func_135053_a("selectWorld.gameMode.adventure.line2")}};
+     }
+ 
+     private String func_104072_c()
+     {
+-        String var1 = I18n.getString("options.difficulty");
++        String var1 = I18n.func_135053_a("options.difficulty");
+         return var1 + ": " + this.field_104077_b[this.field_104076_e];
+     }
+ 
+     private String func_104067_d()
+     {
+-        String var1 = I18n.getString("selectWorld.gameMode");
++        String var1 = I18n.func_135053_a("selectWorld.gameMode");
+         return var1 + ": " + this.field_104078_c[this.field_104073_f];
+     }
+ 

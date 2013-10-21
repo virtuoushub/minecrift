@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/GuiScreenHorseInventory.java
++++ b/net/minecraft/src/GuiScreenHorseInventory.java
+@@ -4,7 +4,7 @@
+ 
+ public class GuiScreenHorseInventory extends GuiContainer
+ {
+-    private static final ResourceLocation horseGuiTextures = new ResourceLocation("textures/gui/container/horse.png");
++    private static final ResourceLocation field_110414_t = new ResourceLocation("textures/gui/container/horse.png");
+     private IInventory field_110413_u;
+     private IInventory field_110412_v;
+     private EntityHorse field_110411_w;
+@@ -25,8 +25,8 @@
+      */
+     protected void drawGuiContainerForegroundLayer(int par1, int par2)
+     {
+-        this.fontRenderer.drawString(this.field_110412_v.isInvNameLocalized() ? this.field_110412_v.getInvName() : I18n.getString(this.field_110412_v.getInvName()), 8, 6, 4210752);
+-        this.fontRenderer.drawString(this.field_110413_u.isInvNameLocalized() ? this.field_110413_u.getInvName() : I18n.getString(this.field_110413_u.getInvName()), 8, this.ySize - 96 + 2, 4210752);
++        this.fontRenderer.drawString(this.field_110412_v.isInvNameLocalized() ? this.field_110412_v.getInvName() : I18n.func_135053_a(this.field_110412_v.getInvName()), 8, 6, 4210752);
++        this.fontRenderer.drawString(this.field_110413_u.isInvNameLocalized() ? this.field_110413_u.getInvName() : I18n.func_135053_a(this.field_110413_u.getInvName()), 8, this.ySize - 96 + 2, 4210752);
+     }
+ 
+     /**
+@@ -35,12 +35,12 @@
+     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
+     {
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-        this.mc.getTextureManager().bindTexture(horseGuiTextures);
++        this.mc.func_110434_K().func_110577_a(field_110414_t);
+         int var4 = (this.width - this.xSize) / 2;
+         int var5 = (this.height - this.ySize) / 2;
+         this.drawTexturedModalRect(var4, var5, 0, 0, this.xSize, this.ySize);
+ 
+-        if (this.field_110411_w.isChested())
++        if (this.field_110411_w.func_110261_ca())
+         {
+             this.drawTexturedModalRect(var4 + 79, var5 + 17, 0, this.ySize, 90, 54);
+         }

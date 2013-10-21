@@ -1,0 +1,27 @@
+--- a/net/minecraft/src/PlayerSelector.java
++++ b/net/minecraft/src/PlayerSelector.java
+@@ -146,7 +146,7 @@
+                 var13 = (String)var3.get("name");
+             }
+ 
+-            World var16 = var15 ? par0ICommandSender.getEntityWorld() : null;
++            World var16 = var15 ? par0ICommandSender.func_130014_f_() : null;
+             List var17;
+ 
+             if (!var4.equals("p") && !var4.equals("a"))
+@@ -308,15 +308,12 @@
+                     case 0:
+                         var5 = "x";
+                         break;
+-
+                     case 1:
+                         var5 = "y";
+                         break;
+-
+                     case 2:
+                         var5 = "z";
+                         break;
+-
+                     case 3:
+                         var5 = "r";
+                 }

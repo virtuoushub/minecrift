@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/Packet44UpdateAttributes.java
++++ b/net/minecraft/src/Packet44UpdateAttributes.java
+@@ -24,7 +24,7 @@
+         while (var3.hasNext())
+         {
+             AttributeInstance var4 = (AttributeInstance)var3.next();
+-            this.field_111004_b.add(new Packet44UpdateAttributesSnapshot(this, var4.func_111123_a().getAttributeUnlocalizedName(), var4.getBaseValue(), var4.func_111122_c()));
++            this.field_111004_b.add(new Packet44UpdateAttributesSnapshot(this, var4.func_111123_a().func_111108_a(), var4.func_111125_b(), var4.func_111122_c()));
+         }
+     }
+ 
+@@ -73,10 +73,10 @@
+             while (var4.hasNext())
+             {
+                 AttributeModifier var5 = (AttributeModifier)var4.next();
+-                par1DataOutput.writeLong(var5.getID().getMostSignificantBits());
+-                par1DataOutput.writeLong(var5.getID().getLeastSignificantBits());
+-                par1DataOutput.writeDouble(var5.getAmount());
+-                par1DataOutput.writeByte(var5.getOperation());
++                par1DataOutput.writeLong(var5.func_111167_a().getMostSignificantBits());
++                par1DataOutput.writeLong(var5.func_111167_a().getLeastSignificantBits());
++                par1DataOutput.writeDouble(var5.func_111164_d());
++                par1DataOutput.writeByte(var5.func_111169_c());
+             }
+         }
+     }

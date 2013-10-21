@@ -1,0 +1,28 @@
+--- a/net/minecraft/src/ItemLeash.java
++++ b/net/minecraft/src/ItemLeash.java
+@@ -39,7 +39,7 @@
+ 
+     public static boolean func_135066_a(EntityPlayer par0EntityPlayer, World par1World, int par2, int par3, int par4)
+     {
+-        EntityLeashKnot var5 = EntityLeashKnot.getKnotForBlock(par1World, par2, par3, par4);
++        EntityLeashKnot var5 = EntityLeashKnot.func_110130_b(par1World, par2, par3, par4);
+         boolean var6 = false;
+         double var7 = 7.0D;
+         List var9 = par1World.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getAABBPool().getAABB((double)par2 - var7, (double)par3 - var7, (double)par4 - var7, (double)par2 + var7, (double)par3 + var7, (double)par4 + var7));
+@@ -52,14 +52,14 @@
+             {
+                 EntityLiving var11 = (EntityLiving)var10.next();
+ 
+-                if (var11.getLeashed() && var11.getLeashedToEntity() == par0EntityPlayer)
++                if (var11.func_110167_bD() && var11.func_110166_bE() == par0EntityPlayer)
+                 {
+                     if (var5 == null)
+                     {
+                         var5 = EntityLeashKnot.func_110129_a(par1World, par2, par3, par4);
+                     }
+ 
+-                    var11.setLeashedToEntity(var5, true);
++                    var11.func_110162_b(var5, true);
+                     var6 = true;
+                 }
+             }

@@ -1,0 +1,21 @@
+--- a/net/minecraft/src/PackMetadataSectionSerializer.java
++++ b/net/minecraft/src/PackMetadataSectionSerializer.java
+@@ -20,15 +20,12 @@
+     public JsonElement func_110488_a(PackMetadataSection par1PackMetadataSection, Type par2Type, JsonSerializationContext par3JsonSerializationContext)
+     {
+         JsonObject var4 = new JsonObject();
+-        var4.addProperty("pack_format", Integer.valueOf(par1PackMetadataSection.getPackFormat()));
+-        var4.addProperty("description", par1PackMetadataSection.getPackDescription());
++        var4.addProperty("pack_format", Integer.valueOf(par1PackMetadataSection.func_110462_b()));
++        var4.addProperty("description", par1PackMetadataSection.func_110461_a());
+         return var4;
+     }
+ 
+-    /**
+-     * The name of this section type as it appears in JSON.
+-     */
+-    public String getSectionName()
++    public String func_110483_a()
+     {
+         return "pack";
+     }

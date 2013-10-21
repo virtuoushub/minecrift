@@ -1,0 +1,30 @@
+--- a/net/minecraft/src/ComponentNetherBridgeThrone.java
++++ b/net/minecraft/src/ComponentNetherBridgeThrone.java
+@@ -7,8 +7,6 @@
+ {
+     private boolean hasSpawner;
+ 
+-    public ComponentNetherBridgeThrone() {}
+-
+     public ComponentNetherBridgeThrone(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+     {
+         super(par1);
+@@ -16,18 +14,6 @@
+         this.boundingBox = par3StructureBoundingBox;
+     }
+ 
+-    protected void func_143011_b(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143011_b(par1NBTTagCompound);
+-        this.hasSpawner = par1NBTTagCompound.getBoolean("Mob");
+-    }
+-
+-    protected void func_143012_a(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143012_a(par1NBTTagCompound);
+-        par1NBTTagCompound.setBoolean("Mob", this.hasSpawner);
+-    }
+-
+     /**
+      * Creates and returns a new component piece. Or null if it could not find enough room to place it.
+      */

@@ -1,0 +1,21 @@
+--- a/net/minecraft/src/BlockCauldron.java
++++ b/net/minecraft/src/BlockCauldron.java
+@@ -28,13 +28,13 @@
+      */
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.field_94378_a = par1IconRegister.registerIcon(this.getTextureName() + "_" + "inner");
+-        this.cauldronTopIcon = par1IconRegister.registerIcon(this.getTextureName() + "_top");
+-        this.cauldronBottomIcon = par1IconRegister.registerIcon(this.getTextureName() + "_" + "bottom");
+-        this.blockIcon = par1IconRegister.registerIcon(this.getTextureName() + "_side");
++        this.field_94378_a = par1IconRegister.registerIcon(this.func_111023_E() + "_" + "inner");
++        this.cauldronTopIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_top");
++        this.cauldronBottomIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_" + "bottom");
++        this.blockIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_side");
+     }
+ 
+-    public static Icon getCauldronIcon(String par0Str)
++    public static Icon func_94375_b(String par0Str)
+     {
+         return par0Str.equals("inner") ? Block.cauldron.field_94378_a : (par0Str.equals("bottom") ? Block.cauldron.cauldronBottomIcon : null);
+     }

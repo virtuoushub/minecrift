@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/EntityAIFollowOwner.java
++++ b/net/minecraft/src/EntityAIFollowOwner.java
+@@ -92,7 +92,7 @@
+ 
+                 if (!this.petPathfinder.tryMoveToEntityLiving(this.theOwner, this.field_75336_f))
+                 {
+-                    if (!this.thePet.getLeashed())
++                    if (!this.thePet.func_110167_bD())
+                     {
+                         if (this.thePet.getDistanceSqToEntity(this.theOwner) >= 144.0D)
+                         {

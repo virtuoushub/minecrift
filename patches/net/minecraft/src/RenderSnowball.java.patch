@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/RenderSnowball.java
++++ b/net/minecraft/src/RenderSnowball.java
+@@ -35,7 +35,7 @@
+             GL11.glTranslatef((float)par2, (float)par4, (float)par6);
+             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+             GL11.glScalef(0.5F, 0.5F, 0.5F);
+-            this.bindEntityTexture(par1Entity);
++            this.func_110777_b(par1Entity);
+             Tessellator var11 = Tessellator.instance;
+ 
+             if (var10 == ItemPotion.func_94589_d("bottle_splash"))
+@@ -57,12 +57,9 @@
+         }
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return TextureMap.locationItemsTexture;
++        return TextureMap.field_110576_c;
+     }
+ 
+     private void func_77026_a(Tessellator par1Tessellator, Icon par2Icon)

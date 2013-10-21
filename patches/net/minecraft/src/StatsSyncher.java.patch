@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/StatsSyncher.java
++++ b/net/minecraft/src/StatsSyncher.java
+@@ -44,7 +44,7 @@
+ 
+     public StatsSyncher(Session par1Session, StatFileWriter par2StatFileWriter, File par3File)
+     {
+-        String var4 = par1Session.getUsername();
++        String var4 = par1Session.func_111285_a();
+         String var5 = var4.toLowerCase();
+         this.unsentDataFile = new File(par3File, "stats_" + var5 + "_unsent.dat");
+         this.dataFile = new File(par3File, "stats_" + var5 + ".dat");
+@@ -135,7 +135,7 @@
+ 
+         try
+         {
+-            var5.print(StatFileWriter.func_77441_a(this.theSession.getUsername(), "local", par1Map));
++            var5.print(StatFileWriter.func_77441_a(this.theSession.func_111285_a(), "local", par1Map));
+         }
+         finally
+         {

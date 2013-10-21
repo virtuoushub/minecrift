@@ -1,0 +1,57 @@
+--- a/net/minecraft/src/TaskLongRunning.java
++++ b/net/minecraft/src/TaskLongRunning.java
+@@ -2,40 +2,36 @@
+ 
+ public abstract class TaskLongRunning implements Runnable
+ {
+-    /** The GUI screen showing progress of this task. */
+-    protected GuiScreenLongRunningTask taskGUI;
++    protected GuiScreenLongRunningTask field_96579_b;
+ 
+-    public void setGUI(GuiScreenLongRunningTask par1GuiScreenLongRunningTask)
++    public void func_96574_a(GuiScreenLongRunningTask par1GuiScreenLongRunningTask)
+     {
+-        this.taskGUI = par1GuiScreenLongRunningTask;
++        this.field_96579_b = par1GuiScreenLongRunningTask;
+     }
+ 
+-    /**
+-     * Displays the given message in place of the progress bar, and adds a "Back" button.
+-     */
+-    public void setFailedMessage(String par1Str)
++    public void func_96575_a(String par1Str)
+     {
+-        this.taskGUI.setFailedMessage(par1Str);
++        this.field_96579_b.func_96209_a(par1Str);
+     }
+ 
+-    public void setMessage(String par1Str)
++    public void func_96576_b(String par1Str)
+     {
+-        this.taskGUI.setMessage(par1Str);
++        this.field_96579_b.func_96210_b(par1Str);
+     }
+ 
+-    public Minecraft getMinecraft()
++    public Minecraft func_96578_b()
+     {
+-        return this.taskGUI.func_96208_g();
++        return this.field_96579_b.func_96208_g();
+     }
+ 
+-    public boolean wasScreenClosed()
++    public boolean func_96577_c()
+     {
+-        return this.taskGUI.wasScreenClosed();
++        return this.field_96579_b.func_96207_h();
+     }
+ 
+-    public void updateScreen() {}
++    public void func_96573_a() {}
+ 
+-    public void buttonClicked(GuiButton par1GuiButton) {}
++    public void func_96572_a(GuiButton par1GuiButton) {}
+ 
+-    public void initGUI() {}
++    public void func_96571_d() {}
+ }

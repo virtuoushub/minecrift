@@ -1,0 +1,51 @@
+--- a/net/minecraft/src/Packet19EntityAction.java
++++ b/net/minecraft/src/Packet19EntityAction.java
+@@ -9,12 +9,9 @@
+     /** Player ID. */
+     public int entityId;
+ 
+-    /**
+-     * 1=start sneaking, 2=stop sneaking, 3=wake up, 4=start sprinting, 5=stop sprinting, 6 = horse jump?, 7 = open
+-     * horse GUI
+-     */
+-    public int action;
+-    public int auxData;
++    /** 1=sneak, 2=normal */
++    public int state;
++    public int field_111009_c;
+ 
+     public Packet19EntityAction() {}
+ 
+@@ -26,8 +23,8 @@
+     public Packet19EntityAction(Entity par1Entity, int par2, int par3)
+     {
+         this.entityId = par1Entity.entityId;
+-        this.action = par2;
+-        this.auxData = par3;
++        this.state = par2;
++        this.field_111009_c = par3;
+     }
+ 
+     /**
+@@ -36,8 +33,8 @@
+     public void readPacketData(DataInput par1DataInput) throws IOException
+     {
+         this.entityId = par1DataInput.readInt();
+-        this.action = par1DataInput.readByte();
+-        this.auxData = par1DataInput.readInt();
++        this.state = par1DataInput.readByte();
++        this.field_111009_c = par1DataInput.readInt();
+     }
+ 
+     /**
+@@ -46,8 +43,8 @@
+     public void writePacketData(DataOutput par1DataOutput) throws IOException
+     {
+         par1DataOutput.writeInt(this.entityId);
+-        par1DataOutput.writeByte(this.action);
+-        par1DataOutput.writeInt(this.auxData);
++        par1DataOutput.writeByte(this.state);
++        par1DataOutput.writeInt(this.field_111009_c);
+     }
+ 
+     /**

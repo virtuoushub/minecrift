@@ -1,0 +1,30 @@
+--- a/net/minecraft/src/TaskResetWorld.java
++++ b/net/minecraft/src/TaskResetWorld.java
+@@ -18,9 +18,9 @@
+ 
+     public void run()
+     {
+-        McoClient var1 = new McoClient(this.getMinecraft().getSession());
+-        String var2 = I18n.getString("mco.reset.world.resetting.screen.title");
+-        this.setMessage(var2);
++        McoClient var1 = new McoClient(this.func_96578_b().func_110432_I());
++        String var2 = I18n.func_135053_a("mco.reset.world.resetting.screen.title");
++        this.func_96576_b(var2);
+ 
+         try
+         {
+@@ -38,12 +38,12 @@
+         catch (ExceptionMcoService var4)
+         {
+             GuiScreenResetWorld.func_130025_c(this.field_96592_a).getLogAgent().logSevere(var4.toString());
+-            this.setFailedMessage(var4.toString());
++            this.func_96575_a(var4.toString());
+         }
+         catch (Exception var5)
+         {
+             GuiScreenResetWorld.func_130024_d(this.field_96592_a).getLogAgent().logWarning("Realms: ");
+-            this.setFailedMessage(var5.toString());
++            this.func_96575_a(var5.toString());
+         }
+     }
+ }

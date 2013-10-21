@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/GuiScreenPendingInvitationINNER1.java
++++ b/net/minecraft/src/GuiScreenPendingInvitationINNER1.java
+@@ -11,7 +11,7 @@
+ 
+     public void run()
+     {
+-        McoClient var1 = new McoClient(GuiScreenPendingInvitation.func_130048_a(this.field_130121_a).getSession());
++        McoClient var1 = new McoClient(GuiScreenPendingInvitation.func_130048_a(this.field_130121_a).func_110432_I());
+ 
+         try
+         {

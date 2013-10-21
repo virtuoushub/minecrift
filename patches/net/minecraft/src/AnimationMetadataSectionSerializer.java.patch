@@ -1,0 +1,78 @@
+--- a/net/minecraft/src/AnimationMetadataSectionSerializer.java
++++ b/net/minecraft/src/AnimationMetadataSectionSerializer.java
+@@ -30,7 +30,7 @@
+                 for (var8 = 0; var8 < var7.size(); ++var8)
+                 {
+                     JsonElement var9 = var7.get(var8);
+-                    AnimationFrame var10 = this.parseAnimationFrame(var8, var9);
++                    AnimationFrame var10 = this.func_110492_a(var8, var9);
+ 
+                     if (var10 != null)
+                     {
+@@ -49,7 +49,7 @@
+         return new AnimationMetadataSection(var4, var12, var8, var6);
+     }
+ 
+-    private AnimationFrame parseAnimationFrame(int par1, JsonElement par2JsonElement)
++    private AnimationFrame func_110492_a(int par1, JsonElement par2JsonElement)
+     {
+         if (par2JsonElement.isJsonPrimitive())
+         {
+@@ -78,34 +78,34 @@
+     public JsonElement func_110491_a(AnimationMetadataSection par1AnimationMetadataSection, Type par2Type, JsonSerializationContext par3JsonSerializationContext)
+     {
+         JsonObject var4 = new JsonObject();
+-        var4.addProperty("frametime", Integer.valueOf(par1AnimationMetadataSection.getFrameTime()));
++        var4.addProperty("frametime", Integer.valueOf(par1AnimationMetadataSection.func_110469_d()));
+ 
+-        if (par1AnimationMetadataSection.getFrameWidth() != -1)
++        if (par1AnimationMetadataSection.func_110474_b() != -1)
+         {
+-            var4.addProperty("width", Integer.valueOf(par1AnimationMetadataSection.getFrameWidth()));
++            var4.addProperty("width", Integer.valueOf(par1AnimationMetadataSection.func_110474_b()));
+         }
+ 
+-        if (par1AnimationMetadataSection.getFrameHeight() != -1)
++        if (par1AnimationMetadataSection.func_110471_a() != -1)
+         {
+-            var4.addProperty("height", Integer.valueOf(par1AnimationMetadataSection.getFrameHeight()));
++            var4.addProperty("height", Integer.valueOf(par1AnimationMetadataSection.func_110471_a()));
+         }
+ 
+-        if (par1AnimationMetadataSection.getFrameCount() > 0)
++        if (par1AnimationMetadataSection.func_110473_c() > 0)
+         {
+             JsonArray var5 = new JsonArray();
+ 
+-            for (int var6 = 0; var6 < par1AnimationMetadataSection.getFrameCount(); ++var6)
++            for (int var6 = 0; var6 < par1AnimationMetadataSection.func_110473_c(); ++var6)
+             {
+-                if (par1AnimationMetadataSection.frameHasTime(var6))
++                if (par1AnimationMetadataSection.func_110470_b(var6))
+                 {
+                     JsonObject var7 = new JsonObject();
+-                    var7.addProperty("index", Integer.valueOf(par1AnimationMetadataSection.getFrameIndex(var6)));
+-                    var7.addProperty("time", Integer.valueOf(par1AnimationMetadataSection.getFrameTimeSingle(var6)));
++                    var7.addProperty("index", Integer.valueOf(par1AnimationMetadataSection.func_110468_c(var6)));
++                    var7.addProperty("time", Integer.valueOf(par1AnimationMetadataSection.func_110472_a(var6)));
+                     var5.add(var7);
+                 }
+                 else
+                 {
+-                    var5.add(new JsonPrimitive(Integer.valueOf(par1AnimationMetadataSection.getFrameIndex(var6))));
++                    var5.add(new JsonPrimitive(Integer.valueOf(par1AnimationMetadataSection.func_110468_c(var6))));
+                 }
+             }
+ 
+@@ -115,10 +115,7 @@
+         return var4;
+     }
+ 
+-    /**
+-     * The name of this section type as it appears in JSON.
+-     */
+-    public String getSectionName()
++    public String func_110483_a()
+     {
+         return "animation";
+     }

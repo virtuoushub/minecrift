@@ -1,0 +1,64 @@
+--- a/net/minecraft/src/EntityDragon.java
++++ b/net/minecraft/src/EntityDragon.java
+@@ -58,7 +58,7 @@
+     {
+         super(par1World);
+         this.dragonPartArray = new EntityDragonPart[] {this.dragonPartHead = new EntityDragonPart(this, "head", 6.0F, 6.0F), this.dragonPartBody = new EntityDragonPart(this, "body", 8.0F, 8.0F), this.dragonPartTail1 = new EntityDragonPart(this, "tail", 4.0F, 4.0F), this.dragonPartTail2 = new EntityDragonPart(this, "tail", 4.0F, 4.0F), this.dragonPartTail3 = new EntityDragonPart(this, "tail", 4.0F, 4.0F), this.dragonPartWing1 = new EntityDragonPart(this, "wing", 4.0F, 4.0F), this.dragonPartWing2 = new EntityDragonPart(this, "wing", 4.0F, 4.0F)};
+-        this.setHealth(this.getMaxHealth());
++        this.setEntityHealth(this.func_110138_aP());
+         this.setSize(16.0F, 8.0F);
+         this.noClip = true;
+         this.isImmuneToFire = true;
+@@ -66,10 +66,10 @@
+         this.ignoreFrustumCheck = true;
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(200.0D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(200.0D);
+     }
+ 
+     protected void entityInit()
+@@ -83,7 +83,7 @@
+      */
+     public double[] getMovementOffsets(int par1, float par2)
+     {
+-        if (this.getHealth() <= 0.0F)
++        if (this.func_110143_aJ() <= 0.0F)
+         {
+             par2 = 0.0F;
+         }
+@@ -125,7 +125,7 @@
+         this.prevAnimTime = this.animTime;
+         float var3;
+ 
+-        if (this.getHealth() <= 0.0F)
++        if (this.func_110143_aJ() <= 0.0F)
+         {
+             var1 = (this.rand.nextFloat() - 0.5F) * 8.0F;
+             var2 = (this.rand.nextFloat() - 0.5F) * 4.0F;
+@@ -177,7 +177,7 @@
+                 {
+                     var26 = this.posX + (this.newPosX - this.posX) / (double)this.newPosRotationIncrements;
+                     var4 = this.posY + (this.newPosY - this.posY) / (double)this.newPosRotationIncrements;
+-                    var6 = this.posZ + (this.newPosZ - this.posZ) / (double)this.newPosRotationIncrements;
++                    var6 = this.posZ + (this.field_110152_bk - this.posZ) / (double)this.newPosRotationIncrements;
+                     var8 = MathHelper.wrapAngleTo180_double(this.newRotationYaw - (double)this.rotationYaw);
+                     this.rotationYaw = (float)((double)this.rotationYaw + var8 / (double)this.newPosRotationIncrements);
+                     this.rotationPitch = (float)((double)this.rotationPitch + (this.newRotationPitch - (double)this.rotationPitch) / (double)this.newPosRotationIncrements);
+@@ -379,9 +379,9 @@
+ 
+                 this.healingEnderCrystal = null;
+             }
+-            else if (this.ticksExisted % 10 == 0 && this.getHealth() < this.getMaxHealth())
++            else if (this.ticksExisted % 10 == 0 && this.func_110143_aJ() < this.func_110138_aP())
+             {
+-                this.setHealth(this.getHealth() + 1.0F);
++                this.setEntityHealth(this.func_110143_aJ() + 1.0F);
+             }
+         }
+ 

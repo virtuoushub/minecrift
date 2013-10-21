@@ -1,0 +1,163 @@
+--- a/net/minecraft/src/ModifiableAttributeInstance.java
++++ b/net/minecraft/src/ModifiableAttributeInstance.java
+@@ -16,7 +16,7 @@
+     private final Map field_111137_c = Maps.newHashMap();
+     private final Map field_111134_d = Maps.newHashMap();
+     private final Map field_111135_e = Maps.newHashMap();
+-    private double baseValue;
++    private double field_111132_f;
+     private boolean field_111133_g = true;
+     private double field_111139_h;
+ 
+@@ -24,7 +24,7 @@
+     {
+         this.field_111138_a = par1BaseAttributeMap;
+         this.field_111136_b = par2Attribute;
+-        this.baseValue = par2Attribute.getDefaultValue();
++        this.field_111132_f = par2Attribute.func_111110_b();
+ 
+         for (int var3 = 0; var3 < 3; ++var3)
+         {
+@@ -37,16 +37,16 @@
+         return this.field_111136_b;
+     }
+ 
+-    public double getBaseValue()
++    public double func_111125_b()
+     {
+-        return this.baseValue;
++        return this.field_111132_f;
+     }
+ 
+-    public void setAttribute(double par1)
++    public void func_111128_a(double par1)
+     {
+-        if (par1 != this.getBaseValue())
++        if (par1 != this.func_111125_b())
+         {
+-            this.baseValue = par1;
++            this.field_111132_f = par1;
+             this.func_111131_f();
+         }
+     }
+@@ -68,33 +68,30 @@
+         return var1;
+     }
+ 
+-    /**
+-     * Returns attribute modifier, if any, by the given UUID
+-     */
+-    public AttributeModifier getModifier(UUID par1UUID)
++    public AttributeModifier func_111127_a(UUID par1UUID)
+     {
+         return (AttributeModifier)this.field_111135_e.get(par1UUID);
+     }
+ 
+-    public void applyModifier(AttributeModifier par1AttributeModifier)
++    public void func_111121_a(AttributeModifier par1AttributeModifier)
+     {
+-        if (this.getModifier(par1AttributeModifier.getID()) != null)
++        if (this.func_111127_a(par1AttributeModifier.func_111167_a()) != null)
+         {
+             throw new IllegalArgumentException("Modifier is already applied on this attribute!");
+         }
+         else
+         {
+-            Object var2 = (Set)this.field_111134_d.get(par1AttributeModifier.getName());
++            Object var2 = (Set)this.field_111134_d.get(par1AttributeModifier.func_111166_b());
+ 
+             if (var2 == null)
+             {
+                 var2 = new HashSet();
+-                this.field_111134_d.put(par1AttributeModifier.getName(), var2);
++                this.field_111134_d.put(par1AttributeModifier.func_111166_b(), var2);
+             }
+ 
+-            ((Set)this.field_111137_c.get(Integer.valueOf(par1AttributeModifier.getOperation()))).add(par1AttributeModifier);
++            ((Set)this.field_111137_c.get(Integer.valueOf(par1AttributeModifier.func_111169_c()))).add(par1AttributeModifier);
+             ((Set)var2).add(par1AttributeModifier);
+-            this.field_111135_e.put(par1AttributeModifier.getID(), par1AttributeModifier);
++            this.field_111135_e.put(par1AttributeModifier.func_111167_a(), par1AttributeModifier);
+             this.func_111131_f();
+         }
+     }
+@@ -105,7 +102,7 @@
+         this.field_111138_a.func_111149_a(this);
+     }
+ 
+-    public void removeModifier(AttributeModifier par1AttributeModifier)
++    public void func_111124_b(AttributeModifier par1AttributeModifier)
+     {
+         for (int var2 = 0; var2 < 3; ++var2)
+         {
+@@ -113,7 +110,7 @@
+             var3.remove(par1AttributeModifier);
+         }
+ 
+-        Set var4 = (Set)this.field_111134_d.get(par1AttributeModifier.getName());
++        Set var4 = (Set)this.field_111134_d.get(par1AttributeModifier.func_111166_b());
+ 
+         if (var4 != null)
+         {
+@@ -121,11 +118,11 @@
+ 
+             if (var4.isEmpty())
+             {
+-                this.field_111134_d.remove(par1AttributeModifier.getName());
++                this.field_111134_d.remove(par1AttributeModifier.func_111166_b());
+             }
+         }
+ 
+-        this.field_111135_e.remove(par1AttributeModifier.getID());
++        this.field_111135_e.remove(par1AttributeModifier.func_111167_a());
+         this.func_111131_f();
+     }
+ 
+@@ -141,12 +138,12 @@
+             while (var2.hasNext())
+             {
+                 AttributeModifier var3 = (AttributeModifier)var2.next();
+-                this.removeModifier(var3);
++                this.func_111124_b(var3);
+             }
+         }
+     }
+ 
+-    public double getAttributeValue()
++    public double func_111126_e()
+     {
+         if (this.field_111133_g)
+         {
+@@ -159,10 +156,10 @@
+ 
+     private double func_111129_g()
+     {
+-        double var1 = this.getBaseValue();
++        double var1 = this.func_111125_b();
+         AttributeModifier var4;
+ 
+-        for (Iterator var3 = this.func_111130_a(0).iterator(); var3.hasNext(); var1 += var4.getAmount())
++        for (Iterator var3 = this.func_111130_a(0).iterator(); var3.hasNext(); var1 += var4.func_111164_d())
+         {
+             var4 = (AttributeModifier)var3.next();
+         }
+@@ -171,16 +168,16 @@
+         Iterator var5;
+         AttributeModifier var6;
+ 
+-        for (var5 = this.func_111130_a(1).iterator(); var5.hasNext(); var7 += var1 * var6.getAmount())
++        for (var5 = this.func_111130_a(1).iterator(); var5.hasNext(); var7 += var1 * var6.func_111164_d())
+         {
+             var6 = (AttributeModifier)var5.next();
+         }
+ 
+-        for (var5 = this.func_111130_a(2).iterator(); var5.hasNext(); var7 *= 1.0D + var6.getAmount())
++        for (var5 = this.func_111130_a(2).iterator(); var5.hasNext(); var7 *= 1.0D + var6.func_111164_d())
+         {
+             var6 = (AttributeModifier)var5.next();
+         }
+ 
+-        return this.field_111136_b.clampValue(var7);
++        return this.field_111136_b.func_111109_a(var7);
+     }
+ }

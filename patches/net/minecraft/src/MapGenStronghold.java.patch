@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/MapGenStronghold.java
++++ b/net/minecraft/src/MapGenStronghold.java
+@@ -55,11 +55,6 @@
+         }
+     }
+ 
+-    public String func_143025_a()
+-    {
+-        return "Stronghold";
+-    }
+-
+     protected boolean canSpawnStructureAtCoords(int par1, int par2)
+     {
+         if (!this.ranBiomeCheck)

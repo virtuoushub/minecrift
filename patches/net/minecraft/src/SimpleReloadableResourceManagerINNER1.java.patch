@@ -1,0 +1,28 @@
+--- a/net/minecraft/src/SimpleReloadableResourceManagerINNER1.java
++++ b/net/minecraft/src/SimpleReloadableResourceManagerINNER1.java
+@@ -4,20 +4,20 @@
+ 
+ class SimpleReloadableResourceManagerINNER1 implements Function
+ {
+-    final SimpleReloadableResourceManager theSimpleReloadableResourceManager;
++    final SimpleReloadableResourceManager field_130076_a;
+ 
+     SimpleReloadableResourceManagerINNER1(SimpleReloadableResourceManager par1SimpleReloadableResourceManager)
+     {
+-        this.theSimpleReloadableResourceManager = par1SimpleReloadableResourceManager;
++        this.field_130076_a = par1SimpleReloadableResourceManager;
+     }
+ 
+-    public String apply(ResourcePack par1ResourcePack)
++    public String func_130075_a(ResourcePack par1ResourcePack)
+     {
+-        return par1ResourcePack.getPackName();
++        return par1ResourcePack.func_130077_b();
+     }
+ 
+     public Object apply(Object par1Obj)
+     {
+-        return this.apply((ResourcePack)par1Obj);
++        return this.func_130075_a((ResourcePack)par1Obj);
+     }
+ }

@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/BlockWood.java
++++ b/net/minecraft/src/BlockWood.java
+@@ -56,7 +56,7 @@
+ 
+         for (int var2 = 0; var2 < this.iconArray.length; ++var2)
+         {
+-            this.iconArray[var2] = par1IconRegister.registerIcon(this.getTextureName() + "_" + woodType[var2]);
++            this.iconArray[var2] = par1IconRegister.registerIcon(this.func_111023_E() + "_" + woodType[var2]);
+         }
+     }
+ }

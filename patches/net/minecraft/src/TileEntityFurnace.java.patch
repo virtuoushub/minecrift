@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/TileEntityFurnace.java
++++ b/net/minecraft/src/TileEntityFurnace.java
+@@ -366,7 +366,7 @@
+                     return 300;
+                 }
+ 
+-                if (var3 == Block.coalBlock)
++                if (var3 == Block.field_111034_cE)
+                 {
+                     return 16000;
+                 }

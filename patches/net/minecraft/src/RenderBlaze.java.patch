@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/RenderBlaze.java
++++ b/net/minecraft/src/RenderBlaze.java
+@@ -2,7 +2,7 @@
+ 
+ public class RenderBlaze extends RenderLiving
+ {
+-    private static final ResourceLocation blazeTextures = new ResourceLocation("textures/entity/blaze.png");
++    private static final ResourceLocation field_110837_a = new ResourceLocation("textures/entity/blaze.png");
+     private int field_77068_a;
+ 
+     public RenderBlaze()
+@@ -24,9 +24,9 @@
+         super.doRenderLiving(par1EntityBlaze, par2, par4, par6, par8, par9);
+     }
+ 
+-    protected ResourceLocation getBlazeTextures(EntityBlaze par1EntityBlaze)
++    protected ResourceLocation func_110836_a(EntityBlaze par1EntityBlaze)
+     {
+-        return blazeTextures;
++        return field_110837_a;
+     }
+ 
+     public void doRenderLiving(EntityLiving par1EntityLiving, double par2, double par4, double par6, float par8, float par9)
+@@ -39,12 +39,9 @@
+         this.renderBlaze((EntityBlaze)par1EntityLivingBase, par2, par4, par6, par8, par9);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getBlazeTextures((EntityBlaze)par1Entity);
++        return this.func_110836_a((EntityBlaze)par1Entity);
+     }
+ 
+     /**

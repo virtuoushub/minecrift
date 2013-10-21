@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/CommandEnchant.java
++++ b/net/minecraft/src/CommandEnchant.java
+@@ -31,7 +31,7 @@
+         }
+         else
+         {
+-            EntityPlayerMP var3 = getPlayer(par1ICommandSender, par2ArrayOfStr[0]);
++            EntityPlayerMP var3 = func_82359_c(par1ICommandSender, par2ArrayOfStr[0]);
+             int var4 = parseIntBounded(par1ICommandSender, par2ArrayOfStr[1], 0, Enchantment.enchantmentsList.length - 1);
+             int var5 = 1;
+             ItemStack var6 = var3.getCurrentEquippedItem();

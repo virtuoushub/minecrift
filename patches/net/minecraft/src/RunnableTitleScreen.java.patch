@@ -1,0 +1,45 @@
+--- a/net/minecraft/src/RunnableTitleScreen.java
++++ b/net/minecraft/src/RunnableTitleScreen.java
+@@ -4,16 +4,16 @@
+ 
+ class RunnableTitleScreen extends Thread
+ {
+-    final GuiMainMenu theMainMenu;
++    final GuiMainMenu field_104058_d;
+ 
+     RunnableTitleScreen(GuiMainMenu par1GuiMainMenu)
+     {
+-        this.theMainMenu = par1GuiMainMenu;
++        this.field_104058_d = par1GuiMainMenu;
+     }
+ 
+     public void run()
+     {
+-        McoClient var1 = new McoClient(GuiMainMenu.func_110348_a(this.theMainMenu).getSession());
++        McoClient var1 = new McoClient(GuiMainMenu.func_110348_a(this.field_104058_d).func_110432_I());
+         boolean var2 = false;
+ 
+         for (int var3 = 0; var3 < 3; ++var3)
+@@ -24,7 +24,7 @@
+ 
+                 if (var4.booleanValue())
+                 {
+-                    GuiMainMenu.func_130021_b(this.theMainMenu);
++                    GuiMainMenu.func_130021_b(this.field_104058_d);
+                 }
+ 
+                 GuiMainMenu.func_110349_a(var4.booleanValue());
+@@ -35,11 +35,11 @@
+             }
+             catch (ExceptionMcoService var7)
+             {
+-                GuiMainMenu.func_130018_c(this.theMainMenu).getLogAgent().logSevere(var7.toString());
++                GuiMainMenu.func_130018_c(this.field_104058_d).getLogAgent().logSevere(var7.toString());
+             }
+             catch (IOException var8)
+             {
+-                GuiMainMenu.func_130019_d(this.theMainMenu).getLogAgent().logWarning("Realms: could not parse response");
++                GuiMainMenu.func_130019_d(this.field_104058_d).getLogAgent().logWarning("Realms: could not parse response");
+             }
+ 
+             if (!var2)

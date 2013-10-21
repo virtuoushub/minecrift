@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/CommandServerTp.java
++++ b/net/minecraft/src/CommandServerTp.java
+@@ -39,7 +39,7 @@
+             }
+             else
+             {
+-                var3 = getPlayer(par1ICommandSender, par2ArrayOfStr[0]);
++                var3 = func_82359_c(par1ICommandSender, par2ArrayOfStr[0]);
+ 
+                 if (var3 == null)
+                 {
+@@ -51,7 +51,7 @@
+             {
+                 if (par2ArrayOfStr.length == 1 || par2ArrayOfStr.length == 2)
+                 {
+-                    EntityPlayerMP var11 = getPlayer(par1ICommandSender, par2ArrayOfStr[par2ArrayOfStr.length - 1]);
++                    EntityPlayerMP var11 = func_82359_c(par1ICommandSender, par2ArrayOfStr[par2ArrayOfStr.length - 1]);
+ 
+                     if (var11 == null)
+                     {

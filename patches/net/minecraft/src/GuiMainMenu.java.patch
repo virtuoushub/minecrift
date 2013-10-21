@@ -1,0 +1,149 @@
+--- a/net/minecraft/src/GuiMainMenu.java
++++ b/net/minecraft/src/GuiMainMenu.java
+@@ -37,8 +37,8 @@
+     private final Object field_104025_t = new Object();
+     private String field_92025_p;
+     private String field_104024_v;
+-    private static final ResourceLocation splashTexts = new ResourceLocation("texts/splashes.txt");
+-    private static final ResourceLocation minecraftTitleTextures = new ResourceLocation("textures/gui/title/minecraft.png");
++    private static final ResourceLocation field_110353_x = new ResourceLocation("texts/splashes.txt");
++    private static final ResourceLocation field_110352_y = new ResourceLocation("textures/gui/title/minecraft.png");
+ 
+     /** An array of all the paths to the panorama pictures. */
+     private static final ResourceLocation[] titlePanoramaPaths = new ResourceLocation[] {new ResourceLocation("textures/gui/title/background/panorama_0.png"), new ResourceLocation("textures/gui/title/background/panorama_1.png"), new ResourceLocation("textures/gui/title/background/panorama_2.png"), new ResourceLocation("textures/gui/title/background/panorama_3.png"), new ResourceLocation("textures/gui/title/background/panorama_4.png"), new ResourceLocation("textures/gui/title/background/panorama_5.png")};
+@@ -50,7 +50,7 @@
+     private int field_92020_v;
+     private int field_92019_w;
+     private ResourceLocation field_110351_G;
+-    private GuiButton minecraftRealmsButton;
++    private GuiButton field_130023_H;
+ 
+     public GuiMainMenu()
+     {
+@@ -60,7 +60,7 @@
+         try
+         {
+             ArrayList var2 = new ArrayList();
+-            var1 = new BufferedReader(new InputStreamReader(Minecraft.getMinecraft().getResourceManager().getResource(splashTexts).getInputStream(), Charsets.UTF_8));
++            var1 = new BufferedReader(new InputStreamReader(Minecraft.getMinecraft().func_110442_L().func_110536_a(field_110353_x).func_110527_b(), Charsets.UTF_8));
+ 
+             while ((var3 = var1.readLine()) != null)
+             {
+@@ -141,7 +141,7 @@
+     public void initGui()
+     {
+         this.viewportTexture = new DynamicTexture(256, 256);
+-        this.field_110351_G = this.mc.getTextureManager().getDynamicTextureLocation("background", this.viewportTexture);
++        this.field_110351_G = this.mc.func_110434_K().func_110578_a("background", this.viewportTexture);
+         Calendar var1 = Calendar.getInstance();
+         var1.setTime(new Date());
+ 
+@@ -179,8 +179,8 @@
+         }
+ 
+         this.func_130020_g();
+-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, var3 + 72 + 12, 98, 20, I18n.getString("menu.options")));
+-        this.buttonList.add(new GuiButton(4, this.width / 2 + 2, var3 + 72 + 12, 98, 20, I18n.getString("menu.quit")));
++        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, var3 + 72 + 12, 98, 20, I18n.func_135053_a("menu.options")));
++        this.buttonList.add(new GuiButton(4, this.width / 2 + 2, var3 + 72 + 12, 98, 20, I18n.func_135053_a("menu.quit")));
+         this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, var3 + 72 + 12));
+         Object var4 = this.field_104025_t;
+ 
+@@ -214,7 +214,7 @@
+ 
+     private void func_130022_h()
+     {
+-        this.minecraftRealmsButton.drawButton = true;
++        this.field_130023_H.drawButton = true;
+     }
+ 
+     /**
+@@ -222,10 +222,10 @@
+      */
+     private void addSingleplayerMultiplayerButtons(int par1, int par2)
+     {
+-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, par1, I18n.getString("menu.singleplayer")));
+-        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, par1 + par2 * 1, I18n.getString("menu.multiplayer")));
+-        this.buttonList.add(this.minecraftRealmsButton = new GuiButton(14, this.width / 2 - 100, par1 + par2 * 2, I18n.getString("menu.online")));
+-        this.minecraftRealmsButton.drawButton = false;
++        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, par1, I18n.func_135053_a("menu.singleplayer")));
++        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, par1 + par2 * 1, I18n.func_135053_a("menu.multiplayer")));
++        this.buttonList.add(this.field_130023_H = new GuiButton(14, this.width / 2 - 100, par1 + par2 * 2, I18n.func_135053_a("menu.online")));
++        this.field_130023_H.drawButton = false;
+     }
+ 
+     /**
+@@ -233,8 +233,8 @@
+      */
+     private void addDemoButtons(int par1, int par2)
+     {
+-        this.buttonList.add(new GuiButton(11, this.width / 2 - 100, par1, I18n.getString("menu.playdemo")));
+-        this.buttonList.add(this.buttonResetDemo = new GuiButton(12, this.width / 2 - 100, par1 + par2 * 1, I18n.getString("menu.resetdemo")));
++        this.buttonList.add(new GuiButton(11, this.width / 2 - 100, par1, I18n.func_135053_a("menu.playdemo")));
++        this.buttonList.add(this.buttonResetDemo = new GuiButton(12, this.width / 2 - 100, par1 + par2 * 1, I18n.func_135053_a("menu.resetdemo")));
+         ISaveFormat var3 = this.mc.getSaveLoader();
+         WorldInfo var4 = var3.getWorldInfo("Demo_World");
+ 
+@@ -256,7 +256,7 @@
+ 
+         if (par1GuiButton.id == 5)
+         {
+-            this.mc.displayGuiScreen(new GuiLanguage(this, this.mc.gameSettings, this.mc.getLanguageManager()));
++            this.mc.displayGuiScreen(new GuiLanguage(this, this.mc.gameSettings, this.mc.func_135016_M()));
+         }
+ 
+         if (par1GuiButton.id == 1)
+@@ -269,7 +269,7 @@
+             this.mc.displayGuiScreen(new GuiMultiplayer(this));
+         }
+ 
+-        if (par1GuiButton.id == 14 && this.minecraftRealmsButton.drawButton)
++        if (par1GuiButton.id == 14 && this.field_130023_H.drawButton)
+         {
+             this.func_140005_i();
+         }
+@@ -299,7 +299,7 @@
+ 
+     private void func_140005_i()
+     {
+-        McoClient var1 = new McoClient(this.mc.getSession());
++        McoClient var1 = new McoClient(this.mc.func_110432_I());
+ 
+         try
+         {
+@@ -412,7 +412,7 @@
+                     GL11.glRotatef(-90.0F, 1.0F, 0.0F, 0.0F);
+                 }
+ 
+-                this.mc.getTextureManager().bindTexture(titlePanoramaPaths[var10]);
++                this.mc.func_110434_K().func_110577_a(titlePanoramaPaths[var10]);
+                 var4.startDrawingQuads();
+                 var4.setColorRGBA_I(16777215, 255 / (var6 + 1));
+                 float var11 = 0.0F;
+@@ -445,7 +445,7 @@
+      */
+     private void rotateAndBlurSkybox(float par1)
+     {
+-        this.mc.getTextureManager().bindTexture(this.field_110351_G);
++        this.mc.func_110434_K().func_110577_a(this.field_110351_G);
+         GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, 0, 0, 256, 256);
+         GL11.glEnable(GL11.GL_BLEND);
+         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+@@ -517,7 +517,7 @@
+         byte var7 = 30;
+         this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
+         this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
+-        this.mc.getTextureManager().bindTexture(minecraftTitleTextures);
++        this.mc.func_110434_K().func_110577_a(field_110352_y);
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 
+         if ((double)this.updateCounter < 1.0E-4D)
+@@ -543,7 +543,7 @@
+         GL11.glScalef(var8, var8, var8);
+         this.drawCenteredString(this.fontRenderer, this.splashText, 0, -8, 16776960);
+         GL11.glPopMatrix();
+-        String var9 = "Minecraft 1.6.4";
++        String var9 = "Minecraft 1.6.2";
+ 
+         if (this.mc.isDemo())
+         {

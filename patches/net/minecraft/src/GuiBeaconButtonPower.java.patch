@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/GuiBeaconButtonPower.java
++++ b/net/minecraft/src/GuiBeaconButtonPower.java
+@@ -18,7 +18,7 @@
+ 
+     public void func_82251_b(int par1, int par2)
+     {
+-        String var3 = I18n.getString(Potion.potionTypes[this.field_82261_l].getName());
++        String var3 = I18n.func_135053_a(Potion.potionTypes[this.field_82261_l].getName());
+ 
+         if (this.field_82262_m >= 3 && this.field_82261_l != Potion.regeneration.id)
+         {

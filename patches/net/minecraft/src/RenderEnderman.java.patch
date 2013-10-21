@@ -1,0 +1,58 @@
+--- a/net/minecraft/src/RenderEnderman.java
++++ b/net/minecraft/src/RenderEnderman.java
+@@ -6,8 +6,8 @@
+ 
+ public class RenderEnderman extends RenderLiving
+ {
+-    private static final ResourceLocation endermanEyesTexture = new ResourceLocation("textures/entity/enderman/enderman_eyes.png");
+-    private static final ResourceLocation endermanTextures = new ResourceLocation("textures/entity/enderman/enderman.png");
++    private static final ResourceLocation field_110840_a = new ResourceLocation("textures/entity/enderman/enderman_eyes.png");
++    private static final ResourceLocation field_110839_f = new ResourceLocation("textures/entity/enderman/enderman.png");
+ 
+     /** The model of the enderman */
+     private ModelEnderman endermanModel;
+@@ -38,9 +38,9 @@
+         super.doRenderLiving(par1EntityEnderman, par2, par4, par6, par8, par9);
+     }
+ 
+-    protected ResourceLocation getEndermanTextures(EntityEnderman par1EntityEnderman)
++    protected ResourceLocation func_110838_a(EntityEnderman par1EntityEnderman)
+     {
+-        return endermanTextures;
++        return field_110839_f;
+     }
+ 
+     /**
+@@ -66,7 +66,7 @@
+             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)var5 / 1.0F, (float)var6 / 1.0F);
+             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-            this.bindTexture(TextureMap.locationBlocksTexture);
++            this.func_110776_a(TextureMap.field_110575_b);
+             this.renderBlocks.renderBlockAsItem(Block.blocksList[par1EntityEnderman.getCarried()], par1EntityEnderman.getCarryingData(), 1.0F);
+             GL11.glPopMatrix();
+             GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+@@ -84,7 +84,7 @@
+         }
+         else
+         {
+-            this.bindTexture(endermanEyesTexture);
++            this.func_110776_a(field_110840_a);
+             float var4 = 1.0F;
+             GL11.glEnable(GL11.GL_BLEND);
+             GL11.glDisable(GL11.GL_ALPHA_TEST);
+@@ -134,12 +134,9 @@
+         this.renderEnderman((EntityEnderman)par1EntityLivingBase, par2, par4, par6, par8, par9);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getEndermanTextures((EntityEnderman)par1Entity);
++        return this.func_110838_a((EntityEnderman)par1Entity);
+     }
+ 
+     /**

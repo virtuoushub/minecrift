@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/RenderSnowMan.java
++++ b/net/minecraft/src/RenderSnowMan.java
+@@ -4,7 +4,7 @@
+ 
+ public class RenderSnowMan extends RenderLiving
+ {
+-    private static final ResourceLocation snowManTextures = new ResourceLocation("textures/entity/snowman.png");
++    private static final ResourceLocation field_110895_a = new ResourceLocation("textures/entity/snowman.png");
+ 
+     /** A reference to the Snowman model in RenderSnowMan. */
+     private ModelSnowMan snowmanModel;
+@@ -42,9 +42,9 @@
+         }
+     }
+ 
+-    protected ResourceLocation getSnowManTextures(EntitySnowman par1EntitySnowman)
++    protected ResourceLocation func_110894_a(EntitySnowman par1EntitySnowman)
+     {
+-        return snowManTextures;
++        return field_110895_a;
+     }
+ 
+     protected void renderEquippedItems(EntityLivingBase par1EntityLivingBase, float par2)
+@@ -52,11 +52,8 @@
+         this.renderSnowmanPumpkin((EntitySnowman)par1EntityLivingBase, par2);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getSnowManTextures((EntitySnowman)par1Entity);
++        return this.func_110894_a((EntitySnowman)par1Entity);
+     }
+ }

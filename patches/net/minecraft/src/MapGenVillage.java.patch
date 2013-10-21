@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/MapGenVillage.java
++++ b/net/minecraft/src/MapGenVillage.java
+@@ -43,11 +43,6 @@
+         }
+     }
+ 
+-    public String func_143025_a()
+-    {
+-        return "Village";
+-    }
+-
+     protected boolean canSpawnStructureAtCoords(int par1, int par2)
+     {
+         int var3 = par1;

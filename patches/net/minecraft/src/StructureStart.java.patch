@@ -1,0 +1,86 @@
+--- a/net/minecraft/src/StructureStart.java
++++ b/net/minecraft/src/StructureStart.java
+@@ -9,16 +9,6 @@
+     /** List of all StructureComponents that are part of this structure */
+     protected LinkedList components = new LinkedList();
+     protected StructureBoundingBox boundingBox;
+-    private int field_143024_c;
+-    private int field_143023_d;
+-
+-    public StructureStart() {}
+-
+-    public StructureStart(int par1, int par2)
+-    {
+-        this.field_143024_c = par1;
+-        this.field_143023_d = par2;
+-    }
+ 
+     public StructureBoundingBox getBoundingBox()
+     {
+@@ -63,51 +53,6 @@
+         }
+     }
+ 
+-    public NBTTagCompound func_143021_a(int par1, int par2)
+-    {
+-        NBTTagCompound var3 = new NBTTagCompound();
+-        var3.setString("id", MapGenStructureIO.func_143033_a(this));
+-        var3.setInteger("ChunkX", par1);
+-        var3.setInteger("ChunkZ", par2);
+-        var3.setTag("BB", this.boundingBox.func_143047_a("BB"));
+-        NBTTagList var4 = new NBTTagList("Children");
+-        Iterator var5 = this.components.iterator();
+-
+-        while (var5.hasNext())
+-        {
+-            StructureComponent var6 = (StructureComponent)var5.next();
+-            var4.appendTag(var6.func_143010_b());
+-        }
+-
+-        var3.setTag("Children", var4);
+-        this.func_143022_a(var3);
+-        return var3;
+-    }
+-
+-    public void func_143022_a(NBTTagCompound par1NBTTagCompound) {}
+-
+-    public void func_143020_a(World par1World, NBTTagCompound par2NBTTagCompound)
+-    {
+-        this.field_143024_c = par2NBTTagCompound.getInteger("ChunkX");
+-        this.field_143023_d = par2NBTTagCompound.getInteger("ChunkZ");
+-
+-        if (par2NBTTagCompound.hasKey("BB"))
+-        {
+-            this.boundingBox = new StructureBoundingBox(par2NBTTagCompound.getIntArray("BB"));
+-        }
+-
+-        NBTTagList var3 = par2NBTTagCompound.getTagList("Children");
+-
+-        for (int var4 = 0; var4 < var3.tagCount(); ++var4)
+-        {
+-            this.components.add(MapGenStructureIO.func_143032_b((NBTTagCompound)var3.tagAt(var4), par1World));
+-        }
+-
+-        this.func_143017_b(par2NBTTagCompound);
+-    }
+-
+-    public void func_143017_b(NBTTagCompound par1NBTTagCompound) {}
+-
+     /**
+      * offsets the structure Bounding Boxes up to a certain height, typically 63 - 10
+      */
+@@ -165,14 +110,4 @@
+     {
+         return true;
+     }
+-
+-    public int func_143019_e()
+-    {
+-        return this.field_143024_c;
+-    }
+-
+-    public int func_143018_f()
+-    {
+-        return this.field_143023_d;
+-    }
+ }

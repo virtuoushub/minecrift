@@ -1,7 +1,19 @@
 --- a/net/minecraft/src/TextureMap.java
 +++ b/net/minecraft/src/TextureMap.java
-@@ -24,8 +24,8 @@
-     private final Map mapUploadedSprites = Maps.newHashMap();
+@@ -17,15 +17,15 @@
+ 
+ public class TextureMap extends AbstractTexture implements TickableTextureObject, IconRegister
+ {
+-    public static final ResourceLocation locationBlocksTexture = new ResourceLocation("textures/atlas/blocks.png");
+-    public static final ResourceLocation locationItemsTexture = new ResourceLocation("textures/atlas/items.png");
+-    private final List listAnimatedSprites = Lists.newArrayList();
+-    private final Map mapRegisteredSprites = Maps.newHashMap();
+-    private final Map mapUploadedSprites = Maps.newHashMap();
++    public static final ResourceLocation field_110575_b = new ResourceLocation("textures/atlas/blocks.png");
++    public static final ResourceLocation field_110576_c = new ResourceLocation("textures/atlas/items.png");
++    private final List listTextureStiched = Lists.newArrayList();
++    private final Map field_110574_e = Maps.newHashMap();
++    private final HashMap mapTexturesStiched = Maps.newHashMap();
  
      /** 0 = terrain.png, 1 = items.png */
 -    public final int textureType;
@@ -11,12 +23,352 @@
      private final TextureAtlasSprite missingImage = new TextureAtlasSprite("missingno");
      public static TextureMap textureMapBlocks = null;
      public static TextureMap textureMapItems = null;
-@@ -556,7 +556,7 @@
+@@ -38,6 +38,11 @@
+ 
+     public TextureMap(int par1, String par2Str)
+     {
++        if (!par2Str.endsWith("/"))
++        {
++            par2Str = par2Str + "/";
++        }
++
+         this.textureType = par1;
+         this.basePath = par2Str;
+ 
+@@ -51,28 +56,28 @@
+             textureMapItems = this;
+         }
+ 
+-        this.registerIcons();
++        this.func_110573_f();
+     }
+ 
+-    private void initMissingImage()
++    private void func_110569_e()
+     {
+-        this.missingImage.setFramesTextureData(Lists.newArrayList(new int[][] {TextureUtil.missingTextureData}));
+-        this.missingImage.setIconWidth(16);
+-        this.missingImage.setIconHeight(16);
++        this.missingImage.func_110968_a(Lists.newArrayList(new int[][] {TextureUtil.field_110999_b}));
++        this.missingImage.func_110966_b(16);
++        this.missingImage.func_110969_c(16);
+         this.missingImage.setIndexInMap(0);
+     }
+ 
+-    public void loadTexture(ResourceManager par1ResourceManager) throws IOException
++    public void func_110551_a(ResourceManager par1ResourceManager) throws IOException
+     {
+-        this.initMissingImage();
+-        this.loadTextureAtlas(par1ResourceManager);
++        this.func_110569_e();
++        this.func_110571_b(par1ResourceManager);
+     }
+ 
+-    public void loadTextureAtlas(ResourceManager par1ResourceManager)
++    public void func_110571_b(ResourceManager par1ResourceManager)
+     {
+         Config.dbg("Loading texture map: " + this.basePath);
+         WrUpdates.finishCurrentUpdate();
+-        Iterator var2 = this.mapUploadedSprites.values().iterator();
++        Iterator var2 = this.mapTexturesStiched.values().iterator();
+ 
+         while (var2.hasNext())
+         {
+@@ -80,29 +85,24 @@
+             var3.deleteOwnTexture();
+         }
+ 
+-        this.registerIcons();
+-        Collection var21 = this.mapRegisteredSprites.values();
++        this.func_110573_f();
++        Collection var21 = this.field_110574_e.values();
+         this.iconGridSize = this.getStandardTileSize(var21);
+         Config.dbg("Icon grid size: " + this.basePath + ", " + this.iconGridSize);
+         int var22 = Minecraft.getGLMaximumTextureSize();
+         Stitcher var4 = new Stitcher(var22, var22, true);
+         var4.minTileDimension = this.iconGridSize;
+-        this.mapUploadedSprites.clear();
+-        this.listAnimatedSprites.clear();
++        this.mapTexturesStiched.clear();
++        this.listTextureStiched.clear();
+         Reflector.callVoid(Reflector.ForgeHooksClient_onTextureStitchedPre, new Object[] {this});
+-        Iterator var5 = this.mapRegisteredSprites.entrySet().iterator();
++        Iterator var5 = this.field_110574_e.entrySet().iterator();
+ 
+         while (var5.hasNext())
+         {
+             Entry var6 = (Entry)var5.next();
+-            ResourceLocation var7 = new ResourceLocation((String)var6.getKey());
++            String var7 = (String)var6.getKey();
+             TextureAtlasSprite var8 = (TextureAtlasSprite)var6.getValue();
+-            ResourceLocation var9 = new ResourceLocation(var7.getResourceDomain(), String.format("%s/%s%s", new Object[] {this.basePath, var7.getResourcePath(), ".png"}));
+-
+-            if (this.isAbsoluteLocation(var7))
+-            {
+-                var9 = new ResourceLocation(var7.getResourceDomain(), var7.getResourcePath() + ".png");
+-            }
++            ResourceLocation var9 = this.makeTextureLocation(var7);
+ 
+             try
+             {
+@@ -122,10 +122,10 @@
+                 continue;
+             }
+ 
+-            var4.addSprite(var8);
++            var4.func_110934_a(var8);
+         }
+ 
+-        var4.addSprite(this.missingImage);
++        var4.func_110934_a(this.missingImage);
+ 
+         try
+         {
+@@ -136,9 +136,9 @@
+             throw var17;
+         }
+ 
+-        Config.dbg("Texture size: " + this.basePath + ", " + var4.getCurrentWidth() + "x" + var4.getCurrentHeight());
+-        int var23 = var4.getCurrentWidth();
+-        int var24 = var4.getCurrentHeight();
++        Config.dbg("Texture size: " + this.basePath + ", " + var4.func_110935_a() + "x" + var4.func_110936_b());
++        int var23 = var4.func_110935_a();
++        int var24 = var4.func_110936_b();
+         BufferedImage var25 = null;
+ 
+         if (System.getProperty("saveTextureMap", "false").equalsIgnoreCase("true"))
+@@ -146,10 +146,10 @@
+             var25 = this.makeDebugImage(var23, var24);
+         }
+ 
+-        TextureUtil.allocateTexture(this.getGlTextureId(), var4.getCurrentWidth(), var4.getCurrentHeight());
++        TextureUtil.func_110991_a(this.func_110552_b(), var4.func_110935_a(), var4.func_110936_b());
+         boolean var26 = Config.isUseMipmaps() && this.textureType == 0;
+         TextureUtils.setupTexture(var23, var24, this.iconGridSize, var26);
+-        HashMap var10 = Maps.newHashMap(this.mapRegisteredSprites);
++        HashMap var10 = Maps.newHashMap(this.field_110574_e);
+         Iterator var11 = var4.getStichSlots().iterator();
+         TextureAtlasSprite var12;
+ 
+@@ -158,7 +158,7 @@
+             var12 = (TextureAtlasSprite)var11.next();
+             String var13 = var12.getIconName();
+             var10.remove(var13);
+-            this.mapUploadedSprites.put(var13, var12);
++            this.mapTexturesStiched.put(var13, var12);
+ 
+             try
+             {
+@@ -171,7 +171,7 @@
+                 if (Config.isMultiTexture())
+                 {
+                     var12.bindUploadOwnTexture();
+-                    TextureUtil.bindTexture(this.getGlTextureId());
++                    TextureUtil.bindTexture(this.func_110552_b());
+                 }
+ 
+                 if (var25 != null)
+@@ -188,13 +188,13 @@
+                 throw new ReportedException(var15);
+             }
+ 
+-            if (var12.hasAnimationMetadata())
++            if (var12.func_130098_m())
+             {
+-                this.listAnimatedSprites.add(var12);
++                this.listTextureStiched.add(var12);
+             }
+             else
+             {
+-                var12.clearFramesTextureData();
++                var12.func_130103_l();
+             }
+         }
+ 
+@@ -216,9 +216,9 @@
+         Reflector.callVoid(Reflector.ForgeHooksClient_onTextureStitchedPost, new Object[] {this});
+     }
+ 
+-    private void registerIcons()
++    private void func_110573_f()
+     {
+-        this.mapRegisteredSprites.clear();
++        this.field_110574_e.clear();
+         int var1;
+         int var2;
+ 
+@@ -256,9 +256,9 @@
+         }
+     }
+ 
+-    public TextureAtlasSprite getAtlasSprite(String par1Str)
++    public TextureAtlasSprite func_110572_b(String par1Str)
+     {
+-        TextureAtlasSprite var2 = (TextureAtlasSprite)this.mapUploadedSprites.get(par1Str);
++        TextureAtlasSprite var2 = (TextureAtlasSprite)this.mapTexturesStiched.get(par1Str);
+ 
+         if (var2 == null)
+         {
+@@ -270,8 +270,8 @@
+ 
+     public void updateAnimations()
+     {
+-        TextureUtil.bindTexture(this.getGlTextureId());
+-        Iterator var1 = this.listAnimatedSprites.iterator();
++        TextureUtil.bindTexture(this.func_110552_b());
++        Iterator var1 = this.listTextureStiched.iterator();
+ 
+         while (var1.hasNext())
+         {
+@@ -294,9 +294,9 @@
+ 
+         if (Config.isMultiTexture())
+         {
+-            for (int var4 = 0; var4 < this.listAnimatedSprites.size(); ++var4)
++            for (int var4 = 0; var4 < this.listTextureStiched.size(); ++var4)
+             {
+-                TextureAtlasSprite var3 = (TextureAtlasSprite)this.listAnimatedSprites.get(var4);
++                TextureAtlasSprite var3 = (TextureAtlasSprite)this.listTextureStiched.get(var4);
+ 
+                 if (this.isTerrainAnimationActive(var3))
+                 {
+@@ -314,12 +314,7 @@
+             par1Str = "null";
+         }
+ 
+-        Object var2 = (TextureAtlasSprite)this.mapRegisteredSprites.get(par1Str);
+-
+-        if (var2 == null && this.textureType == 1 && Reflector.ModLoader_getCustomAnimationLogic.exists())
+-        {
+-            var2 = Reflector.call(Reflector.ModLoader_getCustomAnimationLogic, new Object[] {par1Str});
+-        }
++        Object var2 = (TextureAtlasSprite)this.field_110574_e.get(par1Str);
+ 
+         if (var2 == null)
+         {
+@@ -343,39 +338,39 @@
+                 var2 = new TextureAtlasSprite(par1Str);
+             }
+ 
+-            this.mapRegisteredSprites.put(par1Str, var2);
++            this.field_110574_e.put(par1Str, var2);
+ 
+             if (var2 instanceof TextureAtlasSprite)
+             {
+                 TextureAtlasSprite var3 = (TextureAtlasSprite)var2;
+-                var3.setIndexInMap(this.mapRegisteredSprites.size());
++                var3.setIndexInMap(this.field_110574_e.size());
+             }
+         }
+ 
+         return (Icon)var2;
+     }
+ 
+-    public int getTextureType()
++    public int func_130086_a()
+     {
+         return this.textureType;
+     }
+ 
+-    public void tick()
++    public void func_110550_d()
+     {
+         this.updateAnimations();
+     }
+ 
+     public TextureAtlasSprite getTextureExtry(String name)
+     {
+-        return (TextureAtlasSprite)this.mapRegisteredSprites.get(name);
++        return (TextureAtlasSprite)this.field_110574_e.get(name);
+     }
+ 
+     public boolean setTextureEntry(String name, TextureAtlasSprite entry)
+     {
+-        if (!this.mapRegisteredSprites.containsKey(name))
++        if (!this.field_110574_e.containsKey(name))
+         {
+-            this.mapRegisteredSprites.put(name, entry);
+-            entry.setIndexInMap(this.mapRegisteredSprites.size());
++            this.field_110574_e.put(name, entry);
++            entry.setIndexInMap(this.field_110574_e.size());
+             return true;
+         }
+         else
+@@ -384,15 +379,28 @@
+         }
+     }
+ 
+-    private boolean isAbsoluteLocation(ResourceLocation loc)
++    private ResourceLocation makeTextureLocation(String name)
+     {
+-        String name = loc.getResourcePath().toLowerCase();
+-        return name.startsWith("mcpatcher/") || name.startsWith("optifine/");
++        String png = ".png";
++        int modSepPos = name.indexOf(":");
++
++        if (modSepPos > 0)
++        {
++            String modName = name.substring(0, modSepPos);
++            String texName = name.substring(modSepPos + 1);
++            String domain = modName.toLowerCase();
++            String filePath = this.basePath + texName + png;
++            return new ResourceLocation(domain, filePath);
++        }
++        else
++        {
++            return !name.startsWith("mcpatcher/") && !name.startsWith("optifine/") ? new ResourceLocation(this.basePath + name + png) : new ResourceLocation(name + png);
++        }
+     }
+ 
+     public TextureAtlasSprite getIconSafe(String name)
+     {
+-        return (TextureAtlasSprite)this.mapRegisteredSprites.get(name);
++        return (TextureAtlasSprite)this.field_110574_e.get(name);
+     }
+ 
+     private int getStandardTileSize(Collection icons)
+@@ -455,7 +463,7 @@
+             this.iconGrid = new TextureAtlasSprite[this.iconGridCountX * this.iconGridCountY];
+             this.iconGridSizeU = 1.0D / (double)this.iconGridCountX;
+             this.iconGridSizeV = 1.0D / (double)this.iconGridCountY;
+-            Iterator it = this.mapUploadedSprites.values().iterator();
++            Iterator it = this.mapTexturesStiched.values().iterator();
+ 
+             while (it.hasNext())
+             {
+@@ -517,7 +525,7 @@
+ 
+     public int getMaxTextureIndex()
+     {
+-        return this.mapRegisteredSprites.size();
++        return this.field_110574_e.size();
+     }
+ 
+     private boolean isTerrainAnimationActive(TextureAtlasSprite ts)
+@@ -529,7 +537,7 @@
+     {
+         try
+         {
+-            this.loadTexture(rm);
++            this.func_110551_a(rm);
+         }
+         catch (IOException var3)
+         {
+@@ -549,14 +557,14 @@
+ 
+     private void addDebugSprite(TextureAtlasSprite ts, BufferedImage image)
+     {
+-        if (ts.getFrameCount() < 1)
++        if (ts.func_110970_k() < 1)
+         {
+             Config.warn("Debug sprite has no data: " + ts.getIconName());
+         }
          else
          {
-             int[] data = ts.getFrameTextureData(0);
+-            int[] data = ts.getFrameTextureData(0);
 -            image.setRGB(ts.getOriginX(), ts.getOriginY(), ts.getIconWidth(), ts.getIconHeight(), data, 0, ts.getIconWidth());
-+            image.setRGB(ts.originX, ts.originY, ts.width, ts.height, data, 0, ts.width);
++            int[] data = ts.func_110965_a(0);
++            image.setRGB(ts.field_110975_c, ts.field_110974_d, ts.field_130223_c, ts.field_130224_d, data, 0, ts.field_130223_c);
          }
      }
  

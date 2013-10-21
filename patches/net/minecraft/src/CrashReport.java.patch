@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/CrashReport.java
++++ b/net/minecraft/src/CrashReport.java
+@@ -210,7 +210,7 @@
+         }
+     }
+ 
+-    public CrashReportCategory getCategory()
++    public CrashReportCategory func_85056_g()
+     {
+         return this.field_85061_c;
+     }

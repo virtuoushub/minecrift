@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/WorldInfo.java
++++ b/net/minecraft/src/WorldInfo.java
+@@ -251,7 +251,7 @@
+         par1NBTTagCompound.setLong("Time", this.totalTime);
+         par1NBTTagCompound.setLong("DayTime", this.worldTime);
+         par1NBTTagCompound.setLong("SizeOnDisk", this.sizeOnDisk);
+-        par1NBTTagCompound.setLong("LastPlayed", MinecraftServer.getSystemTimeMillis());
++        par1NBTTagCompound.setLong("LastPlayed", MinecraftServer.func_130071_aq());
+         par1NBTTagCompound.setString("LevelName", this.levelName);
+         par1NBTTagCompound.setInteger("version", this.saveVersion);
+         par1NBTTagCompound.setInteger("rainTime", this.rainTime);

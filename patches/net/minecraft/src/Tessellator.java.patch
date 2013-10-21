@@ -6,8 +6,8 @@
                  this.vertexQuadIcons[var22 / 4] = var17;
 -                int var23 = var17.sheetWidth / var17.getIconWidth();
 -                int var24 = var17.sheetHeight / var17.getIconHeight();
-+                int var23 = var17.sheetWidth / var17.width;
-+                int var24 = var17.sheetHeight / var17.height;
++                int var23 = var17.sheetWidth / var17.field_130223_c;
++                int var24 = var17.sheetHeight / var17.field_130224_d;
                  int var25 = this.color;
                  int var26 = this.brightness;
  

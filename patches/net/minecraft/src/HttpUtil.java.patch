@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/HttpUtil.java
++++ b/net/minecraft/src/HttpUtil.java
+@@ -78,7 +78,7 @@
+     {
+         try
+         {
+-            Proxy var4 = MinecraftServer.getServer() == null ? null : MinecraftServer.getServer().getServerProxy();
++            Proxy var4 = MinecraftServer.getServer() == null ? null : MinecraftServer.getServer().func_110454_ao();
+ 
+             if (var4 == null)
+             {

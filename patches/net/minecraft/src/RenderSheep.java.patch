@@ -1,0 +1,43 @@
+--- a/net/minecraft/src/RenderSheep.java
++++ b/net/minecraft/src/RenderSheep.java
+@@ -4,8 +4,8 @@
+ 
+ public class RenderSheep extends RenderLiving
+ {
+-    private static final ResourceLocation sheepTextures = new ResourceLocation("textures/entity/sheep/sheep_fur.png");
+-    private static final ResourceLocation shearedSheepTextures = new ResourceLocation("textures/entity/sheep/sheep.png");
++    private static final ResourceLocation field_110885_a = new ResourceLocation("textures/entity/sheep/sheep_fur.png");
++    private static final ResourceLocation field_110884_f = new ResourceLocation("textures/entity/sheep/sheep.png");
+ 
+     public RenderSheep(ModelBase par1ModelBase, ModelBase par2ModelBase, float par3)
+     {
+@@ -17,7 +17,7 @@
+     {
+         if (par2 == 0 && !par1EntitySheep.getSheared())
+         {
+-            this.bindTexture(sheepTextures);
++            this.func_110776_a(field_110885_a);
+             float var4 = 1.0F;
+             int var5 = par1EntitySheep.getFleeceColor();
+             GL11.glColor3f(var4 * EntitySheep.fleeceColorTable[var5][0], var4 * EntitySheep.fleeceColorTable[var5][1], var4 * EntitySheep.fleeceColorTable[var5][2]);
+@@ -31,7 +31,7 @@
+ 
+     protected ResourceLocation func_110883_a(EntitySheep par1EntitySheep)
+     {
+-        return shearedSheepTextures;
++        return field_110884_f;
+     }
+ 
+     /**
+@@ -42,10 +42,7 @@
+         return this.setWoolColorAndRender((EntitySheep)par1EntityLivingBase, par2, par3);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+         return this.func_110883_a((EntitySheep)par1Entity);
+     }

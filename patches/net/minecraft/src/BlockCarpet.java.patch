@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/BlockCarpet.java
++++ b/net/minecraft/src/BlockCarpet.java
+@@ -6,7 +6,7 @@
+ {
+     protected BlockCarpet(int par1)
+     {
+-        super(par1, Material.materialCarpet);
++        super(par1, Material.field_111018_r);
+         this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.0625F, 1.0F);
+         this.setTickRandomly(true);
+         this.setCreativeTab(CreativeTabs.tabDecorations);

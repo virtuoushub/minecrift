@@ -1,0 +1,59 @@
+--- a/net/minecraft/src/ItemPotion.java
++++ b/net/minecraft/src/ItemPotion.java
+@@ -293,8 +293,8 @@
+                         {
+                             Entry var13 = (Entry)var12.next();
+                             AttributeModifier var14 = (AttributeModifier)var13.getValue();
+-                            AttributeModifier var15 = new AttributeModifier(var14.getName(), var10.func_111183_a(var8.getAmplifier(), var14), var14.getOperation());
+-                            var6.put(((Attribute)var13.getKey()).getAttributeUnlocalizedName(), var15);
++                            AttributeModifier var15 = new AttributeModifier(var14.func_111166_b(), var10.func_111183_a(var8.getAmplifier(), var14), var14.func_111169_c());
++                            var6.put(((Attribute)var13.getKey()).func_111108_a(), var15);
+                         }
+                     }
+ 
+@@ -334,26 +334,26 @@
+                 {
+                     Entry var17 = (Entry)var16.next();
+                     AttributeModifier var18 = (AttributeModifier)var17.getValue();
+-                    double var19 = var18.getAmount();
++                    double var19 = var18.func_111164_d();
+                     double var20;
+ 
+-                    if (var18.getOperation() != 1 && var18.getOperation() != 2)
++                    if (var18.func_111169_c() != 1 && var18.func_111169_c() != 2)
+                     {
+-                        var20 = var18.getAmount();
++                        var20 = var18.func_111164_d();
+                     }
+                     else
+                     {
+-                        var20 = var18.getAmount() * 100.0D;
++                        var20 = var18.func_111164_d() * 100.0D;
+                     }
+ 
+                     if (var19 > 0.0D)
+                     {
+-                        par3List.add(EnumChatFormatting.BLUE + StatCollector.translateToLocalFormatted("attribute.modifier.plus." + var18.getOperation(), new Object[] {ItemStack.field_111284_a.format(var20), StatCollector.translateToLocal("attribute.name." + (String)var17.getKey())}));
++                        par3List.add(EnumChatFormatting.BLUE + StatCollector.translateToLocalFormatted("attribute.modifier.plus." + var18.func_111169_c(), new Object[] {ItemStack.field_111284_a.format(var20), StatCollector.translateToLocal("attribute.name." + (String)var17.getKey())}));
+                     }
+                     else if (var19 < 0.0D)
+                     {
+                         var20 *= -1.0D;
+-                        par3List.add(EnumChatFormatting.RED + StatCollector.translateToLocalFormatted("attribute.modifier.take." + var18.getOperation(), new Object[] {ItemStack.field_111284_a.format(var20), StatCollector.translateToLocal("attribute.name." + (String)var17.getKey())}));
++                        par3List.add(EnumChatFormatting.RED + StatCollector.translateToLocalFormatted("attribute.modifier.take." + var18.func_111169_c(), new Object[] {ItemStack.field_111284_a.format(var20), StatCollector.translateToLocal("attribute.name." + (String)var17.getKey())}));
+                     }
+                 }
+             }
+@@ -429,9 +429,9 @@
+ 
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.field_94590_d = par1IconRegister.registerIcon(this.getIconString() + "_" + "bottle_drinkable");
+-        this.field_94591_c = par1IconRegister.registerIcon(this.getIconString() + "_" + "bottle_splash");
+-        this.field_94592_ct = par1IconRegister.registerIcon(this.getIconString() + "_" + "overlay");
++        this.field_94590_d = par1IconRegister.registerIcon(this.func_111208_A() + "_" + "bottle_drinkable");
++        this.field_94591_c = par1IconRegister.registerIcon(this.func_111208_A() + "_" + "bottle_splash");
++        this.field_94592_ct = par1IconRegister.registerIcon(this.func_111208_A() + "_" + "overlay");
+     }
+ 
+     public static Icon func_94589_d(String par0Str)

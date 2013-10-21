@@ -1,0 +1,22 @@
+--- a/net/minecraft/src/GuiSnooper.java
++++ b/net/minecraft/src/GuiSnooper.java
+@@ -33,8 +33,8 @@
+      */
+     public void initGui()
+     {
+-        this.snooperTitle = I18n.getString("options.snooper.title");
+-        String var1 = I18n.getString("options.snooper.desc");
++        this.snooperTitle = I18n.func_135053_a("options.snooper.title");
++        String var1 = I18n.func_135053_a("options.snooper.desc");
+         ArrayList var2 = new ArrayList();
+         Iterator var3 = this.fontRenderer.listFormattedStringToWidth(var1, this.width - 30).iterator();
+ 
+@@ -48,7 +48,7 @@
+         this.field_74098_c.clear();
+         this.field_74096_d.clear();
+         this.buttonList.add(this.buttonAllowSnooping = new GuiButton(1, this.width / 2 - 152, this.height - 30, 150, 20, this.snooperGameSettings.getKeyBinding(EnumOptions.SNOOPER_ENABLED)));
+-        this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 30, 150, 20, I18n.getString("gui.done")));
++        this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 30, 150, 20, I18n.func_135053_a("gui.done")));
+         boolean var6 = this.mc.getIntegratedServer() != null && this.mc.getIntegratedServer().getPlayerUsageSnooper() != null;
+         Iterator var7 = (new TreeMap(this.mc.getPlayerUsageSnooper().getCurrentStats())).entrySet().iterator();
+         Entry var5;

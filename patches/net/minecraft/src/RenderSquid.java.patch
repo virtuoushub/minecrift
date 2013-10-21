@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/RenderSquid.java
++++ b/net/minecraft/src/RenderSquid.java
+@@ -4,7 +4,7 @@
+ 
+ public class RenderSquid extends RenderLiving
+ {
+-    private static final ResourceLocation squidTextures = new ResourceLocation("textures/entity/squid.png");
++    private static final ResourceLocation field_110901_a = new ResourceLocation("textures/entity/squid.png");
+ 
+     public RenderSquid(ModelBase par1ModelBase, float par2)
+     {
+@@ -19,9 +19,9 @@
+         super.doRenderLiving(par1EntitySquid, par2, par4, par6, par8, par9);
+     }
+ 
+-    protected ResourceLocation getSquidTextures(EntitySquid par1EntitySquid)
++    protected ResourceLocation func_110900_a(EntitySquid par1EntitySquid)
+     {
+-        return squidTextures;
++        return field_110901_a;
+     }
+ 
+     /**
+@@ -66,12 +66,9 @@
+         this.renderLivingSquid((EntitySquid)par1EntityLivingBase, par2, par4, par6, par8, par9);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getSquidTextures((EntitySquid)par1Entity);
++        return this.func_110900_a((EntitySquid)par1Entity);
+     }
+ 
+     /**

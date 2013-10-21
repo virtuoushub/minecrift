@@ -1,0 +1,15 @@
+--- a/net/minecraft/src/Gui.java
++++ b/net/minecraft/src/Gui.java
+@@ -4,9 +4,9 @@
+ 
+ public class Gui
+ {
+-    public static final ResourceLocation optionsBackground = new ResourceLocation("textures/gui/options_background.png");
+-    public static final ResourceLocation statIcons = new ResourceLocation("textures/gui/container/stats_icons.png");
+-    public static final ResourceLocation icons = new ResourceLocation("textures/gui/icons.png");
++    public static final ResourceLocation field_110325_k = new ResourceLocation("textures/gui/options_background.png");
++    public static final ResourceLocation field_110323_l = new ResourceLocation("textures/gui/container/stats_icons.png");
++    public static final ResourceLocation field_110324_m = new ResourceLocation("textures/gui/icons.png");
+     protected float zLevel;
+ 
+     protected void drawHorizontalLine(int par1, int par2, int par3, int par4)

@@ -1,0 +1,13 @@
+--- a/net/minecraft/src/BlockDropper.java
++++ b/net/minecraft/src/BlockDropper.java
+@@ -17,8 +17,8 @@
+     {
+         this.blockIcon = par1IconRegister.registerIcon("furnace_side");
+         this.furnaceTopIcon = par1IconRegister.registerIcon("furnace_top");
+-        this.furnaceFrontIcon = par1IconRegister.registerIcon(this.getTextureName() + "_front_horizontal");
+-        this.field_96473_e = par1IconRegister.registerIcon(this.getTextureName() + "_front_vertical");
++        this.furnaceFrontIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_front_horizontal");
++        this.field_96473_e = par1IconRegister.registerIcon(this.func_111023_E() + "_front_vertical");
+     }
+ 
+     /**

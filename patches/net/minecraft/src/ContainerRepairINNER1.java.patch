@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/ContainerRepairINNER1.java
++++ b/net/minecraft/src/ContainerRepairINNER1.java
+@@ -2,12 +2,12 @@
+ 
+ class ContainerRepairINNER1 extends InventoryBasic
+ {
+-    final ContainerRepair repairContainer;
++    final ContainerRepair field_135010_a;
+ 
+     ContainerRepairINNER1(ContainerRepair par1ContainerRepair, String par2Str, boolean par3, int par4)
+     {
+         super(par2Str, par3, par4);
+-        this.repairContainer = par1ContainerRepair;
++        this.field_135010_a = par1ContainerRepair;
+     }
+ 
+     /**
+@@ -16,7 +16,7 @@
+     public void onInventoryChanged()
+     {
+         super.onInventoryChanged();
+-        this.repairContainer.onCraftMatrixChanged(this);
++        this.field_135010_a.onCraftMatrixChanged(this);
+     }
+ 
+     /**

@@ -1,0 +1,46 @@
+--- a/net/minecraft/src/GuiSlotOnlineServerList.java
++++ b/net/minecraft/src/GuiSlotOnlineServerList.java
+@@ -30,13 +30,13 @@
+             McoServer var3 = (McoServer)GuiScreenOnlineServers.func_140013_c(this.field_96294_a).get(par1);
+             GuiScreenOnlineServers.func_140036_b(this.field_96294_a, var3.field_96408_a);
+ 
+-            if (!GuiScreenOnlineServers.func_140015_g(this.field_96294_a).getSession().getUsername().equals(var3.field_96405_e))
++            if (!GuiScreenOnlineServers.func_140015_g(this.field_96294_a).func_110432_I().func_111285_a().equals(var3.field_96405_e))
+             {
+-                GuiScreenOnlineServers.func_140038_h(this.field_96294_a).displayString = I18n.getString("mco.selectServer.leave");
++                GuiScreenOnlineServers.func_140038_h(this.field_96294_a).displayString = I18n.func_135053_a("mco.selectServer.leave");
+             }
+             else
+             {
+-                GuiScreenOnlineServers.func_140038_h(this.field_96294_a).displayString = I18n.getString("mco.selectServer.configure");
++                GuiScreenOnlineServers.func_140038_h(this.field_96294_a).displayString = I18n.func_135053_a("mco.selectServer.configure");
+             }
+ 
+             GuiScreenOnlineServers.func_140033_i(this.field_96294_a).enabled = var3.field_96404_d.equals("OPEN") && !var3.field_98166_h;
+@@ -60,7 +60,7 @@
+     {
+         try
+         {
+-            return par1 >= 0 && par1 < GuiScreenOnlineServers.func_140013_c(this.field_96294_a).size() && ((McoServer)GuiScreenOnlineServers.func_140013_c(this.field_96294_a).get(par1)).field_96405_e.toLowerCase().equals(GuiScreenOnlineServers.func_104032_j(this.field_96294_a).getSession().getUsername());
++            return par1 >= 0 && par1 < GuiScreenOnlineServers.func_140013_c(this.field_96294_a).size() && ((McoServer)GuiScreenOnlineServers.func_140013_c(this.field_96294_a).get(par1)).field_96405_e.toLowerCase().equals(GuiScreenOnlineServers.func_104032_j(this.field_96294_a).func_110432_I().func_111285_a());
+         }
+         catch (Exception var3)
+         {
+@@ -101,7 +101,7 @@
+         {
+             GuiScreenOnlineServers.func_140035_b(this.field_96294_a, par2 + var7, par3 + var8, this.field_104094_d, this.field_104095_e);
+         }
+-        else if (var6.field_96405_e.equals(GuiScreenOnlineServers.func_140014_l(this.field_96294_a).getSession().getUsername()) && var6.field_104063_i < 7)
++        else if (var6.field_96405_e.equals(GuiScreenOnlineServers.func_140014_l(this.field_96294_a).func_110432_I().func_111285_a()) && var6.field_104063_i < 7)
+         {
+             this.func_96293_a(par1, par2 - 14, par3, var6);
+             GuiScreenOnlineServers.func_140031_a(this.field_96294_a, par2 + var7, par3 + var8, this.field_104094_d, this.field_104095_e, var6.field_104063_i);
+@@ -134,7 +134,7 @@
+             }
+ 
+             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-            GuiScreenOnlineServers.func_142023_q(this.field_96294_a).getTextureManager().bindTexture(Gui.icons);
++            GuiScreenOnlineServers.func_142023_q(this.field_96294_a).func_110434_K().func_110577_a(Gui.field_110324_m);
+         }
+     }
+ }

@@ -1,0 +1,71 @@
+--- a/net/minecraft/src/EntityMinecart.java
++++ b/net/minecraft/src/EntityMinecart.java
+@@ -29,7 +29,7 @@
+         this.preventEntitySpawning = true;
+         this.setSize(0.98F, 0.7F);
+         this.yOffset = this.height / 2.0F;
+-        this.field_82344_g = par1World != null ? par1World.getMinecartSoundUpdater(this) : null;
++        this.field_82344_g = par1World != null ? par1World.func_82735_a(this) : null;
+     }
+ 
+     /**
+@@ -44,19 +44,14 @@
+         {
+             case 1:
+                 return new EntityMinecartChest(par0World, par1, par3, par5);
+-
+             case 2:
+                 return new EntityMinecartFurnace(par0World, par1, par3, par5);
+-
+             case 3:
+                 return new EntityMinecartTNT(par0World, par1, par3, par5);
+-
+             case 4:
+                 return new EntityMinecartMobSpawner(par0World, par1, par3, par5);
+-
+             case 5:
+                 return new EntityMinecartHopper(par0World, par1, par3, par5);
+-
+             default:
+                 return new EntityMinecartEmpty(par0World, par1, par3, par5);
+         }
+@@ -252,9 +247,9 @@
+             {
+                 if (var1.getAllowNether())
+                 {
+-                    if (this.ridingEntity == null && this.portalCounter++ >= var2)
++                    if (this.ridingEntity == null && this.field_82153_h++ >= var2)
+                     {
+-                        this.portalCounter = var2;
++                        this.field_82153_h = var2;
+                         this.timeUntilPortal = this.getPortalCooldown();
+                         byte var3;
+ 
+@@ -275,14 +270,14 @@
+             }
+             else
+             {
+-                if (this.portalCounter > 0)
++                if (this.field_82153_h > 0)
+                 {
+-                    this.portalCounter -= 4;
++                    this.field_82153_h -= 4;
+                 }
+ 
+-                if (this.portalCounter < 0)
++                if (this.field_82153_h < 0)
+                 {
+-                    this.portalCounter = 0;
++                    this.field_82153_h = 0;
+                 }
+             }
+ 
+@@ -1009,7 +1004,7 @@
+      */
+     public float getDamage()
+     {
+-        return this.dataWatcher.getWatchableObjectFloat(19);
++        return this.dataWatcher.func_111145_d(19);
+     }
+ 
+     /**

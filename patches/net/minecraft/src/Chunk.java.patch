@@ -1,0 +1,31 @@
+--- a/net/minecraft/src/Chunk.java
++++ b/net/minecraft/src/Chunk.java
+@@ -80,9 +80,7 @@
+ 
+     /** Lowest value in the heightmap. */
+     public int heightMapMinimum;
+-
+-    /** the cumulative number of ticks players have been in this chunk */
+-    public long inhabitedTime;
++    public long field_111204_q;
+ 
+     /**
+      * Contains the current round-robin relight check index, and is implied as the relight check location as well.
+@@ -585,7 +583,7 @@
+ 
+             if (var8 != 0 && !this.worldObj.isRemote)
+             {
+-                Block.blocksList[var8].onBlockPreDestroy(this.worldObj, var12, par2, var13, var9);
++                Block.blocksList[var8].onSetBlockIDWithMetaData(this.worldObj, var12, par2, var13, var9);
+             }
+ 
+             var10.setExtBlockID(par1, par2 & 15, par3, par4);
+@@ -960,7 +958,7 @@
+             while (var2.hasNext())
+             {
+                 Entity var3 = (Entity)var2.next();
+-                var3.onChunkLoad();
++                var3.func_110123_P();
+             }
+ 
+             this.worldObj.addLoadedEntities(this.entityLists[var1]);

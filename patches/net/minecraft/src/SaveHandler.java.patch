@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/SaveHandler.java
++++ b/net/minecraft/src/SaveHandler.java
+@@ -20,7 +20,7 @@
+     /**
+      * The time in milliseconds when this field was initialized. Stored in the session lock file.
+      */
+-    private final long initializationTime = MinecraftServer.getSystemTimeMillis();
++    private final long initializationTime = MinecraftServer.func_130071_aq();
+ 
+     /** The directory name of the world */
+     private final String saveDirectoryName;

@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/EntityAnimal.java
++++ b/net/minecraft/src/EntityAnimal.java
+@@ -179,11 +179,11 @@
+ 
+             if (!this.isAIEnabled())
+             {
+-                AttributeInstance var3 = this.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
++                AttributeInstance var3 = this.func_110148_a(SharedMonsterAttributes.field_111263_d);
+ 
+-                if (var3.getModifier(field_110179_h) == null)
++                if (var3.func_111127_a(field_110179_h) == null)
+                 {
+-                    var3.applyModifier(field_110181_i);
++                    var3.func_111121_a(field_110181_i);
+                 }
+             }
+ 

@@ -1,0 +1,18 @@
+--- a/net/minecraft/src/EntityWitherSkull.java
++++ b/net/minecraft/src/EntityWitherSkull.java
+@@ -36,13 +36,9 @@
+         return false;
+     }
+ 
+-    /**
+-     * Gets a block's resistance to this entity's explosion. Used to make rails immune to TNT minecarts' explosions and
+-     * Wither skulls more destructive.
+-     */
+-    public float getBlockExplosionResistance(Explosion par1Explosion, World par2World, int par3, int par4, int par5, Block par6Block)
++    public float func_82146_a(Explosion par1Explosion, World par2World, int par3, int par4, int par5, Block par6Block)
+     {
+-        float var7 = super.getBlockExplosionResistance(par1Explosion, par2World, par3, par4, par5, par6Block);
++        float var7 = super.func_82146_a(par1Explosion, par2World, par3, par4, par5, par6Block);
+ 
+         if (this.isInvulnerable() && par6Block != Block.bedrock && par6Block != Block.endPortal && par6Block != Block.endPortalFrame)
+         {

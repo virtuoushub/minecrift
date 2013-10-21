@@ -1,0 +1,19 @@
+--- a/net/minecraft/src/ItemSword.java
++++ b/net/minecraft/src/ItemSword.java
+@@ -124,13 +124,10 @@
+         return this.toolMaterial.getToolCraftingMaterial() == par2ItemStack.itemID ? true : super.getIsRepairable(par1ItemStack, par2ItemStack);
+     }
+ 
+-    /**
+-     * Gets a map of item attribute modifiers, used by ItemSword to increase hit damage.
+-     */
+-    public Multimap getItemAttributeModifiers()
++    public Multimap func_111205_h()
+     {
+-        Multimap var1 = super.getItemAttributeModifiers();
+-        var1.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", (double)this.weaponDamage, 0));
++        Multimap var1 = super.func_111205_h();
++        var1.put(SharedMonsterAttributes.field_111264_e.func_111108_a(), new AttributeModifier(field_111210_e, "Weapon modifier", (double)this.weaponDamage, 0));
+         return var1;
+     }
+ }

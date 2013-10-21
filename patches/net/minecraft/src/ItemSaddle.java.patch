@@ -1,0 +1,23 @@
+--- a/net/minecraft/src/ItemSaddle.java
++++ b/net/minecraft/src/ItemSaddle.java
+@@ -9,10 +9,7 @@
+         this.setCreativeTab(CreativeTabs.tabTransport);
+     }
+ 
+-    /**
+-     * Returns true if the item can be used on the given entity, e.g. shears on sheep.
+-     */
+-    public boolean itemInteractionForEntity(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, EntityLivingBase par3EntityLivingBase)
++    public boolean func_111207_a(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, EntityLivingBase par3EntityLivingBase)
+     {
+         if (par3EntityLivingBase instanceof EntityPig)
+         {
+@@ -38,7 +35,7 @@
+      */
+     public boolean hitEntity(ItemStack par1ItemStack, EntityLivingBase par2EntityLivingBase, EntityLivingBase par3EntityLivingBase)
+     {
+-        this.itemInteractionForEntity(par1ItemStack, (EntityPlayer)null, par2EntityLivingBase);
++        this.func_111207_a(par1ItemStack, (EntityPlayer)null, par2EntityLivingBase);
+         return true;
+     }
+ }

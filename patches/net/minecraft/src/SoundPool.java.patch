@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/SoundPool.java
++++ b/net/minecraft/src/SoundPool.java
+@@ -18,14 +18,14 @@
+      * Maps a name (can be sound/newsound/streaming/music/newmusic) to a list of SoundPoolEntry's.
+      */
+     private final Map nameToSoundPoolEntriesMapping = Maps.newHashMap();
+-    private final ResourceManager soundResourceManager;
+-    private final String soundType;
++    private final ResourceManager field_110657_c;
++    private final String field_110656_d;
+     private final boolean isGetRandomSound;
+ 
+     public SoundPool(ResourceManager par1ResourceManager, String par2Str, boolean par3)
+     {
+-        this.soundResourceManager = par1ResourceManager;
+-        this.soundType = par2Str;
++        this.field_110657_c = par1ResourceManager;
++        this.field_110656_d = par2Str;
+         this.isGetRandomSound = par3;
+     }
+ 
+@@ -68,7 +68,7 @@
+     private URL func_110654_c(String par1Str) throws MalformedURLException
+     {
+         ResourceLocation var2 = new ResourceLocation(par1Str);
+-        String var3 = String.format("%s:%s:%s/%s", new Object[] {"mcsounddomain", var2.getResourceDomain(), this.soundType, var2.getResourcePath()});
++        String var3 = String.format("%s:%s:%s/%s", new Object[] {"mcsounddomain", var2.func_110624_b(), this.field_110656_d, var2.func_110623_a()});
+         SoundPoolProtocolHandler var4 = new SoundPoolProtocolHandler(this);
+         return new URL((URL)null, var3, var4);
+     }
+@@ -100,6 +100,6 @@
+ 
+     static ResourceManager func_110655_a(SoundPool par0SoundPool)
+     {
+-        return par0SoundPool.soundResourceManager;
++        return par0SoundPool.field_110657_c;
+     }
+ }

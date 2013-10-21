@@ -1,0 +1,34 @@
+--- a/net/minecraft/src/GuiLanguage.java
++++ b/net/minecraft/src/GuiLanguage.java
+@@ -27,7 +27,7 @@
+      */
+     public void initGui()
+     {
+-        this.buttonList.add(this.doneButton = new GuiSmallButton(6, this.width / 2 - 75, this.height - 38, I18n.getString("gui.done")));
++        this.buttonList.add(this.doneButton = new GuiSmallButton(6, this.width / 2 - 75, this.height - 38, I18n.func_135053_a("gui.done")));
+         this.languageList = new GuiSlotLanguage(this);
+         this.languageList.registerScrollButtons(7, 8);
+     }
+@@ -43,11 +43,9 @@
+             {
+                 case 5:
+                     break;
+-
+                 case 6:
+                     this.mc.displayGuiScreen(this.parentGui);
+                     break;
+-
+                 default:
+                     this.languageList.actionPerformed(par1GuiButton);
+             }
+@@ -60,8 +58,8 @@
+     public void drawScreen(int par1, int par2, float par3)
+     {
+         this.languageList.drawScreen(par1, par2, par3);
+-        this.drawCenteredString(this.fontRenderer, I18n.getString("options.language"), this.width / 2, 16, 16777215);
+-        this.drawCenteredString(this.fontRenderer, "(" + I18n.getString("options.languageWarning") + ")", this.width / 2, this.height - 56, 8421504);
++        this.drawCenteredString(this.fontRenderer, I18n.func_135053_a("options.language"), this.width / 2, 16, 16777215);
++        this.drawCenteredString(this.fontRenderer, "(" + I18n.func_135053_a("options.languageWarning") + ")", this.width / 2, this.height - 56, 8421504);
+         super.drawScreen(par1, par2, par3);
+     }
+ 

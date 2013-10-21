@@ -1,0 +1,402 @@
+--- a/net/minecraft/src/EntityLiving.java
++++ b/net/minecraft/src/EntityLiving.java
+@@ -43,8 +43,8 @@
+ 
+     /** How long to keep a specific target entity */
+     protected int numTicksToChaseTarget;
+-    private boolean isLeashed;
+-    private Entity leashedToEntity;
++    private boolean field_110169_bv;
++    private Entity field_110168_bw;
+     private NBTTagCompound field_110170_bx;
+ 
+     public EntityLiving(World par1World)
+@@ -65,10 +65,10 @@
+         }
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getAttributeMap().func_111150_b(SharedMonsterAttributes.followRange).setAttribute(16.0D);
++        super.func_110147_ax();
++        this.func_110140_aT().func_111150_b(SharedMonsterAttributes.field_111265_b).func_111128_a(16.0D);
+     }
+ 
+     public EntityLookHelper getLookHelper()
+@@ -314,21 +314,21 @@
+ 
+         par1NBTTagCompound.setTag("DropChances", var6);
+         par1NBTTagCompound.setString("CustomName", this.getCustomNameTag());
+-        par1NBTTagCompound.setBoolean("CustomNameVisible", this.getAlwaysRenderNameTag());
+-        par1NBTTagCompound.setBoolean("Leashed", this.isLeashed);
++        par1NBTTagCompound.setBoolean("CustomNameVisible", this.func_94062_bN());
++        par1NBTTagCompound.setBoolean("Leashed", this.field_110169_bv);
+ 
+-        if (this.leashedToEntity != null)
++        if (this.field_110168_bw != null)
+         {
+             var4 = new NBTTagCompound("Leash");
+ 
+-            if (this.leashedToEntity instanceof EntityLivingBase)
++            if (this.field_110168_bw instanceof EntityLivingBase)
+             {
+-                var4.setLong("UUIDMost", this.leashedToEntity.getUniqueID().getMostSignificantBits());
+-                var4.setLong("UUIDLeast", this.leashedToEntity.getUniqueID().getLeastSignificantBits());
++                var4.setLong("UUIDMost", this.field_110168_bw.func_110124_au().getMostSignificantBits());
++                var4.setLong("UUIDLeast", this.field_110168_bw.func_110124_au().getLeastSignificantBits());
+             }
+-            else if (this.leashedToEntity instanceof EntityHanging)
++            else if (this.field_110168_bw instanceof EntityHanging)
+             {
+-                EntityHanging var5 = (EntityHanging)this.leashedToEntity;
++                EntityHanging var5 = (EntityHanging)this.field_110168_bw;
+                 var4.setInteger("X", var5.xPosition);
+                 var4.setInteger("Y", var5.yPosition);
+                 var4.setInteger("Z", var5.zPosition);
+@@ -349,10 +349,10 @@
+ 
+         if (par1NBTTagCompound.hasKey("CustomName") && par1NBTTagCompound.getString("CustomName").length() > 0)
+         {
+-            this.setCustomNameTag(par1NBTTagCompound.getString("CustomName"));
++            this.func_94058_c(par1NBTTagCompound.getString("CustomName"));
+         }
+ 
+-        this.setAlwaysRenderNameTag(par1NBTTagCompound.getBoolean("CustomNameVisible"));
++        this.func_94061_f(par1NBTTagCompound.getBoolean("CustomNameVisible"));
+         NBTTagList var2;
+         int var3;
+ 
+@@ -376,9 +376,9 @@
+             }
+         }
+ 
+-        this.isLeashed = par1NBTTagCompound.getBoolean("Leashed");
++        this.field_110169_bv = par1NBTTagCompound.getBoolean("Leashed");
+ 
+-        if (this.isLeashed && par1NBTTagCompound.hasKey("Leash"))
++        if (this.field_110169_bv && par1NBTTagCompound.hasKey("Leash"))
+         {
+             this.field_110170_bx = par1NBTTagCompound.getCompoundTag("Leash");
+         }
+@@ -714,10 +714,7 @@
+         return 4;
+     }
+ 
+-    /**
+-     * The number of iterations PathFinder.getSafePoint will execute before giving up.
+-     */
+-    public int getMaxSafePointTries()
++    public int func_82143_as()
+     {
+         if (this.getAttackTarget() == null)
+         {
+@@ -725,7 +722,7 @@
+         }
+         else
+         {
+-            int var1 = (int)(this.getHealth() - this.getMaxHealth() * 0.33F);
++            int var1 = (int)(this.func_110143_aJ() - this.func_110138_aP() * 0.33F);
+             var1 -= (3 - this.worldObj.difficultySetting) * 4;
+ 
+             if (var1 < 0)
+@@ -753,9 +750,9 @@
+         return this.equipment[par1];
+     }
+ 
+-    public ItemStack func_130225_q(int par1)
++    public ItemStack func_130225_q(int var1)
+     {
+-        return this.equipment[par1 + 1];
++        return this.equipment[var1 + 1];
+     }
+ 
+     /**
+@@ -811,7 +808,7 @@
+      */
+     protected void addRandomArmor()
+     {
+-        if (this.rand.nextFloat() < 0.15F * this.worldObj.getLocationTensionFactor(this.posX, this.posY, this.posZ))
++        if (this.rand.nextFloat() < 0.15F * this.worldObj.func_110746_b(this.posX, this.posY, this.posZ))
+         {
+             int var1 = this.rand.nextInt(2);
+             float var2 = this.worldObj.difficultySetting == 3 ? 0.1F : 0.25F;
+@@ -863,13 +860,10 @@
+                 {
+                     case 0:
+                         return 4;
+-
+                     case 1:
+                         return 3;
+-
+                     case 2:
+                         return 2;
+-
+                     case 3:
+                         return 1;
+                 }
+@@ -891,6 +885,7 @@
+         switch (par0)
+         {
+             case 4:
++
+                 if (par1 == 0)
+                 {
+                     return Item.helmetLeather;
+@@ -913,6 +908,7 @@
+                 }
+ 
+             case 3:
++
+                 if (par1 == 0)
+                 {
+                     return Item.plateLeather;
+@@ -935,6 +931,7 @@
+                 }
+ 
+             case 2:
++
+                 if (par1 == 0)
+                 {
+                     return Item.legsLeather;
+@@ -957,6 +954,7 @@
+                 }
+ 
+             case 1:
++
+                 if (par1 == 0)
+                 {
+                     return Item.bootsLeather;
+@@ -988,7 +986,7 @@
+      */
+     protected void enchantEquipment()
+     {
+-        float var1 = this.worldObj.getLocationTensionFactor(this.posX, this.posY, this.posZ);
++        float var1 = this.worldObj.func_110746_b(this.posX, this.posY, this.posZ);
+ 
+         if (this.getHeldItem() != null && this.rand.nextFloat() < 0.25F * var1)
+         {
+@@ -1006,9 +1004,9 @@
+         }
+     }
+ 
+-    public EntityLivingData onSpawnWithEgg(EntityLivingData par1EntityLivingData)
++    public EntityLivingData func_110161_a(EntityLivingData par1EntityLivingData)
+     {
+-        this.getEntityAttribute(SharedMonsterAttributes.followRange).applyModifier(new AttributeModifier("Random spawn bonus", this.rand.nextGaussian() * 0.05D, 1));
++        this.func_110148_a(SharedMonsterAttributes.field_111265_b).func_111121_a(new AttributeModifier("Random spawn bonus", this.rand.nextGaussian() * 0.05D, 1));
+         return par1EntityLivingData;
+     }
+ 
+@@ -1034,7 +1032,7 @@
+         this.persistenceRequired = true;
+     }
+ 
+-    public void setCustomNameTag(String par1Str)
++    public void func_94058_c(String par1Str)
+     {
+         this.dataWatcher.updateObject(10, par1Str);
+     }
+@@ -1049,19 +1047,19 @@
+         return this.dataWatcher.getWatchableObjectString(10).length() > 0;
+     }
+ 
+-    public void setAlwaysRenderNameTag(boolean par1)
++    public void func_94061_f(boolean par1)
+     {
+         this.dataWatcher.updateObject(11, Byte.valueOf((byte)(par1 ? 1 : 0)));
+     }
+ 
+-    public boolean getAlwaysRenderNameTag()
++    public boolean func_94062_bN()
+     {
+         return this.dataWatcher.getWatchableObjectByte(11) == 1;
+     }
+ 
+     public boolean getAlwaysRenderNameTagForRender()
+     {
+-        return this.getAlwaysRenderNameTag();
++        return this.func_94062_bN();
+     }
+ 
+     public void setEquipmentDropChance(int par1, float par2)
+@@ -1079,43 +1077,40 @@
+         this.canPickUpLoot = par1;
+     }
+ 
+-    public boolean isNoDespawnRequired()
++    public boolean func_104002_bU()
+     {
+         return this.persistenceRequired;
+     }
+ 
+-    /**
+-     * First layer of player interaction
+-     */
+-    public final boolean interactFirst(EntityPlayer par1EntityPlayer)
++    public final boolean func_130002_c(EntityPlayer par1EntityPlayer)
+     {
+-        if (this.getLeashed() && this.getLeashedToEntity() == par1EntityPlayer)
++        if (this.func_110167_bD() && this.func_110166_bE() == par1EntityPlayer)
+         {
+-            this.clearLeashed(true, !par1EntityPlayer.capabilities.isCreativeMode);
++            this.func_110160_i(true, !par1EntityPlayer.capabilities.isCreativeMode);
+             return true;
+         }
+         else
+         {
+             ItemStack var2 = par1EntityPlayer.inventory.getCurrentItem();
+ 
+-            if (var2 != null && var2.itemID == Item.leash.itemID && this.allowLeashing())
++            if (var2 != null && var2.itemID == Item.field_111214_ch.itemID && this.func_110164_bC())
+             {
+                 if (!(this instanceof EntityTameable) || !((EntityTameable)this).isTamed())
+                 {
+-                    this.setLeashedToEntity(par1EntityPlayer, true);
++                    this.func_110162_b(par1EntityPlayer, true);
+                     --var2.stackSize;
+                     return true;
+                 }
+ 
+                 if (par1EntityPlayer.getCommandSenderName().equalsIgnoreCase(((EntityTameable)this).getOwnerName()))
+                 {
+-                    this.setLeashedToEntity(par1EntityPlayer, true);
++                    this.func_110162_b(par1EntityPlayer, true);
+                     --var2.stackSize;
+                     return true;
+                 }
+             }
+ 
+-            return this.interact(par1EntityPlayer) ? true : super.interactFirst(par1EntityPlayer);
++            return this.interact(par1EntityPlayer) ? true : super.func_130002_c(par1EntityPlayer);
+         }
+     }
+ 
+@@ -1131,31 +1126,28 @@
+     {
+         if (this.field_110170_bx != null)
+         {
+-            this.recreateLeash();
++            this.func_110165_bF();
+         }
+ 
+-        if (this.isLeashed)
++        if (this.field_110169_bv)
+         {
+-            if (this.leashedToEntity == null || this.leashedToEntity.isDead)
++            if (this.field_110168_bw == null || this.field_110168_bw.isDead)
+             {
+-                this.clearLeashed(true, true);
++                this.func_110160_i(true, true);
+             }
+         }
+     }
+ 
+-    /**
+-     * Removes the leash from this entity. Second parameter tells whether to send a packet to surrounding players.
+-     */
+-    public void clearLeashed(boolean par1, boolean par2)
++    public void func_110160_i(boolean par1, boolean par2)
+     {
+-        if (this.isLeashed)
++        if (this.field_110169_bv)
+         {
+-            this.isLeashed = false;
+-            this.leashedToEntity = null;
++            this.field_110169_bv = false;
++            this.field_110168_bw = null;
+ 
+             if (!this.worldObj.isRemote && par2)
+             {
+-                this.dropItem(Item.leash.itemID, 1);
++                this.dropItem(Item.field_111214_ch.itemID, 1);
+             }
+ 
+             if (!this.worldObj.isRemote && par1 && this.worldObj instanceof WorldServer)
+@@ -1165,39 +1157,35 @@
+         }
+     }
+ 
+-    public boolean allowLeashing()
++    public boolean func_110164_bC()
+     {
+-        return !this.getLeashed() && !(this instanceof IMob);
++        return !this.func_110167_bD() && !(this instanceof IMob);
+     }
+ 
+-    public boolean getLeashed()
++    public boolean func_110167_bD()
+     {
+-        return this.isLeashed;
++        return this.field_110169_bv;
+     }
+ 
+-    public Entity getLeashedToEntity()
++    public Entity func_110166_bE()
+     {
+-        return this.leashedToEntity;
++        return this.field_110168_bw;
+     }
+ 
+-    /**
+-     * Sets the entity to be leashed to.\nArgs:\n@param par1Entity: The entity to be tethered to.\n@param par2: Whether
+-     * to send an attaching notification packet to surrounding players.
+-     */
+-    public void setLeashedToEntity(Entity par1Entity, boolean par2)
++    public void func_110162_b(Entity par1Entity, boolean par2)
+     {
+-        this.isLeashed = true;
+-        this.leashedToEntity = par1Entity;
++        this.field_110169_bv = true;
++        this.field_110168_bw = par1Entity;
+ 
+         if (!this.worldObj.isRemote && par2 && this.worldObj instanceof WorldServer)
+         {
+-            ((WorldServer)this.worldObj).getEntityTracker().sendPacketToAllPlayersTrackingEntity(this, new Packet39AttachEntity(1, this, this.leashedToEntity));
++            ((WorldServer)this.worldObj).getEntityTracker().sendPacketToAllPlayersTrackingEntity(this, new Packet39AttachEntity(1, this, this.field_110168_bw));
+         }
+     }
+ 
+-    private void recreateLeash()
++    private void func_110165_bF()
+     {
+-        if (this.isLeashed && this.field_110170_bx != null)
++        if (this.field_110169_bv && this.field_110170_bx != null)
+         {
+             if (this.field_110170_bx.hasKey("UUIDMost") && this.field_110170_bx.hasKey("UUIDLeast"))
+             {
+@@ -1209,9 +1197,9 @@
+                 {
+                     EntityLivingBase var8 = (EntityLivingBase)var7.next();
+ 
+-                    if (var8.getUniqueID().equals(var5))
++                    if (var8.func_110124_au().equals(var5))
+                     {
+-                        this.leashedToEntity = var8;
++                        this.field_110168_bw = var8;
+                         break;
+                     }
+                 }
+@@ -1221,18 +1209,18 @@
+                 int var1 = this.field_110170_bx.getInteger("X");
+                 int var2 = this.field_110170_bx.getInteger("Y");
+                 int var3 = this.field_110170_bx.getInteger("Z");
+-                EntityLeashKnot var4 = EntityLeashKnot.getKnotForBlock(this.worldObj, var1, var2, var3);
++                EntityLeashKnot var4 = EntityLeashKnot.func_110130_b(this.worldObj, var1, var2, var3);
+ 
+                 if (var4 == null)
+                 {
+                     var4 = EntityLeashKnot.func_110129_a(this.worldObj, var1, var2, var3);
+                 }
+ 
+-                this.leashedToEntity = var4;
++                this.field_110168_bw = var4;
+             }
+             else
+             {
+-                this.clearLeashed(false, true);
++                this.func_110160_i(false, true);
+             }
+         }
+ 

@@ -1,0 +1,81 @@
+--- a/net/minecraft/src/ServersideAttributeMap.java
++++ b/net/minecraft/src/ServersideAttributeMap.java
+@@ -14,12 +14,12 @@
+ 
+     public ModifiableAttributeInstance func_111159_c(Attribute par1Attribute)
+     {
+-        return (ModifiableAttributeInstance)super.getAttributeInstance(par1Attribute);
++        return (ModifiableAttributeInstance)super.func_111151_a(par1Attribute);
+     }
+ 
+     public ModifiableAttributeInstance func_111158_b(String par1Str)
+     {
+-        AttributeInstance var2 = super.getAttributeInstanceByName(par1Str);
++        AttributeInstance var2 = super.func_111152_a(par1Str);
+ 
+         if (var2 == null)
+         {
+@@ -31,28 +31,28 @@
+ 
+     public AttributeInstance func_111150_b(Attribute par1Attribute)
+     {
+-        if (this.attributesByName.containsKey(par1Attribute.getAttributeUnlocalizedName()))
++        if (this.field_111153_b.containsKey(par1Attribute.func_111108_a()))
+         {
+             throw new IllegalArgumentException("Attribute is already registered!");
+         }
+         else
+         {
+             ModifiableAttributeInstance var2 = new ModifiableAttributeInstance(this, par1Attribute);
+-            this.attributesByName.put(par1Attribute.getAttributeUnlocalizedName(), var2);
++            this.field_111153_b.put(par1Attribute.func_111108_a(), var2);
+ 
+             if (par1Attribute instanceof RangedAttribute && ((RangedAttribute)par1Attribute).func_111116_f() != null)
+             {
+                 this.field_111163_c.put(((RangedAttribute)par1Attribute).func_111116_f(), var2);
+             }
+ 
+-            this.attributes.put(par1Attribute, var2);
++            this.field_111154_a.put(par1Attribute, var2);
+             return var2;
+         }
+     }
+ 
+     public void func_111149_a(ModifiableAttributeInstance par1ModifiableAttributeInstance)
+     {
+-        if (par1ModifiableAttributeInstance.func_111123_a().getShouldWatch())
++        if (par1ModifiableAttributeInstance.func_111123_a().func_111111_c())
+         {
+             this.field_111162_d.add(par1ModifiableAttributeInstance);
+         }
+@@ -66,13 +66,13 @@
+     public Collection func_111160_c()
+     {
+         HashSet var1 = Sets.newHashSet();
+-        Iterator var2 = this.getAllAttributes().iterator();
++        Iterator var2 = this.func_111146_a().iterator();
+ 
+         while (var2.hasNext())
+         {
+             AttributeInstance var3 = (AttributeInstance)var2.next();
+ 
+-            if (var3.func_111123_a().getShouldWatch())
++            if (var3.func_111123_a().func_111111_c())
+             {
+                 var1.add(var3);
+             }
+@@ -81,12 +81,12 @@
+         return var1;
+     }
+ 
+-    public AttributeInstance getAttributeInstanceByName(String par1Str)
++    public AttributeInstance func_111152_a(String par1Str)
+     {
+         return this.func_111158_b(par1Str);
+     }
+ 
+-    public AttributeInstance getAttributeInstance(Attribute par1Attribute)
++    public AttributeInstance func_111151_a(Attribute par1Attribute)
+     {
+         return this.func_111159_c(par1Attribute);
+     }

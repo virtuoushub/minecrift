@@ -1,0 +1,54 @@
+--- a/net/minecraft/src/EntityAIWatchClosest.java
++++ b/net/minecraft/src/EntityAIWatchClosest.java
+@@ -6,9 +6,7 @@
+ 
+     /** The closest entity which is being watched by this one. */
+     protected Entity closestEntity;
+-
+-    /** This is the Maximum distance that the AI will look for the Entity */
+-    private float maxDistanceForPlayer;
++    private float field_75333_c;
+     private int lookTime;
+     private float field_75331_e;
+     private Class watchedClass;
+@@ -17,7 +15,7 @@
+     {
+         this.theWatcher = par1EntityLiving;
+         this.watchedClass = par2Class;
+-        this.maxDistanceForPlayer = par3;
++        this.field_75333_c = par3;
+         this.field_75331_e = 0.02F;
+         this.setMutexBits(2);
+     }
+@@ -26,7 +24,7 @@
+     {
+         this.theWatcher = par1EntityLiving;
+         this.watchedClass = par2Class;
+-        this.maxDistanceForPlayer = par3;
++        this.field_75333_c = par3;
+         this.field_75331_e = par4;
+         this.setMutexBits(2);
+     }
+@@ -49,11 +47,11 @@
+ 
+             if (this.watchedClass == EntityPlayer.class)
+             {
+-                this.closestEntity = this.theWatcher.worldObj.getClosestPlayerToEntity(this.theWatcher, (double)this.maxDistanceForPlayer);
++                this.closestEntity = this.theWatcher.worldObj.getClosestPlayerToEntity(this.theWatcher, (double)this.field_75333_c);
+             }
+             else
+             {
+-                this.closestEntity = this.theWatcher.worldObj.findNearestEntityWithinAABB(this.watchedClass, this.theWatcher.boundingBox.expand((double)this.maxDistanceForPlayer, 3.0D, (double)this.maxDistanceForPlayer), this.theWatcher);
++                this.closestEntity = this.theWatcher.worldObj.findNearestEntityWithinAABB(this.watchedClass, this.theWatcher.boundingBox.expand((double)this.field_75333_c, 3.0D, (double)this.field_75333_c), this.theWatcher);
+             }
+ 
+             return this.closestEntity != null;
+@@ -65,7 +63,7 @@
+      */
+     public boolean continueExecuting()
+     {
+-        return !this.closestEntity.isEntityAlive() ? false : (this.theWatcher.getDistanceSqToEntity(this.closestEntity) > (double)(this.maxDistanceForPlayer * this.maxDistanceForPlayer) ? false : this.lookTime > 0);
++        return !this.closestEntity.isEntityAlive() ? false : (this.theWatcher.getDistanceSqToEntity(this.closestEntity) > (double)(this.field_75333_c * this.field_75333_c) ? false : this.lookTime > 0);
+     }
+ 
+     /**

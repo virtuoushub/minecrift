@@ -1,0 +1,45 @@
+--- a/net/minecraft/src/EntitySkeleton.java
++++ b/net/minecraft/src/EntitySkeleton.java
+@@ -25,10 +25,10 @@
+         }
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setAttribute(0.25D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.25D);
+     }
+ 
+     protected void entityInit()
+@@ -243,16 +243,16 @@
+         this.setCurrentItemOrArmor(0, new ItemStack(Item.bow));
+     }
+ 
+-    public EntityLivingData onSpawnWithEgg(EntityLivingData par1EntityLivingData)
++    public EntityLivingData func_110161_a(EntityLivingData par1EntityLivingData)
+     {
+-        par1EntityLivingData = super.onSpawnWithEgg(par1EntityLivingData);
++        par1EntityLivingData = super.func_110161_a(par1EntityLivingData);
+ 
+         if (this.worldObj.provider instanceof WorldProviderHell && this.getRNG().nextInt(5) > 0)
+         {
+             this.tasks.addTask(4, this.aiAttackOnCollide);
+             this.setSkeletonType(1);
+             this.setCurrentItemOrArmor(0, new ItemStack(Item.swordStone));
+-            this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setAttribute(4.0D);
++            this.func_110148_a(SharedMonsterAttributes.field_111264_e).func_111128_a(4.0D);
+         }
+         else
+         {
+@@ -261,7 +261,7 @@
+             this.enchantEquipment();
+         }
+ 
+-        this.setCanPickUpLoot(this.rand.nextFloat() < 0.55F * this.worldObj.getLocationTensionFactor(this.posX, this.posY, this.posZ));
++        this.setCanPickUpLoot(this.rand.nextFloat() < 0.55F * this.worldObj.func_110746_b(this.posX, this.posY, this.posZ));
+ 
+         if (this.getCurrentItemOrArmor(4) == null)
+         {

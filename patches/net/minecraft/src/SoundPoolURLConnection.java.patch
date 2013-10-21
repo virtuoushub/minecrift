@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/SoundPoolURLConnection.java
++++ b/net/minecraft/src/SoundPoolURLConnection.java
+@@ -8,12 +8,12 @@
+ {
+     private final ResourceLocation field_110659_b;
+ 
+-    final SoundPool theSoundPool;
++    final SoundPool field_110660_a;
+ 
+     private SoundPoolURLConnection(SoundPool par1SoundPool, URL par2URL)
+     {
+         super(par2URL);
+-        this.theSoundPool = par1SoundPool;
++        this.field_110660_a = par1SoundPool;
+         this.field_110659_b = new ResourceLocation(par2URL.getPath());
+     }
+ 
+@@ -23,7 +23,7 @@
+     {
+         try
+         {
+-            return SoundPool.func_110655_a(this.theSoundPool).getResource(this.field_110659_b).getInputStream();
++            return SoundPool.func_110655_a(this.field_110660_a).func_110536_a(this.field_110659_b).func_110527_b();
+         }
+         catch (Exception ex)
+         {

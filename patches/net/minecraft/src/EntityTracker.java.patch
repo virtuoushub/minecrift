@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/EntityTracker.java
++++ b/net/minecraft/src/EntityTracker.java
+@@ -172,9 +172,9 @@
+             CrashReportCategory var7 = var6.makeCategory("Entity To Track");
+             var7.addCrashSection("Tracking range", par2 + " blocks");
+             var7.addCrashSectionCallable("Update interval", new CallableEntityTracker(this, par3));
+-            par1Entity.addEntityCrashInfo(var7);
++            par1Entity.func_85029_a(var7);
+             CrashReportCategory var8 = var6.makeCategory("Entity That Is Already Tracked");
+-            ((EntityTrackerEntry)this.trackedEntityIDs.lookup(par1Entity.entityId)).myEntity.addEntityCrashInfo(var8);
++            ((EntityTrackerEntry)this.trackedEntityIDs.lookup(par1Entity.entityId)).myEntity.func_85029_a(var8);
+ 
+             try
+             {

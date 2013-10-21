@@ -1,0 +1,12 @@
+--- a/net/minecraft/src/ReloadableResourceManager.java
++++ b/net/minecraft/src/ReloadableResourceManager.java
+@@ -4,7 +4,7 @@
+ 
+ public interface ReloadableResourceManager extends ResourceManager
+ {
+-    void reloadResources(List var1);
++    void func_110541_a(List var1);
+ 
+-    void registerReloadListener(ResourceManagerReloadListener var1);
++    void func_110542_a(ResourceManagerReloadListener var1);
+ }

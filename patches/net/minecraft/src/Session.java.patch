@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/Session.java
++++ b/net/minecraft/src/Session.java
+@@ -11,12 +11,12 @@
+         this.sessionId = par2Str;
+     }
+ 
+-    public String getUsername()
++    public String func_111285_a()
+     {
+         return this.username;
+     }
+ 
+-    public String getSessionID()
++    public String func_111286_b()
+     {
+         return this.sessionId;
+     }

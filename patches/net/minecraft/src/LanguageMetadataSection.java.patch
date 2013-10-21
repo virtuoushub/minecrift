@@ -1,0 +1,22 @@
+--- a/net/minecraft/src/LanguageMetadataSection.java
++++ b/net/minecraft/src/LanguageMetadataSection.java
+@@ -4,15 +4,15 @@
+ 
+ public class LanguageMetadataSection implements MetadataSection
+ {
+-    private final Collection languages;
++    private final Collection field_135019_a;
+ 
+     public LanguageMetadataSection(Collection par1Collection)
+     {
+-        this.languages = par1Collection;
++        this.field_135019_a = par1Collection;
+     }
+ 
+-    public Collection getLanguages()
++    public Collection func_135018_a()
+     {
+-        return this.languages;
++        return this.field_135019_a;
+     }
+ }

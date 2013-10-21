@@ -1,0 +1,10 @@
+--- a/net/minecraft/src/NBTTagLong.java
++++ b/net/minecraft/src/NBTTagLong.java
+@@ -72,6 +72,6 @@
+ 
+     public int hashCode()
+     {
+-        return super.hashCode() ^ (int)(this.data ^ this.data >>> 32);
++        return super.hashCode() ^(int)(this.data ^ this.data >>> 32);
+     }
+ }

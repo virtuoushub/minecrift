@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/GuiScreenSelectLocation.java
++++ b/net/minecraft/src/GuiScreenSelectLocation.java
+@@ -247,7 +247,7 @@
+         GL11.glDisable(GL11.GL_LIGHTING);
+         GL11.glDisable(GL11.GL_FOG);
+         Tessellator var18 = Tessellator.instance;
+-        this.field_104092_f.getTextureManager().bindTexture(Gui.optionsBackground);
++        this.field_104092_f.func_110434_K().func_110577_a(Gui.field_110325_k);
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+         float var17 = 32.0F;
+         var18.startDrawingQuads();
+@@ -403,7 +403,7 @@
+     private void func_104083_b(int par1, int par2, int par3, int par4)
+     {
+         Tessellator var5 = Tessellator.instance;
+-        this.field_104092_f.getTextureManager().bindTexture(Gui.optionsBackground);
++        this.field_104092_f.func_110434_K().func_110577_a(Gui.field_110325_k);
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+         float var6 = 32.0F;
+         var5.startDrawingQuads();

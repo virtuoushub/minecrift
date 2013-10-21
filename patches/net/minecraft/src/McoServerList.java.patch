@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/McoServerList.java
++++ b/net/minecraft/src/McoServerList.java
+@@ -21,7 +21,7 @@
+     public McoServerList()
+     {
+         this.field_98258_c.schedule(this.field_98257_b, 0L, 10000L);
+-        this.field_98254_f = Minecraft.getMinecraft().getSession();
++        this.field_98254_f = Minecraft.getMinecraft().func_110432_I();
+     }
+ 
+     public synchronized void func_130129_a(Session par1Session)

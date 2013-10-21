@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/TileEntityCommandBlock.java
++++ b/net/minecraft/src/TileEntityCommandBlock.java
+@@ -114,7 +114,7 @@
+         return new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
+     }
+ 
+-    public World getEntityWorld()
++    public World func_130014_f_()
+     {
+         return this.getWorldObj();
+     }

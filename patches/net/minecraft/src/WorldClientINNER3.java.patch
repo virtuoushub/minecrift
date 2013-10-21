@@ -1,0 +1,22 @@
+--- a/net/minecraft/src/WorldClientINNER3.java
++++ b/net/minecraft/src/WorldClientINNER3.java
+@@ -4,16 +4,16 @@
+ 
+ class WorldClientINNER3 implements Callable
+ {
+-    final WorldClient theWorldClient;
++    final WorldClient field_142027_a;
+ 
+     WorldClientINNER3(WorldClient par1WorldClient)
+     {
+-        this.theWorldClient = par1WorldClient;
++        this.field_142027_a = par1WorldClient;
+     }
+ 
+     public String func_142026_a()
+     {
+-        return WorldClient.func_142030_c(this.theWorldClient).thePlayer.func_142021_k();
++        return WorldClient.func_142030_c(this.field_142027_a).thePlayer.func_142021_k();
+     }
+ 
+     public Object call()

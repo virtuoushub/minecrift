@@ -22,7 +22,25 @@
      /**
       * Draws the screen and all the components in it.
       */
-@@ -171,21 +177,72 @@
+@@ -42,7 +48,7 @@
+     {
+         for (int var4 = 0; var4 < this.buttonList.size(); ++var4)
+         {
+-            GuiButton var5 = (GuiButton)this.buttonList.get(var4);
++            GuiButton var5 = this.buttonList.get(var4);
+             var5.drawButton(this.mc, par1, par2);
+         }
+     }
+@@ -106,7 +112,7 @@
+         {
+             for (int var4 = 0; var4 < this.buttonList.size(); ++var4)
+             {
+-                GuiButton var5 = (GuiButton)this.buttonList.get(var4);
++                GuiButton var5 = this.buttonList.get(var4);
+ 
+                 if (var5.mousePressed(this.mc, par1, par2))
+                 {
+@@ -171,22 +177,73 @@
              this.handleMouseInput();
          }
  
@@ -86,6 +104,7 @@
 +        int var2 = this.height - ( Mouse.getEventY()  + mouseOffsetY) * this.height/ this.mc.displayFBHeight - 1;
          int var3 = Mouse.getEventButton();
  
+-        if (Minecraft.isRunningOnMac && var3 == 0 && (Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157)))
 +        mouseOffsetX = 0;
 +        mouseOffsetY = 0;
 +        if( joystickX > 0 )
@@ -95,6 +114,34 @@
 +        	joystickX = 0;
 +        	joystickY = 0;
 +        }
-         if (Minecraft.isRunningOnMac && var3 == 0 && (Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157)))
++        if (Minecraft.field_142025_a && var3 == 0 && (Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157)))
          {
              var3 = 1;
+         }
+@@ -261,7 +318,7 @@
+     {
+         if (this.mc.theWorld != null)
+         {
+-            this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
++            this.drawGradientRect(0, 0, this.width, this.height, 0, 0);
+         }
+         else
+         {
+@@ -277,7 +334,7 @@
+         GL11.glDisable(GL11.GL_LIGHTING);
+         GL11.glDisable(GL11.GL_FOG);
+         Tessellator var2 = Tessellator.instance;
+-        this.mc.getTextureManager().bindTexture(optionsBackground);
++        this.mc.func_110434_K().func_110577_a(field_110325_k);
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+         float var3 = 32.0F;
+         var2.startDrawingQuads();
+@@ -301,7 +358,7 @@
+ 
+     public static boolean isCtrlKeyDown()
+     {
+-        return Minecraft.isRunningOnMac ? Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220) : Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157);
++        return Minecraft.field_142025_a ? Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220) : Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157);
+     }
+ 
+     public static boolean isShiftKeyDown()

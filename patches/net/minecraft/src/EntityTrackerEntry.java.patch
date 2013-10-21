@@ -1,0 +1,41 @@
+--- a/net/minecraft/src/EntityTrackerEntry.java
++++ b/net/minecraft/src/EntityTrackerEntry.java
+@@ -256,7 +256,7 @@
+ 
+         if (this.myEntity instanceof EntityLivingBase)
+         {
+-            ServersideAttributeMap var2 = (ServersideAttributeMap)((EntityLivingBase)this.myEntity).getAttributeMap();
++            ServersideAttributeMap var2 = (ServersideAttributeMap)((EntityLivingBase)this.myEntity).func_110140_aT();
+             Set var3 = var2.func_111161_b();
+ 
+             if (!var3.isEmpty())
+@@ -327,7 +327,7 @@
+ 
+             if (var2 >= (double)(-this.blocksDistanceThreshold) && var2 <= (double)this.blocksDistanceThreshold && var4 >= (double)(-this.blocksDistanceThreshold) && var4 <= (double)this.blocksDistanceThreshold)
+             {
+-                if (!this.trackingPlayers.contains(par1EntityPlayerMP) && (this.isPlayerWatchingThisChunk(par1EntityPlayerMP) || this.myEntity.forceSpawn))
++                if (!this.trackingPlayers.contains(par1EntityPlayerMP) && (this.isPlayerWatchingThisChunk(par1EntityPlayerMP) || this.myEntity.field_98038_p))
+                 {
+                     this.trackingPlayers.add(par1EntityPlayerMP);
+                     Packet var6 = this.getPacketForThisEntity();
+@@ -340,7 +340,7 @@
+ 
+                     if (this.myEntity instanceof EntityLivingBase)
+                     {
+-                        ServersideAttributeMap var7 = (ServersideAttributeMap)((EntityLivingBase)this.myEntity).getAttributeMap();
++                        ServersideAttributeMap var7 = (ServersideAttributeMap)((EntityLivingBase)this.myEntity).func_110140_aT();
+                         Collection var8 = var7.func_111160_c();
+ 
+                         if (!var8.isEmpty())
+@@ -363,9 +363,9 @@
+                         par1EntityPlayerMP.playerNetServerHandler.sendPacketToPlayer(new Packet39AttachEntity(0, this.myEntity, this.myEntity.ridingEntity));
+                     }
+ 
+-                    if (this.myEntity instanceof EntityLiving && ((EntityLiving)this.myEntity).getLeashedToEntity() != null)
++                    if (this.myEntity instanceof EntityLiving && ((EntityLiving)this.myEntity).func_110166_bE() != null)
+                     {
+-                        par1EntityPlayerMP.playerNetServerHandler.sendPacketToPlayer(new Packet39AttachEntity(1, this.myEntity, ((EntityLiving)this.myEntity).getLeashedToEntity()));
++                        par1EntityPlayerMP.playerNetServerHandler.sendPacketToPlayer(new Packet39AttachEntity(1, this.myEntity, ((EntityLiving)this.myEntity).func_110166_bE()));
+                     }
+ 
+                     if (this.myEntity instanceof EntityLivingBase)

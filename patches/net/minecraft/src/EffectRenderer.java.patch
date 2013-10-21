@@ -1,0 +1,30 @@
+--- a/net/minecraft/src/EffectRenderer.java
++++ b/net/minecraft/src/EffectRenderer.java
+@@ -7,7 +7,7 @@
+ 
+ public class EffectRenderer
+ {
+-    private static final ResourceLocation particleTextures = new ResourceLocation("textures/particle/particles.png");
++    private static final ResourceLocation field_110737_b = new ResourceLocation("textures/particle/particles.png");
+ 
+     /** Reference to the World object. */
+     protected World worldObj;
+@@ -83,15 +83,13 @@
+                 {
+                     case 0:
+                     default:
+-                        this.renderer.bindTexture(particleTextures);
++                        this.renderer.func_110577_a(field_110737_b);
+                         break;
+-
+                     case 1:
+-                        this.renderer.bindTexture(TextureMap.locationBlocksTexture);
++                        this.renderer.func_110577_a(TextureMap.field_110575_b);
+                         break;
+-
+                     case 2:
+-                        this.renderer.bindTexture(TextureMap.locationItemsTexture);
++                        this.renderer.func_110577_a(TextureMap.field_110576_c);
+                 }
+ 
+                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

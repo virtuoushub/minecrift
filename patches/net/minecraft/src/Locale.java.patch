@@ -1,0 +1,127 @@
+--- a/net/minecraft/src/Locale.java
++++ b/net/minecraft/src/Locale.java
+@@ -15,16 +15,12 @@
+ 
+ public class Locale
+ {
+-    /** Splits on "=" */
+-    private static final Splitter splitter = Splitter.on('=').limit(2);
++    private static final Splitter field_135030_b = Splitter.on('=').limit(2);
+     private static final Pattern field_135031_c = Pattern.compile("%(\\d+\\$)?[\\d\\.]*[df]");
+     Map field_135032_a = Maps.newHashMap();
+     private boolean field_135029_d;
+ 
+-    /**
+-     * par2 is a list of languages. For each language $L and domain $D, attempts to load the resource $D:lang/$L.lang
+-     */
+-    public synchronized void loadLocaleDataFiles(ResourceManager par1ResourceManager, List par2List)
++    public synchronized void func_135022_a(ResourceManager par1ResourceManager, List par2List)
+     {
+         this.field_135032_a.clear();
+         Iterator var3 = par2List.iterator();
+@@ -33,7 +29,7 @@
+         {
+             String var4 = (String)var3.next();
+             String var5 = String.format("lang/%s.lang", new Object[] {var4});
+-            Iterator var6 = par1ResourceManager.getResourceDomains().iterator();
++            Iterator var6 = par1ResourceManager.func_135055_a().iterator();
+ 
+             while (var6.hasNext())
+             {
+@@ -41,7 +37,7 @@
+ 
+                 try
+                 {
+-                    this.loadLocaleData(par1ResourceManager.getAllResources(new ResourceLocation(var7, var5)));
++                    this.func_135028_a(par1ResourceManager.func_135056_b(new ResourceLocation(var7, var5)));
+                 }
+                 catch (IOException var9)
+                 {
+@@ -50,15 +46,15 @@
+             }
+         }
+ 
+-        this.checkUnicode();
++        this.func_135024_b();
+     }
+ 
+-    public boolean isUnicode()
++    public boolean func_135025_a()
+     {
+         return this.field_135029_d;
+     }
+ 
+-    private void checkUnicode()
++    private void func_135024_b()
+     {
+         this.field_135029_d = false;
+         Iterator var1 = this.field_135032_a.values().iterator();
+@@ -78,21 +74,18 @@
+         }
+     }
+ 
+-    /**
+-     * par1 is a list of Resources
+-     */
+-    private void loadLocaleData(List par1List) throws IOException
++    private void func_135028_a(List par1List) throws IOException
+     {
+         Iterator var2 = par1List.iterator();
+ 
+         while (var2.hasNext())
+         {
+             Resource var3 = (Resource)var2.next();
+-            this.loadLocaleData(var3.getInputStream());
++            this.func_135021_a(var3.func_110527_b());
+         }
+     }
+ 
+-    private void loadLocaleData(InputStream par1InputStream) throws IOException
++    private void func_135021_a(InputStream par1InputStream) throws IOException
+     {
+         Iterator var2 = IOUtils.readLines(par1InputStream, Charsets.UTF_8).iterator();
+ 
+@@ -102,7 +95,7 @@
+ 
+             if (!var3.isEmpty() && var3.charAt(0) != 35)
+             {
+-                String[] var4 = (String[])Iterables.toArray(splitter.split(var3), String.class);
++                String[] var4 = (String[])Iterables.toArray(field_135030_b.split(var3), String.class);
+ 
+                 if (var4 != null && var4.length == 2)
+                 {
+@@ -114,29 +107,20 @@
+         }
+     }
+ 
+-    /**
+-     * Returns the translation, or the key itself if the key could not be translated.
+-     */
+-    private String translateKeyPrivate(String par1Str)
++    private String func_135026_c(String par1Str)
+     {
+         String var2 = (String)this.field_135032_a.get(par1Str);
+         return var2 == null ? par1Str : var2;
+     }
+ 
+-    /**
+-     * Returns the translation, or the key itself if the key could not be translated.
+-     */
+-    public String translateKey(String par1Str)
++    public String func_135027_a(String par1Str)
+     {
+-        return this.translateKeyPrivate(par1Str);
++        return this.func_135026_c(par1Str);
+     }
+ 
+-    /**
+-     * Calls String.format(translateKey(key), params)
+-     */
+-    public String formatMessage(String par1Str, Object[] par2ArrayOfObj)
++    public String func_135023_a(String par1Str, Object[] par2ArrayOfObj)
+     {
+-        String var3 = this.translateKeyPrivate(par1Str);
++        String var3 = this.func_135026_c(par1Str);
+ 
+         try
+         {

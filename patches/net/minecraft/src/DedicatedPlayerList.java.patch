@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/DedicatedPlayerList.java
++++ b/net/minecraft/src/DedicatedPlayerList.java
+@@ -183,7 +183,7 @@
+     public boolean isAllowedToLogin(String par1Str)
+     {
+         par1Str = par1Str.trim().toLowerCase();
+-        return !this.isWhiteListEnabled() || this.isPlayerOpped(par1Str) || this.getWhiteListedPlayers().contains(par1Str);
++        return !this.isWhiteListEnabled() || this.areCommandsAllowed(par1Str) || this.getWhiteListedPlayers().contains(par1Str);
+     }
+ 
+     public DedicatedServer getDedicatedServerInstance()

@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/CallableLaunchedVersion.java
++++ b/net/minecraft/src/CallableLaunchedVersion.java
+@@ -14,7 +14,7 @@
+ 
+     public String getLWJGLVersion()
+     {
+-        return Minecraft.getLaunchedVersion(this.mc);
++        return Minecraft.func_110431_a(this.mc);
+     }
+ 
+     public Object call()

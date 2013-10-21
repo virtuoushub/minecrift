@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/CommandServerEmote.java
++++ b/net/minecraft/src/CommandServerEmote.java
+@@ -28,7 +28,7 @@
+         if (par2ArrayOfStr.length > 0)
+         {
+             String var3 = func_82361_a(par1ICommandSender, par2ArrayOfStr, 0, par1ICommandSender.canCommandSenderUseCommand(1, "me"));
+-            MinecraftServer.getServer().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("chat.type.emote", new Object[] {par1ICommandSender.getCommandSenderName(), var3}));
++            MinecraftServer.getServer().getConfigurationManager().sendChatMsg(ChatMessageComponent.func_111082_b("chat.type.emote", new Object[] {par1ICommandSender.getCommandSenderName(), var3}));
+         }
+         else
+         {

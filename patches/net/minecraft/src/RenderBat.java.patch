@@ -1,0 +1,44 @@
+--- a/net/minecraft/src/RenderBat.java
++++ b/net/minecraft/src/RenderBat.java
+@@ -4,7 +4,7 @@
+ 
+ public class RenderBat extends RenderLiving
+ {
+-    private static final ResourceLocation batTextures = new ResourceLocation("textures/entity/bat.png");
++    private static final ResourceLocation field_110835_a = new ResourceLocation("textures/entity/bat.png");
+ 
+     /**
+      * not actually sure this is size, is not used as of now, but the model would be recreated if the value changed and
+@@ -31,9 +31,9 @@
+         super.doRenderLiving(par1EntityBat, par2, par4, par6, par8, par9);
+     }
+ 
+-    protected ResourceLocation getBatTextures(EntityBat par1EntityBat)
++    protected ResourceLocation func_110834_a(EntityBat par1EntityBat)
+     {
+-        return batTextures;
++        return field_110835_a;
+     }
+ 
+     protected void func_82442_a(EntityBat par1EntityBat, float par2)
+@@ -87,17 +87,14 @@
+         this.func_82445_a((EntityBat)par1EntityLivingBase, par2, par4, par6);
+     }
+ 
+-    public void doRenderLiving(EntityLivingBase par1EntityLivingBase, double par2, double par4, double par6, float par8, float par9)
++    public void func_130000_a(EntityLivingBase par1EntityLivingBase, double par2, double par4, double par6, float par8, float par9)
+     {
+         this.func_82443_a((EntityBat)par1EntityLivingBase, par2, par4, par6, par8, par9);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getBatTextures((EntityBat)par1Entity);
++        return this.func_110834_a((EntityBat)par1Entity);
+     }
+ 
+     /**

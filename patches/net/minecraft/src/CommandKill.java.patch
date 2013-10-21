@@ -1,0 +1,10 @@
+--- a/net/minecraft/src/CommandKill.java
++++ b/net/minecraft/src/CommandKill.java
+@@ -24,6 +24,6 @@
+     {
+         EntityPlayerMP var3 = getCommandSenderAsPlayer(par1ICommandSender);
+         var3.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
+-        par1ICommandSender.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("commands.kill.success"));
++        par1ICommandSender.sendChatToPlayer(ChatMessageComponent.func_111077_e("commands.kill.success"));
+     }
+ }

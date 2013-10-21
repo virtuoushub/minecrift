@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/PotionHealthBoost.java
++++ b/net/minecraft/src/PotionHealthBoost.java
+@@ -7,13 +7,13 @@
+         super(par1, par2, par3);
+     }
+ 
+-    public void removeAttributesModifiersFromEntity(EntityLivingBase par1EntityLivingBase, BaseAttributeMap par2BaseAttributeMap, int par3)
++    public void func_111187_a(EntityLivingBase par1EntityLivingBase, BaseAttributeMap par2BaseAttributeMap, int par3)
+     {
+-        super.removeAttributesModifiersFromEntity(par1EntityLivingBase, par2BaseAttributeMap, par3);
++        super.func_111187_a(par1EntityLivingBase, par2BaseAttributeMap, par3);
+ 
+-        if (par1EntityLivingBase.getHealth() > par1EntityLivingBase.getMaxHealth())
++        if (par1EntityLivingBase.func_110143_aJ() > par1EntityLivingBase.func_110138_aP())
+         {
+-            par1EntityLivingBase.setHealth(par1EntityLivingBase.getMaxHealth());
++            par1EntityLivingBase.setEntityHealth(par1EntityLivingBase.func_110138_aP());
+         }
+     }
+ }

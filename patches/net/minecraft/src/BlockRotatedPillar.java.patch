@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/BlockRotatedPillar.java
++++ b/net/minecraft/src/BlockRotatedPillar.java
+@@ -31,12 +31,10 @@
+             case 1:
+                 var11 = 0;
+                 break;
+-
+             case 2:
+             case 3:
+                 var11 = 8;
+                 break;
+-
+             case 4:
+             case 5:
+                 var11 = 4;
+@@ -52,18 +50,12 @@
+     {
+         int var3 = par2 & 12;
+         int var4 = par2 & 3;
+-        return var3 == 0 && (par1 == 1 || par1 == 0) ? this.getEndIcon(var4) : (var3 == 4 && (par1 == 5 || par1 == 4) ? this.getEndIcon(var4) : (var3 == 8 && (par1 == 2 || par1 == 3) ? this.getEndIcon(var4) : this.getSideIcon(var4)));
++        return var3 == 0 && (par1 == 1 || par1 == 0) ? this.func_111049_d(var4) : (var3 == 4 && (par1 == 5 || par1 == 4) ? this.func_111049_d(var4) : (var3 == 8 && (par1 == 2 || par1 == 3) ? this.func_111049_d(var4) : this.func_111048_c(var4)));
+     }
+ 
+-    /**
+-     * The icon for the side of the block.
+-     */
+-    protected abstract Icon getSideIcon(int var1);
++    protected abstract Icon func_111048_c(int var1);
+ 
+-    /**
+-     * The icon for the tops and bottoms of the block.
+-     */
+-    protected Icon getEndIcon(int par1)
++    protected Icon func_111049_d(int par1)
+     {
+         return this.field_111051_a;
+     }

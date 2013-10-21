@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/Packet3Chat.java
++++ b/net/minecraft/src/Packet3Chat.java
+@@ -17,12 +17,12 @@
+ 
+     public Packet3Chat(ChatMessageComponent par1ChatMessageComponent)
+     {
+-        this(par1ChatMessageComponent.toJson());
++        this(par1ChatMessageComponent.func_111062_i());
+     }
+ 
+     public Packet3Chat(ChatMessageComponent par1ChatMessageComponent, boolean par2)
+     {
+-        this(par1ChatMessageComponent.toJson(), par2);
++        this(par1ChatMessageComponent.func_111062_i(), par2);
+     }
+ 
+     public Packet3Chat(String par1Str)

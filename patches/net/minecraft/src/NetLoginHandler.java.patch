@@ -1,0 +1,78 @@
+--- a/net/minecraft/src/NetLoginHandler.java
++++ b/net/minecraft/src/NetLoginHandler.java
+@@ -81,41 +81,34 @@
+ 
+     public void handleClientProtocol(Packet2ClientProtocol par1Packet2ClientProtocol)
+     {
+-        if (this.clientUsername != null)
++        this.clientUsername = par1Packet2ClientProtocol.getUsername();
++
++        if (!this.clientUsername.equals(StringUtils.stripControlCodes(this.clientUsername)))
+         {
+-            this.raiseErrorAndDisconnect("Quit repeating yourself!");
++            this.raiseErrorAndDisconnect("Invalid username!");
+         }
+         else
+         {
+-            this.clientUsername = par1Packet2ClientProtocol.getUsername();
++            PublicKey var2 = this.mcServer.getKeyPair().getPublic();
+ 
+-            if (!this.clientUsername.equals(StringUtils.stripControlCodes(this.clientUsername)))
+-            {
+-                this.raiseErrorAndDisconnect("Invalid username!");
+-            }
+-            else
++            if (par1Packet2ClientProtocol.getProtocolVersion() != 74)
+             {
+-                PublicKey var2 = this.mcServer.getKeyPair().getPublic();
+-
+-                if (par1Packet2ClientProtocol.getProtocolVersion() != 78)
++                if (par1Packet2ClientProtocol.getProtocolVersion() > 74)
+                 {
+-                    if (par1Packet2ClientProtocol.getProtocolVersion() > 78)
+-                    {
+-                        this.raiseErrorAndDisconnect("Outdated server!");
+-                    }
+-                    else
+-                    {
+-                        this.raiseErrorAndDisconnect("Outdated client!");
+-                    }
++                    this.raiseErrorAndDisconnect("Outdated server!");
+                 }
+                 else
+                 {
+-                    this.loginServerId = this.mcServer.isServerInOnlineMode() ? Long.toString(rand.nextLong(), 16) : "-";
+-                    this.verifyToken = new byte[4];
+-                    rand.nextBytes(this.verifyToken);
+-                    this.myTCPConnection.addToSendQueue(new Packet253ServerAuthData(this.loginServerId, var2, this.verifyToken));
++                    this.raiseErrorAndDisconnect("Outdated client!");
+                 }
+             }
++            else
++            {
++                this.loginServerId = this.mcServer.isServerInOnlineMode() ? Long.toString(rand.nextLong(), 16) : "-";
++                this.verifyToken = new byte[4];
++                rand.nextBytes(this.verifyToken);
++                this.myTCPConnection.addToSendQueue(new Packet253ServerAuthData(this.loginServerId, var2, this.verifyToken));
++            }
+         }
+     }
+ 
+@@ -203,7 +196,7 @@
+             }
+             else
+             {
+-                List var4 = Arrays.asList(new Serializable[] {Integer.valueOf(1), Integer.valueOf(78), this.mcServer.getMinecraftVersion(), this.mcServer.getMOTD(), Integer.valueOf(var2.getCurrentPlayerCount()), Integer.valueOf(var2.getMaxPlayers())});
++                List var4 = Arrays.asList(new Serializable[] {Integer.valueOf(1), Integer.valueOf(74), this.mcServer.getMinecraftVersion(), this.mcServer.getMOTD(), Integer.valueOf(var2.getCurrentPlayerCount()), Integer.valueOf(var2.getMaxPlayers())});
+                 Object var6;
+ 
+                 for (Iterator var5 = var4.iterator(); var5.hasNext(); var3 = var3 + var6.toString().replaceAll("\u0000", ""))
+@@ -266,7 +259,7 @@
+         return true;
+     }
+ 
+-    public boolean isConnectionClosed()
++    public boolean func_142032_c()
+     {
+         return this.connectionComplete;
+     }

@@ -1,0 +1,235 @@
+--- a/net/minecraft/src/EntityVillager.java
++++ b/net/minecraft/src/EntityVillager.java
+@@ -70,10 +70,10 @@
+         this.tasks.addTask(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setAttribute(0.5D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.5D);
+     }
+ 
+     /**
+@@ -97,12 +97,12 @@
+ 
+             if (this.villageObj == null)
+             {
+-                this.detachHome();
++                this.func_110177_bN();
+             }
+             else
+             {
+                 ChunkCoordinates var1 = this.villageObj.getCenter();
+-                this.setHomeArea(var1.posX, var1.posY, var1.posZ, (int)((float)this.villageObj.getVillageRadius() * 0.6F));
++                this.func_110171_b(var1.posX, var1.posY, var1.posZ, (int)((float)this.villageObj.getVillageRadius() * 0.6F));
+ 
+                 if (this.field_82190_bM)
+                 {
+@@ -405,10 +405,7 @@
+         return this.buyingList;
+     }
+ 
+-    /**
+-     * Adjusts the probability of obtaining a given recipe being offered by a villager
+-     */
+-    private float adjustProbability(float par1)
++    private float func_82188_j(float par1)
+     {
+         float var2 = par1 + this.field_82191_bN;
+         return var2 > 0.9F ? 0.9F - (var2 - 0.9F) : var2;
+@@ -437,36 +434,35 @@
+         switch (this.getProfession())
+         {
+             case 0:
+-                addMerchantItem(var2, Item.wheat.itemID, this.rand, this.adjustProbability(0.9F));
+-                addMerchantItem(var2, Block.cloth.blockID, this.rand, this.adjustProbability(0.5F));
+-                addMerchantItem(var2, Item.chickenRaw.itemID, this.rand, this.adjustProbability(0.5F));
+-                addMerchantItem(var2, Item.fishCooked.itemID, this.rand, this.adjustProbability(0.4F));
+-                addBlacksmithItem(var2, Item.bread.itemID, this.rand, this.adjustProbability(0.9F));
+-                addBlacksmithItem(var2, Item.melon.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.appleRed.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.cookie.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.shears.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.flintAndSteel.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.chickenCooked.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.arrow.itemID, this.rand, this.adjustProbability(0.5F));
++                addMerchantItem(var2, Item.wheat.itemID, this.rand, this.func_82188_j(0.9F));
++                addMerchantItem(var2, Block.cloth.blockID, this.rand, this.func_82188_j(0.5F));
++                addMerchantItem(var2, Item.chickenRaw.itemID, this.rand, this.func_82188_j(0.5F));
++                addMerchantItem(var2, Item.fishCooked.itemID, this.rand, this.func_82188_j(0.4F));
++                addBlacksmithItem(var2, Item.bread.itemID, this.rand, this.func_82188_j(0.9F));
++                addBlacksmithItem(var2, Item.melon.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.appleRed.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.cookie.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.shears.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.flintAndSteel.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.chickenCooked.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.arrow.itemID, this.rand, this.func_82188_j(0.5F));
+ 
+-                if (this.rand.nextFloat() < this.adjustProbability(0.5F))
++                if (this.rand.nextFloat() < this.func_82188_j(0.5F))
+                 {
+                     var2.add(new MerchantRecipe(new ItemStack(Block.gravel, 10), new ItemStack(Item.emerald), new ItemStack(Item.flint.itemID, 4 + this.rand.nextInt(2), 0)));
+                 }
+ 
+                 break;
+-
+             case 1:
+-                addMerchantItem(var2, Item.paper.itemID, this.rand, this.adjustProbability(0.8F));
+-                addMerchantItem(var2, Item.book.itemID, this.rand, this.adjustProbability(0.8F));
+-                addMerchantItem(var2, Item.writtenBook.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Block.bookShelf.blockID, this.rand, this.adjustProbability(0.8F));
+-                addBlacksmithItem(var2, Block.glass.blockID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.compass.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.pocketSundial.itemID, this.rand, this.adjustProbability(0.2F));
++                addMerchantItem(var2, Item.paper.itemID, this.rand, this.func_82188_j(0.8F));
++                addMerchantItem(var2, Item.book.itemID, this.rand, this.func_82188_j(0.8F));
++                addMerchantItem(var2, Item.writtenBook.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Block.bookShelf.blockID, this.rand, this.func_82188_j(0.8F));
++                addBlacksmithItem(var2, Block.glass.blockID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.compass.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.pocketSundial.itemID, this.rand, this.func_82188_j(0.2F));
+ 
+-                if (this.rand.nextFloat() < this.adjustProbability(0.07F))
++                if (this.rand.nextFloat() < this.func_82188_j(0.07F))
+                 {
+                     Enchantment var8 = Enchantment.enchantmentsBookList[this.rand.nextInt(Enchantment.enchantmentsBookList.length)];
+                     int var10 = MathHelper.getRandomIntegerInRange(this.rand, var8.getMinLevel(), var8.getMaxLevel());
+@@ -476,12 +472,11 @@
+                 }
+ 
+                 break;
+-
+             case 2:
+-                addBlacksmithItem(var2, Item.eyeOfEnder.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.expBottle.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.redstone.itemID, this.rand, this.adjustProbability(0.4F));
+-                addBlacksmithItem(var2, Block.glowStone.blockID, this.rand, this.adjustProbability(0.3F));
++                addBlacksmithItem(var2, Item.eyeOfEnder.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.expBottle.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.redstone.itemID, this.rand, this.func_82188_j(0.4F));
++                addBlacksmithItem(var2, Block.glowStone.blockID, this.rand, this.func_82188_j(0.3F));
+                 int[] var3 = new int[] {Item.swordIron.itemID, Item.swordDiamond.itemID, Item.plateIron.itemID, Item.plateDiamond.itemID, Item.axeIron.itemID, Item.axeDiamond.itemID, Item.pickaxeIron.itemID, Item.pickaxeDiamond.itemID};
+                 int[] var4 = var3;
+                 int var5 = var3.length;
+@@ -496,7 +491,7 @@
+ 
+                     int var7 = var4[var6];
+ 
+-                    if (this.rand.nextFloat() < this.adjustProbability(0.05F))
++                    if (this.rand.nextFloat() < this.func_82188_j(0.05F))
+                     {
+                         var2.add(new MerchantRecipe(new ItemStack(var7, 1, 0), new ItemStack(Item.emerald, 2 + this.rand.nextInt(3), 0), EnchantmentHelper.addRandomEnchantment(this.rand, new ItemStack(var7, 1, 0), 5 + this.rand.nextInt(15))));
+                     }
+@@ -505,45 +500,44 @@
+                 }
+ 
+             case 3:
+-                addMerchantItem(var2, Item.coal.itemID, this.rand, this.adjustProbability(0.7F));
+-                addMerchantItem(var2, Item.ingotIron.itemID, this.rand, this.adjustProbability(0.5F));
+-                addMerchantItem(var2, Item.ingotGold.itemID, this.rand, this.adjustProbability(0.5F));
+-                addMerchantItem(var2, Item.diamond.itemID, this.rand, this.adjustProbability(0.5F));
+-                addBlacksmithItem(var2, Item.swordIron.itemID, this.rand, this.adjustProbability(0.5F));
+-                addBlacksmithItem(var2, Item.swordDiamond.itemID, this.rand, this.adjustProbability(0.5F));
+-                addBlacksmithItem(var2, Item.axeIron.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.axeDiamond.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.pickaxeIron.itemID, this.rand, this.adjustProbability(0.5F));
+-                addBlacksmithItem(var2, Item.pickaxeDiamond.itemID, this.rand, this.adjustProbability(0.5F));
+-                addBlacksmithItem(var2, Item.shovelIron.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.shovelDiamond.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.hoeIron.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.hoeDiamond.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.bootsIron.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.bootsDiamond.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.helmetIron.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.helmetDiamond.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.plateIron.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.plateDiamond.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.legsIron.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.legsDiamond.itemID, this.rand, this.adjustProbability(0.2F));
+-                addBlacksmithItem(var2, Item.bootsChain.itemID, this.rand, this.adjustProbability(0.1F));
+-                addBlacksmithItem(var2, Item.helmetChain.itemID, this.rand, this.adjustProbability(0.1F));
+-                addBlacksmithItem(var2, Item.plateChain.itemID, this.rand, this.adjustProbability(0.1F));
+-                addBlacksmithItem(var2, Item.legsChain.itemID, this.rand, this.adjustProbability(0.1F));
++                addMerchantItem(var2, Item.coal.itemID, this.rand, this.func_82188_j(0.7F));
++                addMerchantItem(var2, Item.ingotIron.itemID, this.rand, this.func_82188_j(0.5F));
++                addMerchantItem(var2, Item.ingotGold.itemID, this.rand, this.func_82188_j(0.5F));
++                addMerchantItem(var2, Item.diamond.itemID, this.rand, this.func_82188_j(0.5F));
++                addBlacksmithItem(var2, Item.swordIron.itemID, this.rand, this.func_82188_j(0.5F));
++                addBlacksmithItem(var2, Item.swordDiamond.itemID, this.rand, this.func_82188_j(0.5F));
++                addBlacksmithItem(var2, Item.axeIron.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.axeDiamond.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.pickaxeIron.itemID, this.rand, this.func_82188_j(0.5F));
++                addBlacksmithItem(var2, Item.pickaxeDiamond.itemID, this.rand, this.func_82188_j(0.5F));
++                addBlacksmithItem(var2, Item.shovelIron.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.shovelDiamond.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.hoeIron.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.hoeDiamond.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.bootsIron.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.bootsDiamond.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.helmetIron.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.helmetDiamond.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.plateIron.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.plateDiamond.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.legsIron.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.legsDiamond.itemID, this.rand, this.func_82188_j(0.2F));
++                addBlacksmithItem(var2, Item.bootsChain.itemID, this.rand, this.func_82188_j(0.1F));
++                addBlacksmithItem(var2, Item.helmetChain.itemID, this.rand, this.func_82188_j(0.1F));
++                addBlacksmithItem(var2, Item.plateChain.itemID, this.rand, this.func_82188_j(0.1F));
++                addBlacksmithItem(var2, Item.legsChain.itemID, this.rand, this.func_82188_j(0.1F));
+                 break;
+-
+             case 4:
+-                addMerchantItem(var2, Item.coal.itemID, this.rand, this.adjustProbability(0.7F));
+-                addMerchantItem(var2, Item.porkRaw.itemID, this.rand, this.adjustProbability(0.5F));
+-                addMerchantItem(var2, Item.beefRaw.itemID, this.rand, this.adjustProbability(0.5F));
+-                addBlacksmithItem(var2, Item.saddle.itemID, this.rand, this.adjustProbability(0.1F));
+-                addBlacksmithItem(var2, Item.plateLeather.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.bootsLeather.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.helmetLeather.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.legsLeather.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.porkCooked.itemID, this.rand, this.adjustProbability(0.3F));
+-                addBlacksmithItem(var2, Item.beefCooked.itemID, this.rand, this.adjustProbability(0.3F));
++                addMerchantItem(var2, Item.coal.itemID, this.rand, this.func_82188_j(0.7F));
++                addMerchantItem(var2, Item.porkRaw.itemID, this.rand, this.func_82188_j(0.5F));
++                addMerchantItem(var2, Item.beefRaw.itemID, this.rand, this.func_82188_j(0.5F));
++                addBlacksmithItem(var2, Item.saddle.itemID, this.rand, this.func_82188_j(0.1F));
++                addBlacksmithItem(var2, Item.plateLeather.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.bootsLeather.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.helmetLeather.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.legsLeather.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.porkCooked.itemID, this.rand, this.func_82188_j(0.3F));
++                addBlacksmithItem(var2, Item.beefCooked.itemID, this.rand, this.func_82188_j(0.3F));
+         }
+ 
+         if (var2.isEmpty())
+@@ -654,9 +648,9 @@
+         }
+     }
+ 
+-    public EntityLivingData onSpawnWithEgg(EntityLivingData par1EntityLivingData)
++    public EntityLivingData func_110161_a(EntityLivingData par1EntityLivingData)
+     {
+-        par1EntityLivingData = super.onSpawnWithEgg(par1EntityLivingData);
++        par1EntityLivingData = super.func_110161_a(par1EntityLivingData);
+         this.setProfession(this.worldObj.rand.nextInt(5));
+         return par1EntityLivingData;
+     }
+@@ -669,11 +663,11 @@
+     public EntityVillager func_90012_b(EntityAgeable par1EntityAgeable)
+     {
+         EntityVillager var2 = new EntityVillager(this.worldObj);
+-        var2.onSpawnWithEgg((EntityLivingData)null);
++        var2.func_110161_a((EntityLivingData)null);
+         return var2;
+     }
+ 
+-    public boolean allowLeashing()
++    public boolean func_110164_bC()
+     {
+         return false;
+     }

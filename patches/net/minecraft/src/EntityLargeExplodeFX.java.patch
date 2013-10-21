@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/EntityLargeExplodeFX.java
++++ b/net/minecraft/src/EntityLargeExplodeFX.java
+@@ -27,7 +27,7 @@
+ 
+         if (var8 <= 15)
+         {
+-            this.theRenderEngine.bindTexture(field_110127_a);
++            this.theRenderEngine.func_110577_a(field_110127_a);
+             float var9 = (float)(var8 % 4) / 4.0F;
+             float var10 = var9 + 0.24975F;
+             float var11 = (float)(var8 / 4) / 4.0F;

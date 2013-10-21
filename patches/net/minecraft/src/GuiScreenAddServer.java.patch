@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/GuiScreenAddServer.java
++++ b/net/minecraft/src/GuiScreenAddServer.java
+@@ -34,9 +34,9 @@
+     {
+         Keyboard.enableRepeatEvents(true);
+         this.buttonList.clear();
+-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 96 + 12, I18n.getString("addServer.add")));
+-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + 12, I18n.getString("gui.cancel")));
+-        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, 142, I18n.getString("addServer.hideAddress") + ": " + (this.newServerData.isHidingAddress() ? I18n.getString("gui.yes") : I18n.getString("gui.no"))));
++        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 96 + 12, I18n.func_135053_a("addServer.add")));
++        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + 12, I18n.func_135053_a("gui.cancel")));
++        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, 142, I18n.func_135053_a("addServer.hideAddress") + ": " + (this.newServerData.isHidingAddress() ? I18n.func_135053_a("gui.yes") : I18n.func_135053_a("gui.no"))));
+         this.serverName = new GuiTextField(this.fontRenderer, this.width / 2 - 100, 66, 200, 20);
+         this.serverName.setFocused(true);
+         this.serverName.setText(this.newServerData.serverName);
+@@ -74,7 +74,7 @@
+             else if (par1GuiButton.id == 2)
+             {
+                 this.newServerData.setHideAddress(!this.newServerData.isHidingAddress());
+-                ((GuiButton)this.buttonList.get(2)).displayString = I18n.getString("addServer.hideAddress") + ": " + (this.newServerData.isHidingAddress() ? I18n.getString("gui.yes") : I18n.getString("gui.no"));
++                ((GuiButton)this.buttonList.get(2)).displayString = I18n.func_135053_a("addServer.hideAddress") + ": " + (this.newServerData.isHidingAddress() ? I18n.func_135053_a("gui.yes") : I18n.func_135053_a("gui.no"));
+             }
+         }
+     }
+@@ -117,9 +117,9 @@
+     public void drawScreen(int par1, int par2, float par3)
+     {
+         this.drawDefaultBackground();
+-        this.drawCenteredString(this.fontRenderer, I18n.getString("addServer.title"), this.width / 2, 17, 16777215);
+-        this.drawString(this.fontRenderer, I18n.getString("addServer.enterName"), this.width / 2 - 100, 53, 10526880);
+-        this.drawString(this.fontRenderer, I18n.getString("addServer.enterIp"), this.width / 2 - 100, 94, 10526880);
++        this.drawCenteredString(this.fontRenderer, I18n.func_135053_a("addServer.title"), this.width / 2, 17, 16777215);
++        this.drawString(this.fontRenderer, I18n.func_135053_a("addServer.enterName"), this.width / 2 - 100, 53, 10526880);
++        this.drawString(this.fontRenderer, I18n.func_135053_a("addServer.enterIp"), this.width / 2 - 100, 94, 10526880);
+         this.serverName.drawTextBox();
+         this.serverAddress.drawTextBox();
+         super.drawScreen(par1, par2, par3);

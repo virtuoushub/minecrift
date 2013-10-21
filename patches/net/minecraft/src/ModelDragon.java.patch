@@ -1,0 +1,80 @@
+--- a/net/minecraft/src/ModelDragon.java
++++ b/net/minecraft/src/ModelDragon.java
+@@ -7,8 +7,8 @@
+     /** The head Model renderer of the dragon */
+     private ModelRenderer head;
+ 
+-    /** The spine Model renderer of the dragon */
+-    private ModelRenderer spine;
++    /** The neck Model renderer of the dragon */
++    private ModelRenderer neck;
+ 
+     /** The jaw Model renderer of the dragon */
+     private ModelRenderer jaw;
+@@ -78,9 +78,9 @@
+         this.jaw.setRotationPoint(0.0F, 4.0F, 8.0F + var2);
+         this.jaw.addBox("jaw", -6.0F, 0.0F, -16.0F, 12, 4, 16);
+         this.head.addChild(this.jaw);
+-        this.spine = new ModelRenderer(this, "neck");
+-        this.spine.addBox("box", -5.0F, -5.0F, -5.0F, 10, 10, 10);
+-        this.spine.addBox("scale", -1.0F, -9.0F, -3.0F, 2, 4, 6);
++        this.neck = new ModelRenderer(this, "neck");
++        this.neck.addBox("box", -5.0F, -5.0F, -5.0F, 10, 10, 10);
++        this.neck.addBox("scale", -1.0F, -9.0F, -3.0F, 2, 4, 6);
+         this.body = new ModelRenderer(this, "body");
+         this.body.setRotationPoint(0.0F, 4.0F, 8.0F);
+         this.body.addBox("body", -12.0F, 0.0F, -16.0F, 24, 24, 64);
+@@ -158,16 +158,16 @@
+         {
+             double[] var20 = var8.getMovementOffsets(5 - var19, this.partialTicks);
+             var21 = (float)Math.cos((double)((float)var19 * 0.45F + var18)) * 0.15F;
+-            this.spine.rotateAngleY = this.updateRotations(var20[0] - var15[0]) * (float)Math.PI / 180.0F * var14;
+-            this.spine.rotateAngleX = var21 + (float)(var20[1] - var15[1]) * (float)Math.PI / 180.0F * var14 * 5.0F;
+-            this.spine.rotateAngleZ = -this.updateRotations(var20[0] - (double)var17) * (float)Math.PI / 180.0F * var14;
+-            this.spine.rotationPointY = var11;
+-            this.spine.rotationPointZ = var12;
+-            this.spine.rotationPointX = var13;
+-            var11 = (float)((double)var11 + Math.sin((double)this.spine.rotateAngleX) * 10.0D);
+-            var12 = (float)((double)var12 - Math.cos((double)this.spine.rotateAngleY) * Math.cos((double)this.spine.rotateAngleX) * 10.0D);
+-            var13 = (float)((double)var13 - Math.sin((double)this.spine.rotateAngleY) * Math.cos((double)this.spine.rotateAngleX) * 10.0D);
+-            this.spine.render(par7);
++            this.neck.rotateAngleY = this.updateRotations(var20[0] - var15[0]) * (float)Math.PI / 180.0F * var14;
++            this.neck.rotateAngleX = var21 + (float)(var20[1] - var15[1]) * (float)Math.PI / 180.0F * var14 * 5.0F;
++            this.neck.rotateAngleZ = -this.updateRotations(var20[0] - (double)var17) * (float)Math.PI / 180.0F * var14;
++            this.neck.rotationPointY = var11;
++            this.neck.rotationPointZ = var12;
++            this.neck.rotationPointX = var13;
++            var11 = (float)((double)var11 + Math.sin((double)this.neck.rotateAngleX) * 10.0D);
++            var12 = (float)((double)var12 - Math.cos((double)this.neck.rotateAngleY) * Math.cos((double)this.neck.rotateAngleX) * 10.0D);
++            var13 = (float)((double)var13 - Math.sin((double)this.neck.rotateAngleY) * Math.cos((double)this.neck.rotateAngleX) * 10.0D);
++            this.neck.render(par7);
+         }
+ 
+         this.head.rotationPointY = var11;
+@@ -223,16 +223,16 @@
+         {
+             var23 = var8.getMovementOffsets(12 + var25, this.partialTicks);
+             var24 = (float)((double)var24 + Math.sin((double)((float)var25 * 0.45F + var18)) * 0.05000000074505806D);
+-            this.spine.rotateAngleY = (this.updateRotations(var23[0] - var15[0]) * var14 + 180.0F) * (float)Math.PI / 180.0F;
+-            this.spine.rotateAngleX = var24 + (float)(var23[1] - var15[1]) * (float)Math.PI / 180.0F * var14 * 5.0F;
+-            this.spine.rotateAngleZ = this.updateRotations(var23[0] - (double)var17) * (float)Math.PI / 180.0F * var14;
+-            this.spine.rotationPointY = var11;
+-            this.spine.rotationPointZ = var12;
+-            this.spine.rotationPointX = var13;
+-            var11 = (float)((double)var11 + Math.sin((double)this.spine.rotateAngleX) * 10.0D);
+-            var12 = (float)((double)var12 - Math.cos((double)this.spine.rotateAngleY) * Math.cos((double)this.spine.rotateAngleX) * 10.0D);
+-            var13 = (float)((double)var13 - Math.sin((double)this.spine.rotateAngleY) * Math.cos((double)this.spine.rotateAngleX) * 10.0D);
+-            this.spine.render(par7);
++            this.neck.rotateAngleY = (this.updateRotations(var23[0] - var15[0]) * var14 + 180.0F) * (float)Math.PI / 180.0F;
++            this.neck.rotateAngleX = var24 + (float)(var23[1] - var15[1]) * (float)Math.PI / 180.0F * var14 * 5.0F;
++            this.neck.rotateAngleZ = this.updateRotations(var23[0] - (double)var17) * (float)Math.PI / 180.0F * var14;
++            this.neck.rotationPointY = var11;
++            this.neck.rotationPointZ = var12;
++            this.neck.rotationPointX = var13;
++            var11 = (float)((double)var11 + Math.sin((double)this.neck.rotateAngleX) * 10.0D);
++            var12 = (float)((double)var12 - Math.cos((double)this.neck.rotateAngleY) * Math.cos((double)this.neck.rotateAngleX) * 10.0D);
++            var13 = (float)((double)var13 - Math.sin((double)this.neck.rotateAngleY) * Math.cos((double)this.neck.rotateAngleX) * 10.0D);
++            this.neck.render(par7);
+         }
+ 
+         GL11.glPopMatrix();

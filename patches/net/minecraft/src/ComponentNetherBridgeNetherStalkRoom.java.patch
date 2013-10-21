@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ComponentNetherBridgeNetherStalkRoom.java
++++ b/net/minecraft/src/ComponentNetherBridgeNetherStalkRoom.java
+@@ -5,8 +5,6 @@
+ 
+ public class ComponentNetherBridgeNetherStalkRoom extends ComponentNetherBridgePiece
+ {
+-    public ComponentNetherBridgeNetherStalkRoom() {}
+-
+     public ComponentNetherBridgeNetherStalkRoom(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+     {
+         super(par1);

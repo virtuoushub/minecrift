@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/DispenserBehaviorMobEgg.java
++++ b/net/minecraft/src/DispenserBehaviorMobEgg.java
+@@ -15,7 +15,7 @@
+ 
+         if (var10 instanceof EntityLivingBase && par2ItemStack.hasDisplayName())
+         {
+-            ((EntityLiving)var10).setCustomNameTag(par2ItemStack.getDisplayName());
++            ((EntityLiving)var10).func_94058_c(par2ItemStack.getDisplayName());
+         }
+ 
+         par2ItemStack.splitStack(1);

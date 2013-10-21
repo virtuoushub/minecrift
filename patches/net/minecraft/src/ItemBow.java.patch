@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/ItemBow.java
++++ b/net/minecraft/src/ItemBow.java
+@@ -125,12 +125,12 @@
+ 
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.itemIcon = par1IconRegister.registerIcon(this.getIconString() + "_standby");
++        this.itemIcon = par1IconRegister.registerIcon(this.func_111208_A() + "_standby");
+         this.iconArray = new Icon[bowPullIconNameArray.length];
+ 
+         for (int var2 = 0; var2 < this.iconArray.length; ++var2)
+         {
+-            this.iconArray[var2] = par1IconRegister.registerIcon(this.getIconString() + "_" + bowPullIconNameArray[var2]);
++            this.iconArray[var2] = par1IconRegister.registerIcon(this.func_111208_A() + "_" + bowPullIconNameArray[var2]);
+         }
+     }
+ 

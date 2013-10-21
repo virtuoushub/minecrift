@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/ComponentScatteredFeatureSwampHut.java
++++ b/net/minecraft/src/ComponentScatteredFeatureSwampHut.java
+@@ -7,25 +7,11 @@
+     /** Whether this swamp hut has a witch. */
+     private boolean hasWitch;
+ 
+-    public ComponentScatteredFeatureSwampHut() {}
+-
+     public ComponentScatteredFeatureSwampHut(Random par1Random, int par2, int par3)
+     {
+         super(par1Random, par2, 64, par3, 7, 5, 9);
+     }
+ 
+-    protected void func_143012_a(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143012_a(par1NBTTagCompound);
+-        par1NBTTagCompound.setBoolean("Witch", this.hasWitch);
+-    }
+-
+-    protected void func_143011_b(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143011_b(par1NBTTagCompound);
+-        this.hasWitch = par1NBTTagCompound.getBoolean("Witch");
+-    }
+-
+     /**
+      * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+      * the end, it adds Fences...
+@@ -89,7 +75,7 @@
+                     this.hasWitch = true;
+                     EntityWitch var11 = new EntityWitch(par1World);
+                     var11.setLocationAndAngles((double)var8 + 0.5D, (double)var9, (double)var10 + 0.5D, 0.0F, 0.0F);
+-                    var11.onSpawnWithEgg((EntityLivingData)null);
++                    var11.func_110161_a((EntityLivingData)null);
+                     par1World.spawnEntityInWorld(var11);
+                 }
+             }

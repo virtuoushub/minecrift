@@ -1,0 +1,36 @@
+--- a/net/minecraft/src/MapGenScatteredFeature.java
++++ b/net/minecraft/src/MapGenScatteredFeature.java
+@@ -45,11 +45,6 @@
+         }
+     }
+ 
+-    public String func_143025_a()
+-    {
+-        return "Temple";
+-    }
+-
+     protected boolean canSpawnStructureAtCoords(int par1, int par2)
+     {
+         int var3 = par1;
+@@ -97,21 +92,6 @@
+         return new StructureScatteredFeatureStart(this.worldObj, this.rand, par1, par2);
+     }
+ 
+-    public boolean func_143030_a(int par1, int par2, int par3)
+-    {
+-        StructureStart var4 = this.func_143028_c(par1, par2, par3);
+-
+-        if (var4 != null && var4 instanceof StructureScatteredFeatureStart && !var4.components.isEmpty())
+-        {
+-            StructureComponent var5 = (StructureComponent)var4.components.getFirst();
+-            return var5 instanceof ComponentScatteredFeatureSwampHut;
+-        }
+-        else
+-        {
+-            return false;
+-        }
+-    }
+-
+     /**
+      * returns possible spawns for scattered features
+      */

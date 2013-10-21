@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/McoServerListUpdateTask.java
++++ b/net/minecraft/src/McoServerListUpdateTask.java
+@@ -87,7 +87,7 @@
+ 
+     private void func_140065_a(List par1List)
+     {
+-        Collections.sort(par1List, new McoServerListUpdateTaskComparator(this, McoServerList.func_100014_a(this.field_140067_a).getUsername(), (McoServerListEmptyAnon)null));
++        Collections.sort(par1List, new McoServerListUpdateTaskComparator(this, McoServerList.func_100014_a(this.field_140067_a).func_111285_a(), (McoServerListEmptyAnon)null));
+     }
+ 
+     McoServerListUpdateTask(McoServerList par1McoServerList, McoServerListEmptyAnon par2McoServerListEmptyAnon)

@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/BlockEnchantmentTable.java
++++ b/net/minecraft/src/BlockEnchantmentTable.java
+@@ -119,8 +119,8 @@
+      */
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.blockIcon = par1IconRegister.registerIcon(this.getTextureName() + "_" + "side");
+-        this.field_94461_a = par1IconRegister.registerIcon(this.getTextureName() + "_" + "top");
+-        this.field_94460_b = par1IconRegister.registerIcon(this.getTextureName() + "_" + "bottom");
++        this.blockIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_" + "side");
++        this.field_94461_a = par1IconRegister.registerIcon(this.func_111023_E() + "_" + "top");
++        this.field_94460_b = par1IconRegister.registerIcon(this.func_111023_E() + "_" + "bottom");
+     }
+ }

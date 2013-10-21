@@ -1,0 +1,36 @@
+--- a/net/minecraft/src/EntityAINearestAttackableTarget.java
++++ b/net/minecraft/src/EntityAINearestAttackableTarget.java
+@@ -10,12 +10,7 @@
+ 
+     /** Instance of EntityAINearestAttackableTargetSorter. */
+     private final EntityAINearestAttackableTargetSorter theNearestAttackableTargetSorter;
+-
+-    /**
+-     * This filter is applied to the Entity search.  Only matching entities will be targetted.  (null -> no
+-     * restrictions)
+-     */
+-    private final IEntitySelector targetEntitySelector;
++    private final IEntitySelector field_82643_g;
+     private EntityLivingBase targetEntity;
+ 
+     public EntityAINearestAttackableTarget(EntityCreature par1EntityCreature, Class par2Class, int par3, boolean par4)
+@@ -35,7 +30,7 @@
+         this.targetChance = par3;
+         this.theNearestAttackableTargetSorter = new EntityAINearestAttackableTargetSorter(par1EntityCreature);
+         this.setMutexBits(1);
+-        this.targetEntitySelector = new EntityAINearestAttackableTargetSelector(this, par6IEntitySelector);
++        this.field_82643_g = new EntityAINearestAttackableTargetSelector(this, par6IEntitySelector);
+     }
+ 
+     /**
+@@ -49,8 +44,8 @@
+         }
+         else
+         {
+-            double var1 = this.getTargetDistance();
+-            List var3 = this.taskOwner.worldObj.selectEntitiesWithinAABB(this.targetClass, this.taskOwner.boundingBox.expand(var1, 4.0D, var1), this.targetEntitySelector);
++            double var1 = this.func_111175_f();
++            List var3 = this.taskOwner.worldObj.selectEntitiesWithinAABB(this.targetClass, this.taskOwner.boundingBox.expand(var1, 4.0D, var1), this.field_82643_g);
+             Collections.sort(var3, this.theNearestAttackableTargetSorter);
+ 
+             if (var3.isEmpty())

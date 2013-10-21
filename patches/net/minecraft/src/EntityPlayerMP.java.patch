@@ -1,0 +1,150 @@
+--- a/net/minecraft/src/EntityPlayerMP.java
++++ b/net/minecraft/src/EntityPlayerMP.java
+@@ -58,7 +58,6 @@
+     private int renderDistance;
+     private int chatVisibility;
+     private boolean chatColours = true;
+-    private long field_143005_bX = 0L;
+ 
+     /**
+      * The currently in use window ID. Incremented every time a window is opened.
+@@ -117,7 +116,7 @@
+ 
+         if (par1NBTTagCompound.hasKey("playerGameType"))
+         {
+-            if (MinecraftServer.getServer().getForceGamemode())
++            if (MinecraftServer.getServer().func_104056_am())
+             {
+                 this.theItemInWorldManager.setGameType(MinecraftServer.getServer().getGameType());
+             }
+@@ -233,11 +232,6 @@
+                 }
+             }
+         }
+-
+-        if (this.field_143005_bX > 0L && this.mcServer.func_143007_ar() > 0 && MinecraftServer.getSystemTimeMillis() - this.field_143005_bX > (long)(this.mcServer.func_143007_ar() * 1000 * 60))
+-        {
+-            this.playerNetServerHandler.kickPlayerFromServer("You have been idle for too long!");
+-        }
+     }
+ 
+     public void onUpdateEntity()
+@@ -261,18 +255,18 @@
+                 }
+             }
+ 
+-            if (this.getHealth() != this.lastHealth || this.lastFoodLevel != this.foodStats.getFoodLevel() || this.foodStats.getSaturationLevel() == 0.0F != this.wasHungry)
++            if (this.func_110143_aJ() != this.lastHealth || this.lastFoodLevel != this.foodStats.getFoodLevel() || this.foodStats.getSaturationLevel() == 0.0F != this.wasHungry)
+             {
+-                this.playerNetServerHandler.sendPacketToPlayer(new Packet8UpdateHealth(this.getHealth(), this.foodStats.getFoodLevel(), this.foodStats.getSaturationLevel()));
+-                this.lastHealth = this.getHealth();
++                this.playerNetServerHandler.sendPacketToPlayer(new Packet8UpdateHealth(this.func_110143_aJ(), this.foodStats.getFoodLevel(), this.foodStats.getSaturationLevel()));
++                this.lastHealth = this.func_110143_aJ();
+                 this.lastFoodLevel = this.foodStats.getFoodLevel();
+                 this.wasHungry = this.foodStats.getSaturationLevel() == 0.0F;
+             }
+ 
+-            if (this.getHealth() + this.getAbsorptionAmount() != this.field_130068_bO)
++            if (this.func_110143_aJ() + this.func_110139_bj() != this.field_130068_bO)
+             {
+-                this.field_130068_bO = this.getHealth() + this.getAbsorptionAmount();
+-                Collection var5 = this.getWorldScoreboard().func_96520_a(ScoreObjectiveCriteria.health);
++                this.field_130068_bO = this.func_110143_aJ() + this.func_110139_bj();
++                Collection var5 = this.getWorldScoreboard().func_96520_a(ScoreObjectiveCriteria.field_96638_f);
+                 Iterator var7 = var5.iterator();
+ 
+                 while (var7.hasNext())
+@@ -292,7 +286,7 @@
+         {
+             CrashReport var2 = CrashReport.makeCrashReport(var4, "Ticking player");
+             CrashReportCategory var3 = var2.makeCategory("Player being ticked");
+-            this.addEntityCrashInfo(var3);
++            this.func_85029_a(var3);
+             throw new ReportedException(var2);
+         }
+     }
+@@ -309,7 +303,7 @@
+             this.inventory.dropAllItems();
+         }
+ 
+-        Collection var2 = this.worldObj.getScoreboard().func_96520_a(ScoreObjectiveCriteria.deathCount);
++        Collection var2 = this.worldObj.getScoreboard().func_96520_a(ScoreObjectiveCriteria.field_96642_c);
+         Iterator var3 = var2.iterator();
+ 
+         while (var3.hasNext())
+@@ -352,7 +346,7 @@
+                 {
+                     Entity var4 = par1DamageSource.getEntity();
+ 
+-                    if (var4 instanceof EntityPlayer && !this.canAttackPlayer((EntityPlayer)var4))
++                    if (var4 instanceof EntityPlayer && !this.func_96122_a((EntityPlayer)var4))
+                     {
+                         return false;
+                     }
+@@ -361,7 +355,7 @@
+                     {
+                         EntityArrow var5 = (EntityArrow)var4;
+ 
+-                        if (var5.shootingEntity instanceof EntityPlayer && !this.canAttackPlayer((EntityPlayer)var5.shootingEntity))
++                        if (var5.shootingEntity instanceof EntityPlayer && !this.func_96122_a((EntityPlayer)var5.shootingEntity))
+                         {
+                             return false;
+                         }
+@@ -373,9 +367,9 @@
+         }
+     }
+ 
+-    public boolean canAttackPlayer(EntityPlayer par1EntityPlayer)
++    public boolean func_96122_a(EntityPlayer par1EntityPlayer)
+     {
+-        return !this.mcServer.isPVPEnabled() ? false : super.canAttackPlayer(par1EntityPlayer);
++        return !this.mcServer.isPVPEnabled() ? false : super.func_96122_a(par1EntityPlayer);
+     }
+ 
+     /**
+@@ -661,7 +655,7 @@
+         }
+     }
+ 
+-    public void displayGUIHorse(EntityHorse par1EntityHorse, IInventory par2IInventory)
++    public void func_110298_a(EntityHorse par1EntityHorse, IInventory par2IInventory)
+     {
+         if (this.openContainer != this.inventoryContainer)
+         {
+@@ -740,7 +734,7 @@
+         this.openContainer = this.inventoryContainer;
+     }
+ 
+-    public void setEntityActionState(float par1, float par2, boolean par3, boolean par4)
++    public void func_110430_a(float par1, float par2, boolean par3, boolean par4)
+     {
+         if (this.ridingEntity != null)
+         {
+@@ -800,7 +794,7 @@
+      */
+     public void addChatMessage(String par1Str)
+     {
+-        this.playerNetServerHandler.sendPacketToPlayer(new Packet3Chat(ChatMessageComponent.createFromTranslationKey(par1Str)));
++        this.playerNetServerHandler.sendPacketToPlayer(new Packet3Chat(ChatMessageComponent.func_111077_e(par1Str)));
+     }
+ 
+     /**
+@@ -912,7 +906,7 @@
+      */
+     public boolean canCommandSenderUseCommand(int par1, String par2Str)
+     {
+-        return "seed".equals(par2Str) && !this.mcServer.isDedicatedServer() ? true : (!"tell".equals(par2Str) && !"help".equals(par2Str) && !"me".equals(par2Str) ? (this.mcServer.getConfigurationManager().isPlayerOpped(this.username) ? this.mcServer.func_110455_j() >= par1 : false) : true);
++        return "seed".equals(par2Str) && !this.mcServer.isDedicatedServer() ? true : (!"tell".equals(par2Str) && !"help".equals(par2Str) && !"me".equals(par2Str) ? (this.mcServer.getConfigurationManager().areCommandsAllowed(this.username) ? this.mcServer.func_110455_j() >= par1 : false) : true);
+     }
+ 
+     /**
+@@ -968,9 +962,4 @@
+     {
+         return new ChunkCoordinates(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY + 0.5D), MathHelper.floor_double(this.posZ));
+     }
+-
+-    public void func_143004_u()
+-    {
+-        this.field_143005_bX = MinecraftServer.getSystemTimeMillis();
+-    }
+ }

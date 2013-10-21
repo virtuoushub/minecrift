@@ -4,8 +4,8 @@
  
  public class ModelBiped extends ModelBase
  {
-+    public boolean _renderHead = true;   
-+    public boolean _renderHeadWear = true;   
++    public boolean _renderHead = true;   // TODO: How to stop head rendering!
++    public boolean _renderHeadWear = true;   // TODO: How to stop head wear rendering?
 +	public float vrOffset = 0.0F;
      public ModelRenderer bipedHead;
      public ModelRenderer bipedHeadwear;

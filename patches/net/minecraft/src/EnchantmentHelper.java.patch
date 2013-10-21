@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/EnchantmentHelper.java
++++ b/net/minecraft/src/EnchantmentHelper.java
+@@ -97,7 +97,7 @@
+ 
+             if (par1ItemStack.itemID == Item.enchantedBook.itemID)
+             {
+-                Item.enchantedBook.addEnchantment(par1ItemStack, new EnchantmentData(var4, ((Integer)par0Map.get(Integer.valueOf(var4))).intValue()));
++                Item.enchantedBook.getEnchantedItemStack_do(par1ItemStack, new EnchantmentData(var4, ((Integer)par0Map.get(Integer.valueOf(var4))).intValue()));
+             }
+         }
+ 
+@@ -344,7 +344,7 @@
+ 
+                 if (var4)
+                 {
+-                    Item.enchantedBook.addEnchantment(par1ItemStack, var6);
++                    Item.enchantedBook.getEnchantedItemStack_do(par1ItemStack, var6);
+                 }
+                 else
+                 {

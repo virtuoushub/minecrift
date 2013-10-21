@@ -1,6 +1,15 @@
 --- a/net/minecraft/src/MovementInputFromOptions.java
 +++ b/net/minecraft/src/MovementInputFromOptions.java
-@@ -11,8 +11,8 @@
+@@ -3,16 +3,15 @@
+ public class MovementInputFromOptions extends MovementInput
+ {
+     private GameSettings gameSettings;
+-
+-    public MovementInputFromOptions(GameSettings par1GameSettings)
++	public MovementInputFromOptions(GameSettings par1GameSettings)
+     {
+         this.gameSettings = par1GameSettings;
+     }
  
      public void updatePlayerMoveState()
      {

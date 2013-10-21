@@ -1,0 +1,92 @@
+--- a/net/minecraft/src/EntityAITempt.java
++++ b/net/minecraft/src/EntityAITempt.java
+@@ -5,15 +5,9 @@
+     /** The entity using this AI that is tempted by the player. */
+     private EntityCreature temptedEntity;
+     private double field_75282_b;
+-
+-    /** X position of player tempting this mob */
+-    private double targetX;
+-
+-    /** Y position of player tempting this mob */
+-    private double targetY;
+-
+-    /** Z position of player tempting this mob */
+-    private double targetZ;
++    private double field_75283_c;
++    private double field_75280_d;
++    private double field_75281_e;
+     private double field_75278_f;
+     private double field_75279_g;
+ 
+@@ -25,9 +19,7 @@
+      * return false if delayTemptCounter is greater than 0.
+      */
+     private int delayTemptCounter;
+-
+-    /** True if this EntityAITempt task is running */
+-    private boolean isRunning;
++    private boolean field_75287_j;
+ 
+     /**
+      * This field saves the ID of the items that can be used to breed entities with this behaviour.
+@@ -84,7 +76,7 @@
+         {
+             if (this.temptedEntity.getDistanceSqToEntity(this.temptingPlayer) < 36.0D)
+             {
+-                if (this.temptingPlayer.getDistanceSq(this.targetX, this.targetY, this.targetZ) > 0.010000000000000002D)
++                if (this.temptingPlayer.getDistanceSq(this.field_75283_c, this.field_75280_d, this.field_75281_e) > 0.010000000000000002D)
+                 {
+                     return false;
+                 }
+@@ -96,9 +88,9 @@
+             }
+             else
+             {
+-                this.targetX = this.temptingPlayer.posX;
+-                this.targetY = this.temptingPlayer.posY;
+-                this.targetZ = this.temptingPlayer.posZ;
++                this.field_75283_c = this.temptingPlayer.posX;
++                this.field_75280_d = this.temptingPlayer.posY;
++                this.field_75281_e = this.temptingPlayer.posZ;
+             }
+ 
+             this.field_75278_f = (double)this.temptingPlayer.rotationPitch;
+@@ -113,10 +105,10 @@
+      */
+     public void startExecuting()
+     {
+-        this.targetX = this.temptingPlayer.posX;
+-        this.targetY = this.temptingPlayer.posY;
+-        this.targetZ = this.temptingPlayer.posZ;
+-        this.isRunning = true;
++        this.field_75283_c = this.temptingPlayer.posX;
++        this.field_75280_d = this.temptingPlayer.posY;
++        this.field_75281_e = this.temptingPlayer.posZ;
++        this.field_75287_j = true;
+         this.field_75286_m = this.temptedEntity.getNavigator().getAvoidsWater();
+         this.temptedEntity.getNavigator().setAvoidsWater(false);
+     }
+@@ -129,7 +121,7 @@
+         this.temptingPlayer = null;
+         this.temptedEntity.getNavigator().clearPathEntity();
+         this.delayTemptCounter = 100;
+-        this.isRunning = false;
++        this.field_75287_j = false;
+         this.temptedEntity.getNavigator().setAvoidsWater(this.field_75286_m);
+     }
+ 
+@@ -150,11 +142,8 @@
+         }
+     }
+ 
+-    /**
+-     * @see #isRunning
+-     */
+-    public boolean isRunning()
++    public boolean func_75277_f()
+     {
+-        return this.isRunning;
++        return this.field_75287_j;
+     }
+ }

@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/EntityArrow.java
++++ b/net/minecraft/src/EntityArrow.java
+@@ -264,7 +264,7 @@
+             {
+                 EntityPlayer var21 = (EntityPlayer)var4.entityHit;
+ 
+-                if (var21.capabilities.disableDamage || this.shootingEntity instanceof EntityPlayer && !((EntityPlayer)this.shootingEntity).canAttackPlayer(var21))
++                if (var21.capabilities.disableDamage || this.shootingEntity instanceof EntityPlayer && !((EntityPlayer)this.shootingEntity).func_96122_a(var21))
+                 {
+                     var4 = null;
+                 }

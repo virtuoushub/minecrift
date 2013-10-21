@@ -1,0 +1,41 @@
+--- a/net/minecraft/src/ComponentVillageWell.java
++++ b/net/minecraft/src/ComponentVillageWell.java
+@@ -5,7 +5,8 @@
+ 
+ public class ComponentVillageWell extends ComponentVillage
+ {
+-    public ComponentVillageWell() {}
++    private final boolean field_74924_a = true;
++    private int averageGroundLevel = -1;
+ 
+     public ComponentVillageWell(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, int par4, int par5)
+     {
+@@ -18,7 +19,6 @@
+             case 2:
+                 this.boundingBox = new StructureBoundingBox(par4, 64, par5, par4 + 6 - 1, 78, par5 + 6 - 1);
+                 break;
+-
+             default:
+                 this.boundingBox = new StructureBoundingBox(par4, 64, par5, par4 + 6 - 1, 78, par5 + 6 - 1);
+         }
+@@ -41,16 +41,16 @@
+      */
+     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
+     {
+-        if (this.field_143015_k < 0)
++        if (this.averageGroundLevel < 0)
+         {
+-            this.field_143015_k = this.getAverageGroundLevel(par1World, par3StructureBoundingBox);
++            this.averageGroundLevel = this.getAverageGroundLevel(par1World, par3StructureBoundingBox);
+ 
+-            if (this.field_143015_k < 0)
++            if (this.averageGroundLevel < 0)
+             {
+                 return true;
+             }
+ 
+-            this.boundingBox.offset(0, this.field_143015_k - this.boundingBox.maxY + 3, 0);
++            this.boundingBox.offset(0, this.averageGroundLevel - this.boundingBox.maxY + 3, 0);
+         }
+ 
+         this.fillWithBlocks(par1World, par3StructureBoundingBox, 1, 0, 1, 4, 12, 4, Block.cobblestone.blockID, Block.waterMoving.blockID, false);

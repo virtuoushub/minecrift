@@ -1,0 +1,21 @@
+--- a/net/minecraft/src/Icon.java
++++ b/net/minecraft/src/Icon.java
+@@ -3,14 +3,14 @@
+ public interface Icon
+ {
+     /**
+-     * Returns the width of the icon, in pixels.
++     * Returns the X position of this icon on its texture sheet, in pixels.
+      */
+-    int getIconWidth();
++    int getOriginX();
+ 
+     /**
+-     * Returns the height of the icon, in pixels.
++     * Returns the Y position of this icon on its texture sheet, in pixels.
+      */
+-    int getIconHeight();
++    int getOriginY();
+ 
+     /**
+      * Returns the minimum U coordinate to use when rendering with this icon.

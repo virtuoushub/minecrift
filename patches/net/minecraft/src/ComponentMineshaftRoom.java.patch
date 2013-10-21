@@ -1,0 +1,40 @@
+--- a/net/minecraft/src/ComponentMineshaftRoom.java
++++ b/net/minecraft/src/ComponentMineshaftRoom.java
+@@ -10,8 +10,6 @@
+     /** List of other Mineshaft components linked to this room. */
+     private List roomsLinkedToTheRoom = new LinkedList();
+ 
+-    public ComponentMineshaftRoom() {}
+-
+     public ComponentMineshaftRoom(int par1, Random par2Random, int par3, int par4)
+     {
+         super(par1);
+@@ -134,28 +132,4 @@
+             return true;
+         }
+     }
+-
+-    protected void func_143012_a(NBTTagCompound par1NBTTagCompound)
+-    {
+-        NBTTagList var2 = new NBTTagList("Entrances");
+-        Iterator var3 = this.roomsLinkedToTheRoom.iterator();
+-
+-        while (var3.hasNext())
+-        {
+-            StructureBoundingBox var4 = (StructureBoundingBox)var3.next();
+-            var2.appendTag(var4.func_143047_a(""));
+-        }
+-
+-        par1NBTTagCompound.setTag("Entrances", var2);
+-    }
+-
+-    protected void func_143011_b(NBTTagCompound par1NBTTagCompound)
+-    {
+-        NBTTagList var2 = par1NBTTagCompound.getTagList("Entrances");
+-
+-        for (int var3 = 0; var3 < var2.tagCount(); ++var3)
+-        {
+-            this.roomsLinkedToTheRoom.add(new StructureBoundingBox(((NBTTagIntArray)var2.tagAt(var3)).intArray));
+-        }
+-    }
+ }

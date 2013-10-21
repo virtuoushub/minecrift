@@ -1,0 +1,25 @@
+--- a/net/minecraft/src/EntityTameable.java
++++ b/net/minecraft/src/EntityTameable.java
+@@ -168,7 +168,7 @@
+         return super.getTeam();
+     }
+ 
+-    public boolean isOnSameTeam(EntityLivingBase par1EntityLivingBase)
++    public boolean func_142014_c(EntityLivingBase par1EntityLivingBase)
+     {
+         if (this.isTamed())
+         {
+@@ -181,11 +181,11 @@
+ 
+             if (var2 != null)
+             {
+-                return var2.isOnSameTeam(par1EntityLivingBase);
++                return var2.func_142014_c(par1EntityLivingBase);
+             }
+         }
+ 
+-        return super.isOnSameTeam(par1EntityLivingBase);
++        return super.func_142014_c(par1EntityLivingBase);
+     }
+ 
+     public Entity getOwner()

@@ -1,0 +1,15 @@
+--- a/net/minecraft/src/ChunkProviderServer.java
++++ b/net/minecraft/src/ChunkProviderServer.java
+@@ -269,11 +269,7 @@
+         return true;
+     }
+ 
+-    /**
+-     * Save extra data not associated with any Chunk.  Not saved during autosave, only during world unload.  Currently
+-     * unimplemented.
+-     */
+-    public void saveExtraData()
++    public void func_104112_b()
+     {
+         if (this.currentChunkLoader != null)
+         {

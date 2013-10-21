@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/ScoreObjectiveCriteria.java
++++ b/net/minecraft/src/ScoreObjectiveCriteria.java
+@@ -8,10 +8,10 @@
+ {
+     Map field_96643_a = new HashMap();
+     ScoreObjectiveCriteria field_96641_b = new ScoreDummyCriteria("dummy");
+-    ScoreObjectiveCriteria deathCount = new ScoreDummyCriteria("deathCount");
+-    ScoreObjectiveCriteria playerKillCount = new ScoreDummyCriteria("playerKillCount");
+-    ScoreObjectiveCriteria totalKillCount = new ScoreDummyCriteria("totalKillCount");
+-    ScoreObjectiveCriteria health = new ScoreHealthCriteria("health");
++    ScoreObjectiveCriteria field_96642_c = new ScoreDummyCriteria("deathCount");
++    ScoreObjectiveCriteria field_96639_d = new ScoreDummyCriteria("playerKillCount");
++    ScoreObjectiveCriteria field_96640_e = new ScoreDummyCriteria("totalKillCount");
++    ScoreObjectiveCriteria field_96638_f = new ScoreHealthCriteria("health");
+ 
+     String func_96636_a();
+ 

@@ -1,0 +1,16 @@
+--- a/net/minecraft/src/BlockSandStone.java
++++ b/net/minecraft/src/BlockSandStone.java
+@@ -71,10 +71,10 @@
+ 
+         for (int var2 = 0; var2 < this.field_94406_c.length; ++var2)
+         {
+-            this.field_94406_c[var2] = par1IconRegister.registerIcon(this.getTextureName() + "_" + field_94405_b[var2]);
++            this.field_94406_c[var2] = par1IconRegister.registerIcon(this.func_111023_E() + "_" + field_94405_b[var2]);
+         }
+ 
+-        this.field_94403_cO = par1IconRegister.registerIcon(this.getTextureName() + "_top");
+-        this.field_94404_cP = par1IconRegister.registerIcon(this.getTextureName() + "_bottom");
++        this.field_94403_cO = par1IconRegister.registerIcon(this.func_111023_E() + "_top");
++        this.field_94404_cP = par1IconRegister.registerIcon(this.func_111023_E() + "_bottom");
+     }
+ }

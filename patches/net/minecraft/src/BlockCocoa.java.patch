@@ -1,0 +1,36 @@
+--- a/net/minecraft/src/BlockCocoa.java
++++ b/net/minecraft/src/BlockCocoa.java
+@@ -20,7 +20,7 @@
+         return this.iconArray[2];
+     }
+ 
+-    public Icon getCocoaIcon(int par1)
++    public Icon func_94468_i_(int par1)
+     {
+         if (par1 < 0 || par1 >= this.iconArray.length)
+         {
+@@ -126,15 +126,12 @@
+             case 0:
+                 this.setBlockBounds((8.0F - var10) / 16.0F, (12.0F - (float)var9) / 16.0F, (15.0F - (float)var8) / 16.0F, (8.0F + var10) / 16.0F, 0.75F, 0.9375F);
+                 break;
+-
+             case 1:
+                 this.setBlockBounds(0.0625F, (12.0F - (float)var9) / 16.0F, (8.0F - var10) / 16.0F, (1.0F + (float)var8) / 16.0F, 0.75F, (8.0F + var10) / 16.0F);
+                 break;
+-
+             case 2:
+                 this.setBlockBounds((8.0F - var10) / 16.0F, (12.0F - (float)var9) / 16.0F, 0.0625F, (8.0F + var10) / 16.0F, 0.75F, (1.0F + (float)var8) / 16.0F);
+                 break;
+-
+             case 3:
+                 this.setBlockBounds((15.0F - (float)var8) / 16.0F, (12.0F - (float)var9) / 16.0F, (8.0F - var10) / 16.0F, 0.9375F, 0.75F, (8.0F + var10) / 16.0F);
+         }
+@@ -225,7 +222,7 @@
+ 
+         for (int var2 = 0; var2 < this.iconArray.length; ++var2)
+         {
+-            this.iconArray[var2] = par1IconRegister.registerIcon(this.getTextureName() + "_stage_" + var2);
++            this.iconArray[var2] = par1IconRegister.registerIcon(this.func_111023_E() + "_stage_" + var2);
+         }
+     }
+ }

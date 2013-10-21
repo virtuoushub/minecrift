@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ServerCommandTestFor.java
++++ b/net/minecraft/src/ServerCommandTestFor.java
+@@ -32,7 +32,7 @@
+         }
+         else
+         {
+-            getPlayer(par1ICommandSender, par2ArrayOfStr[0]);
++            func_82359_c(par1ICommandSender, par2ArrayOfStr[0]);
+         }
+     }
+ 

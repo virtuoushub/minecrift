@@ -1,0 +1,121 @@
+--- a/net/minecraft/src/LanguageManager.java
++++ b/net/minecraft/src/LanguageManager.java
+@@ -13,20 +13,20 @@
+ public class LanguageManager implements ResourceManagerReloadListener
+ {
+     private final MetadataSerializer field_135047_b;
+-    private String currentLanguage;
+-    protected static final Locale currentLocale = new Locale();
+-    private Map languageMap = Maps.newHashMap();
++    private String field_135048_c;
++    protected static final Locale field_135049_a = new Locale();
++    private Map field_135046_d = Maps.newHashMap();
+ 
+     public LanguageManager(MetadataSerializer par1MetadataSerializer, String par2Str)
+     {
+         this.field_135047_b = par1MetadataSerializer;
+-        this.currentLanguage = par2Str;
+-        I18n.setLocale(currentLocale);
++        this.field_135048_c = par2Str;
++        I18n.func_135051_a(field_135049_a);
+     }
+ 
+-    public void parseLanguageMetadata(List par1List)
++    public void func_135043_a(List par1List)
+     {
+-        this.languageMap.clear();
++        this.field_135046_d.clear();
+         Iterator var2 = par1List.iterator();
+ 
+         while (var2.hasNext())
+@@ -35,69 +35,69 @@
+ 
+             try
+             {
+-                LanguageMetadataSection var4 = (LanguageMetadataSection)var3.getPackMetadata(this.field_135047_b, "language");
++                LanguageMetadataSection var4 = (LanguageMetadataSection)var3.func_135058_a(this.field_135047_b, "language");
+ 
+                 if (var4 != null)
+                 {
+-                    Iterator var5 = var4.getLanguages().iterator();
++                    Iterator var5 = var4.func_135018_a().iterator();
+ 
+                     while (var5.hasNext())
+                     {
+                         Language var6 = (Language)var5.next();
+ 
+-                        if (!this.languageMap.containsKey(var6.getLanguageCode()))
++                        if (!this.field_135046_d.containsKey(var6.func_135034_a()))
+                         {
+-                            this.languageMap.put(var6.getLanguageCode(), var6);
++                            this.field_135046_d.put(var6.func_135034_a(), var6);
+                         }
+                     }
+                 }
+             }
+             catch (RuntimeException var7)
+             {
+-                Minecraft.getMinecraft().getLogAgent().logWarningException("Unable to parse metadata section of resourcepack: " + var3.getPackName(), var7);
++                Minecraft.getMinecraft().getLogAgent().logWarningException("Unable to parse metadata section of resourcepack: " + var3.func_130077_b(), var7);
+             }
+             catch (IOException var8)
+             {
+-                Minecraft.getMinecraft().getLogAgent().logWarningException("Unable to parse metadata section of resourcepack: " + var3.getPackName(), var8);
++                Minecraft.getMinecraft().getLogAgent().logWarningException("Unable to parse metadata section of resourcepack: " + var3.func_130077_b(), var8);
+             }
+         }
+     }
+ 
+-    public void onResourceManagerReload(ResourceManager par1ResourceManager)
++    public void func_110549_a(ResourceManager par1ResourceManager)
+     {
+         ArrayList var2 = Lists.newArrayList(new String[] {"en_US"});
+ 
+-        if (!"en_US".equals(this.currentLanguage))
++        if (!"en_US".equals(this.field_135048_c))
+         {
+-            var2.add(this.currentLanguage);
++            var2.add(this.field_135048_c);
+         }
+ 
+-        currentLocale.loadLocaleDataFiles(par1ResourceManager, var2);
+-        StringTranslate.func_135063_a(currentLocale.field_135032_a);
++        field_135049_a.func_135022_a(par1ResourceManager, var2);
++        StringTranslate.func_135063_a(field_135049_a.field_135032_a);
+     }
+ 
+-    public boolean isCurrentLocaleUnicode()
++    public boolean func_135042_a()
+     {
+-        return currentLocale.isUnicode();
++        return field_135049_a.func_135025_a();
+     }
+ 
+-    public boolean isCurrentLanguageBidirectional()
++    public boolean func_135044_b()
+     {
+-        return this.getCurrentLanguage().isBidirectional();
++        return this.func_135041_c().func_135035_b();
+     }
+ 
+-    public void setCurrentLanguage(Language par1Language)
++    public void func_135045_a(Language par1Language)
+     {
+-        this.currentLanguage = par1Language.getLanguageCode();
++        this.field_135048_c = par1Language.func_135034_a();
+     }
+ 
+-    public Language getCurrentLanguage()
++    public Language func_135041_c()
+     {
+-        return this.languageMap.containsKey(this.currentLanguage) ? (Language)this.languageMap.get(this.currentLanguage) : (Language)this.languageMap.get("en_US");
++        return this.field_135046_d.containsKey(this.field_135048_c) ? (Language)this.field_135046_d.get(this.field_135048_c) : (Language)this.field_135046_d.get("en_US");
+     }
+ 
+-    public SortedSet getLanguages()
++    public SortedSet func_135040_d()
+     {
+-        return Sets.newTreeSet(this.languageMap.values());
++        return Sets.newTreeSet(this.field_135046_d.values());
+     }
+ }

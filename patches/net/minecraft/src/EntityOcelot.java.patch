@@ -1,0 +1,39 @@
+--- a/net/minecraft/src/EntityOcelot.java
++++ b/net/minecraft/src/EntityOcelot.java
+@@ -80,11 +80,11 @@
+         return true;
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(10.0D);
+-        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setAttribute(0.30000001192092896D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(10.0D);
++        this.func_110148_a(SharedMonsterAttributes.field_111263_d).func_111128_a(0.30000001192092896D);
+     }
+ 
+     /**
+@@ -191,7 +191,7 @@
+                 this.aiSit.setSitting(!this.isSitting());
+             }
+         }
+-        else if (this.aiTempt.isRunning() && var2 != null && var2.itemID == Item.fishRaw.itemID && par1EntityPlayer.getDistanceSqToEntity(this) < 9.0D)
++        else if (this.aiTempt.func_75277_f() && var2 != null && var2.itemID == Item.fishRaw.itemID && par1EntityPlayer.getDistanceSqToEntity(this) < 9.0D)
+         {
+             if (!par1EntityPlayer.capabilities.isCreativeMode)
+             {
+@@ -329,9 +329,9 @@
+         return this.hasCustomNameTag() ? this.getCustomNameTag() : (this.isTamed() ? "entity.Cat.name" : super.getEntityName());
+     }
+ 
+-    public EntityLivingData onSpawnWithEgg(EntityLivingData par1EntityLivingData)
++    public EntityLivingData func_110161_a(EntityLivingData par1EntityLivingData)
+     {
+-        par1EntityLivingData = super.onSpawnWithEgg(par1EntityLivingData);
++        par1EntityLivingData = super.func_110161_a(par1EntityLivingData);
+ 
+         if (this.worldObj.rand.nextInt(7) == 0)
+         {

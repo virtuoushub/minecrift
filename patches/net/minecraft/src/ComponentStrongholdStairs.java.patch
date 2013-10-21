@@ -1,0 +1,63 @@
+--- a/net/minecraft/src/ComponentStrongholdStairs.java
++++ b/net/minecraft/src/ComponentStrongholdStairs.java
+@@ -5,16 +5,15 @@
+ 
+ public class ComponentStrongholdStairs extends ComponentStronghold
+ {
+-    private boolean field_75024_a;
+-
+-    public ComponentStrongholdStairs() {}
++    private final boolean field_75024_a;
++    private final EnumDoor doorType;
+ 
+     public ComponentStrongholdStairs(int par1, Random par2Random, int par3, int par4)
+     {
+         super(par1);
+         this.field_75024_a = true;
+         this.coordBaseMode = par2Random.nextInt(4);
+-        this.field_143013_d = EnumDoor.OPENING;
++        this.doorType = EnumDoor.OPENING;
+ 
+         switch (this.coordBaseMode)
+         {
+@@ -22,7 +21,6 @@
+             case 2:
+                 this.boundingBox = new StructureBoundingBox(par3, 64, par4, par3 + 5 - 1, 74, par4 + 5 - 1);
+                 break;
+-
+             default:
+                 this.boundingBox = new StructureBoundingBox(par3, 64, par4, par3 + 5 - 1, 74, par4 + 5 - 1);
+         }
+@@ -33,22 +31,10 @@
+         super(par1);
+         this.field_75024_a = false;
+         this.coordBaseMode = par4;
+-        this.field_143013_d = this.getRandomDoor(par2Random);
++        this.doorType = this.getRandomDoor(par2Random);
+         this.boundingBox = par3StructureBoundingBox;
+     }
+ 
+-    protected void func_143012_a(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143012_a(par1NBTTagCompound);
+-        par1NBTTagCompound.setBoolean("Source", this.field_75024_a);
+-    }
+-
+-    protected void func_143011_b(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143011_b(par1NBTTagCompound);
+-        this.field_75024_a = par1NBTTagCompound.getBoolean("Source");
+-    }
+-
+     /**
+      * Initiates construction of the Structure Component picked, at the current Location of StructGen
+      */
+@@ -84,7 +70,7 @@
+         else
+         {
+             this.fillWithRandomizedBlocks(par1World, par3StructureBoundingBox, 0, 0, 0, 4, 10, 4, true, par2Random, StructureStrongholdPieces.getStrongholdStones());
+-            this.placeDoor(par1World, par2Random, par3StructureBoundingBox, this.field_143013_d, 1, 7, 0);
++            this.placeDoor(par1World, par2Random, par3StructureBoundingBox, this.doorType, 1, 7, 0);
+             this.placeDoor(par1World, par2Random, par3StructureBoundingBox, EnumDoor.OPENING, 1, 1, 4);
+             this.placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 2, 6, 1, par3StructureBoundingBox);
+             this.placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 1, 5, 1, par3StructureBoundingBox);

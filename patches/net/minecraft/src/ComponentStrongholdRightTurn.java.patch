@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ComponentStrongholdRightTurn.java
++++ b/net/minecraft/src/ComponentStrongholdRightTurn.java
+@@ -38,7 +38,7 @@
+         else
+         {
+             this.fillWithRandomizedBlocks(par1World, par3StructureBoundingBox, 0, 0, 0, 4, 4, 4, true, par2Random, StructureStrongholdPieces.getStrongholdStones());
+-            this.placeDoor(par1World, par2Random, par3StructureBoundingBox, this.field_143013_d, 1, 1, 0);
++            this.placeDoor(par1World, par2Random, par3StructureBoundingBox, this.doorType, 1, 1, 0);
+ 
+             if (this.coordBaseMode != 2 && this.coordBaseMode != 3)
+             {

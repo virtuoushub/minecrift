@@ -1,0 +1,46 @@
+--- a/net/minecraft/src/EntityOtherPlayerMP.java
++++ b/net/minecraft/src/EntityOtherPlayerMP.java
+@@ -57,7 +57,7 @@
+     {
+         this.field_71082_cx = 0.0F;
+         super.onUpdate();
+-        this.prevLimbSwingAmount = this.limbSwingAmount;
++        this.prevLimbYaw = this.limbYaw;
+         double var1 = this.posX - this.prevPosX;
+         double var3 = this.posZ - this.prevPosZ;
+         float var5 = MathHelper.sqrt_double(var1 * var1 + var3 * var3) * 4.0F;
+@@ -67,8 +67,8 @@
+             var5 = 1.0F;
+         }
+ 
+-        this.limbSwingAmount += (var5 - this.limbSwingAmount) * 0.4F;
+-        this.limbSwing += this.limbSwingAmount;
++        this.limbYaw += (var5 - this.limbYaw) * 0.4F;
++        this.limbSwing += this.limbYaw;
+ 
+         if (!this.isItemInUse && this.isEating() && this.inventory.mainInventory[this.inventory.currentItem] != null)
+         {
+@@ -129,12 +129,12 @@
+             var9 = 0.1F;
+         }
+ 
+-        if (!this.onGround || this.getHealth() <= 0.0F)
++        if (!this.onGround || this.func_110143_aJ() <= 0.0F)
+         {
+             var9 = 0.0F;
+         }
+ 
+-        if (this.onGround || this.getHealth() <= 0.0F)
++        if (this.onGround || this.func_110143_aJ() <= 0.0F)
+         {
+             var2 = 0.0F;
+         }
+@@ -165,7 +165,7 @@
+ 
+     public void sendChatToPlayer(ChatMessageComponent par1ChatMessageComponent)
+     {
+-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(par1ChatMessageComponent.toStringWithFormatting(true));
++        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(par1ChatMessageComponent.func_111068_a(true));
+     }
+ 
+     /**

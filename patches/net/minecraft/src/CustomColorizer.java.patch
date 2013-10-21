@@ -1,6 +1,33 @@
 --- a/net/minecraft/src/CustomColorizer.java
 +++ b/net/minecraft/src/CustomColorizer.java
-@@ -908,7 +908,7 @@
+@@ -375,7 +375,7 @@
+             }
+             else
+             {
+-                int[] colors = TextureUtil.readImageData(Config.getResourceManager(), e);
++                int[] colors = TextureUtil.func_110986_a(Config.getResourceManager(), e);
+ 
+                 if (colors == null)
+                 {
+@@ -570,8 +570,8 @@
+                         case 1:
+                             var17 = blockAccess.getBiomeGenForCoords(r, g).getBiomeGrassColor();
+                             break;
+-
+                         case 2:
++
+                             if ((metadata & 3) == 1)
+                             {
+                                 var17 = ColorizerFoliage.getFoliageColorPine();
+@@ -586,7 +586,6 @@
+                             }
+ 
+                             break;
+-
+                         default:
+                             var17 = block.colorMultiplier(blockAccess, r, y, g);
+                     }
+@@ -908,7 +907,7 @@
          }
      }
  
@@ -9,7 +36,7 @@
      {
          if (world == null)
          {
-@@ -971,7 +971,7 @@
+@@ -971,7 +970,7 @@
  
                              sun = Config.limitTo1(sun);
                              float sunX = sun * (float)(width - 1);

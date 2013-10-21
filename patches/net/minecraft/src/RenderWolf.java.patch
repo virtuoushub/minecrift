@@ -1,0 +1,54 @@
+--- a/net/minecraft/src/RenderWolf.java
++++ b/net/minecraft/src/RenderWolf.java
+@@ -4,10 +4,10 @@
+ 
+ public class RenderWolf extends RenderLiving
+ {
+-    private static final ResourceLocation wolfTextures = new ResourceLocation("textures/entity/wolf/wolf.png");
+-    private static final ResourceLocation tamedWolfTextures = new ResourceLocation("textures/entity/wolf/wolf_tame.png");
+-    private static final ResourceLocation anrgyWolfTextures = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
+-    private static final ResourceLocation wolfCollarTextures = new ResourceLocation("textures/entity/wolf/wolf_collar.png");
++    private static final ResourceLocation field_110917_a = new ResourceLocation("textures/entity/wolf/wolf.png");
++    private static final ResourceLocation field_110915_f = new ResourceLocation("textures/entity/wolf/wolf_tame.png");
++    private static final ResourceLocation field_110916_g = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
++    private static final ResourceLocation field_110918_h = new ResourceLocation("textures/entity/wolf/wolf_collar.png");
+ 
+     public RenderWolf(ModelBase par1ModelBase, ModelBase par2ModelBase, float par3)
+     {
+@@ -27,13 +27,13 @@
+         if (par2 == 0 && par1EntityWolf.getWolfShaking())
+         {
+             var4 = par1EntityWolf.getBrightness(par3) * par1EntityWolf.getShadingWhileShaking(par3);
+-            this.bindTexture(wolfTextures);
++            this.func_110776_a(field_110917_a);
+             GL11.glColor3f(var4, var4, var4);
+             return 1;
+         }
+         else if (par2 == 1 && par1EntityWolf.isTamed())
+         {
+-            this.bindTexture(wolfCollarTextures);
++            this.func_110776_a(field_110918_h);
+             var4 = 1.0F;
+             int var5 = par1EntityWolf.getCollarColor();
+             GL11.glColor3f(var4 * EntitySheep.fleeceColorTable[var5][0], var4 * EntitySheep.fleeceColorTable[var5][1], var4 * EntitySheep.fleeceColorTable[var5][2]);
+@@ -47,7 +47,7 @@
+ 
+     protected ResourceLocation func_110914_a(EntityWolf par1EntityWolf)
+     {
+-        return par1EntityWolf.isTamed() ? tamedWolfTextures : (par1EntityWolf.isAngry() ? anrgyWolfTextures : wolfTextures);
++        return par1EntityWolf.isTamed() ? field_110915_f : (par1EntityWolf.isAngry() ? field_110916_g : field_110917_a);
+     }
+ 
+     /**
+@@ -66,10 +66,7 @@
+         return this.getTailRotation((EntityWolf)par1EntityLivingBase, par2);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+         return this.func_110914_a((EntityWolf)par1Entity);
+     }

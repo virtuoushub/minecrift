@@ -1,0 +1,24 @@
+--- a/net/minecraft/src/ResourcePack.java
++++ b/net/minecraft/src/ResourcePack.java
+@@ -7,15 +7,15 @@
+ 
+ public interface ResourcePack
+ {
+-    InputStream getInputStream(ResourceLocation var1) throws IOException;
++    InputStream func_110590_a(ResourceLocation var1) throws IOException;
+ 
+-    boolean resourceExists(ResourceLocation var1);
++    boolean func_110589_b(ResourceLocation var1);
+ 
+-    Set getResourceDomains();
++    Set func_110587_b();
+ 
+-    MetadataSection getPackMetadata(MetadataSerializer var1, String var2) throws IOException;
++    MetadataSection func_135058_a(MetadataSerializer var1, String var2) throws IOException;
+ 
+-    BufferedImage getPackImage() throws IOException;
++    BufferedImage func_110586_a() throws IOException;
+ 
+-    String getPackName();
++    String func_130077_b();
+ }

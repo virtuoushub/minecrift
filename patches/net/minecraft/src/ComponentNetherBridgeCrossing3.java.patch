@@ -1,0 +1,19 @@
+--- a/net/minecraft/src/ComponentNetherBridgeCrossing3.java
++++ b/net/minecraft/src/ComponentNetherBridgeCrossing3.java
+@@ -5,8 +5,6 @@
+ 
+ public class ComponentNetherBridgeCrossing3 extends ComponentNetherBridgePiece
+ {
+-    public ComponentNetherBridgeCrossing3() {}
+-
+     public ComponentNetherBridgeCrossing3(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+     {
+         super(par1);
+@@ -25,7 +23,6 @@
+             case 2:
+                 this.boundingBox = new StructureBoundingBox(par2, 64, par3, par2 + 19 - 1, 73, par3 + 19 - 1);
+                 break;
+-
+             default:
+                 this.boundingBox = new StructureBoundingBox(par2, 64, par3, par2 + 19 - 1, 73, par3 + 19 - 1);
+         }

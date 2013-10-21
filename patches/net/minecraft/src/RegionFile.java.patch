@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/RegionFile.java
++++ b/net/minecraft/src/RegionFile.java
+@@ -276,7 +276,7 @@
+                 }
+             }
+ 
+-            this.setChunkTimestamp(par1, par2, (int)(MinecraftServer.getSystemTimeMillis() / 1000L));
++            this.setChunkTimestamp(par1, par2, (int)(MinecraftServer.func_130071_aq() / 1000L));
+         }
+         catch (IOException var12)
+         {

@@ -1,0 +1,48 @@
+--- a/net/minecraft/src/RenderCreeper.java
++++ b/net/minecraft/src/RenderCreeper.java
+@@ -4,8 +4,8 @@
+ 
+ public class RenderCreeper extends RenderLiving
+ {
+-    private static final ResourceLocation armoredCreeperTextures = new ResourceLocation("textures/entity/creeper/creeper_armor.png");
+-    private static final ResourceLocation creeperTextures = new ResourceLocation("textures/entity/creeper/creeper.png");
++    private static final ResourceLocation field_110831_a = new ResourceLocation("textures/entity/creeper/creeper_armor.png");
++    private static final ResourceLocation field_110830_f = new ResourceLocation("textures/entity/creeper/creeper.png");
+ 
+     /** The creeper model. */
+     private ModelBase creeperModel = new ModelCreeper(2.0F);
+@@ -91,7 +91,7 @@
+             if (par2 == 1)
+             {
+                 float var4 = (float)par1EntityCreeper.ticksExisted + par3;
+-                this.bindTexture(armoredCreeperTextures);
++                this.func_110776_a(field_110831_a);
+                 GL11.glMatrixMode(GL11.GL_TEXTURE);
+                 GL11.glLoadIdentity();
+                 float var5 = var4 * 0.01F;
+@@ -125,9 +125,9 @@
+         return -1;
+     }
+ 
+-    protected ResourceLocation getCreeperTextures(EntityCreeper par1EntityCreeper)
++    protected ResourceLocation func_110829_a(EntityCreeper par1EntityCreeper)
+     {
+-        return creeperTextures;
++        return field_110830_f;
+     }
+ 
+     /**
+@@ -160,11 +160,8 @@
+         return this.func_77061_b((EntityCreeper)par1EntityLivingBase, par2, par3);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getCreeperTextures((EntityCreeper)par1Entity);
++        return this.func_110829_a((EntityCreeper)par1Entity);
+     }
+ }

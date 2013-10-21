@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/CommandDebug.java
++++ b/net/minecraft/src/CommandDebug.java
+@@ -41,7 +41,7 @@
+             {
+                 notifyAdmins(par1ICommandSender, "commands.debug.start", new Object[0]);
+                 MinecraftServer.getServer().enableProfiling();
+-                this.startTime = MinecraftServer.getSystemTimeMillis();
++                this.startTime = MinecraftServer.func_130071_aq();
+                 this.startTicks = MinecraftServer.getServer().getTickCounter();
+                 return;
+             }
+@@ -53,7 +53,7 @@
+                     throw new CommandException("commands.debug.notStarted", new Object[0]);
+                 }
+ 
+-                long var3 = MinecraftServer.getSystemTimeMillis();
++                long var3 = MinecraftServer.func_130071_aq();
+                 int var5 = MinecraftServer.getServer().getTickCounter();
+                 long var6 = var3 - this.startTime;
+                 int var8 = var5 - this.startTicks;

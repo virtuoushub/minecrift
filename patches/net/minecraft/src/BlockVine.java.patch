@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/BlockVine.java
++++ b/net/minecraft/src/BlockVine.java
+@@ -134,19 +134,14 @@
+         {
+             case 1:
+                 return this.canBePlacedOn(par1World.getBlockId(par2, par3 + 1, par4));
+-
+             case 2:
+                 return this.canBePlacedOn(par1World.getBlockId(par2, par3, par4 + 1));
+-
+             case 3:
+                 return this.canBePlacedOn(par1World.getBlockId(par2, par3, par4 - 1));
+-
+             case 4:
+                 return this.canBePlacedOn(par1World.getBlockId(par2 + 1, par3, par4));
+-
+             case 5:
+                 return this.canBePlacedOn(par1World.getBlockId(par2 - 1, par3, par4));
+-
+             default:
+                 return false;
+         }
+@@ -392,15 +387,12 @@
+             case 2:
+                 var10 = 1;
+                 break;
+-
+             case 3:
+                 var10 = 4;
+                 break;
+-
+             case 4:
+                 var10 = 8;
+                 break;
+-
+             case 5:
+                 var10 = 2;
+         }

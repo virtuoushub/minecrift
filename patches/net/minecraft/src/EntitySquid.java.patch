@@ -1,0 +1,92 @@
+--- a/net/minecraft/src/EntitySquid.java
++++ b/net/minecraft/src/EntitySquid.java
+@@ -6,14 +6,8 @@
+     public float prevSquidPitch;
+     public float squidYaw;
+     public float prevSquidYaw;
+-
+-    /**
+-     * appears to be rotation in radians; we already have pitch & yaw, so this completes the triumvirate.
+-     */
+-    public float squidRotation;
+-
+-    /** previous squidRotation in radians. */
+-    public float prevSquidRotation;
++    public float field_70867_h;
++    public float field_70868_i;
+ 
+     /** angle of the tentacles in radians */
+     public float tentacleAngle;
+@@ -21,9 +15,7 @@
+     /** the last calculated angle of the tentacles in radians */
+     public float prevTentacleAngle;
+     private float randomMotionSpeed;
+-
+-    /** change in squidRotation in radians. */
+-    private float rotationVelocity;
++    private float field_70864_bA;
+     private float field_70871_bB;
+     private float randomMotionVecX;
+     private float randomMotionVecY;
+@@ -33,13 +25,13 @@
+     {
+         super(par1World);
+         this.setSize(0.95F, 0.95F);
+-        this.rotationVelocity = 1.0F / (this.rand.nextFloat() + 1.0F) * 0.2F;
++        this.field_70864_bA = 1.0F / (this.rand.nextFloat() + 1.0F) * 0.2F;
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(10.0D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(10.0D);
+     }
+ 
+     /**
+@@ -123,17 +115,17 @@
+         super.onLivingUpdate();
+         this.prevSquidPitch = this.squidPitch;
+         this.prevSquidYaw = this.squidYaw;
+-        this.prevSquidRotation = this.squidRotation;
++        this.field_70868_i = this.field_70867_h;
+         this.prevTentacleAngle = this.tentacleAngle;
+-        this.squidRotation += this.rotationVelocity;
++        this.field_70867_h += this.field_70864_bA;
+ 
+-        if (this.squidRotation > ((float)Math.PI * 2F))
++        if (this.field_70867_h > ((float)Math.PI * 2F))
+         {
+-            this.squidRotation -= ((float)Math.PI * 2F);
++            this.field_70867_h -= ((float)Math.PI * 2F);
+ 
+             if (this.rand.nextInt(10) == 0)
+             {
+-                this.rotationVelocity = 1.0F / (this.rand.nextFloat() + 1.0F) * 0.2F;
++                this.field_70864_bA = 1.0F / (this.rand.nextFloat() + 1.0F) * 0.2F;
+             }
+         }
+ 
+@@ -141,9 +133,9 @@
+         {
+             float var1;
+ 
+-            if (this.squidRotation < (float)Math.PI)
++            if (this.field_70867_h < (float)Math.PI)
+             {
+-                var1 = this.squidRotation / (float)Math.PI;
++                var1 = this.field_70867_h / (float)Math.PI;
+                 this.tentacleAngle = MathHelper.sin(var1 * var1 * (float)Math.PI) * (float)Math.PI * 0.25F;
+ 
+                 if ((double)var1 > 0.75D)
+@@ -178,7 +170,7 @@
+         }
+         else
+         {
+-            this.tentacleAngle = MathHelper.abs(MathHelper.sin(this.squidRotation)) * (float)Math.PI * 0.25F;
++            this.tentacleAngle = MathHelper.abs(MathHelper.sin(this.field_70867_h)) * (float)Math.PI * 0.25F;
+ 
+             if (!this.worldObj.isRemote)
+             {

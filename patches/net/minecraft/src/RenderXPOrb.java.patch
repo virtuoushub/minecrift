@@ -1,0 +1,42 @@
+--- a/net/minecraft/src/RenderXPOrb.java
++++ b/net/minecraft/src/RenderXPOrb.java
+@@ -5,7 +5,7 @@
+ 
+ public class RenderXPOrb extends Render
+ {
+-    private static final ResourceLocation experienceOrbTextures = new ResourceLocation("textures/entity/experience_orb.png");
++    private static final ResourceLocation field_110785_a = new ResourceLocation("textures/entity/experience_orb.png");
+ 
+     public RenderXPOrb()
+     {
+@@ -20,7 +20,7 @@
+     {
+         GL11.glPushMatrix();
+         GL11.glTranslatef((float)par2, (float)par4, (float)par6);
+-        this.bindEntityTexture(par1EntityXPOrb);
++        this.func_110777_b(par1EntityXPOrb);
+         int var10 = par1EntityXPOrb.getTextureByXP();
+         float var11 = (float)(var10 % 4 * 16 + 0) / 64.0F;
+         float var12 = (float)(var10 % 4 * 16 + 16) / 64.0F;
+@@ -58,17 +58,14 @@
+         GL11.glPopMatrix();
+     }
+ 
+-    protected ResourceLocation getExperienceOrbTextures(EntityXPOrb par1EntityXPOrb)
++    protected ResourceLocation func_110784_a(EntityXPOrb par1EntityXPOrb)
+     {
+-        return experienceOrbTextures;
++        return field_110785_a;
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getExperienceOrbTextures((EntityXPOrb)par1Entity);
++        return this.func_110784_a((EntityXPOrb)par1Entity);
+     }
+ 
+     /**

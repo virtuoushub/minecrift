@@ -1,0 +1,13 @@
+--- a/net/minecraft/src/BlockMycelium.java
++++ b/net/minecraft/src/BlockMycelium.java
+@@ -48,8 +48,8 @@
+      */
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.blockIcon = par1IconRegister.registerIcon(this.getTextureName() + "_side");
+-        this.field_94422_a = par1IconRegister.registerIcon(this.getTextureName() + "_top");
++        this.blockIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_side");
++        this.field_94422_a = par1IconRegister.registerIcon(this.func_111023_E() + "_top");
+         this.field_94421_b = par1IconRegister.registerIcon("grass_side_snowed");
+     }
+ 

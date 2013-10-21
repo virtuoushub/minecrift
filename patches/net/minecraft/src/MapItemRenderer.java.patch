@@ -1,0 +1,37 @@
+--- a/net/minecraft/src/MapItemRenderer.java
++++ b/net/minecraft/src/MapItemRenderer.java
+@@ -15,8 +15,8 @@
+     {
+         this.gameSettings = par1GameSettings;
+         this.bufferedImage = new DynamicTexture(128, 128);
+-        this.field_111276_e = par2TextureManager.getDynamicTextureLocation("map", this.bufferedImage);
+-        this.intArray = this.bufferedImage.getTextureData();
++        this.field_111276_e = par2TextureManager.func_110578_a("map", this.bufferedImage);
++        this.intArray = this.bufferedImage.func_110565_c();
+ 
+         for (int var4 = 0; var4 < this.intArray.length; ++var4)
+         {
+@@ -57,12 +57,12 @@
+             }
+         }
+ 
+-        this.bufferedImage.updateDynamicTexture();
++        this.bufferedImage.func_110564_a();
+         byte var15 = 0;
+         byte var16 = 0;
+         Tessellator var17 = Tessellator.instance;
+         float var18 = 0.0F;
+-        par2TextureManager.bindTexture(this.field_111276_e);
++        par2TextureManager.func_110577_a(this.field_111276_e);
+         GL11.glEnable(GL11.GL_BLEND);
+         GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
+         GL11.glDisable(GL11.GL_ALPHA_TEST);
+@@ -74,7 +74,7 @@
+         var17.draw();
+         GL11.glEnable(GL11.GL_ALPHA_TEST);
+         GL11.glDisable(GL11.GL_BLEND);
+-        par2TextureManager.bindTexture(field_111277_a);
++        par2TextureManager.func_110577_a(field_111277_a);
+         int var20 = 0;
+ 
+         for (Iterator var19 = par3MapData.playersVisibleOnMap.values().iterator(); var19.hasNext(); ++var20)

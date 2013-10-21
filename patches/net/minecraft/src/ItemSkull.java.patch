@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ItemSkull.java
++++ b/net/minecraft/src/ItemSkull.java
+@@ -156,7 +156,7 @@
+ 
+         for (int var2 = 0; var2 < field_94587_a.length; ++var2)
+         {
+-            this.field_94586_c[var2] = par1IconRegister.registerIcon(this.getIconString() + "_" + field_94587_a[var2]);
++            this.field_94586_c[var2] = par1IconRegister.registerIcon(this.func_111208_A() + "_" + field_94587_a[var2]);
+         }
+     }
+ }

@@ -1,0 +1,42 @@
+--- a/net/minecraft/src/EntityAIAttackOnCollide.java
++++ b/net/minecraft/src/EntityAIAttackOnCollide.java
+@@ -10,11 +10,7 @@
+      */
+     int attackTick;
+     double field_75440_e;
+-
+-    /**
+-     * When true, the mob will continue chasing its target, even if it can't find a path to them right now.
+-     */
+-    boolean longMemory;
++    boolean field_75437_f;
+ 
+     /** The PathEntity of our entity. */
+     PathEntity entityPathEntity;
+@@ -32,7 +28,7 @@
+         this.attacker = par1EntityCreature;
+         this.worldObj = par1EntityCreature.worldObj;
+         this.field_75440_e = par2;
+-        this.longMemory = par4;
++        this.field_75437_f = par4;
+         this.setMutexBits(3);
+     }
+ 
+@@ -68,7 +64,7 @@
+     public boolean continueExecuting()
+     {
+         EntityLivingBase var1 = this.attacker.getAttackTarget();
+-        return var1 == null ? false : (!var1.isEntityAlive() ? false : (!this.longMemory ? !this.attacker.getNavigator().noPath() : this.attacker.func_110176_b(MathHelper.floor_double(var1.posX), MathHelper.floor_double(var1.posY), MathHelper.floor_double(var1.posZ))));
++        return var1 == null ? false : (!var1.isEntityAlive() ? false : (!this.field_75437_f ? !this.attacker.getNavigator().noPath() : this.attacker.func_110176_b(MathHelper.floor_double(var1.posX), MathHelper.floor_double(var1.posY), MathHelper.floor_double(var1.posZ))));
+     }
+ 
+     /**
+@@ -96,7 +92,7 @@
+         EntityLivingBase var1 = this.attacker.getAttackTarget();
+         this.attacker.getLookHelper().setLookPositionWithEntity(var1, 30.0F, 30.0F);
+ 
+-        if ((this.longMemory || this.attacker.getEntitySenses().canSee(var1)) && --this.field_75445_i <= 0)
++        if ((this.field_75437_f || this.attacker.getEntitySenses().canSee(var1)) && --this.field_75445_i <= 0)
+         {
+             this.field_75445_i = 4 + this.attacker.getRNG().nextInt(7);
+             this.attacker.getNavigator().tryMoveToEntityLiving(var1, this.field_75440_e);

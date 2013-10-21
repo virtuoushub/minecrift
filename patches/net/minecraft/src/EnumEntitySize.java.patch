@@ -1,0 +1,60 @@
+--- a/net/minecraft/src/EnumEntitySize.java
++++ b/net/minecraft/src/EnumEntitySize.java
+@@ -16,6 +16,7 @@
+         switch (EnumEntitySizeHelper.field_96565_a[this.ordinal()])
+         {
+             case 1:
++
+                 if (var3 < 0.0D)
+                 {
+                     if (var3 < -0.3125D)
+@@ -29,8 +30,8 @@
+                 }
+ 
+                 return MathHelper.floor_double(par1 * 32.0D);
+-
+             case 2:
++
+                 if (var3 < 0.0D)
+                 {
+                     if (var3 < -0.3125D)
+@@ -44,16 +45,16 @@
+                 }
+ 
+                 return MathHelper.ceiling_double_int(par1 * 32.0D);
+-
+             case 3:
++
+                 if (var3 > 0.0D)
+                 {
+                     return MathHelper.floor_double(par1 * 32.0D);
+                 }
+ 
+                 return MathHelper.ceiling_double_int(par1 * 32.0D);
+-
+             case 4:
++
+                 if (var3 < 0.0D)
+                 {
+                     if (var3 < -0.1875D)
+@@ -67,8 +68,8 @@
+                 }
+ 
+                 return MathHelper.floor_double(par1 * 32.0D);
+-
+             case 5:
++
+                 if (var3 < 0.0D)
+                 {
+                     if (var3 < -0.1875D)
+@@ -82,9 +83,9 @@
+                 }
+ 
+                 return MathHelper.ceiling_double_int(par1 * 32.0D);
+-
+             case 6:
+             default:
++
+                 if (var3 > 0.0D)
+                 {
+                     return MathHelper.ceiling_double_int(par1 * 32.0D);

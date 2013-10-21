@@ -1,0 +1,28 @@
+--- a/net/minecraft/src/Explosion.java
++++ b/net/minecraft/src/Explosion.java
+@@ -82,11 +82,11 @@
+                             if (var25 > 0)
+                             {
+                                 Block var26 = Block.blocksList[var25];
+-                                float var27 = this.exploder != null ? this.exploder.getBlockExplosionResistance(this, this.worldObj, var22, var23, var24, var26) : var26.getExplosionResistance(this.exploder);
++                                float var27 = this.exploder != null ? this.exploder.func_82146_a(this, this.worldObj, var22, var23, var24, var26) : var26.getExplosionResistance(this.exploder);
+                                 var14 -= (var27 + 0.3F) * var21;
+                             }
+ 
+-                            if (var14 > 0.0F && (this.exploder == null || this.exploder.shouldExplodeBlock(this, this.worldObj, var22, var23, var24, var25, var14)))
++                            if (var14 > 0.0F && (this.exploder == null || this.exploder.func_96091_a(this, this.worldObj, var22, var23, var24, var25, var14)))
+                             {
+                                 var2.add(new ChunkPosition(var22, var23, var24));
+                             }
+@@ -244,10 +244,7 @@
+         return this.field_77288_k;
+     }
+ 
+-    /**
+-     * Returns either the entity that placed the explosive block, the entity that caused the explosion or null.
+-     */
+-    public EntityLivingBase getExplosivePlacedBy()
++    public EntityLivingBase func_94613_c()
+     {
+         return this.exploder == null ? null : (this.exploder instanceof EntityTNTPrimed ? ((EntityTNTPrimed)this.exploder).getTntPlacedBy() : (this.exploder instanceof EntityLivingBase ? (EntityLivingBase)this.exploder : null));
+     }

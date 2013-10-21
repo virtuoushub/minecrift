@@ -1,0 +1,44 @@
+--- a/net/minecraft/src/RenderCaveSpider.java
++++ b/net/minecraft/src/RenderCaveSpider.java
+@@ -4,7 +4,7 @@
+ 
+ public class RenderCaveSpider extends RenderSpider
+ {
+-    private static final ResourceLocation caveSpiderTextures = new ResourceLocation("textures/entity/spider/cave_spider.png");
++    private static final ResourceLocation field_110893_a = new ResourceLocation("textures/entity/spider/cave_spider.png");
+ 
+     public RenderCaveSpider()
+     {
+@@ -16,14 +16,14 @@
+         GL11.glScalef(0.7F, 0.7F, 0.7F);
+     }
+ 
+-    protected ResourceLocation getCaveSpiderTextures(EntityCaveSpider par1EntityCaveSpider)
++    protected ResourceLocation func_110892_a(EntityCaveSpider par1EntityCaveSpider)
+     {
+-        return caveSpiderTextures;
++        return field_110893_a;
+     }
+ 
+-    protected ResourceLocation getSpiderTextures(EntitySpider par1EntitySpider)
++    protected ResourceLocation func_110889_a(EntitySpider par1EntitySpider)
+     {
+-        return this.getCaveSpiderTextures((EntityCaveSpider)par1EntitySpider);
++        return this.func_110892_a((EntityCaveSpider)par1EntitySpider);
+     }
+ 
+     /**
+@@ -35,11 +35,8 @@
+         this.scaleSpider((EntityCaveSpider)par1EntityLivingBase, par2);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getCaveSpiderTextures((EntityCaveSpider)par1Entity);
++        return this.func_110892_a((EntityCaveSpider)par1Entity);
+     }
+ }

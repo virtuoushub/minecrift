@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/PlayerUsageSnooper.java
++++ b/net/minecraft/src/PlayerUsageSnooper.java
+@@ -67,7 +67,7 @@
+         this.addData("os_version", System.getProperty("os.version"));
+         this.addData("os_architecture", System.getProperty("os.arch"));
+         this.addData("java_version", System.getProperty("java.version"));
+-        this.addData("version", "1.6.4");
++        this.addData("version", "1.6.2");
+         this.playerStatsCollector.addServerTypeToSnooper(this);
+     }
+ 

@@ -1,0 +1,95 @@
+--- a/net/minecraft/src/RenderHorse.java
++++ b/net/minecraft/src/RenderHorse.java
+@@ -7,11 +7,11 @@
+ public class RenderHorse extends RenderLiving
+ {
+     private static final Map field_110852_a = Maps.newHashMap();
+-    private static final ResourceLocation whiteHorseTextures = new ResourceLocation("textures/entity/horse/horse_white.png");
+-    private static final ResourceLocation muleTextures = new ResourceLocation("textures/entity/horse/mule.png");
+-    private static final ResourceLocation donkeyTextures = new ResourceLocation("textures/entity/horse/donkey.png");
+-    private static final ResourceLocation zombieHorseTextures = new ResourceLocation("textures/entity/horse/horse_zombie.png");
+-    private static final ResourceLocation skeletonHorseTextures = new ResourceLocation("textures/entity/horse/horse_skeleton.png");
++    private static final ResourceLocation field_110850_f = new ResourceLocation("textures/entity/horse/horse_white.png");
++    private static final ResourceLocation field_110851_g = new ResourceLocation("textures/entity/horse/mule.png");
++    private static final ResourceLocation field_110855_h = new ResourceLocation("textures/entity/horse/donkey.png");
++    private static final ResourceLocation field_110854_k = new ResourceLocation("textures/entity/horse/horse_zombie.png");
++    private static final ResourceLocation field_110853_l = new ResourceLocation("textures/entity/horse/horse_skeleton.png");
+ 
+     public RenderHorse(ModelBase par1ModelBase, float par2)
+     {
+@@ -21,7 +21,7 @@
+     protected void func_110847_a(EntityHorse par1EntityHorse, float par2)
+     {
+         float var3 = 1.0F;
+-        int var4 = par1EntityHorse.getHorseType();
++        int var4 = par1EntityHorse.func_110265_bP();
+ 
+         if (var4 == 1)
+         {
+@@ -44,7 +44,7 @@
+         }
+         else
+         {
+-            this.bindEntityTexture(par1EntityHorse);
++            this.func_110777_b(par1EntityHorse);
+             this.mainModel.render(par1EntityHorse, par2, par3, par4, par5, par6, par7);
+         }
+     }
+@@ -53,23 +53,19 @@
+     {
+         if (!par1EntityHorse.func_110239_cn())
+         {
+-            switch (par1EntityHorse.getHorseType())
++            switch (par1EntityHorse.func_110265_bP())
+             {
+                 case 0:
+                 default:
+-                    return whiteHorseTextures;
+-
++                    return field_110850_f;
+                 case 1:
+-                    return donkeyTextures;
+-
++                    return field_110855_h;
+                 case 2:
+-                    return muleTextures;
+-
++                    return field_110851_g;
+                 case 3:
+-                    return zombieHorseTextures;
+-
++                    return field_110854_k;
+                 case 4:
+-                    return skeletonHorseTextures;
++                    return field_110853_l;
+             }
+         }
+         else
+@@ -80,13 +76,13 @@
+ 
+     private ResourceLocation func_110848_b(EntityHorse par1EntityHorse)
+     {
+-        String var2 = par1EntityHorse.getHorseTexture();
++        String var2 = par1EntityHorse.func_110264_co();
+         ResourceLocation var3 = (ResourceLocation)field_110852_a.get(var2);
+ 
+         if (var3 == null)
+         {
+             var3 = new ResourceLocation(var2);
+-            Minecraft.getMinecraft().getTextureManager().loadTexture(var3, new LayeredTexture(par1EntityHorse.getVariantTexturePaths()));
++            Minecraft.getMinecraft().func_110434_K().func_110579_a(var3, new LayeredTexture(par1EntityHorse.func_110212_cp()));
+             field_110852_a.put(var2, var3);
+         }
+ 
+@@ -110,10 +106,7 @@
+         this.func_110846_a((EntityHorse)par1EntityLivingBase, par2, par3, par4, par5, par6, par7);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+         return this.func_110849_a((EntityHorse)par1Entity);
+     }

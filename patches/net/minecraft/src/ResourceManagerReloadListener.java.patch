@@ -1,0 +1,9 @@
+--- a/net/minecraft/src/ResourceManagerReloadListener.java
++++ b/net/minecraft/src/ResourceManagerReloadListener.java
+@@ -2,5 +2,5 @@
+ 
+ public interface ResourceManagerReloadListener
+ {
+-    void onResourceManagerReload(ResourceManager var1);
++    void func_110549_a(ResourceManager var1);
+ }

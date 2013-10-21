@@ -1,0 +1,25 @@
+--- a/net/minecraft/src/EntityCaveSpider.java
++++ b/net/minecraft/src/EntityCaveSpider.java
+@@ -8,10 +8,10 @@
+         this.setSize(0.7F, 0.5F);
+     }
+ 
+-    protected void applyEntityAttributes()
++    protected void func_110147_ax()
+     {
+-        super.applyEntityAttributes();
+-        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(12.0D);
++        super.func_110147_ax();
++        this.func_110148_a(SharedMonsterAttributes.field_111267_a).func_111128_a(12.0D);
+     }
+ 
+     public boolean attackEntityAsMob(Entity par1Entity)
+@@ -48,7 +48,7 @@
+         }
+     }
+ 
+-    public EntityLivingData onSpawnWithEgg(EntityLivingData par1EntityLivingData)
++    public EntityLivingData func_110161_a(EntityLivingData par1EntityLivingData)
+     {
+         return par1EntityLivingData;
+     }

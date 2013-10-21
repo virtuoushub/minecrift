@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/BehaviorDispenseMinecart.java
++++ b/net/minecraft/src/BehaviorDispenseMinecart.java
+@@ -2,7 +2,7 @@
+ 
+ final class BehaviorDispenseMinecart extends BehaviorDefaultDispenseItem
+ {
+-    private final BehaviorDefaultDispenseItem behaviourDefaultDispenseItem = new BehaviorDefaultDispenseItem();
++    private final BehaviorDefaultDispenseItem field_96465_b = new BehaviorDefaultDispenseItem();
+ 
+     /**
+      * Dispense the specified stack, play the dispense sound and spawn particles.
+@@ -28,7 +28,7 @@
+         {
+             if (var14 != 0 || !BlockRailBase.isRailBlock(var4.getBlockId(var11, var12 - 1, var13)))
+             {
+-                return this.behaviourDefaultDispenseItem.dispense(par1IBlockSource, par2ItemStack);
++                return this.field_96465_b.dispense(par1IBlockSource, par2ItemStack);
+             }
+ 
+             var15 = -1.0D;

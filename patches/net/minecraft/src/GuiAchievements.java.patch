@@ -1,8 +1,65 @@
 --- a/net/minecraft/src/GuiAchievements.java
 +++ b/net/minecraft/src/GuiAchievements.java
-@@ -415,8 +415,8 @@
+@@ -18,7 +18,7 @@
+ 
+     /** The right y coordinate of the achievement map */
+     private static final int guiMapRight = AchievementList.maxDisplayRow * 24 - 77;
+-    private static final ResourceLocation achievementTextures = new ResourceLocation("textures/gui/achievement/achievement_background.png");
++    private static final ResourceLocation field_110406_y = new ResourceLocation("textures/gui/achievement/achievement_background.png");
+     protected int achievementsPaneWidth = 256;
+     protected int achievementsPaneHeight = 202;
+ 
+@@ -57,7 +57,7 @@
+     public void initGui()
+     {
+         this.buttonList.clear();
+-        this.buttonList.add(new GuiSmallButton(1, this.width / 2 + 24, this.height / 2 + 74, 80, 20, I18n.getString("gui.done")));
++        this.buttonList.add(new GuiSmallButton(1, this.width / 2 + 24, this.height / 2 + 74, 80, 20, I18n.func_135053_a("gui.done")));
+     }
+ 
+     /**
+@@ -284,7 +284,7 @@
+                     var24 = Block.bedrock.getIcon(0, 0);
+                 }
+ 
+-                this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
++                this.mc.func_110434_K().func_110577_a(TextureMap.field_110575_b);
+                 this.drawTexturedModelRectFromIcon(var8 + var22 * 16 - var12, var9 + var20 * 16 - var13, var24, 16, 16);
+             }
+         }
+@@ -360,7 +360,7 @@
+                     GL11.glColor4f(var38, var38, var38, 1.0F);
+                 }
+ 
+-                this.mc.getTextureManager().bindTexture(achievementTextures);
++                this.mc.func_110434_K().func_110577_a(field_110406_y);
+                 var40 = var8 + var41;
+                 var39 = var9 + var25;
+ 
+@@ -382,7 +382,7 @@
+ 
+                 GL11.glEnable(GL11.GL_LIGHTING);
+                 GL11.glEnable(GL11.GL_CULL_FACE);
+-                var32.renderItemAndEffectIntoGUI(this.mc.fontRenderer, this.mc.getTextureManager(), var34.theItemStack, var40 + 3, var39 + 3);
++                var32.renderItemAndEffectIntoGUI(this.mc.fontRenderer, this.mc.func_110434_K(), var34.theItemStack, var40 + 3, var39 + 3);
+                 GL11.glDisable(GL11.GL_LIGHTING);
+ 
+                 if (!this.statFileWriter.canUnlockAchievement(var34))
+@@ -402,7 +402,7 @@
+         GL11.glDisable(GL11.GL_DEPTH_TEST);
+         GL11.glEnable(GL11.GL_BLEND);
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-        this.mc.getTextureManager().bindTexture(achievementTextures);
++        this.mc.func_110434_K().func_110577_a(field_110406_y);
+         this.drawTexturedModalRect(var6, var7, 0, 0, this.achievementsPaneWidth, this.achievementsPaneHeight);
+         GL11.glPopMatrix();
+         this.zLevel = 0.0F;
+@@ -413,10 +413,10 @@
+ 
+         if (var30 != null)
          {
-             String var33 = I18n.getString(var30.getName());
+-            String var33 = I18n.getString(var30.getName());
++            String var33 = I18n.func_135053_a(var30.getName());
              String var35 = var30.getDescription();
 -            var41 = par1 + 12;
 -            var25 = par2 - 4;
@@ -11,3 +68,19 @@
  
              if (this.statFileWriter.canUnlockAchievement(var30))
              {
+@@ -433,13 +433,13 @@
+ 
+                 if (this.statFileWriter.hasAchievementUnlocked(var30))
+                 {
+-                    this.fontRenderer.drawStringWithShadow(I18n.getString("achievement.taken"), var41, var25 + var39 + 4, -7302913);
++                    this.fontRenderer.drawStringWithShadow(I18n.func_135053_a("achievement.taken"), var41, var25 + var39 + 4, -7302913);
+                 }
+             }
+             else
+             {
+                 var40 = Math.max(this.fontRenderer.getStringWidth(var33), 120);
+-                String var36 = I18n.getStringParams("achievement.requires", new Object[] {I18n.getString(var30.parentAchievement.getName())});
++                String var36 = I18n.func_135052_a("achievement.requires", new Object[] {I18n.func_135053_a(var30.parentAchievement.getName())});
+                 var28 = this.fontRenderer.splitStringWidth(var36, var40);
+                 this.drawGradientRect(var41 - 3, var25 - 3, var41 + var40 + 3, var25 + var28 + 12 + 3, -1073741824, -1073741824);
+                 this.fontRenderer.drawSplitString(var36, var41, var25 + 12, var40, -9416624);

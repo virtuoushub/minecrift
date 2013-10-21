@@ -1,0 +1,113 @@
+--- a/net/minecraft/src/FileResourcePack.java
++++ b/net/minecraft/src/FileResourcePack.java
+@@ -17,32 +17,32 @@
+ 
+ public class FileResourcePack extends AbstractResourcePack implements Closeable
+ {
+-    public static final Splitter entryNameSplitter = Splitter.on('/').omitEmptyStrings().limit(3);
+-    private ZipFile resourcePackZipFile;
++    public static final Splitter field_110601_c = Splitter.on('/').omitEmptyStrings().limit(3);
++    private ZipFile field_110600_d;
+ 
+     public FileResourcePack(File par1File)
+     {
+         super(par1File);
+     }
+ 
+-    private ZipFile getResourcePackZipFile() throws IOException
++    private ZipFile func_110599_c() throws IOException
+     {
+-        if (this.resourcePackZipFile == null)
++        if (this.field_110600_d == null)
+         {
+-            this.resourcePackZipFile = new ZipFile(this.resourcePackFile);
++            this.field_110600_d = new ZipFile(this.field_110597_b);
+         }
+ 
+-        return this.resourcePackZipFile;
++        return this.field_110600_d;
+     }
+ 
+-    protected InputStream getInputStreamByName(String par1Str) throws IOException
++    protected InputStream func_110591_a(String par1Str) throws IOException
+     {
+-        ZipFile var2 = this.getResourcePackZipFile();
++        ZipFile var2 = this.func_110599_c();
+         ZipEntry var3 = var2.getEntry(par1Str);
+ 
+         if (var3 == null)
+         {
+-            throw new ResourcePackFileNotFoundException(this.resourcePackFile, par1Str);
++            throw new ResourcePackFileNotFoundException(this.field_110597_b, par1Str);
+         }
+         else
+         {
+@@ -50,11 +50,11 @@
+         }
+     }
+ 
+-    public boolean hasResourceName(String par1Str)
++    public boolean func_110593_b(String par1Str)
+     {
+         try
+         {
+-            return this.getResourcePackZipFile().getEntry(par1Str) != null;
++            return this.func_110599_c().getEntry(par1Str) != null;
+         }
+         catch (IOException var3)
+         {
+@@ -62,13 +62,13 @@
+         }
+     }
+ 
+-    public Set getResourceDomains()
++    public Set func_110587_b()
+     {
+         ZipFile var1;
+ 
+         try
+         {
+-            var1 = this.getResourcePackZipFile();
++            var1 = this.func_110599_c();
+         }
+         catch (IOException var8)
+         {
+@@ -85,7 +85,7 @@
+ 
+             if (var5.startsWith("assets/"))
+             {
+-                ArrayList var6 = Lists.newArrayList(entryNameSplitter.split(var5));
++                ArrayList var6 = Lists.newArrayList(field_110601_c.split(var5));
+ 
+                 if (var6.size() > 1)
+                 {
+@@ -93,7 +93,7 @@
+ 
+                     if (!var7.equals(var7.toLowerCase()))
+                     {
+-                        this.logNameNotLowercase(var7);
++                        this.func_110594_c(var7);
+                     }
+                     else
+                     {
+@@ -121,17 +121,17 @@
+ 
+     public void close()
+     {
+-        if (this.resourcePackZipFile != null)
++        if (this.field_110600_d != null)
+         {
+             try
+             {
+-                this.resourcePackZipFile.close();
++                this.field_110600_d.close();
+             }
+             catch (Exception ex)
+             {
+             }
+ 
+-            this.resourcePackZipFile = null;
++            this.field_110600_d = null;
+         }
+     }
+ }

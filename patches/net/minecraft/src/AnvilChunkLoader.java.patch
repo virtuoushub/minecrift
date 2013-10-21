@@ -1,0 +1,29 @@
+--- a/net/minecraft/src/AnvilChunkLoader.java
++++ b/net/minecraft/src/AnvilChunkLoader.java
+@@ -211,7 +211,7 @@
+         par3NBTTagCompound.setLong("LastUpdate", par2World.getTotalWorldTime());
+         par3NBTTagCompound.setIntArray("HeightMap", par1Chunk.heightMap);
+         par3NBTTagCompound.setBoolean("TerrainPopulated", par1Chunk.isTerrainPopulated);
+-        par3NBTTagCompound.setLong("InhabitedTime", par1Chunk.inhabitedTime);
++        par3NBTTagCompound.setLong("InhabitedTime", par1Chunk.field_111204_q);
+         ExtendedBlockStorage[] var4 = par1Chunk.getBlockStorageArray();
+         NBTTagList var5 = new NBTTagList("Sections");
+         boolean var6 = !par2World.provider.hasNoSky;
+@@ -265,7 +265,7 @@
+                 Entity var21 = (Entity)var18.next();
+                 var11 = new NBTTagCompound();
+ 
+-                if (var21.writeToNBTOptional(var11))
++                if (var21.addEntityID(var11))
+                 {
+                     par1Chunk.hasEntities = true;
+                     var16.appendTag(var11);
+@@ -322,7 +322,7 @@
+         Chunk var5 = new Chunk(par1World, var3, var4);
+         var5.heightMap = par2NBTTagCompound.getIntArray("HeightMap");
+         var5.isTerrainPopulated = par2NBTTagCompound.getBoolean("TerrainPopulated");
+-        var5.inhabitedTime = par2NBTTagCompound.getLong("InhabitedTime");
++        var5.field_111204_q = par2NBTTagCompound.getLong("InhabitedTime");
+         NBTTagList var6 = par2NBTTagCompound.getTagList("Sections");
+         byte var7 = 16;
+         ExtendedBlockStorage[] var8 = new ExtendedBlockStorage[var7];

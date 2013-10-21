@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/SelectionListBase.java
++++ b/net/minecraft/src/SelectionListBase.java
+@@ -5,7 +5,7 @@
+ 
+ public abstract class SelectionListBase
+ {
+-    private final Minecraft mc;
++    private final Minecraft field_96622_a;
+     private final int field_96619_e;
+     private final int field_96616_f;
+     private final int field_96617_g;
+@@ -21,7 +21,7 @@
+ 
+     public SelectionListBase(Minecraft par1Minecraft, int par2, int par3, int par4, int par5, int par6)
+     {
+-        this.mc = par1Minecraft;
++        this.field_96622_a = par1Minecraft;
+         this.field_96616_f = par3;
+         this.field_96627_h = par3 + par5;
+         this.field_96620_b = par6;
+@@ -159,7 +159,7 @@
+         }
+         else
+         {
+-            while (!this.mc.gameSettings.touchscreen && Mouse.next())
++            while (!this.field_96622_a.gameSettings.touchscreen && Mouse.next())
+             {
+                 int var16 = Mouse.getEventDWheel();
+ 
+@@ -185,7 +185,7 @@
+         GL11.glDisable(GL11.GL_LIGHTING);
+         GL11.glDisable(GL11.GL_FOG);
+         Tessellator var18 = Tessellator.instance;
+-        this.mc.getTextureManager().bindTexture(Gui.optionsBackground);
++        this.field_96622_a.func_110434_K().func_110577_a(Gui.field_110325_k);
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+         float var17 = 32.0F;
+         var18.startDrawingQuads();

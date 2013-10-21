@@ -1,0 +1,24 @@
+--- a/net/minecraft/src/GuiScreenPendingInvitation.java
++++ b/net/minecraft/src/GuiScreenPendingInvitation.java
+@@ -30,9 +30,9 @@
+ 
+     private void func_130050_g()
+     {
+-        this.buttonList.add(new GuiButton(1, this.width / 2 - 154, this.height - 52, 153, 20, I18n.getString("mco.invites.button.accept")));
+-        this.buttonList.add(new GuiButton(2, this.width / 2 + 6, this.height - 52, 153, 20, I18n.getString("mco.invites.button.reject")));
+-        this.buttonList.add(new GuiButton(0, this.width / 2 - 75, this.height - 28, 153, 20, I18n.getString("gui.back")));
++        this.buttonList.add(new GuiButton(1, this.width / 2 - 154, this.height - 52, 153, 20, I18n.func_135053_a("mco.invites.button.accept")));
++        this.buttonList.add(new GuiButton(2, this.width / 2 + 6, this.height - 52, 153, 20, I18n.func_135053_a("mco.invites.button.reject")));
++        this.buttonList.add(new GuiButton(0, this.width / 2 - 75, this.height - 28, 153, 20, I18n.func_135053_a("gui.back")));
+     }
+ 
+     /**
+@@ -109,7 +109,7 @@
+     {
+         this.drawDefaultBackground();
+         this.field_130059_b.drawScreen(par1, par2, par3);
+-        this.drawCenteredString(this.fontRenderer, I18n.getString("mco.invites.title"), this.width / 2, 20, 16777215);
++        this.drawCenteredString(this.fontRenderer, I18n.func_135053_a("mco.invites.title"), this.width / 2, 20, 16777215);
+         super.drawScreen(par1, par2, par3);
+     }
+ 

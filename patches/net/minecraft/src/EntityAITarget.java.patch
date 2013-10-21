@@ -1,0 +1,111 @@
+--- a/net/minecraft/src/EntityAITarget.java
++++ b/net/minecraft/src/EntityAITarget.java
+@@ -9,21 +9,9 @@
+      * If true, EntityAI targets must be able to be seen (cannot be blocked by walls) to be suitable targets.
+      */
+     protected boolean shouldCheckSight;
+-
+-    /**
+-     * When true, only entities that can be reached with minimal effort will be targetted.
+-     */
+-    private boolean nearbyOnly;
+-
+-    /**
+-     * When nearbyOnly is true: 0 -> No target, but OK to search; 1 -> Nearby target found; 2 -> Target too far.
+-     */
+-    private int targetSearchStatus;
+-
+-    /**
+-     * When nearbyOnly is true, this throttles target searching to avoid excessive pathfinding.
+-     */
+-    private int targetSearchDelay;
++    private boolean field_75303_a;
++    private int field_75301_b;
++    private int field_75302_c;
+     private int field_75298_g;
+ 
+     public EntityAITarget(EntityCreature par1EntityCreature, boolean par2)
+@@ -35,7 +23,7 @@
+     {
+         this.taskOwner = par1EntityCreature;
+         this.shouldCheckSight = par2;
+-        this.nearbyOnly = par3;
++        this.field_75303_a = par3;
+     }
+ 
+     /**
+@@ -55,7 +43,7 @@
+         }
+         else
+         {
+-            double var2 = this.getTargetDistance();
++            double var2 = this.func_111175_f();
+ 
+             if (this.taskOwner.getDistanceSqToEntity(var1) > var2 * var2)
+             {
+@@ -80,10 +68,10 @@
+         }
+     }
+ 
+-    protected double getTargetDistance()
++    protected double func_111175_f()
+     {
+-        AttributeInstance var1 = this.taskOwner.getEntityAttribute(SharedMonsterAttributes.followRange);
+-        return var1 == null ? 16.0D : var1.getAttributeValue();
++        AttributeInstance var1 = this.taskOwner.func_110148_a(SharedMonsterAttributes.field_111265_b);
++        return var1 == null ? 16.0D : var1.func_111126_e();
+     }
+ 
+     /**
+@@ -91,8 +79,8 @@
+      */
+     public void startExecuting()
+     {
+-        this.targetSearchStatus = 0;
+-        this.targetSearchDelay = 0;
++        this.field_75301_b = 0;
++        this.field_75302_c = 0;
+         this.field_75298_g = 0;
+     }
+ 
+@@ -154,19 +142,19 @@
+             }
+             else
+             {
+-                if (this.nearbyOnly)
++                if (this.field_75303_a)
+                 {
+-                    if (--this.targetSearchDelay <= 0)
++                    if (--this.field_75302_c <= 0)
+                     {
+-                        this.targetSearchStatus = 0;
++                        this.field_75301_b = 0;
+                     }
+ 
+-                    if (this.targetSearchStatus == 0)
++                    if (this.field_75301_b == 0)
+                     {
+-                        this.targetSearchStatus = this.canEasilyReach(par1EntityLivingBase) ? 1 : 2;
++                        this.field_75301_b = this.func_75295_a(par1EntityLivingBase) ? 1 : 2;
+                     }
+ 
+-                    if (this.targetSearchStatus == 2)
++                    if (this.field_75301_b == 2)
+                     {
+                         return false;
+                     }
+@@ -177,12 +165,9 @@
+         }
+     }
+ 
+-    /**
+-     * Checks to see if this entity can find a short path to the given target.
+-     */
+-    private boolean canEasilyReach(EntityLivingBase par1EntityLivingBase)
++    private boolean func_75295_a(EntityLivingBase par1EntityLivingBase)
+     {
+-        this.targetSearchDelay = 10 + this.taskOwner.getRNG().nextInt(5);
++        this.field_75302_c = 10 + this.taskOwner.getRNG().nextInt(5);
+         PathEntity var2 = this.taskOwner.getNavigator().getPathToEntityLiving(par1EntityLivingBase);
+ 
+         if (var2 == null)

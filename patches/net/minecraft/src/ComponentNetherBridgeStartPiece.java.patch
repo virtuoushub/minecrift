@@ -1,0 +1,39 @@
+--- a/net/minecraft/src/ComponentNetherBridgeStartPiece.java
++++ b/net/minecraft/src/ComponentNetherBridgeStartPiece.java
+@@ -12,7 +12,7 @@
+     /**
+      * Contains the list of valid piece weights for the set of nether bridge structure pieces.
+      */
+-    public List primaryWeights;
++    public List primaryWeights = new ArrayList();
+ 
+     /**
+      * Contains the list of valid piece weights for the secondary set of nether bridge structure pieces.
+@@ -20,12 +20,9 @@
+     public List secondaryWeights;
+     public ArrayList field_74967_d = new ArrayList();
+ 
+-    public ComponentNetherBridgeStartPiece() {}
+-
+     public ComponentNetherBridgeStartPiece(Random par1Random, int par2, int par3)
+     {
+         super(par1Random, par2, par3);
+-        this.primaryWeights = new ArrayList();
+         StructureNetherBridgePieceWeight[] var4 = StructureNetherBridgePieces.getPrimaryComponents();
+         int var5 = var4.length;
+         int var6;
+@@ -49,14 +46,4 @@
+             this.secondaryWeights.add(var7);
+         }
+     }
+-
+-    protected void func_143011_b(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143011_b(par1NBTTagCompound);
+-    }
+-
+-    protected void func_143012_a(NBTTagCompound par1NBTTagCompound)
+-    {
+-        super.func_143012_a(par1NBTTagCompound);
+-    }
+ }

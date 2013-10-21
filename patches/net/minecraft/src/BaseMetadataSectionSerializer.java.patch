@@ -1,0 +1,38 @@
+--- a/net/minecraft/src/BaseMetadataSectionSerializer.java
++++ b/net/minecraft/src/BaseMetadataSectionSerializer.java
+@@ -7,7 +7,7 @@
+ {
+     protected float func_110487_a(JsonElement par1JsonElement, String par2Str, Float par3, float par4, float par5)
+     {
+-        par2Str = this.getSectionName() + "->" + par2Str;
++        par2Str = this.func_110483_a() + "->" + par2Str;
+ 
+         if (par1JsonElement == null)
+         {
+@@ -52,7 +52,7 @@
+ 
+     protected int func_110485_a(JsonElement par1JsonElement, String par2Str, Integer par3, int par4, int par5)
+     {
+-        par2Str = this.getSectionName() + "->" + par2Str;
++        par2Str = this.func_110483_a() + "->" + par2Str;
+ 
+         if (par1JsonElement == null)
+         {
+@@ -97,7 +97,7 @@
+ 
+     protected String func_110486_a(JsonElement par1JsonElement, String par2Str, String par3Str, int par4, int par5)
+     {
+-        par2Str = this.getSectionName() + "->" + par2Str;
++        par2Str = this.func_110483_a() + "->" + par2Str;
+ 
+         if (par1JsonElement == null)
+         {
+@@ -135,7 +135,7 @@
+ 
+     protected boolean func_110484_a(JsonElement par1JsonElement, String par2Str, Boolean par3)
+     {
+-        par2Str = this.getSectionName() + "->" + par2Str;
++        par2Str = this.func_110483_a() + "->" + par2Str;
+ 
+         if (par1JsonElement == null)
+         {

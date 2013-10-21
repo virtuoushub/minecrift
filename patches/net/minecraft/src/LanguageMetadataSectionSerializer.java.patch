@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/LanguageMetadataSectionSerializer.java
++++ b/net/minecraft/src/LanguageMetadataSectionSerializer.java
+@@ -58,10 +58,7 @@
+         throw new JsonParseException("Duplicate language->\'" + var8 + "\' defined");
+     }
+ 
+-    /**
+-     * The name of this section type as it appears in JSON.
+-     */
+-    public String getSectionName()
++    public String func_110483_a()
+     {
+         return "language";
+     }

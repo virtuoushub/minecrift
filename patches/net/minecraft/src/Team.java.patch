@@ -1,0 +1,21 @@
+--- a/net/minecraft/src/Team.java
++++ b/net/minecraft/src/Team.java
+@@ -2,10 +2,7 @@
+ 
+ public abstract class Team
+ {
+-    /**
+-     * Same as ==
+-     */
+-    public boolean isSameTeam(Team par1Team)
++    public boolean func_142054_a(Team par1Team)
+     {
+         return par1Team == null ? false : this == par1Team;
+     }
+@@ -16,5 +13,5 @@
+ 
+     public abstract boolean func_98297_h();
+ 
+-    public abstract boolean getAllowFriendlyFire();
++    public abstract boolean func_96665_g();
+ }

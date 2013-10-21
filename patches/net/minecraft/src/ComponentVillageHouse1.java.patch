@@ -1,0 +1,32 @@
+--- a/net/minecraft/src/ComponentVillageHouse1.java
++++ b/net/minecraft/src/ComponentVillageHouse1.java
+@@ -5,7 +5,7 @@
+ 
+ public class ComponentVillageHouse1 extends ComponentVillage
+ {
+-    public ComponentVillageHouse1() {}
++    private int averageGroundLevel = -1;
+ 
+     public ComponentVillageHouse1(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, StructureBoundingBox par4StructureBoundingBox, int par5)
+     {
+@@ -26,16 +26,16 @@
+      */
+     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
+     {
+-        if (this.field_143015_k < 0)
++        if (this.averageGroundLevel < 0)
+         {
+-            this.field_143015_k = this.getAverageGroundLevel(par1World, par3StructureBoundingBox);
++            this.averageGroundLevel = this.getAverageGroundLevel(par1World, par3StructureBoundingBox);
+ 
+-            if (this.field_143015_k < 0)
++            if (this.averageGroundLevel < 0)
+             {
+                 return true;
+             }
+ 
+-            this.boundingBox.offset(0, this.field_143015_k - this.boundingBox.maxY + 9 - 1, 0);
++            this.boundingBox.offset(0, this.averageGroundLevel - this.boundingBox.maxY + 9 - 1, 0);
+         }
+ 
+         this.fillWithBlocks(par1World, par3StructureBoundingBox, 1, 1, 1, 7, 5, 4, 0, 0, false);

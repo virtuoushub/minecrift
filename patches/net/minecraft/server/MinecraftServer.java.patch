@@ -1,0 +1,188 @@
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -59,7 +59,7 @@
+     private final ISaveFormat anvilConverterForAnvilFile;
+ 
+     /** The PlayerUsageSnooper instance. */
+-    private final PlayerUsageSnooper usageSnooper = new PlayerUsageSnooper("server", this, getSystemTimeMillis());
++    private final PlayerUsageSnooper usageSnooper = new PlayerUsageSnooper("server", this, func_130071_aq());
+     private final File anvilFile;
+ 
+     /**
+@@ -91,7 +91,7 @@
+ 
+     /** Incremented every tick. */
+     private int tickCounter;
+-    protected Proxy serverProxy;
++    protected Proxy field_110456_c;
+ 
+     /**
+      * The task the server is currently working on(and will output on outputPercentRemaining).
+@@ -119,7 +119,6 @@
+ 
+     /** Maximum build height. */
+     private int buildLimit;
+-    private int field_143008_E;
+     private long lastSentPacketID;
+     private long lastSentPacketSize;
+     private long lastReceivedID;
+@@ -154,12 +153,11 @@
+     private long timeOfLastWarning;
+     private String userMessage;
+     private boolean startProfiling;
+-    private boolean isGamemodeForced;
++    private boolean field_104057_T;
+ 
+     public MinecraftServer(File par1File)
+     {
+-        this.serverProxy = Proxy.NO_PROXY;
+-        this.field_143008_E = 0;
++        this.field_110456_c = Proxy.NO_PROXY;
+         this.sentPacketCountArray = new long[100];
+         this.sentPacketSizeArray = new long[100];
+         this.receivedPacketCountArray = new long[100];
+@@ -178,7 +176,7 @@
+      */
+     private void registerDispenseBehaviors()
+     {
+-        DispenserBehaviors.registerDispenserBehaviours();
++        DispenserBehaviors.func_96467_a();
+     }
+ 
+     /**
+@@ -290,13 +288,13 @@
+         this.getLogAgent().logInfo("Preparing start region for level " + var6);
+         WorldServer var7 = this.worldServers[var6];
+         ChunkCoordinates var8 = var7.getSpawnPoint();
+-        long var9 = getSystemTimeMillis();
++        long var9 = func_130071_aq();
+ 
+         for (int var11 = -192; var11 <= 192 && this.isServerRunning(); var11 += 16)
+         {
+             for (int var12 = -192; var12 <= 192 && this.isServerRunning(); var12 += 16)
+             {
+-                long var13 = getSystemTimeMillis();
++                long var13 = func_130071_aq();
+ 
+                 if (var13 - var9 > 1000L)
+                 {
+@@ -450,11 +448,11 @@
+         {
+             if (this.startServer())
+             {
+-                long var1 = getSystemTimeMillis();
++                long var1 = func_130071_aq();
+ 
+                 for (long var50 = 0L; this.serverRunning; this.serverIsRunning = true)
+                 {
+-                    long var5 = getSystemTimeMillis();
++                    long var5 = func_130071_aq();
+                     long var7 = var5 - var1;
+ 
+                     if (var7 > 2000L && var1 - this.timeOfLastWarning >= 15000L)
+@@ -754,7 +752,7 @@
+      */
+     public String getMinecraftVersion()
+     {
+-        return "1.6.4";
++        return "1.6.2";
+     }
+ 
+     /**
+@@ -833,16 +831,16 @@
+      */
+     public CrashReport addServerInfoToCrashReport(CrashReport par1CrashReport)
+     {
+-        par1CrashReport.getCategory().addCrashSectionCallable("Profiler Position", new CallableIsServerModded(this));
++        par1CrashReport.func_85056_g().addCrashSectionCallable("Profiler Position", new CallableIsServerModded(this));
+ 
+         if (this.worldServers != null && this.worldServers.length > 0 && this.worldServers[0] != null)
+         {
+-            par1CrashReport.getCategory().addCrashSectionCallable("Vec3 Pool Size", new CallableServerProfiler(this));
++            par1CrashReport.func_85056_g().addCrashSectionCallable("Vec3 Pool Size", new CallableServerProfiler(this));
+         }
+ 
+         if (this.serverConfigManager != null)
+         {
+-            par1CrashReport.getCategory().addCrashSectionCallable("Player Count", new CallableServerMemoryStats(this));
++            par1CrashReport.func_85056_g().addCrashSectionCallable("Player Count", new CallableServerMemoryStats(this));
+         }
+ 
+         return par1CrashReport;
+@@ -1104,7 +1102,7 @@
+         par1PlayerUsageSnooper.addData("players_seen", Integer.valueOf(this.serverConfigManager.getAvailablePlayerDat().length));
+         par1PlayerUsageSnooper.addData("uses_auth", Boolean.valueOf(this.onlineMode));
+         par1PlayerUsageSnooper.addData("gui_state", this.getGuiEnabled() ? "enabled" : "disabled");
+-        par1PlayerUsageSnooper.addData("run_time", Long.valueOf((getSystemTimeMillis() - par1PlayerUsageSnooper.func_130105_g()) / 60L * 1000L));
++        par1PlayerUsageSnooper.addData("run_time", Long.valueOf((func_130071_aq() - par1PlayerUsageSnooper.func_130105_g()) / 60L * 1000L));
+         par1PlayerUsageSnooper.addData("avg_tick_ms", Integer.valueOf((int)(MathHelper.average(this.tickTimeArray) * 1.0E-6D)));
+         par1PlayerUsageSnooper.addData("avg_sent_packet_count", Integer.valueOf((int)MathHelper.average(this.sentPacketCountArray)));
+         par1PlayerUsageSnooper.addData("avg_sent_packet_size", Integer.valueOf((int)MathHelper.average(this.sentPacketSizeArray)));
+@@ -1300,7 +1298,7 @@
+         return new ChunkCoordinates(0, 0, 0);
+     }
+ 
+-    public World getEntityWorld()
++    public World func_130014_f_()
+     {
+         return this.worldServers[0];
+     }
+@@ -1313,50 +1311,33 @@
+         return 16;
+     }
+ 
+-    /**
+-     * Returns true if a player does not have permission to edit the block at the given coordinates.
+-     */
+-    public boolean isBlockProtected(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
++    public boolean func_96290_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+     {
+         return false;
+     }
+ 
+     public abstract ILogAgent getLogAgent();
+ 
+-    public void setForceGamemode(boolean par1)
++    public void func_104055_i(boolean par1)
+     {
+-        this.isGamemodeForced = par1;
++        this.field_104057_T = par1;
+     }
+ 
+-    public boolean getForceGamemode()
++    public boolean func_104056_am()
+     {
+-        return this.isGamemodeForced;
++        return this.field_104057_T;
+     }
+ 
+-    public Proxy getServerProxy()
++    public Proxy func_110454_ao()
+     {
+-        return this.serverProxy;
++        return this.field_110456_c;
+     }
+ 
+-    /**
+-     * returns the difference, measured in milliseconds, between the current system time and midnight, January 1, 1970
+-     * UTC.
+-     */
+-    public static long getSystemTimeMillis()
++    public static long func_130071_aq()
+     {
+         return System.currentTimeMillis();
+     }
+ 
+-    public int func_143007_ar()
+-    {
+-        return this.field_143008_E;
+-    }
+-
+-    public void func_143006_e(int par1)
+-    {
+-        this.field_143008_E = par1;
+-    }
+-
+     /**
+      * Gets the current player count, maximum player count, and player entity list.
+      */

@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/BlockSapling.java
++++ b/net/minecraft/src/BlockSapling.java
+@@ -176,7 +176,7 @@
+ 
+         for (int var2 = 0; var2 < this.saplingIcon.length; ++var2)
+         {
+-            this.saplingIcon[var2] = par1IconRegister.registerIcon(this.getTextureName() + "_" + WOOD_TYPES[var2]);
++            this.saplingIcon[var2] = par1IconRegister.registerIcon(this.func_111023_E() + "_" + WOOD_TYPES[var2]);
+         }
+     }
+ }

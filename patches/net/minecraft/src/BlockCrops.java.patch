@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/BlockCrops.java
++++ b/net/minecraft/src/BlockCrops.java
+@@ -215,7 +215,7 @@
+ 
+         for (int var2 = 0; var2 < this.iconArray.length; ++var2)
+         {
+-            this.iconArray[var2] = par1IconRegister.registerIcon(this.getTextureName() + "_stage_" + var2);
++            this.iconArray[var2] = par1IconRegister.registerIcon(this.func_111023_E() + "_stage_" + var2);
+         }
+     }
+ }

@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/SoundPoolEntry.java
++++ b/net/minecraft/src/SoundPoolEntry.java
+@@ -13,12 +13,12 @@
+         this.soundUrl = par2URL;
+     }
+ 
+-    public String getSoundName()
++    public String func_110458_a()
+     {
+         return this.soundName;
+     }
+ 
+-    public URL getSoundUrl()
++    public URL func_110457_b()
+     {
+         return this.soundUrl;
+     }

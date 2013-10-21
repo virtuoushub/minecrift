@@ -1,0 +1,44 @@
+--- a/net/minecraft/src/LayeredTexture.java
++++ b/net/minecraft/src/LayeredTexture.java
+@@ -11,20 +11,20 @@
+ 
+ public class LayeredTexture extends AbstractTexture
+ {
+-    public final List layeredTextureNames;
++    public final List field_110567_b;
+ 
+     public LayeredTexture(String ... par1ArrayOfStr)
+     {
+-        this.layeredTextureNames = Lists.newArrayList(par1ArrayOfStr);
++        this.field_110567_b = Lists.newArrayList(par1ArrayOfStr);
+     }
+ 
+-    public void loadTexture(ResourceManager par1ResourceManager) throws IOException
++    public void func_110551_a(ResourceManager par1ResourceManager) throws IOException
+     {
+         BufferedImage var2 = null;
+ 
+         try
+         {
+-            Iterator var3 = this.layeredTextureNames.iterator();
++            Iterator var3 = this.field_110567_b.iterator();
+ 
+             while (var3.hasNext())
+             {
+@@ -32,7 +32,7 @@
+ 
+                 if (var4 != null)
+                 {
+-                    InputStream var5 = par1ResourceManager.getResource(new ResourceLocation(var4)).getInputStream();
++                    InputStream var5 = par1ResourceManager.func_110536_a(new ResourceLocation(var4)).func_110527_b();
+                     BufferedImage var6 = ImageIO.read(var5);
+ 
+                     if (var2 == null)
+@@ -50,6 +50,6 @@
+             return;
+         }
+ 
+-        TextureUtil.uploadTextureImage(this.getGlTextureId(), var2);
++        TextureUtil.func_110987_a(this.func_110552_b(), var2);
+     }
+ }

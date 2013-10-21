@@ -1,0 +1,39 @@
+--- a/net/minecraft/src/EntityClientPlayerMP.java
++++ b/net/minecraft/src/EntityClientPlayerMP.java
+@@ -195,7 +195,7 @@
+     {
+         if (!this.isEntityInvulnerable())
+         {
+-            this.setHealth(this.getHealth() - par2);
++            this.setEntityHealth(this.func_110143_aJ() - par2);
+         }
+     }
+ 
+@@ -217,15 +217,15 @@
+     /**
+      * Updates health locally.
+      */
+-    public void setPlayerSPHealth(float par1)
++    public void setHealth(float par1)
+     {
+         if (this.hasSetHealth)
+         {
+-            super.setPlayerSPHealth(par1);
++            super.setHealth(par1);
+         }
+         else
+         {
+-            this.setHealth(par1);
++            this.setEntityHealth(par1);
+             this.hasSetHealth = true;
+         }
+     }
+@@ -268,7 +268,7 @@
+ 
+     protected void func_110318_g()
+     {
+-        this.sendQueue.addToSendQueue(new Packet19EntityAction(this, 6, (int)(this.getHorseJumpPower() * 100.0F)));
++        this.sendQueue.addToSendQueue(new Packet19EntityAction(this, 6, (int)(this.func_110319_bJ() * 100.0F)));
+     }
+ 
+     public void func_110322_i()

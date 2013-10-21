@@ -1,0 +1,35 @@
+--- a/net/minecraft/src/CallableParticlePositionInfo.java
++++ b/net/minecraft/src/CallableParticlePositionInfo.java
+@@ -4,25 +4,25 @@
+ 
+ class CallableParticlePositionInfo implements Callable
+ {
+-    final double posX;
++    final double field_85101_a;
+ 
+-    final double posY;
++    final double field_85099_b;
+ 
+-    final double posZ;
++    final double field_85100_c;
+ 
+     final RenderGlobal globalRenderer;
+ 
+     CallableParticlePositionInfo(RenderGlobal par1RenderGlobal, double par2, double par4, double par6)
+     {
+         this.globalRenderer = par1RenderGlobal;
+-        this.posX = par2;
+-        this.posY = par4;
+-        this.posZ = par6;
++        this.field_85101_a = par2;
++        this.field_85099_b = par4;
++        this.field_85100_c = par6;
+     }
+ 
+     public String callParticlePositionInfo()
+     {
+-        return CrashReportCategory.func_85074_a(this.posX, this.posY, this.posZ);
++        return CrashReportCategory.func_85074_a(this.field_85101_a, this.field_85099_b, this.field_85100_c);
+     }
+ 
+     public Object call()

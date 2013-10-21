@@ -1,0 +1,47 @@
+--- a/net/minecraft/src/RenderMooshroom.java
++++ b/net/minecraft/src/RenderMooshroom.java
+@@ -4,7 +4,7 @@
+ 
+ public class RenderMooshroom extends RenderLiving
+ {
+-    private static final ResourceLocation mooshroomTextures = new ResourceLocation("textures/entity/cow/mooshroom.png");
++    private static final ResourceLocation field_110880_a = new ResourceLocation("textures/entity/cow/mooshroom.png");
+ 
+     public RenderMooshroom(ModelBase par1ModelBase, float par2)
+     {
+@@ -16,9 +16,9 @@
+         super.doRenderLiving(par1EntityMooshroom, par2, par4, par6, par8, par9);
+     }
+ 
+-    protected ResourceLocation getMooshroomTextures(EntityMooshroom par1EntityMooshroom)
++    protected ResourceLocation func_110879_a(EntityMooshroom par1EntityMooshroom)
+     {
+-        return mooshroomTextures;
++        return field_110880_a;
+     }
+ 
+     protected void renderMooshroomEquippedItems(EntityMooshroom par1EntityMooshroom, float par2)
+@@ -27,7 +27,7 @@
+ 
+         if (!par1EntityMooshroom.isChild())
+         {
+-            this.bindTexture(TextureMap.locationBlocksTexture);
++            this.func_110776_a(TextureMap.field_110575_b);
+             GL11.glEnable(GL11.GL_CULL_FACE);
+             GL11.glPushMatrix();
+             GL11.glScalef(1.0F, -1.0F, 1.0F);
+@@ -64,12 +64,9 @@
+         this.renderLivingMooshroom((EntityMooshroom)par1EntityLivingBase, par2, par4, par6, par8, par9);
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+-        return this.getMooshroomTextures((EntityMooshroom)par1Entity);
++        return this.func_110879_a((EntityMooshroom)par1Entity);
+     }
+ 
+     /**

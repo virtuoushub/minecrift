@@ -1,0 +1,45 @@
+--- a/net/minecraft/src/BlockRedstoneRepeater.java
++++ b/net/minecraft/src/BlockRedstoneRepeater.java
+@@ -98,15 +98,12 @@
+                     case 0:
+                         var16 = -0.3125D;
+                         break;
+-
+                     case 1:
+                         var14 = 0.3125D;
+                         break;
+-
+                     case 2:
+                         var16 = 0.3125D;
+                         break;
+-
+                     case 3:
+                         var14 = -0.3125D;
+                 }
+@@ -120,15 +117,12 @@
+                     case 0:
+                         var16 = repeaterTorchOffset[var18];
+                         break;
+-
+                     case 1:
+                         var14 = -repeaterTorchOffset[var18];
+                         break;
+-
+                     case 2:
+                         var16 = -repeaterTorchOffset[var18];
+                         break;
+-
+                     case 3:
+                         var14 = repeaterTorchOffset[var18];
+                 }
+@@ -139,9 +133,7 @@
+     }
+ 
+     /**
+-     * Called on server worlds only when the block has been replaced by a different block ID, or the same block with a
+-     * different metadata value, but before the new metadata value is set. Args: World, x, y, z, old block ID, old
+-     * metadata
++     * ejects contained items into the world, and notifies neighbours of an update, as appropriate
+      */
+     public void breakBlock(World par1World, int par2, int par3, int par4, int par5, int par6)
+     {

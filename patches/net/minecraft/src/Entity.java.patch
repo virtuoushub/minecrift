@@ -1,0 +1,246 @@
+--- a/net/minecraft/src/Entity.java
++++ b/net/minecraft/src/Entity.java
+@@ -22,7 +22,7 @@
+ 
+     /** The entity we are currently riding */
+     public Entity ridingEntity;
+-    public boolean forceSpawn;
++    public boolean field_98038_p;
+ 
+     /** Reference to the World object. */
+     public World worldObj;
+@@ -179,7 +179,7 @@
+ 
+     /** Whether the entity is inside a Portal */
+     protected boolean inPortal;
+-    protected int portalCounter;
++    protected int field_82153_h;
+ 
+     /** Which dimension the player is in (-1 = the Nether, 0 = normal world) */
+     public int dimension;
+@@ -401,9 +401,9 @@
+             {
+                 if (var1.getAllowNether())
+                 {
+-                    if (this.ridingEntity == null && this.portalCounter++ >= var2)
++                    if (this.ridingEntity == null && this.field_82153_h++ >= var2)
+                     {
+-                        this.portalCounter = var2;
++                        this.field_82153_h = var2;
+                         this.timeUntilPortal = this.getPortalCooldown();
+                         byte var3;
+ 
+@@ -424,14 +424,14 @@
+             }
+             else
+             {
+-                if (this.portalCounter > 0)
++                if (this.field_82153_h > 0)
+                 {
+-                    this.portalCounter -= 4;
++                    this.field_82153_h -= 4;
+                 }
+ 
+-                if (this.portalCounter < 0)
++                if (this.field_82153_h < 0)
+                 {
+-                    this.portalCounter = 0;
++                    this.field_82153_h = 0;
+                 }
+             }
+ 
+@@ -530,7 +530,7 @@
+     public void setFire(int par1)
+     {
+         int var2 = par1 * 20;
+-        var2 = EnchantmentProtection.getFireTimeForEntity(this, var2);
++        var2 = EnchantmentProtection.func_92093_a(this, var2);
+ 
+         if (this.fire < var2)
+         {
+@@ -887,7 +887,7 @@
+             {
+                 CrashReport var41 = CrashReport.makeCrashReport(var34, "Checking entity tile collision");
+                 CrashReportCategory var38 = var41.makeCategory("Entity being checked for collision");
+-                this.addEntityCrashInfo(var38);
++                this.func_85029_a(var38);
+                 throw new ReportedException(var41);
+             }
+ 
+@@ -954,7 +954,7 @@
+                             {
+                                 CrashReport var12 = CrashReport.makeCrashReport(var14, "Colliding entity with tile");
+                                 CrashReportCategory var13 = var12.makeCategory("Tile being collided with");
+-                                CrashReportCategory.addBlockCrashInfo(var13, var7, var8, var9, var10, this.worldObj.getBlockMetadata(var7, var8, var9));
++                                CrashReportCategory.func_85068_a(var13, var7, var8, var9, var10, this.worldObj.getBlockMetadata(var7, var8, var9));
+                                 throw new ReportedException(var12);
+                             }
+                         }
+@@ -1429,11 +1429,7 @@
+         return par1 < var3 * var3;
+     }
+ 
+-    /**
+-     * Like writeToNBTOptional but does not check if the entity is ridden. Used for saving ridden entities with their
+-     * riders.
+-     */
+-    public boolean writeMountToNBT(NBTTagCompound par1NBTTagCompound)
++    public boolean addNotRiddenEntityID(NBTTagCompound par1NBTTagCompound)
+     {
+         String var2 = this.getEntityString();
+ 
+@@ -1450,11 +1446,9 @@
+     }
+ 
+     /**
+-     * Either write this entity to the NBT tag given and return true, or return false without doing anything. If this
+-     * returns false the entity is not saved on disk. Ridden entities return false here as they are saved with their
+-     * rider.
++     * adds the ID of this entity to the NBT given
+      */
+-    public boolean writeToNBTOptional(NBTTagCompound par1NBTTagCompound)
++    public boolean addEntityID(NBTTagCompound par1NBTTagCompound)
+     {
+         String var2 = this.getEntityString();
+ 
+@@ -1495,7 +1489,7 @@
+             {
+                 NBTTagCompound var2 = new NBTTagCompound("Riding");
+ 
+-                if (this.ridingEntity.writeMountToNBT(var2))
++                if (this.ridingEntity.addNotRiddenEntityID(var2))
+                 {
+                     par1NBTTagCompound.setTag("Riding", var2);
+                 }
+@@ -1505,7 +1499,7 @@
+         {
+             CrashReport var3 = CrashReport.makeCrashReport(var5, "Saving entity NBT");
+             CrashReportCategory var4 = var3.makeCategory("Entity being saved");
+-            this.addEntityCrashInfo(var4);
++            this.func_85029_a(var4);
+             throw new ReportedException(var3);
+         }
+     }
+@@ -1561,7 +1555,7 @@
+             this.setRotation(this.rotationYaw, this.rotationPitch);
+             this.readEntityFromNBT(par1NBTTagCompound);
+ 
+-            if (this.shouldSetPosAfterLoading())
++            if (this.func_142008_O())
+             {
+                 this.setPosition(this.posX, this.posY, this.posZ);
+             }
+@@ -1570,12 +1564,12 @@
+         {
+             CrashReport var3 = CrashReport.makeCrashReport(var5, "Loading entity NBT");
+             CrashReportCategory var4 = var3.makeCategory("Entity being loaded");
+-            this.addEntityCrashInfo(var4);
++            this.func_85029_a(var4);
+             throw new ReportedException(var3);
+         }
+     }
+ 
+-    protected boolean shouldSetPosAfterLoading()
++    protected boolean func_142008_O()
+     {
+         return true;
+     }
+@@ -1598,7 +1592,7 @@
+      */
+     protected abstract void writeEntityToNBT(NBTTagCompound var1);
+ 
+-    public void onChunkLoad() {}
++    public void func_110123_P() {}
+ 
+     /**
+      * creates a NBT list from the array of doubles passed to this function
+@@ -1706,10 +1700,7 @@
+         return false;
+     }
+ 
+-    /**
+-     * First layer of player interaction
+-     */
+-    public boolean interactFirst(EntityPlayer par1EntityPlayer)
++    public boolean func_130002_c(EntityPlayer par1EntityPlayer)
+     {
+         return false;
+     }
+@@ -2002,12 +1993,7 @@
+         return this.getFlag(5);
+     }
+ 
+-    /**
+-     * Only used by renderer in EntityLivingBase subclasses.\nDetermines if an entity is visible or not to a specfic
+-     * player, if the entity is normally invisible.\nFor EntityLivingBase subclasses, returning false when invisible
+-     * will render the entity semitransparent.
+-     */
+-    public boolean isInvisibleToPlayer(EntityPlayer par1EntityPlayer)
++    public boolean func_98034_c(EntityPlayer par1EntityPlayer)
+     {
+         return this.isInvisible();
+     }
+@@ -2234,10 +2220,7 @@
+         return true;
+     }
+ 
+-    /**
+-     * Called when a player attacks an entity. If this returns true the attack will not happen.
+-     */
+-    public boolean hitByEntity(Entity par1Entity)
++    public boolean func_85031_j(Entity par1Entity)
+     {
+         return false;
+     }
+@@ -2326,24 +2309,17 @@
+         }
+     }
+ 
+-    /**
+-     * Gets a block's resistance to this entity's explosion. Used to make rails immune to TNT minecarts' explosions and
+-     * Wither skulls more destructive.
+-     */
+-    public float getBlockExplosionResistance(Explosion par1Explosion, World par2World, int par3, int par4, int par5, Block par6Block)
++    public float func_82146_a(Explosion par1Explosion, World par2World, int par3, int par4, int par5, Block par6Block)
+     {
+         return par6Block.getExplosionResistance(this);
+     }
+ 
+-    public boolean shouldExplodeBlock(Explosion par1Explosion, World par2World, int par3, int par4, int par5, int par6, float par7)
++    public boolean func_96091_a(Explosion par1Explosion, World par2World, int par3, int par4, int par5, int par6, float par7)
+     {
+         return true;
+     }
+ 
+-    /**
+-     * The number of iterations PathFinder.getSafePoint will execute before giving up.
+-     */
+-    public int getMaxSafePointTries()
++    public int func_82143_as()
+     {
+         return 3;
+     }
+@@ -2361,7 +2337,7 @@
+         return false;
+     }
+ 
+-    public void addEntityCrashInfo(CrashReportCategory par1CrashReportCategory)
++    public void func_85029_a(CrashReportCategory par1CrashReportCategory)
+     {
+         par1CrashReportCategory.addCrashSectionCallable("Entity Type", new CallableEntityType(this));
+         par1CrashReportCategory.addCrashSection("Entity ID", Integer.valueOf(this.entityId));
+@@ -2379,12 +2355,12 @@
+         return this.isBurning();
+     }
+ 
+-    public UUID getUniqueID()
++    public UUID func_110124_au()
+     {
+         return this.entityUniqueID;
+     }
+ 
+-    public boolean isPushedByWater()
++    public boolean func_96092_aw()
+     {
+         return true;
+     }

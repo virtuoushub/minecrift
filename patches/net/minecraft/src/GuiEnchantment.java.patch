@@ -1,0 +1,51 @@
+--- a/net/minecraft/src/GuiEnchantment.java
++++ b/net/minecraft/src/GuiEnchantment.java
+@@ -7,8 +7,8 @@
+ 
+ public class GuiEnchantment extends GuiContainer
+ {
+-    private static final ResourceLocation enchantingTableGuiTextures = new ResourceLocation("textures/gui/container/enchanting_table.png");
+-    private static final ResourceLocation enchantingTableBookTextures = new ResourceLocation("textures/entity/enchanting_table_book.png");
++    private static final ResourceLocation field_110425_B = new ResourceLocation("textures/gui/container/enchanting_table.png");
++    private static final ResourceLocation field_110426_C = new ResourceLocation("textures/entity/enchanting_table_book.png");
+ 
+     /** The book model used on the GUI. */
+     private static final ModelBook bookModel = new ModelBook();
+@@ -38,8 +38,8 @@
+      */
+     protected void drawGuiContainerForegroundLayer(int par1, int par2)
+     {
+-        this.fontRenderer.drawString(this.field_94079_C == null ? I18n.getString("container.enchant") : this.field_94079_C, 12, 5, 4210752);
+-        this.fontRenderer.drawString(I18n.getString("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
++        this.fontRenderer.drawString(this.field_94079_C == null ? I18n.func_135053_a("container.enchant") : this.field_94079_C, 12, 5, 4210752);
++        this.fontRenderer.drawString(I18n.func_135053_a("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
+     }
+ 
+     /**
+@@ -78,7 +78,7 @@
+     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
+     {
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-        this.mc.getTextureManager().bindTexture(enchantingTableGuiTextures);
++        this.mc.func_110434_K().func_110577_a(field_110425_B);
+         int var4 = (this.width - this.xSize) / 2;
+         int var5 = (this.height - this.ySize) / 2;
+         this.drawTexturedModalRect(var4, var5, 0, 0, this.xSize, this.ySize);
+@@ -99,7 +99,7 @@
+         float var8 = 5.0F;
+         GL11.glScalef(var8, var8, var8);
+         GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+-        this.mc.getTextureManager().bindTexture(enchantingTableBookTextures);
++        this.mc.func_110434_K().func_110577_a(field_110426_C);
+         GL11.glRotatef(20.0F, 1.0F, 0.0F, 0.0F);
+         float var9 = this.field_74208_u + (this.field_74209_t - this.field_74208_u) * par1;
+         GL11.glTranslatef((1.0F - var9) * 0.2F, (1.0F - var9) * 0.1F, (1.0F - var9) * 0.25F);
+@@ -147,7 +147,7 @@
+         {
+             String var13 = EnchantmentNameParts.instance.generateRandomEnchantName();
+             this.zLevel = 0.0F;
+-            this.mc.getTextureManager().bindTexture(enchantingTableGuiTextures);
++            this.mc.func_110434_K().func_110577_a(field_110425_B);
+             int var14 = this.containerEnchantment.enchantLevels[var12];
+             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+ 

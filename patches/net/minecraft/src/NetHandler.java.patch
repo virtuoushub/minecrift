@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/NetHandler.java
++++ b/net/minecraft/src/NetHandler.java
+@@ -471,7 +471,7 @@
+ 
+     public void func_142031_a(Packet133TileEditorOpen par1Packet133TileEditorOpen) {}
+ 
+-    public boolean isConnectionClosed()
++    public boolean func_142032_c()
+     {
+         return false;
+     }

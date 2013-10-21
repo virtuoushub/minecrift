@@ -1,0 +1,14 @@
+--- a/net/minecraft/src/BlockCactus.java
++++ b/net/minecraft/src/BlockCactus.java
+@@ -160,8 +160,8 @@
+      */
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.blockIcon = par1IconRegister.registerIcon(this.getTextureName() + "_side");
+-        this.cactusTopIcon = par1IconRegister.registerIcon(this.getTextureName() + "_top");
+-        this.cactusBottomIcon = par1IconRegister.registerIcon(this.getTextureName() + "_bottom");
++        this.blockIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_side");
++        this.cactusTopIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_top");
++        this.cactusBottomIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_bottom");
+     }
+ }

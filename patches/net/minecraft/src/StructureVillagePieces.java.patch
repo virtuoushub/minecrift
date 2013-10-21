@@ -1,0 +1,26 @@
+--- a/net/minecraft/src/StructureVillagePieces.java
++++ b/net/minecraft/src/StructureVillagePieces.java
+@@ -7,23 +7,6 @@
+ 
+ public class StructureVillagePieces
+ {
+-    public static void func_143016_a()
+-    {
+-        MapGenStructureIO.func_143031_a(ComponentVillageHouse1.class, "ViBH");
+-        MapGenStructureIO.func_143031_a(ComponentVillageField.class, "ViDF");
+-        MapGenStructureIO.func_143031_a(ComponentVillageField2.class, "ViF");
+-        MapGenStructureIO.func_143031_a(ComponentVillageTorch.class, "ViL");
+-        MapGenStructureIO.func_143031_a(ComponentVillageHall.class, "ViPH");
+-        MapGenStructureIO.func_143031_a(ComponentVillageHouse4_Garden.class, "ViSH");
+-        MapGenStructureIO.func_143031_a(ComponentVillageWoodHut.class, "ViSmH");
+-        MapGenStructureIO.func_143031_a(ComponentVillageChurch.class, "ViST");
+-        MapGenStructureIO.func_143031_a(ComponentVillageHouse2.class, "ViS");
+-        MapGenStructureIO.func_143031_a(ComponentVillageStartPiece.class, "ViStart");
+-        MapGenStructureIO.func_143031_a(ComponentVillagePathGen.class, "ViSR");
+-        MapGenStructureIO.func_143031_a(ComponentVillageHouse3.class, "ViTRH");
+-        MapGenStructureIO.func_143031_a(ComponentVillageWell.class, "ViW");
+-    }
+-
+     public static List getStructureVillageWeightedPieceList(Random par0Random, int par1)
+     {
+         ArrayList var2 = new ArrayList();

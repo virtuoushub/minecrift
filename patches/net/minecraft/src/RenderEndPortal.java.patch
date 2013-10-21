@@ -1,0 +1,31 @@
+--- a/net/minecraft/src/RenderEndPortal.java
++++ b/net/minecraft/src/RenderEndPortal.java
+@@ -6,8 +6,8 @@
+ 
+ public class RenderEndPortal extends TileEntitySpecialRenderer
+ {
+-    private static final ResourceLocation enderPortalEndSkyTextures = new ResourceLocation("textures/environment/end_sky.png");
+-    private static final ResourceLocation endPortalTextures = new ResourceLocation("textures/entity/end_portal.png");
++    private static final ResourceLocation field_110645_c = new ResourceLocation("textures/environment/end_sky.png");
++    private static final ResourceLocation field_110643_d = new ResourceLocation("textures/entity/end_portal.png");
+     private static final Random field_110644_e = new Random(31100L);
+     FloatBuffer field_76908_a = GLAllocation.createDirectFloatBuffer(16);
+ 
+@@ -32,7 +32,7 @@
+ 
+             if (var13 == 0)
+             {
+-                this.bindTexture(enderPortalEndSkyTextures);
++                this.func_110628_a(field_110645_c);
+                 var16 = 0.1F;
+                 var14 = 65.0F;
+                 var15 = 0.125F;
+@@ -42,7 +42,7 @@
+ 
+             if (var13 == 1)
+             {
+-                this.bindTexture(endPortalTextures);
++                this.func_110628_a(field_110643_d);
+                 GL11.glEnable(GL11.GL_BLEND);
+                 GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+                 var15 = 0.5F;

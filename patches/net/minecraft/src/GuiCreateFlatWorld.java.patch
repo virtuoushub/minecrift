@@ -1,0 +1,28 @@
+--- a/net/minecraft/src/GuiCreateFlatWorld.java
++++ b/net/minecraft/src/GuiCreateFlatWorld.java
+@@ -35,16 +35,16 @@
+     public void initGui()
+     {
+         this.buttonList.clear();
+-        this.customizationTitle = I18n.getString("createWorld.customize.flat.title");
+-        this.layerMaterialLabel = I18n.getString("createWorld.customize.flat.tile");
+-        this.heightLabel = I18n.getString("createWorld.customize.flat.height");
++        this.customizationTitle = I18n.func_135053_a("createWorld.customize.flat.title");
++        this.layerMaterialLabel = I18n.func_135053_a("createWorld.customize.flat.tile");
++        this.heightLabel = I18n.func_135053_a("createWorld.customize.flat.height");
+         this.createFlatWorldListSlotGui = new GuiCreateFlatWorldListSlot(this);
+-        this.buttonList.add(this.buttonAddLayer = new GuiButton(2, this.width / 2 - 154, this.height - 52, 100, 20, I18n.getString("createWorld.customize.flat.addLayer") + " (NYI)"));
+-        this.buttonList.add(this.buttonEditLayer = new GuiButton(3, this.width / 2 - 50, this.height - 52, 100, 20, I18n.getString("createWorld.customize.flat.editLayer") + " (NYI)"));
+-        this.buttonList.add(this.buttonRemoveLayer = new GuiButton(4, this.width / 2 - 155, this.height - 52, 150, 20, I18n.getString("createWorld.customize.flat.removeLayer")));
+-        this.buttonList.add(new GuiButton(0, this.width / 2 - 155, this.height - 28, 150, 20, I18n.getString("gui.done")));
+-        this.buttonList.add(new GuiButton(5, this.width / 2 + 5, this.height - 52, 150, 20, I18n.getString("createWorld.customize.presets")));
+-        this.buttonList.add(new GuiButton(1, this.width / 2 + 5, this.height - 28, 150, 20, I18n.getString("gui.cancel")));
++        this.buttonList.add(this.buttonAddLayer = new GuiButton(2, this.width / 2 - 154, this.height - 52, 100, 20, I18n.func_135053_a("createWorld.customize.flat.addLayer") + " (NYI)"));
++        this.buttonList.add(this.buttonEditLayer = new GuiButton(3, this.width / 2 - 50, this.height - 52, 100, 20, I18n.func_135053_a("createWorld.customize.flat.editLayer") + " (NYI)"));
++        this.buttonList.add(this.buttonRemoveLayer = new GuiButton(4, this.width / 2 - 155, this.height - 52, 150, 20, I18n.func_135053_a("createWorld.customize.flat.removeLayer")));
++        this.buttonList.add(new GuiButton(0, this.width / 2 - 155, this.height - 28, 150, 20, I18n.func_135053_a("gui.done")));
++        this.buttonList.add(new GuiButton(5, this.width / 2 + 5, this.height - 52, 150, 20, I18n.func_135053_a("createWorld.customize.presets")));
++        this.buttonList.add(new GuiButton(1, this.width / 2 + 5, this.height - 28, 150, 20, I18n.func_135053_a("gui.cancel")));
+         this.buttonAddLayer.drawButton = this.buttonEditLayer.drawButton = false;
+         this.theFlatGeneratorInfo.func_82645_d();
+         this.func_82270_g();

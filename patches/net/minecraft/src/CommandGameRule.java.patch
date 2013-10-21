@@ -1,0 +1,20 @@
+--- a/net/minecraft/src/CommandGameRule.java
++++ b/net/minecraft/src/CommandGameRule.java
+@@ -51,7 +51,7 @@
+             if (var4.hasRule(var6))
+             {
+                 String var5 = var4.getGameRuleStringValue(var6);
+-                par1ICommandSender.sendChatToPlayer(ChatMessageComponent.createFromText(var6).addText(" = ").addText(var5));
++                par1ICommandSender.sendChatToPlayer(ChatMessageComponent.func_111066_d(var6).func_111079_a(" = ").func_111079_a(var5));
+             }
+             else
+             {
+@@ -61,7 +61,7 @@
+         else if (par2ArrayOfStr.length == 0)
+         {
+             GameRules var3 = this.getGameRules();
+-            par1ICommandSender.sendChatToPlayer(ChatMessageComponent.createFromText(joinNiceString(var3.getRules())));
++            par1ICommandSender.sendChatToPlayer(ChatMessageComponent.func_111066_d(joinNiceString(var3.getRules())));
+         }
+         else
+         {

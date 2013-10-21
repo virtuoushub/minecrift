@@ -1,0 +1,156 @@
+--- a/net/minecraft/src/EntityPlayerSP.java
++++ b/net/minecraft/src/EntityPlayerSP.java
+@@ -18,8 +18,8 @@
+     public float renderArmPitch;
+     public float prevRenderArmYaw;
+     public float prevRenderArmPitch;
+-    private int horseJumpPowerCounter;
+-    private float horseJumpPower;
++    private int field_110320_a;
++    private float field_110321_bQ;
+     private MouseFilter field_71162_ch = new MouseFilter();
+     private MouseFilter field_71160_ci = new MouseFilter();
+     private MouseFilter field_71161_cj = new MouseFilter();
+@@ -32,7 +32,7 @@
+ 
+     public EntityPlayerSP(Minecraft par1Minecraft, World par2World, Session par3Session, int par4)
+     {
+-        super(par2World, par3Session.getUsername());
++        super(par2World, par3Session.func_111285_a());
+         this.mc = par1Minecraft;
+         this.dimension = par4;
+     }
+@@ -209,45 +209,45 @@
+                 }
+             }
+ 
+-            if (this.isRidingHorse())
++            if (this.func_110317_t())
+             {
+-                if (this.horseJumpPowerCounter < 0)
++                if (this.field_110320_a < 0)
+                 {
+-                    ++this.horseJumpPowerCounter;
++                    ++this.field_110320_a;
+ 
+-                    if (this.horseJumpPowerCounter == 0)
++                    if (this.field_110320_a == 0)
+                     {
+-                        this.horseJumpPower = 0.0F;
++                        this.field_110321_bQ = 0.0F;
+                     }
+                 }
+ 
+                 if (var1 && !this.movementInput.jump)
+                 {
+-                    this.horseJumpPowerCounter = -10;
++                    this.field_110320_a = -10;
+                     this.func_110318_g();
+                 }
+                 else if (!var1 && this.movementInput.jump)
+                 {
+-                    this.horseJumpPowerCounter = 0;
+-                    this.horseJumpPower = 0.0F;
++                    this.field_110320_a = 0;
++                    this.field_110321_bQ = 0.0F;
+                 }
+                 else if (var1)
+                 {
+-                    ++this.horseJumpPowerCounter;
++                    ++this.field_110320_a;
+ 
+-                    if (this.horseJumpPowerCounter < 10)
++                    if (this.field_110320_a < 10)
+                     {
+-                        this.horseJumpPower = (float)this.horseJumpPowerCounter * 0.1F;
++                        this.field_110321_bQ = (float)this.field_110320_a * 0.1F;
+                     }
+                     else
+                     {
+-                        this.horseJumpPower = 0.8F + 2.0F / (float)(this.horseJumpPowerCounter - 9) * 0.1F;
++                        this.field_110321_bQ = 0.8F + 2.0F / (float)(this.field_110320_a - 9) * 0.1F;
+                     }
+                 }
+             }
+             else
+             {
+-                this.horseJumpPower = 0.0F;
++                this.field_110321_bQ = 0.0F;
+             }
+ 
+             super.onLivingUpdate();
+@@ -272,8 +272,8 @@
+             var1 *= 1.1F;
+         }
+ 
+-        AttributeInstance var2 = this.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+-        var1 = (float)((double)var1 * ((var2.getAttributeValue() / (double)this.capabilities.getWalkSpeed() + 1.0D) / 2.0D));
++        AttributeInstance var2 = this.func_110148_a(SharedMonsterAttributes.field_111263_d);
++        var1 = (float)((double)var1 * ((var2.func_111126_e() / (double)this.capabilities.getWalkSpeed() + 1.0D) / 2.0D));
+ 
+         if (this.isUsingItem() && this.getItemInUse().itemID == Item.bow.itemID)
+         {
+@@ -354,7 +354,7 @@
+         this.mc.displayGuiScreen(new GuiHopper(this.inventory, par1EntityMinecartHopper));
+     }
+ 
+-    public void displayGUIHorse(EntityHorse par1EntityHorse, IInventory par2IInventory)
++    public void func_110298_a(EntityHorse par1EntityHorse, IInventory par2IInventory)
+     {
+         this.mc.displayGuiScreen(new GuiScreenHorseInventory(this.inventory, par2IInventory, par1EntityHorse));
+     }
+@@ -450,13 +450,13 @@
+     /**
+      * Updates health locally.
+      */
+-    public void setPlayerSPHealth(float par1)
++    public void setHealth(float par1)
+     {
+-        float var2 = this.getHealth() - par1;
++        float var2 = this.func_110143_aJ() - par1;
+ 
+         if (var2 <= 0.0F)
+         {
+-            this.setHealth(par1);
++            this.setEntityHealth(par1);
+ 
+             if (var2 < 0.0F)
+             {
+@@ -465,8 +465,8 @@
+         }
+         else
+         {
+-            this.lastDamage = var2;
+-            this.setHealth(this.getHealth());
++            this.field_110153_bc = var2;
++            this.setEntityHealth(this.func_110143_aJ());
+             this.hurtResistantTime = this.maxHurtResistantTime;
+             this.damageEntity(DamageSource.generic, var2);
+             this.hurtTime = this.maxHurtTime = 10;
+@@ -605,7 +605,7 @@
+ 
+     public void sendChatToPlayer(ChatMessageComponent par1ChatMessageComponent)
+     {
+-        this.mc.ingameGUI.getChatGUI().printChatMessage(par1ChatMessageComponent.toStringWithFormatting(true));
++        this.mc.ingameGUI.getChatGUI().printChatMessage(par1ChatMessageComponent.func_111068_a(true));
+     }
+ 
+     /**
+@@ -645,14 +645,14 @@
+         return true;
+     }
+ 
+-    public boolean isRidingHorse()
++    public boolean func_110317_t()
+     {
+         return this.ridingEntity != null && this.ridingEntity instanceof EntityHorse;
+     }
+ 
+-    public float getHorseJumpPower()
++    public float func_110319_bJ()
+     {
+-        return this.horseJumpPower;
++        return this.field_110321_bQ;
+     }
+ 
+     protected void func_110318_g() {}

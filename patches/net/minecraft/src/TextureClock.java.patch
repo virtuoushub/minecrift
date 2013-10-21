@@ -1,0 +1,31 @@
+--- a/net/minecraft/src/TextureClock.java
++++ b/net/minecraft/src/TextureClock.java
+@@ -12,7 +12,7 @@
+ 
+     public void updateAnimation()
+     {
+-        if (!this.framesTextureData.isEmpty())
++        if (!this.field_110976_a.isEmpty())
+         {
+             Minecraft var1 = Minecraft.getMinecraft();
+             double var2 = 0.0D;
+@@ -55,15 +55,15 @@
+             this.field_94239_h += this.field_94240_i;
+             int var6;
+ 
+-            for (var6 = (int)((this.field_94239_h + 1.0D) * (double)this.framesTextureData.size()) % this.framesTextureData.size(); var6 < 0; var6 = (var6 + this.framesTextureData.size()) % this.framesTextureData.size())
++            for (var6 = (int)((this.field_94239_h + 1.0D) * (double)this.field_110976_a.size()) % this.field_110976_a.size(); var6 < 0; var6 = (var6 + this.field_110976_a.size()) % this.field_110976_a.size())
+             {
+                 ;
+             }
+ 
+-            if (var6 != this.frameCounter)
++            if (var6 != this.field_110973_g)
+             {
+-                this.frameCounter = var6;
+-                TextureUtil.uploadTextureSub((int[])this.framesTextureData.get(this.frameCounter), this.width, this.height, this.originX, this.originY, false, false);
++                this.field_110973_g = var6;
++                TextureUtil.func_110998_a((int[])this.field_110976_a.get(this.field_110973_g), this.field_130223_c, this.field_130224_d, this.field_110975_c, this.field_110974_d, false, false);
+             }
+         }
+     }

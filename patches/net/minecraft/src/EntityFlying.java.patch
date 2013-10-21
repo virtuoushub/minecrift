@@ -1,0 +1,22 @@
+--- a/net/minecraft/src/EntityFlying.java
++++ b/net/minecraft/src/EntityFlying.java
+@@ -75,7 +75,7 @@
+             this.motionZ *= (double)var3;
+         }
+ 
+-        this.prevLimbSwingAmount = this.limbSwingAmount;
++        this.prevLimbYaw = this.limbYaw;
+         double var10 = this.posX - this.prevPosX;
+         double var9 = this.posZ - this.prevPosZ;
+         float var7 = MathHelper.sqrt_double(var10 * var10 + var9 * var9) * 4.0F;
+@@ -85,8 +85,8 @@
+             var7 = 1.0F;
+         }
+ 
+-        this.limbSwingAmount += (var7 - this.limbSwingAmount) * 0.4F;
+-        this.limbSwing += this.limbSwingAmount;
++        this.limbYaw += (var7 - this.limbYaw) * 0.4F;
++        this.limbSwing += this.limbYaw;
+     }
+ 
+     /**

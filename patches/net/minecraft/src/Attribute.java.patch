@@ -1,0 +1,18 @@
+--- a/net/minecraft/src/Attribute.java
++++ b/net/minecraft/src/Attribute.java
+@@ -2,11 +2,11 @@
+ 
+ public interface Attribute
+ {
+-    String getAttributeUnlocalizedName();
++    String func_111108_a();
+ 
+-    double clampValue(double var1);
++    double func_111109_a(double var1);
+ 
+-    double getDefaultValue();
++    double func_111110_b();
+ 
+-    boolean getShouldWatch();
++    boolean func_111111_c();
+ }

@@ -1,0 +1,19 @@
+--- a/net/minecraft/src/GuiConfirmOpenLink.java
++++ b/net/minecraft/src/GuiConfirmOpenLink.java
+@@ -12,11 +12,11 @@
+ 
+     public GuiConfirmOpenLink(GuiScreen par1GuiScreen, String par2Str, int par3, boolean par4)
+     {
+-        super(par1GuiScreen, I18n.getString(par4 ? "chat.link.confirmTrusted" : "chat.link.confirm"), par2Str, par3);
+-        this.buttonText1 = I18n.getString(par4 ? "chat.link.open" : "gui.yes");
+-        this.buttonText2 = I18n.getString(par4 ? "gui.cancel" : "gui.no");
+-        this.copyLinkButtonText = I18n.getString("chat.copy");
+-        this.openLinkWarning = I18n.getString("chat.link.warning");
++        super(par1GuiScreen, I18n.func_135053_a(par4 ? "chat.link.confirmTrusted" : "chat.link.confirm"), par2Str, par3);
++        this.buttonText1 = I18n.func_135053_a(par4 ? "chat.link.open" : "gui.yes");
++        this.buttonText2 = I18n.func_135053_a(par4 ? "gui.cancel" : "gui.no");
++        this.copyLinkButtonText = I18n.func_135053_a("chat.copy");
++        this.openLinkWarning = I18n.func_135053_a("chat.link.warning");
+         this.field_92028_p = par2Str;
+     }
+ 

@@ -1,0 +1,23 @@
+--- a/net/minecraft/src/RenderFish.java
++++ b/net/minecraft/src/RenderFish.java
+@@ -16,7 +16,7 @@
+         GL11.glTranslatef((float)par2, (float)par4, (float)par6);
+         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+         GL11.glScalef(0.5F, 0.5F, 0.5F);
+-        this.bindEntityTexture(par1EntityFishHook);
++        this.func_110777_b(par1EntityFishHook);
+         Tessellator var10 = Tessellator.instance;
+         byte var11 = 1;
+         byte var12 = 2;
+@@ -92,10 +92,7 @@
+         return field_110792_a;
+     }
+ 
+-    /**
+-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+-     */
+-    protected ResourceLocation getEntityTexture(Entity par1Entity)
++    protected ResourceLocation func_110775_a(Entity par1Entity)
+     {
+         return this.func_110791_a((EntityFishHook)par1Entity);
+     }

@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/ComponentVillageRoadPiece.java
++++ b/net/minecraft/src/ComponentVillageRoadPiece.java
+@@ -2,8 +2,6 @@
+ 
+ public abstract class ComponentVillageRoadPiece extends ComponentVillage
+ {
+-    public ComponentVillageRoadPiece() {}
+-
+     protected ComponentVillageRoadPiece(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2)
+     {
+         super(par1ComponentVillageStartPiece, par2);

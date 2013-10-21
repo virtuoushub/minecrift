@@ -1,0 +1,50 @@
+--- a/net/minecraft/src/GuiBeacon.java
++++ b/net/minecraft/src/GuiBeacon.java
+@@ -7,7 +7,7 @@
+ 
+ public class GuiBeacon extends GuiContainer
+ {
+-    private static final ResourceLocation beaconGuiTextures = new ResourceLocation("textures/gui/container/beacon.png");
++    private static final ResourceLocation field_110428_t = new ResourceLocation("textures/gui/container/beacon.png");
+     private TileEntityBeacon beacon;
+     private GuiBeaconButtonConfirm beaconConfirmButton;
+     private boolean buttonsNotDrawn;
+@@ -169,8 +169,8 @@
+     protected void drawGuiContainerForegroundLayer(int par1, int par2)
+     {
+         RenderHelper.disableStandardItemLighting();
+-        this.drawCenteredString(this.fontRenderer, I18n.getString("tile.beacon.primary"), 62, 10, 14737632);
+-        this.drawCenteredString(this.fontRenderer, I18n.getString("tile.beacon.secondary"), 169, 10, 14737632);
++        this.drawCenteredString(this.fontRenderer, I18n.func_135053_a("tile.beacon.primary"), 62, 10, 14737632);
++        this.drawCenteredString(this.fontRenderer, I18n.func_135053_a("tile.beacon.secondary"), 169, 10, 14737632);
+         Iterator var3 = this.buttonList.iterator();
+ 
+         while (var3.hasNext())
+@@ -193,20 +193,20 @@
+     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
+     {
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-        this.mc.getTextureManager().bindTexture(beaconGuiTextures);
++        this.mc.func_110434_K().func_110577_a(field_110428_t);
+         int var4 = (this.width - this.xSize) / 2;
+         int var5 = (this.height - this.ySize) / 2;
+         this.drawTexturedModalRect(var4, var5, 0, 0, this.xSize, this.ySize);
+         itemRenderer.zLevel = 100.0F;
+-        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.getTextureManager(), new ItemStack(Item.emerald), var4 + 42, var5 + 109);
+-        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.getTextureManager(), new ItemStack(Item.diamond), var4 + 42 + 22, var5 + 109);
+-        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.getTextureManager(), new ItemStack(Item.ingotGold), var4 + 42 + 44, var5 + 109);
+-        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.getTextureManager(), new ItemStack(Item.ingotIron), var4 + 42 + 66, var5 + 109);
++        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.func_110434_K(), new ItemStack(Item.emerald), var4 + 42, var5 + 109);
++        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.func_110434_K(), new ItemStack(Item.diamond), var4 + 42 + 22, var5 + 109);
++        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.func_110434_K(), new ItemStack(Item.ingotGold), var4 + 42 + 44, var5 + 109);
++        itemRenderer.renderItemAndEffectIntoGUI(this.fontRenderer, this.mc.func_110434_K(), new ItemStack(Item.ingotIron), var4 + 42 + 66, var5 + 109);
+         itemRenderer.zLevel = 0.0F;
+     }
+ 
+-    static ResourceLocation getBeaconGuiTextures()
++    static ResourceLocation func_110427_g()
+     {
+-        return beaconGuiTextures;
++        return field_110428_t;
+     }
+ }

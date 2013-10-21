@@ -9,3 +9,100 @@
  {
      private final List playersInChunk;
  
+@@ -11,14 +11,8 @@
+     private final ChunkCoordIntPair chunkLocation;
+     private short[] locationOfBlockChange;
+     private int numberOfTilesToUpdate;
+-
+-    /**
+-     * Integer field where each bit means to make update 16x16x16 division of chunk (from bottom).
+-     */
+-    private int flagsYAreasToUpdate;
+-
+-    /** time what is using when chunk InhabitedTime is being calculated */
+-    private long previousWorldTime;
++    private int field_73260_f;
++    private long field_111198_g;
+     final PlayerManager thePlayerManager;
+     public boolean chunkLoaded;
+ 
+@@ -58,7 +52,7 @@
+         {
+             if (this.playersInChunk.isEmpty())
+             {
+-                this.previousWorldTime = PlayerManager.getWorldServer(this.thePlayerManager).getTotalWorldTime();
++                this.field_111198_g = PlayerManager.getWorldServer(this.thePlayerManager).getTotalWorldTime();
+             }
+ 
+             this.playersInChunk.add(par1EntityPlayerMP);
+@@ -93,9 +87,9 @@
+             if (this.playersInChunk.isEmpty())
+             {
+                 long var3 = (long)this.chunkLocation.chunkXPos + 2147483647L | (long)this.chunkLocation.chunkZPos + 2147483647L << 32;
+-                this.increaseInhabitedTime(var2);
++                this.func_111196_a(var2);
+                 PlayerManager.getChunkWatchers(this.thePlayerManager).remove(var3);
+-                PlayerManager.getChunkWatcherList(this.thePlayerManager).remove(this);
++                PlayerManager.func_111191_d(this.thePlayerManager).remove(this);
+ 
+                 if (this.numberOfTilesToUpdate > 0)
+                 {
+@@ -110,21 +104,15 @@
+         }
+     }
+ 
+-    /**
+-     * This method currently only increases chunk inhabited time. Extension is possible in next versions
+-     */
+-    public void processChunk()
++    public void func_111194_a()
+     {
+-        this.increaseInhabitedTime(PlayerManager.getWorldServer(this.thePlayerManager).getChunkFromChunkCoords(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos));
++        this.func_111196_a(PlayerManager.getWorldServer(this.thePlayerManager).getChunkFromChunkCoords(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos));
+     }
+ 
+-    /**
+-     * Increases chunk inhabited time every 8000 ticks
+-     */
+-    private void increaseInhabitedTime(Chunk par1Chunk)
++    private void func_111196_a(Chunk par1Chunk)
+     {
+-        par1Chunk.inhabitedTime += PlayerManager.getWorldServer(this.thePlayerManager).getTotalWorldTime() - this.previousWorldTime;
+-        this.previousWorldTime = PlayerManager.getWorldServer(this.thePlayerManager).getTotalWorldTime();
++        par1Chunk.field_111204_q += PlayerManager.getWorldServer(this.thePlayerManager).getTotalWorldTime() - this.field_111198_g;
++        this.field_111198_g = PlayerManager.getWorldServer(this.thePlayerManager).getTotalWorldTime();
+     }
+ 
+     public void flagChunkForUpdate(int par1, int par2, int par3)
+@@ -134,7 +122,7 @@
+             PlayerManager.getChunkWatchersWithPlayers(this.thePlayerManager).add(this);
+         }
+ 
+-        this.flagsYAreasToUpdate |= 1 << (par2 >> 4);
++        this.field_73260_f |= 1 << (par2 >> 4);
+ 
+         if (this.numberOfTilesToUpdate < 64)
+         {
+@@ -193,11 +181,11 @@
+                 {
+                     var1 = this.chunkLocation.chunkXPos * 16;
+                     var2 = this.chunkLocation.chunkZPos * 16;
+-                    this.sendToAllPlayersWatchingChunk(new Packet51MapChunk(PlayerManager.getWorldServer(this.thePlayerManager).getChunkFromChunkCoords(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos), false, this.flagsYAreasToUpdate));
++                    this.sendToAllPlayersWatchingChunk(new Packet51MapChunk(PlayerManager.getWorldServer(this.thePlayerManager).getChunkFromChunkCoords(this.chunkLocation.chunkXPos, this.chunkLocation.chunkZPos), false, this.field_73260_f));
+ 
+                     for (var3 = 0; var3 < 16; ++var3)
+                     {
+-                        if ((this.flagsYAreasToUpdate & 1 << var3) != 0)
++                        if ((this.field_73260_f & 1 << var3) != 0)
+                         {
+                             var4 = var3 << 4;
+                             List var5 = PlayerManager.getWorldServer(this.thePlayerManager).getAllTileEntityInBox(var1, var4, var2, var1 + 16, var4 + 16, var2 + 15);
+@@ -228,7 +216,7 @@
+             }
+ 
+             this.numberOfTilesToUpdate = 0;
+-            this.flagsYAreasToUpdate = 0;
++            this.field_73260_f = 0;
+         }
+     }
+ 

@@ -1,0 +1,17 @@
+--- a/net/minecraft/src/BlockCake.java
++++ b/net/minecraft/src/BlockCake.java
+@@ -75,10 +75,10 @@
+      */
+     public void registerIcons(IconRegister par1IconRegister)
+     {
+-        this.blockIcon = par1IconRegister.registerIcon(this.getTextureName() + "_side");
+-        this.field_94382_c = par1IconRegister.registerIcon(this.getTextureName() + "_inner");
+-        this.cakeTopIcon = par1IconRegister.registerIcon(this.getTextureName() + "_top");
+-        this.cakeBottomIcon = par1IconRegister.registerIcon(this.getTextureName() + "_bottom");
++        this.blockIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_side");
++        this.field_94382_c = par1IconRegister.registerIcon(this.func_111023_E() + "_inner");
++        this.cakeTopIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_top");
++        this.cakeBottomIcon = par1IconRegister.registerIcon(this.func_111023_E() + "_bottom");
+     }
+ 
+     /**

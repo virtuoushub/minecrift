@@ -1,0 +1,32 @@
+--- a/net/minecraft/src/ItemEnchantedBook.java
++++ b/net/minecraft/src/ItemEnchantedBook.java
+@@ -60,9 +60,9 @@
+     }
+ 
+     /**
+-     * Adds an stored enchantment to an enchanted book ItemStack
++     * Returns the ItemStack of an enchanted version of this item.
+      */
+-    public void addEnchantment(ItemStack par1ItemStack, EnchantmentData par2EnchantmentData)
++    public void getEnchantedItemStack_do(ItemStack par1ItemStack, EnchantmentData par2EnchantmentData)
+     {
+         NBTTagList var3 = this.func_92110_g(par1ItemStack);
+         boolean var4 = true;
+@@ -105,7 +105,7 @@
+     public ItemStack getEnchantedItemStack(EnchantmentData par1EnchantmentData)
+     {
+         ItemStack var2 = new ItemStack(this);
+-        this.addEnchantment(var2, par1EnchantmentData);
++        this.getEnchantedItemStack_do(var2, par1EnchantmentData);
+         return var2;
+     }
+ 
+@@ -127,7 +127,7 @@
+         Enchantment var5 = Enchantment.enchantmentsBookList[par1Random.nextInt(Enchantment.enchantmentsBookList.length)];
+         ItemStack var6 = new ItemStack(this.itemID, 1, 0);
+         int var7 = MathHelper.getRandomIntegerInRange(par1Random, var5.getMinLevel(), var5.getMaxLevel());
+-        this.addEnchantment(var6, new EnchantmentData(var5, var7));
++        this.getEnchantedItemStack_do(var6, new EnchantmentData(var5, var7));
+         return new WeightedRandomChestContent(var6, par2, par3, par4);
+     }
+ }
