@@ -294,7 +294,7 @@
      {
          if (this.mc.renderViewEntity instanceof EntityPlayer)
          {
-@@ -823,13 +837,13 @@
+@@ -823,7 +837,7 @@
          this.lightmapUpdateNeeded = true;
      }
  
@@ -303,13 +303,6 @@
      {
          WorldClient var2 = this.mc.theWorld;
  
-         if (var2 != null)
-         {
--            if (CustomColorizer.updateLightmap(var2, this.torchFlickerX, this.lightmapColors, this.mc.thePlayer.isPotionActive(Potion.nightVision)))
-+            if (CustomColorizer.updateLightmap(var2, this, this.lightmapColors, this.mc.thePlayer.isPotionActive(Potion.nightVision)))
-             {
-                 this.lightmapTexture.updateDynamicTexture();
-                 this.lightmapUpdateNeeded = false;
 @@ -975,7 +989,45 @@
          int var3 = par1EntityPlayer.getActivePotionEffect(Potion.nightVision).getDuration();
          return var3 > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)var3 - par2) * (float)Math.PI * 0.2F) * 0.3F;
