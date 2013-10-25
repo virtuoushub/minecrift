@@ -1,3 +1,5 @@
+package com.mtbs3d.minecrift.utils;
+
 import net.minecraft.src.Session;
 
 import java.io.*;
