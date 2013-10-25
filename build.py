@@ -3,7 +3,7 @@ import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
 import subprocess, shlex
 
-mc_ver ="1.6.2"
+mc_ver ="1.6.4"
 
 try:
     WindowsError
@@ -138,4 +138,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp804'))	
+        main(os.path.abspath('mcp811'))	

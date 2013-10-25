@@ -1,68 +1,56 @@
 --- a/net/minecraft/src/RenderGlobal.java
 +++ b/net/minecraft/src/RenderGlobal.java
-@@ -339,12 +339,14 @@
-                 var1 = var3;
-             }
+@@ -508,21 +508,31 @@
  
-+            // TODO: Set chunk renderer attribs for greater draw distance
-             this.prevReposX = -9999.0D;
-             this.prevReposY = -9999.0D;
-             this.prevReposZ = -9999.0D;
-             this.renderChunksWide = var1 / 16 + 1;
-             this.renderChunksTall = 16;
-             this.renderChunksDeep = var1 / 16 + 1;
-+
-             this.worldRenderers = new WorldRenderer[this.renderChunksWide * this.renderChunksTall * this.renderChunksDeep];
-             this.sortedWorldRenderers = new WorldRenderer[this.renderChunksWide * this.renderChunksTall * this.renderChunksDeep];
-             int var4 = 0;
-@@ -470,20 +472,30 @@
-             for (var6 = 0; var6 < var5.size(); ++var6)
-             {
-                 var7 = (Entity)var5.get(var6);
--                boolean var9 = var7.isInRangeToRenderVec3D(par1Vec3) && (var7.ignoreFrustumCheck || par2ICamera.isBoundingBoxInFrustum(var7.boundingBox) || var7.riddenByEntity == this.mc.thePlayer);
-+                boolean render = var7.isInRangeToRenderVec3D(par1Vec3) && (var7.ignoreFrustumCheck || par2ICamera.isBoundingBoxInFrustum(var7.boundingBox) || var7.riddenByEntity == this.mc.thePlayer);
- 
--                if (!var9 && var7 instanceof EntityLiving)
-+                if (!render && var7 instanceof EntityLiving)
+                 if (!var5 || Reflector.callBoolean(var9, Reflector.ForgeEntity_shouldRenderInPass, new Object[] {Integer.valueOf(var4)}))
                  {
-                     EntityLiving var10 = (EntityLiving)var7;
+-                    boolean var11 = var9.isInRangeToRenderVec3D(par1Vec3) && (var9.ignoreFrustumCheck || par2ICamera.isBoundingBoxInFrustum(var9.boundingBox) || var9.riddenByEntity == this.mc.thePlayer);
++                    boolean render = var9.isInRangeToRenderVec3D(par1Vec3) && (var9.ignoreFrustumCheck || par2ICamera.isBoundingBoxInFrustum(var9.boundingBox) || var9.riddenByEntity == this.mc.thePlayer);
  
-                     if (var10.func_110167_bD() && var10.func_110166_bE() != null)
+-                    if (!var11 && var9 instanceof EntityLiving)
++                    if (!render && var9 instanceof EntityLiving)
                      {
-                         Entity var11 = var10.func_110166_bE();
--                        var9 = par2ICamera.isBoundingBoxInFrustum(var11.boundingBox);
-+                        render = par2ICamera.isBoundingBoxInFrustum(var11.boundingBox);
+                         EntityLiving var12 = (EntityLiving)var9;
+ 
+                         if (var12.getLeashed() && var12.getLeashedToEntity() != null)
+                         {
+                             Entity var13 = var12.getLeashedToEntity();
+-                            var11 = par2ICamera.isBoundingBoxInFrustum(var13.boundingBox);
++                            render = par2ICamera.isBoundingBoxInFrustum(var13.boundingBox);
+                         }
                      }
-                 }
  
--                if (var9 && (var7 != this.mc.renderViewEntity || this.mc.gameSettings.thirdPersonView != 0 || this.mc.renderViewEntity.isPlayerSleeping()) && this.theWorld.blockExists(MathHelper.floor_double(var7.posX), 0, MathHelper.floor_double(var7.posZ)))
+-                    if (var11 && (var9 != this.mc.renderViewEntity || this.mc.gameSettings.thirdPersonView != 0 || this.mc.renderViewEntity.isPlayerSleeping()) && this.theWorld.blockExists(MathHelper.floor_double(var9.posX), 0, MathHelper.floor_double(var9.posZ)))
++					// Minecrift - logic to determine whether to render head, headwear etc...
++                	RenderPlayer renderPlayer = (RenderPlayer)RenderManager.instance.getEntityRenderObject(this.mc.thePlayer);
 +
-+                RenderPlayer renderPlayer = (RenderPlayer)RenderManager.instance.getEntityRenderObject(this.mc.thePlayer);
++                    if (render && (var9 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping()) && this.theWorld.blockExists(MathHelper.floor_double(var9.posX), 0, MathHelper.floor_double(var9.posZ)))
+                     {
++	                	renderPlayer.setVR(true,this.mc.vrSettings.renderHeadWear, this.mc.vrSettings.renderPlayerOffset);
++	                    if (this.mc.vrSettings.renderFullFirstPersonModel == false || this.mc.vrSettings.useVRRenderer == false)
++	                        render = false;
++	                }
 +
-+                if (var7 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping() )
-+                {
-+                	renderPlayer.setVR(true,this.mc.vrSettings.renderHeadWear, this.mc.vrSettings.renderPlayerOffset);
-+                    if (this.mc.vrSettings.renderFullFirstPersonModel == false || this.mc.vrSettings.useVRRenderer == false)
-+                        render = false;
-+                }
-+
-+                if (render)
-                 {
-                     ++this.countEntitiesRendered;
++	                if (render)
++	                {
+                         ++this.countEntitiesRendered;
  
-@@ -496,6 +508,11 @@
-                     RenderManager.instance.renderEntity(var7, par3);
-                     this.renderedEntity = null;
-                 }
+                         if (var9.getClass() == EntityItemFrame.class)
+@@ -534,7 +544,12 @@
+                         RenderManager.instance.renderEntity(var9, par3);
+                         this.renderedEntity = null;
+                     }
+-                }
 +
-+                if (var7 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping() )
-+                {
-+                	renderPlayer.setVR(false,true,0.0F);
-+                }
++	                if (var9 == this.mc.renderViewEntity && this.mc.gameSettings.thirdPersonView == 0 && !mc.renderViewEntity.isPlayerSleeping() )
++	                {
++	                	renderPlayer.setVR(false,true,0.0F);
++	                }
++				}
              }
  
-             this.mc.gameSettings.fancyGraphics = var8;
-@@ -731,10 +748,11 @@
+             this.mc.gameSettings.fancyGraphics = var10;
+@@ -779,10 +794,11 @@
          RenderHelper.disableStandardItemLighting();
          WrUpdates.preRender(this, par1EntityLivingBase);
  

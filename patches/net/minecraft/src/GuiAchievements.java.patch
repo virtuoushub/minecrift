@@ -2,7 +2,7 @@
 +++ b/net/minecraft/src/GuiAchievements.java
 @@ -415,8 +415,8 @@
          {
-             String var33 = I18n.func_135053_a(var30.getName());
+             String var33 = I18n.getString(var30.getName());
              String var35 = var30.getDescription();
 -            var41 = par1 + 12;
 -            var25 = par2 - 4;

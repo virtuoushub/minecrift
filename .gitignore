@@ -11,3 +11,4 @@ releases/
 *.class
 *install*.jar
 *install*.exe
+patches/Start.java.patch

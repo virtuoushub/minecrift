@@ -1,7 +1,7 @@
 Minecrift Mod for Minecraft
 ===========================
 
-Current Version: 1.1 beta
+Current Version: Minecrift 1.6.4 
 
 StellaArtois, mabrowning 2013
 
@@ -13,8 +13,8 @@ With thanks to:
 - The team behind the MCP coders' pack, and the Minecraft community - why
   Mojang bother obfuscating the source when you guys have done such a fantastic
   job of de-obfuscating it is beyond me!
-- Powback for his initial work on the Java JNI wrapper to the SDK. Seeing this
-  inspired me to get off my arse and get modding. See
+- Powback for his initial work on the Java JNI wrapper to the Oculus SDK. Seeing 
+  this inspired me to get off my arse and get modding. See
   [this Reddit thread](http://www.reddit.com/r/oculus/comments/1c1vh0/java_wrapper_for_devs/)
 - shakesoda and Ben (and others?) at MTBS for creating the GLSL version of the
   Oculus distortion shader.
@@ -52,14 +52,14 @@ Click the button below to go to our Jenkins page where you can download the
 latest build hot-off-the-presses.
 
 [![Powered By CloudBees](http://www.cloudbees.com/sites/default/files/Button-Powered-by-CB.png)
-](https://minecraftvr.ci.cloudbees.com/job/minecrift-1.6.2/)
+](https://minecraftvr.ci.cloudbees.com/job/minecrift-1.6.4/lastSuccessfulBuild/artifact/)
 
 ---
 
 Installation
 ------------
 
-Download and run the latest minecrift-1.6.2-b###-installer.exe/jar.
+Download and run the latest minecrift-1.6.4-b###-installer.exe/jar.
 *WINDOWS USERS: IMPORTANT* (but only required once). Install the Microsoft
 VS2010 C++ redists (both x86 and x64) from
 [here](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
@@ -152,7 +152,6 @@ Here are some other hotkeys that allow quick access to changing VR settings.
 Known Issues
 ------------
 
-FSAA (Super Sampling) doesn't work on OSX and is disabled.  
 There are quite a small bugs that can be seen on the [GitHub issue
 tracker](https://github.com/mabrowning/minecrift/issues)
 
@@ -191,14 +190,14 @@ Linux, but was written with cross-platform support in mind, so should be usable
 Run install.sh (or install.bat) to download mcp, minecraft, Optifine, and other
 libraries; deobfuscate the base system, and apply the patches and new files.
 
-Use the MCP environment in /mcp804 to modify, test, and recompile.  If you use
-the built-in eclipse workspace, you'll need to add the JRift and SixenseJava
-jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr and
-SixenseJava is in com/sixense.
+Use the MCP environment in /mcpxxx to modify, test, and recompile.  If you use
+the built-in eclipse workspace, you'll need to add the JRift, SixenseJava and
+JMumble jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr
+and SixenseJava is in com/sixense.
 
 Run build.sh (or build.bat) to create a release installer.
 
-Run getchanges.sh (or getchanges.bat) to diff the modified /mcp804/src files into
+Run getchanges.sh (or getchanges.bat) to diff the modified /mcpxxx/src files into
 version controlled /patches and copy the new classes into the /src/
 directory.
 

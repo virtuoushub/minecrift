@@ -18,7 +18,7 @@ REV=$1
 }
 
 PUBLIC=$(cat .public_rev)
-WORK_TREE=mcp804/src/minecraft
+WORK_TREE=mcp811/src/minecraft
 export GIT_DIR=$WORK_TREE/.git
 if [ "$#" -ne 1 ] ; then
 	git rev-list --reverse $PUBLIC..master | while read REV; do

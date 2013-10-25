@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/Config.java
 +++ b/net/minecraft/src/Config.java
-@@ -1425,27 +1425,7 @@
+@@ -1433,27 +1433,7 @@
                  }
  
                  Display.setDisplayModeAndFullscreen(newMode);

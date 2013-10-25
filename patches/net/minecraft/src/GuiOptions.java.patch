@@ -35,11 +35,11 @@
              ++var1;
          }
  
--        this.buttonList.add(new GuiButton(101, this.width / 2 - 152, this.height / 6 + 96 - 6, 150, 20, I18n.func_135053_a("options.video")));
+-        this.buttonList.add(new GuiButton(101, this.width / 2 - 152, this.height / 6 + 96 - 6, 150, 20, I18n.getString("options.video")));
 +        this.buttonList.add(new GuiButton(101, this.width / 2 - 152, this.height / 6 + 96 - 6, 150, 20, "OptiFine Settings..."));
-         this.buttonList.add(new GuiButton(100, this.width / 2 + 2, this.height / 6 + 96 - 6, 150, 20, I18n.func_135053_a("options.controls")));
-         this.buttonList.add(new GuiButton(102, this.width / 2 - 152, this.height / 6 + 120 - 6, 150, 20, I18n.func_135053_a("options.language")));
-         this.buttonList.add(new GuiButton(103, this.width / 2 + 2, this.height / 6 + 120 - 6, 150, 20, I18n.func_135053_a("options.multiplayer.title")));
+         this.buttonList.add(new GuiButton(100, this.width / 2 + 2, this.height / 6 + 96 - 6, 150, 20, I18n.getString("options.controls")));
+         this.buttonList.add(new GuiButton(102, this.width / 2 - 152, this.height / 6 + 120 - 6, 150, 20, I18n.getString("options.language")));
+         this.buttonList.add(new GuiButton(103, this.width / 2 + 2, this.height / 6 + 120 - 6, 150, 20, I18n.getString("options.multiplayer.title")));
 @@ -121,6 +128,12 @@
                  this.mc.gameSettings.saveOptions();
                  this.mc.displayGuiScreen(new GuiScreenTemporaryResourcePackSelect(this, this.options));
@@ -53,9 +53,3 @@
          }
      }
  
-@@ -133,4 +146,5 @@
-         this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 15, 16777215);
-         super.drawScreen(par1, par2, par3);
-     }
-+
- }

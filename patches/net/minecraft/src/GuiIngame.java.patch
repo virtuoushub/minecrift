@@ -17,7 +17,7 @@
 @@ -94,10 +87,13 @@
              this.drawTexturedModalRect(var6 / 2 - 91, var7 - 22, 0, 0, 182, 22);
              this.drawTexturedModalRect(var6 / 2 - 91 - 1 + var31.currentItem * 20, var7 - 22 - 1, 0, 22, 24, 22);
-             this.mc.func_110434_K().func_110577_a(field_110324_m);
+             this.mc.getTextureManager().bindTexture(icons);
 -            GL11.glEnable(GL11.GL_BLEND);
 -            GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
 -            this.drawTexturedModalRect(var6 / 2 - 7, var7 / 2 - 7, 0, 0, 16, 16);

@@ -67,9 +67,3 @@
                  {
                      int var11 = var28.getItem().getColorFromItemStack(var28, var33);
                      var32 = (float)(var11 >> 16 & 255) / 255.0F;
-@@ -495,4 +520,5 @@
-     {
-         this.func_130009_a((AbstractClientPlayer)par1Entity, par2, par4, par6, par8, par9);
-     }
-+
- }

@@ -10,9 +10,10 @@ from applychanges import applychanges, apply_patch
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-mc_version = "1.6.2"
-of_version = mc_version+"_HD_U_B3"
-mcp_version = "mcp804"
+mc_version = "1.6.4"
+of_version = mc_version+"_HD_U_C6"
+of_file_extension = ".jar"
+mcp_version = "mcp811"
 
 try:
     WindowsError
@@ -103,7 +104,7 @@ def download_deps( mcp_dir ):
     optifine_dir = os.path.join(jars,"libraries","net","optifine","OptiFine",of_version )
     mkdir_p( optifine_dir )
 
-    download_file( "http://optifine.net/download.php?f=OptiFine_"+of_version+".zip", os.path.join( optifine_dir, "OptiFine-"+of_version+".jar" ))
+    download_file( "http://optifine.net/download.php?f=OptiFine_"+of_version+of_file_extension, os.path.join( optifine_dir, "OptiFine-"+of_version+".jar" ))
 
     json_obj = []
     with open(json_file,"rb") as f:

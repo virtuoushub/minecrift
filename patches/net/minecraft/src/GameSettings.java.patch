@@ -40,10 +40,10 @@
      }
  
      public String getKeyBindingDescription(int par1)
-@@ -2600,6 +2626,9 @@
+@@ -2649,6 +2675,9 @@
          this.updateWaterOpacity();
          this.mc.renderGlobal.setAllRenderersVisible();
-         this.mc.func_110436_a();
+         this.mc.refreshResources();
 +
 +        setupMinecriftDefaults();
 +

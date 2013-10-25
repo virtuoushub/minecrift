@@ -11,10 +11,10 @@
  
  public class EntityRenderer
  {
--    private static final ResourceLocation field_110924_q = new ResourceLocation("textures/environment/rain.png");
--    private static final ResourceLocation field_110923_r = new ResourceLocation("textures/environment/snow.png");
-+    protected static final ResourceLocation field_110924_q = new ResourceLocation("textures/environment/rain.png");
-+    protected static final ResourceLocation field_110923_r = new ResourceLocation("textures/environment/snow.png");
+-    private static final ResourceLocation locationRainPng = new ResourceLocation("textures/environment/rain.png");
+-    private static final ResourceLocation locationSnowPng = new ResourceLocation("textures/environment/snow.png");
++    protected static final ResourceLocation locationRainPng = new ResourceLocation("textures/environment/rain.png");
++    protected static final ResourceLocation locationSnowPng = new ResourceLocation("textures/environment/snow.png");
      public static boolean anaglyphEnable;
  
      /** Anaglyph field (0=R, 1=GB) */
@@ -38,7 +38,7 @@
      private MouseFilter mouseFilterXAxis = new MouseFilter();
      private MouseFilter mouseFilterYAxis = new MouseFilter();
  
-@@ -46,33 +48,31 @@
+@@ -46,33 +48,32 @@
  
      /** Mouse filter dummy 4 */
      private MouseFilter mouseFilterDummy4 = new MouseFilter();
@@ -77,12 +77,12 @@
 +    protected float smoothCamPartialTicks;
      private float debugCamFOV;
      private float prevDebugCamFOV;
--    private float camRoll;
+     private float camRoll;
 -    private float prevCamRoll;
  
      /**
       * The texture id of the blocklight/skylight texture used for lighting effects
-@@ -97,37 +97,44 @@
+@@ -97,37 +98,44 @@
      private float field_82832_V;
  
      /** Cloud fog mode */
@@ -138,7 +138,7 @@
  
      /** Rain X coords */
      float[] rainXCoords;
-@@ -139,13 +146,13 @@
+@@ -139,13 +147,13 @@
      FloatBuffer fogColorBuffer = GLAllocation.createDirectFloatBuffer(16);
  
      /** red component of the fog color */
@@ -155,7 +155,7 @@
  
      /** Fog color 2 */
      private float fogColor2;
-@@ -158,11 +165,11 @@
+@@ -158,11 +166,11 @@
       */
      public int debugViewDirection;
      private boolean initialized = false;
@@ -170,16 +170,7 @@
      private int serverWaitTime = 0;
      private int serverWaitTimeCurrent = 0;
      private float avgServerTimeDiff = 0.0F;
-@@ -197,7 +204,7 @@
-         this.prevDebugCamYaw = this.debugCamYaw;
-         this.prevDebugCamPitch = this.debugCamPitch;
-         this.prevDebugCamFOV = this.debugCamFOV;
--        this.prevCamRoll = this.camRoll;
-+        this.prevCamRoll = this.cameraRoll;
-         float var1;
-         float var2;
- 
-@@ -277,36 +284,43 @@
+@@ -277,61 +285,67 @@
              }
  
              Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
@@ -240,21 +231,52 @@
 +                    double var18 = var6.distanceTo(var17.hitVec);
  
 -                        if (var18 < var11 || var11 == 0.0D)
--                        {
 +                    if (var18 < var11 || var11 == 0.0D)
 +                    {
-                             if (var14 == this.mc.renderViewEntity.ridingEntity)
++                        if (var14 == this.mc.renderViewEntity.ridingEntity)
+                         {
+-                            if (var14 == this.mc.renderViewEntity.ridingEntity)
+-                            {
+-                                if (var11 == 0.0D)
+-                                {
+-                                    this.pointedEntity = var14;
+-                                }
+-                            }
+-                            else
++                            if (var11 == 0.0D)
                              {
-                                 if (var11 == 0.0D)
-@@ -333,7 +347,6 @@
-                     this.mc.pointedEntityLiving = (EntityLivingBase)this.pointedEntity;
+                                 this.pointedEntity = var14;
+-                                var11 = var18;
+                             }
+                         }
++                        else
++                        {
++                            this.pointedEntity = var14;
++                            var11 = var18;
++                        }
+                     }
                  }
              }
--        }
-     }
++        }
  
-     /**
-@@ -437,7 +450,7 @@
+-            if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
+-            {
+-                this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
++        if (this.pointedEntity != null && (var11 < var4 || this.mc.objectMouseOver == null))
++        {
++            this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity);
+ 
+-                if (this.pointedEntity instanceof EntityLivingBase)
+-                {
+-                    this.mc.pointedEntityLiving = (EntityLivingBase)this.pointedEntity;
+-                }
++            if (this.pointedEntity instanceof EntityLivingBase)
++            {
++                this.mc.pointedEntityLiving = (EntityLivingBase)this.pointedEntity;
+             }
+         }
+     }
+@@ -437,7 +451,7 @@
          }
      }
  
@@ -263,7 +285,7 @@
      {
          EntityLivingBase var2 = this.mc.renderViewEntity;
          float var3 = (float)var2.hurtTime - par1;
-@@ -463,7 +476,7 @@
+@@ -463,7 +477,7 @@
      /**
       * Setups all the GL settings for view bobbing. Args: partialTickTime
       */
@@ -272,16 +294,7 @@
      {
          if (this.mc.renderViewEntity instanceof EntityPlayer)
          {
-@@ -489,7 +502,7 @@
-         double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
-         double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
-         double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
--        GL11.glRotatef(this.prevCamRoll + (this.camRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
-+        GL11.glRotatef(this.prevCamRoll + (this.cameraRoll - this.prevCamRoll) * par1, 0.0F, 0.0F, 1.0F);
- 
-         if (var2.isPlayerSleeping())
-         {
-@@ -823,7 +836,7 @@
+@@ -823,7 +837,7 @@
          this.lightmapUpdateNeeded = true;
      }
  
@@ -290,7 +303,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
  
-@@ -975,7 +988,45 @@
+@@ -975,7 +989,45 @@
          int var3 = par1EntityPlayer.getActivePotionEffect(Potion.nightVision).getDuration();
          return var3 > 200 ? 1.0F : 0.7F + MathHelper.sin(((float)var3 - par2) * (float)Math.PI * 0.2F) * 0.3F;
      }
@@ -312,7 +325,7 @@
 +            {
 +                var8 = -1;
 +            }
-+
+ 
 +            if (this.mc.gameSettings.smoothCamera)
 +            {
 +                this.smoothCamYaw += var6;
@@ -328,7 +341,7 @@
 +                this.mc.thePlayer.setAngles(var6, var7 * (float)var8);
 +            }
 +        }
- 
++
 +        this.mc.mcProfiler.endSection();
 +
 +    }
@@ -336,7 +349,7 @@
      /**
       * Will update any inputs that effect the camera angle (mouse) and then render the world and GUI
       */
-@@ -999,6 +1050,29 @@
+@@ -999,6 +1051,29 @@
              Config.setNewRelease((String)null);
          }
  
@@ -366,16 +379,7 @@
          if (this.mc.currentScreen instanceof GuiMainMenu)
          {
              this.updateMainMenu((GuiMainMenu)this.mc.currentScreen);
-@@ -1028,7 +1102,7 @@
-         {
-             if (Minecraft.getSystemTime() - this.prevFrameTime > 500L)
-             {
--                this.mc.displayInGameMenu();
-+            	this.mc.displayInGameMenu();
-             }
-         }
-         else
-@@ -1036,124 +1110,98 @@
+@@ -1036,124 +1111,98 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
@@ -565,7 +569,22 @@
      {
          this.serverWaitTimeCurrent = 0;
  
-@@ -1600,7 +1648,7 @@
+@@ -1466,7 +1515,14 @@
+                     Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(-1)});
+                 }
+ 
++                this.enableLightmap((double)par1);
++                this.mc.mcProfiler.endStartSection("litParticles");
++                var6.renderLitParticles(var4, par1);
+                 RenderHelper.disableStandardItemLighting();
++                this.setupFog(0, par1);
++                this.mc.mcProfiler.endStartSection("particles");
++                var6.renderParticles(var4, par1);
++                this.disableLightmap((double)par1);
+ 
+                 if (this.mc.objectMouseOver != null && var4.isInsideOfMaterial(Material.water) && var4 instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
+                 {
+@@ -1614,7 +1670,7 @@
      /**
       * Render clouds if enabled
       */
@@ -574,7 +593,7 @@
      {
          if (this.mc.gameSettings.shouldRenderClouds())
          {
-@@ -1904,7 +1952,7 @@
+@@ -1918,7 +1974,7 @@
      /**
       * calculates fog and calls glClearColor
       */
@@ -583,7 +602,7 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLivingBase var3 = this.mc.renderViewEntity;
-@@ -2115,7 +2163,7 @@
+@@ -2132,7 +2188,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
@@ -592,7 +611,7 @@
      {
          EntityLivingBase var3 = this.mc.renderViewEntity;
          boolean var4 = false;
-@@ -2293,25 +2341,14 @@
+@@ -2310,25 +2366,14 @@
      {
          Minecraft var1 = Config.getMinecraft();
  

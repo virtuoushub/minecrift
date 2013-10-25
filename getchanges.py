@@ -37,8 +37,11 @@ def main(mcp_dir):
     except OSError as e:
         pass
     
-    os.mkdir( new_src_dir )
-    os.mkdir( patch_base_dir )
+    if not os.path.exists( new_src_dir ):
+        os.mkdir( new_src_dir )
+    
+    if not os.path.exists( patch_base_dir ):
+        os.mkdir( patch_base_dir )
 
     mod_src_dir = os.path.join( mcp_dir , "src", "minecraft" )
     org_src_dir = os.path.join( mcp_dir , "src", ".minecraft_orig" )
@@ -82,4 +85,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp804'))
+        main(os.path.abspath('mcp811'))

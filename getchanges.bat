@@ -1,3 +1,4 @@
 @echo off
-.\mcp\runtime\bin\python\python_mcp getchanges.py
+REM.\mcp\runtime\bin\python\python_mcp getchanges.py
+python getchanges.py
 pause

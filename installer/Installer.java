@@ -24,7 +24,7 @@ import javax.swing.border.LineBorder;
 
 /**
  * Derived from https://github.com/MinecraftForge/Installer/
- * Copyright 2013 MinecraftForge developers and Mark Browning
+ * Copyright 2013 MinecraftForge developers, Mark Browning, StellaArtois
  * 
  * Licensed under GNU LGPL v2.1 or later.
  * 
@@ -33,10 +33,12 @@ import javax.swing.border.LineBorder;
  */
 public class Installer extends JPanel  implements PropertyChangeListener {
 	private static final long serialVersionUID = -562178983462626162L;
-	private static final String MC_VERSION = "1.6.2";
-	private static final String OF_VERSION = "1.6.2_HD_U_B3";
-	private InstallTask task;
+	private static final String MC_VERSION = "1.6.4";
+	private static final String OF_VERSION = "1.6.4_HD_U_C6";
+    private static final String OF_VERSION_EXT = "jar";
+    private static final String OF_LIB_PATH = "libraries/optifine/OptiFine/";
 
+	private InstallTask task;
 
     static private File targetDir;
     private JTextField selectedDirText;
@@ -56,19 +58,20 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		private boolean DownloadOptiFine()
 		{
 			try {
-			    File fod = new File(targetDir,"libraries/net/optifine/OptiFine/"+OF_VERSION);
+			    File fod = new File(targetDir,OF_LIB_PATH+OF_VERSION);
 			    fod.mkdirs();
 			    File fo = new File(fod,"OptiFine-"+OF_VERSION+".jar");
 			    if( fo.exists() && fo.length() > 375500 ) return true;
 
-				URL url = new URL("http://optifine.net/download.php?f=OptiFine_"+OF_VERSION+".zip");
+                String surl = "http://optifine.net/download.php?f=OptiFine_"+OF_VERSION+"."+OF_VERSION_EXT;
+				URL url = new URL(surl);
 			    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
 			    FileOutputStream fos = new FileOutputStream(fo);
 			    boolean success =  fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE) > 0 ;
 			    fos.close();
 			    return success;
 			} catch (Exception e) {
-				finalMessage += "Error: "+e.getLocalizedMessage();
+				finalMessage += " Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
@@ -102,7 +105,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				lib_jar.close();
 				return true;
 			} catch (Exception e) {
-				finalMessage += "Error: "+e.getLocalizedMessage();
+				finalMessage += " Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
@@ -179,7 +182,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	                null_jar.close();
 					return ver_json_file.exists() && ver_file.exists();
 				} catch (Exception e) {
-					finalMessage += "Error: "+e.getLocalizedMessage();
+					finalMessage += " Error: "+e.getLocalizedMessage();
 				}
 				
 			}
@@ -201,7 +204,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				return null;
 			}
 			setProgress(50);
-			finalMessage = "Failed: Couldn't setup Minecraft "+MC_VERSION+" as library. Have you run "+MC_VERSION+"at least once yet?";
+			finalMessage = "Failed: Couldn't setup Minecraft "+MC_VERSION+" as library. Have you run "+MC_VERSION+" at least once yet?";
 			if(!SetupMinecraftAsLibrary())
 			{
 				return null;
@@ -331,7 +334,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 
 	    version = "UNKNOWN";
 		try {
-			InputStream ver =Installer.class.getResourceAsStream("version");
+			InputStream ver = Installer.class.getResourceAsStream("version");
 			if( ver != null )
 			{
 				String[] tok = new BufferedReader(new InputStreamReader(ver)).readLine().split(":");
