@@ -126,6 +126,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guivrSettings.hudYawOffset = 0f;
                 this.mc.gameSettings.hideGUI = false;
                 this.guivrSettings.hudOpacity = 1.0f;
+                this.guivrSettings.menuBackground = false;
                 this.guivrSettings.hudLockToHead = false;
                 this.guivrSettings.hudOcclusion = false;
                 this.guivrSettings.crosshairScale = 1.0f;
