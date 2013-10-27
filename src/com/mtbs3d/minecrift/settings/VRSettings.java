@@ -51,6 +51,7 @@ public class VRSettings {
     public String oculusProfileGender;
     protected float oculusProfilePlayerEyeHeight = playerEyeHeight;
     public float hudOpacity = 1.0f;
+    public boolean menuBackground = false;
     public boolean renderHeadWear = false;
     public boolean renderFullFirstPersonModel = true;
     public float renderPlayerOffset = 0.25f;
@@ -229,6 +230,11 @@ public class VRSettings {
                     if (optionTokens[0].equals("renderHeadWear"))
                     {
                         this.renderHeadWear = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("menuBackground"))
+                    {
+                        this.menuBackground = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("vrHideGUI"))
@@ -607,6 +613,8 @@ public class VRSettings {
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudOpacity) });
 	        case RENDER_OWN_HEADWEAR:
 	            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
+            case RENDER_MENU_BACKGROUND:
+                return this.menuBackground ? var4 + "ON" : var4 + "OFF";
 	        case HUD_HIDE:
 	            return this.mc.gameSettings.hideGUI ? var4 + "YES" : var4 + "NO";
 	        case RENDER_FULL_FIRST_PERSON_MODEL:
@@ -921,6 +929,9 @@ public class VRSettings {
 	        case RENDER_OWN_HEADWEAR:
 	            this.renderHeadWear = !this.renderHeadWear;
 	            break;
+            case RENDER_MENU_BACKGROUND:
+                this.menuBackground = !this.menuBackground;
+                break;
 	        case HUD_HIDE:
 	            this.mc.gameSettings.hideGUI = !this.mc.gameSettings.hideGUI;
 	            break;
@@ -1280,6 +1291,7 @@ public class VRSettings {
             var5.println("useDistortion:" + this.useDistortion);
             var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
             var5.println("renderHeadWear:" + this.renderHeadWear);
+            var5.println("menuBackground:" + this.menuBackground);
             var5.println("hideGUI:" + this.mc.gameSettings.hideGUI);
             var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);

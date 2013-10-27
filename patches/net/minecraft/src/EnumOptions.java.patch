@@ -9,7 +9,7 @@
      AF_LEVEL("Anisotropic Filtering", false, false),
      RENDER_DISTANCE_FINE("Render Distance", true, false),
      ANIMATED_TEXTURES("Textures Animated", false, false),
-@@ -97,7 +97,88 @@
+@@ -97,7 +97,89 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -25,6 +25,7 @@
 +    HUD_YAW("HUD Horiz. Offset", true, false),
 +    HUD_LOCK_TO("HUD Orientation Lock", false, true),
 +    HUD_OPACITY("HUD Opacity", true, false),
++    RENDER_MENU_BACKGROUND("Menu Background", false, true),
 +    HUD_HIDE("Hide HUD (F1)", false, true),
 +    HUD_OCCLUSION("HUD Occlusion", false, true),
 +    HEAD_TRACKING("Head Tracking", false, true),

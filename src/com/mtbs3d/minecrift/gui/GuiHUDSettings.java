@@ -7,14 +7,15 @@ import net.minecraft.src.*;
 public class GuiHUDSettings extends BaseGuiSettings
 {
     static EnumOptions[] hudOptions = new EnumOptions[] {
-            EnumOptions.HUD_HIDE,
+//            EnumOptions.HUD_HIDE,
             EnumOptions.HUD_LOCK_TO,
+            EnumOptions.HUD_OCCLUSION,
             EnumOptions.HUD_SCALE,
             EnumOptions.HUD_DISTANCE,
             EnumOptions.HUD_PITCH,
             EnumOptions.HUD_YAW,
             EnumOptions.HUD_OPACITY,
-            EnumOptions.HUD_OCCLUSION,
+            EnumOptions.RENDER_MENU_BACKGROUND,
             EnumOptions.CROSSHAIR_SCALE,
             EnumOptions.CROSSHAIR_ALWAYS_SHOW,
             EnumOptions.CROSSHAIR_ROLL,
@@ -33,7 +34,7 @@ public class GuiHUDSettings extends BaseGuiSettings
     {
         StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-//        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guivrSettings.getKeyBinding(EnumOptions.USE_VR)));
+        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.HUD_HIDE.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.HUD_HIDE, this.guivrSettings.getKeyBinding(EnumOptions.HUD_HIDE)));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
         EnumOptions[] buttons = hudOptions;
@@ -184,6 +185,13 @@ public class GuiHUDSettings extends BaseGuiSettings
                             "       be hidden completely in confined environments!",
                             "  OFF: The HUD is always visible. Stereo depth issues",
                             "       may be noticable."
+                    };
+                case RENDER_MENU_BACKGROUND:
+                    return new String[] {
+                            "Specifies whether the in game GUI menus have a ",
+                            "semi-transparent background or not.",
+                            "  ON:  Semi-transparent background on in-game menus.",
+                            "  OFF: No background on in-game menus."
                     };
                 case HUD_LOCK_TO:
                     return new String[] {

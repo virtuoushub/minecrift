@@ -98,3 +98,19 @@
          if (Minecraft.isRunningOnMac && var3 == 0 && (Keyboard.isKeyDown(29) || Keyboard.isKeyDown(157)))
          {
              var3 = 1;
+@@ -261,7 +318,14 @@
+     {
+         if (this.mc.theWorld != null)
+         {
+-            this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
++            if (this.mc.vrSettings != null && this.mc.vrSettings.menuBackground == false)
++            {
++                this.drawGradientRect(0, 0, this.width, this.height, 0, 0);
++            }
++            else
++            {
++                this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
++            }
+         }
+         else
+         {
