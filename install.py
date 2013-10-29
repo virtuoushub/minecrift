@@ -101,7 +101,7 @@ def download_deps( mcp_dir ):
     json_file = os.path.join(versions,mc_version+".json")
     shutil.copy( os.path.join("installer",mc_version+".json"),json_file)
 
-    optifine_dir = os.path.join(jars,"libraries","net","optifine","OptiFine",of_version )
+    optifine_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_version )
     mkdir_p( optifine_dir )
 
     download_file( "http://optifine.net/download.php?f=OptiFine_"+of_version+of_file_extension, os.path.join( optifine_dir, "OptiFine-"+of_version+".jar" ))
@@ -208,7 +208,7 @@ def main(mcp_dir):
     download_deps( mcp_dir )
 
     print("Applying Optifine...")
-    optifine = os.path.join(mcp_dir,"jars","libraries","net","optifine","OptiFine",of_version,"OptiFine-"+of_version+".jar" )
+    optifine = os.path.join(mcp_dir,"jars","libraries","optifine","OptiFine",of_version,"OptiFine-"+of_version+".jar" )
     zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"), optifine )
 
     print("Decompiling...")
