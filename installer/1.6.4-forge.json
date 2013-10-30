@@ -61,8 +61,30 @@
       "url": "http://files.minecraftforge.net/maven/"
     },
     {
-      "name": "net.minecraft:launchwrapper:1.7",
+      "name": "net.minecraft:launchwrapper:1.8",
       "serverreq": true
+    },
+    {
+      "comment": "Important for Forge, we add this",
+      "serverreq": true,
+      "name": "org.scala-lang:scala-library:2.10.2",
+      "url": "http://files.minecraftforge.net/maven/",
+      "checksums": [
+        "6ba65d12cd09d441083262d6f73d2257fec7c663",
+        "65de4339eaed1c3675485fb03a3532fecfd8e8cd"
+      ],
+      "clientreq": true
+    },
+    {
+      "comment": "Important for Forge, we add this",
+      "serverreq": true,
+      "name": "org.scala-lang:scala-compiler:2.10.2",
+      "url": "http://files.minecraftforge.net/maven/",
+      "checksums": [
+        "64c8b1380cc53d6850823d6e4e7ae984aa44ef9c",
+        "99fd0ffb66f3088b0cd1071315fd5eb2b2b070ff"
+      ],
+      "clientreq": true
     },
     {
       "name": "org.ow2.asm:asm-all:4.1",
