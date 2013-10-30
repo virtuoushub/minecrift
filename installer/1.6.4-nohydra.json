@@ -55,7 +55,7 @@
 	  "url": "http://repo.minecraft-vr.com/"
     },
     {
-      "name": "net.minecraft:launchwrapper:1.7",
+      "name": "net.minecraft:launchwrapper:1.8",
       "serverreq": true
     },
     {
