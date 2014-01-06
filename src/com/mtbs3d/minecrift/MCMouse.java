@@ -101,12 +101,19 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             	bodyPitch  += adjustedMouseDeltaY;
             else
             	bodyPitch = 0;
-            
-            
-            if( bodyPitch > 90 )
-            	bodyPitch = 90;
-            if( bodyPitch < -90 )
-            	bodyPitch = -90;
+
+            if (this.mc.vrRenderer != null && this.mc.vrRenderer.useQuaternions == true)
+            {
+                // No restrictions if using Quaternions
+                bodyPitch %= 360;
+            }
+            else
+            {
+                if( bodyPitch > 90 )
+                    bodyPitch = 90;
+                if( bodyPitch < -90 )
+                    bodyPitch = -90;
+            }
 
             if( this.mc.vrSettings.aimKeyholeWidthDegrees > 0 )
             {

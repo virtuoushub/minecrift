@@ -26,6 +26,8 @@ import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.GameSettings;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.Vec3;
+import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector4f;
 
 /**
  * @author Mark Browning
@@ -38,6 +40,8 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 
     Vec3 headPos; //in meters, in world coordinates
     Vec3 origin = Vec3.createVectorHelper(0, 0, 0);  //in meters, relative to hydra base station
+
+    public final float[] IDENTITY_QUAT = {0.0f, 0.0f, 0.0f, 1.0f};   // x, y, z, w
 
     float baseStationYawOffset = 0.0f;
 
@@ -63,9 +67,12 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	private float cont1Yaw = 0;
 	private float cont1Pitch = 0;
 	private float cont1Roll = 0;
+    private float[] cont1OrientationQuat_xyzw = IDENTITY_QUAT;
+
 	private float cont2Yaw = 0;
 	private float cont2Pitch = 0;
 	private float cont2Roll = 0;
+    private float[] cont2OrientationQuat_xyzw = IDENTITY_QUAT;
 	
 	//For IOrientationProvider implementation; allows setting origin to set yaw offset as well
 	private float yawOffset = 0;
@@ -225,20 +232,24 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
             cont1Yaw   = cont1.yaw;
             cont1Pitch = cont1.pitch;
             cont1Roll  = cont1.roll;
+            cont1OrientationQuat_xyzw = cont1.rot_quat;
 
             cont2Yaw   = cont2.yaw;
             cont2Pitch = cont2.pitch;
             cont2Roll  = cont2.roll;
+            cont2OrientationQuat_xyzw = cont2.rot_quat;
         }
         else
         {
             cont1Yaw   = 0;
             cont1Pitch = 0;
             cont1Roll  = 0;
+            cont1OrientationQuat_xyzw = IDENTITY_QUAT;
 
             cont2Yaw   = 0;
             cont2Pitch = 0;
             cont2Roll  = 0;
+            cont2OrientationQuat_xyzw = IDENTITY_QUAT;
         }
 
         userScale = SCALE * mc.vrSettings.posTrackHydraDistanceScale;
@@ -642,6 +653,21 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public float getHeadRollDegrees() {
 		return cont1Roll;
 	}
+
+    @Override
+    public Quaternion getOrientationQuaternion()
+    {
+        // Needs x, y, z, w
+        Quaternion orientation   = new Quaternion(cont1OrientationQuat_xyzw[0],
+                cont1OrientationQuat_xyzw[1], cont1OrientationQuat_xyzw[2], cont1OrientationQuat_xyzw[3]);
+
+        // Apply yaw offset
+        Quaternion yaw           = new Quaternion();
+        Vector4f vecAxisYawAngle = new Vector4f(0f, 1f, 0f, -yawOffset * PIOVER180);
+        yaw.setFromAxisAngle(vecAxisYawAngle);
+        Quaternion.mul(yaw, orientation, orientation);
+        return orientation;
+    }
 
 	@Override
 	public void beginAutomaticCalibration() { 

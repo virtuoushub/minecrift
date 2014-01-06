@@ -9,6 +9,7 @@ import com.mtbs3d.minecrift.api.*;
 
 import de.fruitfly.ovr.OculusRift;
 import de.fruitfly.ovr.UserProfileData;
+import org.lwjgl.util.vector.Quaternion;
 
 public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting 
 	implements IOrientationProvider, IBasePlugin, IHMDInfo, IEventNotifier, IEventListener {
@@ -175,6 +176,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	public float getHeadRollDegrees() {
 		return getRollDegrees_LH();
 	}
+
+    @Override
+    public Quaternion getOrientationQuaternion() {
+        float[] quaternion_xyzw = _getOrientationQuaternion();
+
+        // Needs x, y, z, w
+        return new Quaternion(quaternion_xyzw[0], quaternion_xyzw[1], quaternion_xyzw[2], quaternion_xyzw[3]);
+    }
 
     @Override
     public UserProfileData getProfileData()

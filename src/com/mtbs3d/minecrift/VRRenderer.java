@@ -15,10 +15,12 @@ import java.util.List;
 
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.render.DistortionParams;
+import com.mtbs3d.minecrift.render.QuaternionHelper;
 import com.mtbs3d.minecrift.render.ShaderHelper;
 import com.mtbs3d.minecrift.settings.VRSettings;
 import com.mtbs3d.minecrift.utils.Utils;
 import de.fruitfly.ovr.EyeRenderParams;
+import de.fruitfly.ovr.OculusRift;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
@@ -28,6 +30,8 @@ import com.mtbs3d.minecrift.control.JoystickAim;
 
 import net.minecraft.src.*;
 
+import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector4f;
 import paulscode.sound.SoundSystem;
 
 import static java.lang.Math.ceil;
@@ -72,6 +76,11 @@ public class VRRenderer extends EntityRenderer
     FBOParams preDistortionFBO; //This is where the world is rendered  
     FBOParams postDistortionFBO; 
     FBOParams postSuperSampleFBO;
+
+    boolean useQuaternions     = false;
+    boolean debugOrientation   = false;
+    Quaternion orientation     = QuaternionHelper.IDENTITY_QUATERNION;
+    FloatBuffer cameraMatrix4f = QuaternionHelper.quatToMatrix4fFloatBuf(orientation);
 
     AxisAlignedBB bb;
 
@@ -350,14 +359,21 @@ public class VRRenderer extends EntityRenderer
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-        	//TODO: get rotation matrix instead of pitch/yaw/roll
-            if (this.mc.gameSettings.thirdPersonView == 2)
-                GL11.glRotatef(-this.cameraRoll, 0.0F, 0.0F, 1.0F);
+        	if (useQuaternions)
+            {
+                GL11.glMultMatrix(cameraMatrix4f);
+                //GL11.glLoadMatrix(cameraMatrix4f);
+            }
             else
-                GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
+            {
+                if (this.mc.gameSettings.thirdPersonView == 2)
+                    GL11.glRotatef(-this.cameraRoll, 0.0F, 0.0F, 1.0F);
+                else
+                    GL11.glRotatef(this.cameraRoll, 0.0F, 0.0F, 1.0F);
 
-            GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
-            GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
+                GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
+            }
         }
 
         GL11.glTranslated(-camRelX, cameraYOffset - camRelY, -camRelZ);
@@ -503,24 +519,107 @@ public class VRRenderer extends EntityRenderer
             prevHeadPitch = headPitch;
             prevHeadRoll  = headRoll;
 
-            headRoll   = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.headTrackSensitivity;
-            headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.headTrackSensitivity;
-            headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.headTrackSensitivity;
+            if (useQuaternions == false)
+            {
+                // Get Euler angles
+                headRoll   = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.headTrackSensitivity;
+                headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.headTrackSensitivity;
+                headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.headTrackSensitivity;
 
-            cameraPitch = (lookPitchOffset + headPitch )%180;
-            cameraYaw   = (lookYawOffset   + headYaw ) % 360;
-            cameraRoll  =  headRoll;
-            
-            // Correct for gimbal lock prevention
-            if (cameraPitch > IOrientationProvider.MAXPITCH)
-                cameraPitch = IOrientationProvider.MAXPITCH;
-            else if (cameraPitch < -IOrientationProvider.MAXPITCH)
-                cameraPitch = -IOrientationProvider.MAXPITCH;
+                cameraPitch = (lookPitchOffset + headPitch )%180;
+                cameraYaw   = (lookYawOffset   + headYaw ) % 360;
+                cameraRoll  =  headRoll;
 
-            if (cameraRoll > IOrientationProvider.MAXROLL)
-                cameraRoll = IOrientationProvider.MAXROLL;
-            else if (cameraRoll < -IOrientationProvider.MAXROLL)
-                cameraRoll = -IOrientationProvider.MAXROLL;
+                // Correct for gimbal lock prevention
+                if (cameraPitch > IOrientationProvider.MAXPITCH)
+                    cameraPitch = IOrientationProvider.MAXPITCH;
+                else if (cameraPitch < -IOrientationProvider.MAXPITCH)
+                    cameraPitch = -IOrientationProvider.MAXPITCH;
+
+                if (cameraRoll > IOrientationProvider.MAXROLL)
+                    cameraRoll = IOrientationProvider.MAXROLL;
+                else if (cameraRoll < -IOrientationProvider.MAXROLL)
+                    cameraRoll = -IOrientationProvider.MAXROLL;
+            }
+            else
+            {
+                // Get the tracker orientation quaternion
+                orientation = mc.headTracker.getOrientationQuaternion();
+
+                // TODO: This does not work currently
+                // Scale the rotation if necessary
+                if (this.mc.vrSettings.headTrackSensitivity != 1f)
+                {
+//                    System.out.println(String.format("Head track sensitivity: %.2f", new Object[] {Float.valueOf(this.mc.vrSettings.headTrackSensitivity)}));
+//                    QuaternionHelper.dump("RAW", orientation);
+//
+//                    Quaternion orientation1 = QuaternionHelper.clone(orientation);
+//                    orientation1.normalise();
+//                    Quaternion orientation2 = QuaternionHelper.clone(orientation);
+//                    orientation2.normalise();
+//
+//                      Test 1
+//                    //orientation = QuaternionHelper.pow(orientation, (float)Math.floor(this.mc.vrSettings.headTrackSensitivity));
+//
+//                      Test 2
+//                    //Quaternion.mul(orientation2, QuaternionHelper.IDENTITY_QUATERNION, orientation);
+//                    //Quaternion.mul(orientation1, orientation, orientation);
+//                    //orientation.normalise();
+//
+//                      Test 3
+//                    //orientation = QuaternionHelper.slerp2(QuaternionHelper.IDENTITY_QUATERNION, newOrientation, this.mc.vrSettings.headTrackSensitivity);
+//
+//                    QuaternionHelper.dump("NEW", orientation);
+                }
+
+                // Get 'raw' tracker orientation
+                float[] rawYawPitchRoll = OculusRift.getEulerAngles(orientation.x,
+                        orientation.y,
+                        orientation.z,
+                        orientation.w,
+                        1f,
+                        OculusRift.HANDED_L,
+                        OculusRift.ROTATE_CCW);
+
+                headYaw    = rawYawPitchRoll[0];
+                headPitch  = rawYawPitchRoll[1];
+                headRoll   = rawYawPitchRoll[2];
+
+                // Apply pitch offset
+                Quaternion pitchCorrection = new Quaternion();
+                Vector4f vecAxisPitchAngle = new Vector4f(1f, 0f, 0f, -lookPitchOffset * PIOVER180);
+                pitchCorrection.setFromAxisAngle(vecAxisPitchAngle);
+                Quaternion.mul(pitchCorrection, orientation, orientation);
+
+                // Apply yaw offset
+                Quaternion yawCorrection   = new Quaternion();
+                Vector4f vecAxisYawAngle   = new Vector4f(0f, 1f, 0f, (-lookYawOffset * PIOVER180));
+                yawCorrection.setFromAxisAngle(vecAxisYawAngle);
+                Quaternion.mul(yawCorrection, orientation, orientation);
+
+                // Get camera orientation:
+                // Matrix
+                cameraMatrix4f = QuaternionHelper.quatToMatrix4fFloatBuf(orientation);
+
+                // Euler
+                float[] correctedYawPitchRoll = OculusRift.getEulerAngles(orientation.x,
+                        orientation.y,
+                        orientation.z,
+                        orientation.w,
+                        1f,
+                        OculusRift.HANDED_L,
+                        OculusRift.ROTATE_CCW);
+
+                cameraYaw    = correctedYawPitchRoll[0];
+                cameraPitch  = correctedYawPitchRoll[1];
+                cameraRoll   = correctedYawPitchRoll[2];
+            }
+
+            if (debugOrientation)
+            {
+                System.out.println(String.format("headYaw:   %.2f, headPitch:   %.2f, headRoll:   %.2f", new Object[] {Float.valueOf(headYaw), Float.valueOf(headPitch), Float.valueOf(headRoll)}));
+                System.out.println(String.format("cameraYaw: %.2f, cameraPitch: %.2f, cameraRoll: %.2f", new Object[] {Float.valueOf(cameraYaw), Float.valueOf(cameraPitch), Float.valueOf(cameraRoll)}));
+            }
 
             this.mc.mcProfiler.endSection();
         }
@@ -816,8 +915,8 @@ public class VRRenderer extends EntityRenderer
                     if (this.mc.theWorld != null)
                         guiPitch = -this.mc.vrSettings.hudPitchOffset;
 
-                    if( this.mc.vrSettings.allowMousePitchInput)
-                        guiPitch += this.mc.lookaimController.getBodyPitchDegrees();
+//                    if( this.mc.vrSettings.allowMousePitchInput)
+//                        guiPitch += this.mc.lookaimController.getBodyPitchDegrees();
 
                     GL11.glRotatef(guiPitch, 1f, 0f, 0f);
 

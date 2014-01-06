@@ -114,6 +114,16 @@ public class VRHotkeys {
                 mc.printChatMessage("Head tracking: " + (mc.vrSettings.useHeadTracking ? "On" : "Off"));
 	        }
 	    }
+
+        // Quaternion prototype on / off
+        if (Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        {
+            if (mc.vrRenderer != null)
+            {
+                mc.vrRenderer.useQuaternions = !mc.vrRenderer.useQuaternions;
+                mc.printChatMessage("useQuaternions: " + (mc.vrRenderer.useQuaternions ? "On" : "Off"));
+            }
+        }
 	
 	    // Lock distance
 	    if (Keyboard.getEventKey() == Keyboard.KEY_U && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))

@@ -4,6 +4,8 @@
  */
 package com.mtbs3d.minecrift.api;
 
+import org.lwjgl.util.vector.Quaternion;
+
 /**
  * The "head-tracking" module. Provides orientation fixed to the real-world reference frame.
  * 
@@ -45,6 +47,13 @@ public interface IOrientationProvider extends IBasePlugin {
      * @return The Head Roll, in degrees 
      */
     public float getHeadRollDegrees();
+
+    /**
+     * Gets the orientation quaternion
+     *
+     * @return quaternion w, x, y & z components
+     */
+    public Quaternion getOrientationQuaternion();
 
 	void beginAutomaticCalibration();
 
