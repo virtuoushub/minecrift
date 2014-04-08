@@ -124,7 +124,7 @@ def download_deps( mcp_dir ):
             if "url" in lib:
                 repo = lib["url"]
             else:
-                repo = "https://s3.amazonaws.com/Minecraft.Download/libraries/"
+                repo = "https://libraries.minecraft.net/"
 
             if "natives" in lib:
                 url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+"-"+lib["natives"][native]+".jar"
