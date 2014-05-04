@@ -704,7 +704,7 @@ public class VRRenderer extends EntityRenderer
         }
     }
 
-    protected void renderGUIandWorld(float renderPartialTicks)
+    public void renderGUIandWorld(float renderPartialTicks)
     {
         this.farPlaneDistance = (float)this.mc.gameSettings.ofRenderDistanceFine;
 
@@ -730,12 +730,13 @@ public class VRRenderer extends EntityRenderer
         boolean guiShowingThisFrame = false;
         int mouseX = 0;
         int mouseY = 0;
-        if ( (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI && this.mc.thePlayer.getSleepTimer() == 0) || this.mc.currentScreen != null )
+        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+        int var16 = var15.getScaledWidth();
+        int var17 = var15.getScaledHeight();
+
+        if ( (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI && this.mc.thePlayer.getSleepTimer() == 0) || this.mc.currentScreen != null || this.mc.loadingScreen.isEnabled())
         {
 	    	//Render all UI elements into guiFBO
-	        ScaledResolution var15 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-	        int var16 = var15.getScaledWidth();
-	        int var17 = var15.getScaledHeight();
 	        mouseX = Mouse.getX() * var16 / this.mc.displayWidth;
 	        mouseY = var17 - Mouse.getY() * var17 / this.mc.displayHeight - 1;
 	
@@ -753,8 +754,13 @@ public class VRRenderer extends EntityRenderer
 	        guiShowingThisFrame = true;
         }
 
-
-        if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI )
+        // Display loading / progress window if necessary
+        if (this.mc.loadingScreen.isEnabled())
+        {
+            this.mc.loadingScreen.vrRender(var16, var17);
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT );
+        }
+        else if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI )
         {
 			//Disable any forge gui crosshairs and helmet overlay (pumkinblur)
 			if( Reflector.ForgeGuiIngame_renderCrosshairs.exists())
@@ -768,7 +774,7 @@ public class VRRenderer extends EntityRenderer
 	    	GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT );
         }
 
-        if( this.mc.currentScreen != null )
+        if( this.mc.loadingScreen.isEnabled() == false && this.mc.currentScreen != null )
         {
 	        try
 	        {
