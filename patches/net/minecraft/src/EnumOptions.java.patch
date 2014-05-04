@@ -9,7 +9,7 @@
      AF_LEVEL("Anisotropic Filtering", false, false),
      RENDER_DISTANCE_FINE("Render Distance", true, false),
      ANIMATED_TEXTURES("Textures Animated", false, false),
-@@ -97,7 +97,89 @@
+@@ -97,7 +97,90 @@
      HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
@@ -39,6 +39,7 @@
 +    BLOCK_OUTLINE_ALWAYS_SHOW("Show Block Outline", false, true),
 +    CHAT_OFFSET_X("Chat Offset X",true,false),
 +    CHAT_OFFSET_Y("Chat Offset Y",true,false),
++    LOAD_MUMBLE_LIB("Load Mumble Lib", false, true),
 +
 +    // Player
 +    EYE_HEIGHT("Eye Height", true, false),

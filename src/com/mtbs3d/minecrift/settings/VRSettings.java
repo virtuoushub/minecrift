@@ -42,6 +42,7 @@ public class VRSettings {
 	public float neckBaseToEyeHeight = 0.225f;
     public float movementSpeedMultiplier = 1.0f;
     public boolean useDistortion = true;
+    public boolean loadMumbleLib = true;
     public boolean useHeadTracking = true;
     public boolean useHeadTrackPrediction = true;
     public float headTrackPredictionTimeSecs = 0.015f;
@@ -132,6 +133,7 @@ public class VRSettings {
     	inst = this;
         this.optionsVRFile = new File(dataDir, "optionsvr.txt");
         this.loadOptions();
+        this.saveOptions();  // Make sure defaults are initialised in the file
     }
     
     public void loadOptions()
@@ -225,6 +227,11 @@ public class VRSettings {
                     if (optionTokens[0].equals("useDistortion"))
                     {
                         this.useDistortion = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("loadMumbleLib"))
+                    {
+                        this.loadMumbleLib = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("renderHeadWear"))
@@ -599,6 +606,8 @@ public class VRSettings {
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.movementSpeedMultiplier) });
 	        case USE_DISTORTION:
 	            return this.useDistortion ? var4 + "ON" : var4 + "OFF";
+            case LOAD_MUMBLE_LIB:
+                return this.loadMumbleLib ? var4 + "YES" : var4 + "NO";
 	        case HEAD_TRACKING:
 	            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
 	        case HEAD_TRACK_PREDICTION:
@@ -923,6 +932,8 @@ public class VRSettings {
 	        case USE_DISTORTION:
 	            this.useDistortion = !this.useDistortion;
 	            break;
+            case LOAD_MUMBLE_LIB:
+                this.loadMumbleLib = !this.loadMumbleLib;
 	        case HEAD_TRACKING:
 	            this.useHeadTracking = !this.useHeadTracking;
 	            break;
@@ -1289,6 +1300,7 @@ public class VRSettings {
             var5.println("hudOpacity:" + this.hudOpacity);
             var5.println("useHeadTracking:" + this.useHeadTracking);
             var5.println("useDistortion:" + this.useDistortion);
+            var5.println("loadMumbleLib:" + this.loadMumbleLib);
             var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
             var5.println("renderHeadWear:" + this.renderHeadWear);
             var5.println("menuBackground:" + this.menuBackground);

@@ -190,7 +190,7 @@
  
          if (this.gameSettings.language != null)
          {
-@@ -363,10 +412,37 @@
+@@ -363,10 +412,44 @@
          this.mcResourceManager.registerReloadListener(new GrassColorReloadListener());
          this.mcResourceManager.registerReloadListener(new FoliageColorReloadListener());
          RenderManager.instance.itemRenderer = new ItemRenderer(this);
@@ -202,16 +202,23 @@
 +        try {
 +			Class.forName("com.mtbs3d.minecrift.MCHydra").newInstance();//creates and registers MCHydra if it can be (if the libraries are found) 
 +		} catch (NoClassDefFoundError e1) { 
-+			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
++			System.err.println("Skipping loading: [Razer Hydra library] (Sixense-Java): "+e1.toString());
 +		} catch( Exception e1) {
-+			System.err.println("Couldn't load Razer Hydra libraries (Sixense-Java): "+e1.toString());
++			System.err.println("Skipping loading: [Razer Hydra library] (Sixense-Java): "+e1.toString());
 +		}
-+        try {
-+        	MumbleLink.loadLibrary();
-+        	mumbleLink = new MumbleLink("MinecraftVR", "Minecraft VR");
-+        	mumbleLink.setIdentityAndContext(this.session.getUsername(), "Minecraft"/*TODO: get the servername? */);
-+        } catch( Exception e ) {
-+			System.err.println("Couldn't load MumbleLink"+e.toString());
++
++        // #85 Allow disable mumblelib load
++        if (this.vrSettings.loadMumbleLib) {
++            try {
++                MumbleLink.loadLibrary();
++                mumbleLink = new MumbleLink("MinecraftVR", "Minecraft VR");
++                mumbleLink.setIdentityAndContext(this.session.getUsername(), "Minecraft"/*TODO: get the servername? */);
++            } catch (Exception e) {
++                System.err.println("Couldn't load [MumbleLink library]: " + e.toString());
++            }
++        }
++        else {
++            System.err.println("Skipping loading: [MumbleLink library]: Configuration setting disabled loading");
 +        }
 +        new MCController();
 +        new MCMouse(); //create and register mouse ILookAimMoveController plugin
@@ -229,7 +236,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -383,15 +459,45 @@
+@@ -383,15 +466,45 @@
          this.renderGlobal = new RenderGlobal(this);
          this.renderEngine.loadTextureMap(TextureMap.locationBlocksTexture, new TextureMap(0, "textures/blocks"));
          this.renderEngine.loadTextureMap(TextureMap.locationItemsTexture, new TextureMap(1, "textures/items"));
@@ -277,7 +284,7 @@
          else
          {
              this.displayGuiScreen(new GuiMainMenu());
-@@ -403,6 +509,11 @@
+@@ -403,6 +516,11 @@
          {
              this.toggleFullscreen();
          }
@@ -289,7 +296,7 @@
      }
  
      public void refreshResources()
-@@ -495,8 +606,7 @@
+@@ -495,8 +613,7 @@
          }
  
          Display.setDisplayMode(var2);
@@ -299,7 +306,7 @@
      }
  
      /**
-@@ -595,21 +705,27 @@
+@@ -595,21 +712,27 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -331,7 +338,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -622,6 +738,15 @@
+@@ -622,6 +745,15 @@
          }
      }
  
@@ -347,7 +354,7 @@
      /**
       * Shuts down the minecraft applet by stopping the resource downloads, and clearing up GL stuff; called when the
       * application (or web page) is exited.
-@@ -652,6 +777,8 @@
+@@ -652,6 +784,8 @@
              }
  
              this.sndManager.cleanup();
@@ -356,7 +363,7 @@
          }
          finally
          {
-@@ -683,6 +810,7 @@
+@@ -683,6 +817,7 @@
              return;
          }
  
@@ -364,7 +371,7 @@
          try
          {
              while (this.running)
-@@ -782,7 +910,8 @@
+@@ -782,7 +917,8 @@
          this.checkGLError("Pre render");
          RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;
          this.mcProfiler.endStartSection("sound");
@@ -374,7 +381,7 @@
  
          if (!this.isGamePaused)
          {
-@@ -808,9 +937,44 @@
+@@ -808,9 +944,44 @@
  
          if (!this.skipRenderWorld)
          {
@@ -419,7 +426,7 @@
          }
  
          GL11.glFlush();
-@@ -837,7 +1001,7 @@
+@@ -837,7 +1008,7 @@
              this.prevFrameTime = System.nanoTime();
          }
  
@@ -428,7 +435,7 @@
          this.mcProfiler.startSection("root");
          Thread.yield();
  
-@@ -850,20 +1014,9 @@
+@@ -850,20 +1021,9 @@
  
          if (!this.fullscreen && Display.wasResized())
          {
@@ -452,7 +459,7 @@
          }
  
          this.checkGLError("Post render");
-@@ -901,7 +1054,7 @@
+@@ -901,7 +1061,7 @@
  
      private int getLimitFramerate()
      {
@@ -461,7 +468,7 @@
      }
  
      public void freeMemory()
-@@ -950,7 +1103,7 @@
+@@ -950,7 +1110,7 @@
              if (!this.isTakingScreenshot)
              {
                  this.isTakingScreenshot = true;
@@ -470,7 +477,7 @@
              }
          }
          else
-@@ -1009,7 +1162,7 @@
+@@ -1009,7 +1169,7 @@
              GL11.glMatrixMode(GL11.GL_PROJECTION);
              GL11.glEnable(GL11.GL_COLOR_MATERIAL);
              GL11.glLoadIdentity();
@@ -479,7 +486,7 @@
              GL11.glMatrixMode(GL11.GL_MODELVIEW);
              GL11.glLoadIdentity();
              GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
-@@ -1017,8 +1170,8 @@
+@@ -1017,8 +1177,8 @@
              GL11.glDisable(GL11.GL_TEXTURE_2D);
              Tessellator var5 = Tessellator.instance;
              short var6 = 160;
@@ -490,7 +497,7 @@
              GL11.glEnable(GL11.GL_BLEND);
              var5.startDrawingQuads();
              var5.setColorRGBA_I(0, 200);
-@@ -1145,9 +1298,19 @@
+@@ -1145,9 +1305,19 @@
      {
          if (this.inGameHasFocus)
          {
@@ -513,7 +520,7 @@
          }
      }
  
-@@ -1200,7 +1363,7 @@
+@@ -1200,7 +1370,7 @@
       * Called whenever the mouse is clicked. Button clicked is 0 for left clicking and 1 for right clicking. Args:
       * buttonClicked
       */
@@ -522,7 +529,7 @@
      {
          if (par1 != 0 || this.leftClickCounter <= 0)
          {
-@@ -1290,46 +1453,25 @@
+@@ -1290,46 +1460,25 @@
       */
      public void toggleFullscreen()
      {
@@ -580,7 +587,7 @@
              }
  
              Display.setFullscreen(this.fullscreen);
-@@ -1345,17 +1487,35 @@
+@@ -1345,17 +1494,35 @@
      /**
       * Called to resize the current screen.
       */
@@ -622,7 +629,7 @@
          }
      }
  
-@@ -1364,10 +1524,24 @@
+@@ -1364,10 +1531,24 @@
       */
      public void runTick()
      {
@@ -647,7 +654,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1375,6 +1549,8 @@
+@@ -1375,6 +1556,8 @@
  
          if (!this.isGamePaused)
          {
@@ -656,7 +663,7 @@
              this.ingameGUI.updateTick();
          }
  
-@@ -1394,6 +1570,7 @@
+@@ -1394,6 +1577,7 @@
              this.renderEngine.tick();
          }
  
@@ -664,7 +671,7 @@
          if (this.currentScreen == null && this.thePlayer != null)
          {
              if (this.thePlayer.getHealth() <= 0.0F)
-@@ -1504,7 +1681,7 @@
+@@ -1504,7 +1688,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -673,7 +680,7 @@
                      }
                  }
              }
-@@ -1562,6 +1739,11 @@
+@@ -1562,6 +1746,11 @@
                                  this.displayInGameMenu();
                              }
  
@@ -685,7 +692,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.refreshResources();
-@@ -1607,6 +1789,7 @@
+@@ -1607,6 +1796,7 @@
  
                              if (Keyboard.getEventKey() == 61)
                              {
@@ -693,7 +700,7 @@
                                  this.gameSettings.showDebugInfo = !this.gameSettings.showDebugInfo;
                                  this.gameSettings.showDebugProfilerChart = GuiScreen.isShiftKeyDown();
                              }
-@@ -1738,6 +1921,12 @@
+@@ -1738,6 +1928,12 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
@@ -706,7 +713,7 @@
  
          if (this.theWorld != null)
          {
-@@ -1824,6 +2013,11 @@
+@@ -1824,6 +2020,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -718,7 +725,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1850,8 +2044,43 @@
+@@ -1850,8 +2051,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -762,7 +769,7 @@
          this.integratedServerIsRunning = true;
          this.loadingScreen.displayProgressMessage(I18n.getString("menu.loadingLevel"));
  
-@@ -1905,6 +2134,11 @@
+@@ -1905,6 +2141,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -774,7 +781,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -1941,6 +2175,7 @@
+@@ -1941,6 +2182,7 @@
          {
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -782,7 +789,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2096,107 +2331,114 @@
+@@ -2096,107 +2338,114 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -992,7 +999,7 @@
  
              if (var1)
              {
-@@ -2282,8 +2524,13 @@
+@@ -2282,8 +2531,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1006,7 +1013,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2291,6 +2538,7 @@
+@@ -2291,6 +2545,7 @@
  
              if (var1 != 0)
              {
@@ -1014,7 +1021,7 @@
                  return var0;
              }
          }
-@@ -2416,4 +2664,63 @@
+@@ -2416,4 +2671,63 @@
      {
          return par0Minecraft.mcLanguageManager;
      }
