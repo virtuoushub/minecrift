@@ -88,6 +88,13 @@ public class VRRenderer extends EntityRenderer
     // Sound system
     Field _soundManagerSndSystemField = null;
 
+    // Enable / disable GUI menu rendering. Useful to display black only
+    // during game load transitions until the world is running.
+    public boolean blankGUIUntilWorldValid = false;
+
+    // Debug
+    double start = System.currentTimeMillis();
+
     /*
      * MC:    the minecraft world rendering code, below
      * GUI:   the guiFBO, with GUI rendered into it
@@ -495,8 +502,11 @@ public class VRRenderer extends EntityRenderer
         }
     }
     
-    protected void updateCamera( float renderPartialTicks, boolean displayActive )
+    public void updateCamera( float renderPartialTicks, boolean displayActive )
     {
+        //int millis = (int)(System.currentTimeMillis() - start);
+        //System.out.println("Update camera! " + millis + "ms");
+
         float PIOVER180 = (float)(Math.PI/180);
         EntityLivingBase entity = this.mc.renderViewEntity;
         
@@ -776,7 +786,7 @@ public class VRRenderer extends EntityRenderer
             this.mc.loadingScreen.vrRender(var16, var17);
             GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT );
         }
-        else if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI )
+        else if (this.mc.theWorld != null && !this.mc.gameSettings.hideGUI && !this.blankGUIUntilWorldValid)
         {
 			//Disable any forge gui crosshairs and helmet overlay (pumkinblur)
 			if( Reflector.ForgeGuiIngame_renderCrosshairs.exists())
@@ -790,7 +800,13 @@ public class VRRenderer extends EntityRenderer
 	    	GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT );
         }
 
-        if( this.mc.loadingScreen.isEnabled() == false && this.mc.currentScreen != null )
+        if (this.blankGUIUntilWorldValid)
+        {
+            if (this.mc.theWorld != null)
+                this.blankGUIUntilWorldValid = false;
+        }
+
+        if( this.mc.loadingScreen.isEnabled() == false && this.mc.currentScreen != null && !this.blankGUIUntilWorldValid)
         {
 	        try
 	        {

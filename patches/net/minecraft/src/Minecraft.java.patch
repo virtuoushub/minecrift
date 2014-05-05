@@ -743,7 +743,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1850,35 +2052,86 @@
+@@ -1850,35 +2052,94 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -783,7 +783,6 @@
 +
 +    public void continueWorldLoading() 
 +    {
-+        
          this.integratedServerIsRunning = true;
 +        this.loadingScreen.setEnabled(true);
          this.loadingScreen.displayProgressMessage(I18n.getString("menu.loadingLevel"));
@@ -819,7 +818,12 @@
 +            if (this.vrSettings.useVRRenderer)
              {
 -                Thread.sleep(200L);
-+                this.vrRenderer.renderGUIandWorld(0.0f);
++                float renderPartialTicks = 0.0f;
++                boolean displayActive = Display.isActive();
++
++                // Update camera and render GUI while loading world
++                this.vrRenderer.updateCamera(renderPartialTicks, displayActive);
++                this.vrRenderer.renderGUIandWorld(renderPartialTicks);
 +                Display.update();
              }
 -            catch (InterruptedException var9)
@@ -838,21 +842,16 @@
          }
  
 -        this.displayGuiScreen((GuiScreen)null);
++        this.loadingScreen.setEnabled(false);
++
 +        if (!this.vrSettings.useVRRenderer)
 +            this.displayGuiScreen((GuiScreen)null);
++        else
++            this.vrRenderer.blankGUIUntilWorldValid = true;
  
          try
          {
-@@ -1889,6 +2142,8 @@
-         {
-             this.displayCrashReport(this.addGraphicsAndWorldToCrashReport(new CrashReport("Connecting to integrated server", var8)));
-         }
-+
-+        this.loadingScreen.setEnabled(false);
-     }
- 
-     /**
-@@ -1905,6 +2160,11 @@
+@@ -1905,6 +2166,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -864,7 +863,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -1941,6 +2201,7 @@
+@@ -1941,6 +2207,7 @@
          {
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -872,7 +871,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2096,107 +2357,114 @@
+@@ -2096,107 +2363,114 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1082,7 +1081,7 @@
  
              if (var1)
              {
-@@ -2282,8 +2550,13 @@
+@@ -2282,8 +2556,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1096,7 +1095,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2291,6 +2564,7 @@
+@@ -2291,6 +2570,7 @@
  
              if (var1 != 0)
              {
@@ -1104,7 +1103,7 @@
                  return var0;
              }
          }
-@@ -2416,4 +2690,63 @@
+@@ -2416,4 +2696,63 @@
      {
          return par0Minecraft.mcLanguageManager;
      }
