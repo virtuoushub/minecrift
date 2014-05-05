@@ -71,7 +71,7 @@ public class VRSettings {
     private int aspectRatioCorrection = aspectRatioCorrectionMode.getValue();
     public int distortionFitPoint = 5;
     public float headTrackSensitivity = 1.0f;
-    public boolean useSupersample = true;
+    public boolean useSupersample = false;   // default to off
     public float superSampleScaleFactor = 2.0f;
     public boolean lookMoveDecoupled = false;
     public boolean useOculusProfile = false;

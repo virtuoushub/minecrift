@@ -8,12 +8,11 @@
  import java.nio.ByteBuffer;
  import java.text.DecimalFormat;
  import java.text.SimpleDateFormat;
-@@ -15,8 +16,15 @@
+@@ -15,8 +16,14 @@
  import java.util.Iterator;
  import java.util.List;
  import javax.imageio.ImageIO;
 +
-+import com.mtbs3d.minecrift.gui.GuiVRLoadingScreenRenderer;
 +import net.aib42.mumblelink.MumbleLink;
  import net.minecraft.client.ClientBrandRetriever;
  import net.minecraft.server.MinecraftServer;
@@ -24,7 +23,7 @@
  import org.lwjgl.LWJGLException;
  import org.lwjgl.Sys;
  import org.lwjgl.input.Keyboard;
-@@ -30,6 +38,17 @@
+@@ -30,6 +37,17 @@
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
  
@@ -42,7 +41,7 @@
  public class Minecraft implements IPlayerUsage
  {
      private static final ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
-@@ -55,8 +74,15 @@
+@@ -55,8 +73,15 @@
  
      /** Instance of CrashReport. */
      private CrashReport crashReporter;
@@ -58,19 +57,16 @@
      private Timer timer = new Timer(20.0F);
  
      /** Instance of PlayerUsageSnooper. */
-@@ -83,8 +109,10 @@
- 
-     /** The GuiScreen that's being displayed at the moment. */
+@@ -85,6 +110,8 @@
      public GuiScreen currentScreen;
--    public LoadingScreenRenderer loadingScreen;
-+    public GuiVRLoadingScreenRenderer loadingScreen;
+     public LoadingScreenRenderer loadingScreen;
      public EntityRenderer entityRenderer;
 +    public VRRenderer vrRenderer;
 +    public MumbleLink mumbleLink;
  
      /** Mouse left click counter */
      private int leftClickCounter;
-@@ -110,6 +138,7 @@
+@@ -110,6 +137,7 @@
  
      /** The game settings that currently hold effect. */
      public GameSettings gameSettings;
@@ -78,7 +74,7 @@
      public SoundManager sndManager;
  
      /** Mouse helper instance. */
-@@ -119,12 +148,13 @@
+@@ -119,12 +147,13 @@
      private final String launchedVersion;
      private final Proxy proxy;
      private ISaveFormat saveLoader;
@@ -94,16 +90,7 @@
  
      /**
       * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
-@@ -171,7 +201,7 @@
-     /**
-      * Set to true to keep the game loop running. Set to false by shutdown() to allow the game loop to exit cleanly.
-      */
--    volatile boolean running = true;
-+    public volatile boolean running = true;
- 
-     /** String that shows the debug information */
-     public String debug = "";
-@@ -186,6 +216,21 @@
+@@ -186,6 +215,21 @@
      /** Profiler currently displayed in the debug screen pie chart */
      private String debugProfilerName = "root";
  
@@ -125,7 +112,7 @@
      public Minecraft(Session par1Session, int par2, int par3, boolean par4, boolean par5, File par6File, File par7File, File par8File, Proxy par9Proxy, String par10Str)
      {
          theMinecraft = this;
-@@ -202,8 +247,7 @@
+@@ -202,8 +246,7 @@
          this.mcLogAgent.logInfo("Setting user: " + par1Session.getUsername());
          this.mcLogAgent.logInfo("(Session ID is " + par1Session.getSessionID() + ")");
          this.isDemo = par5;
@@ -135,7 +122,7 @@
          this.tempDisplayWidth = par2;
          this.tempDisplayHeight = par3;
          this.fullscreen = par4;
-@@ -262,36 +306,29 @@
+@@ -262,36 +305,29 @@
      private void startGame() throws LWJGLException
      {
          this.gameSettings = new GameSettings(this, this.mcDataDir);
@@ -183,7 +170,7 @@
          this.getLogAgent().logInfo("LWJGL Version: " + Sys.getVersion());
  
          if (Util.getOSType() != EnumOS.MACOS)
-@@ -350,6 +387,19 @@
+@@ -350,6 +386,19 @@
          this.mcResourceManager.registerReloadListener(this.sndManager);
          this.loadScreen();
          this.fontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
@@ -203,7 +190,7 @@
  
          if (this.gameSettings.language != null)
          {
-@@ -363,10 +413,44 @@
+@@ -363,10 +412,44 @@
          this.mcResourceManager.registerReloadListener(new GrassColorReloadListener());
          this.mcResourceManager.registerReloadListener(new FoliageColorReloadListener());
          RenderManager.instance.itemRenderer = new ItemRenderer(this);
@@ -249,7 +236,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -383,26 +467,61 @@
+@@ -383,15 +466,45 @@
          this.renderGlobal = new RenderGlobal(this);
          this.renderEngine.loadTextureMap(TextureMap.locationBlocksTexture, new TextureMap(0, "textures/blocks"));
          this.renderEngine.loadTextureMap(TextureMap.locationItemsTexture, new TextureMap(1, "textures/items"));
@@ -297,12 +284,7 @@
          else
          {
              this.displayGuiScreen(new GuiMainMenu());
-         }
- 
--        this.loadingScreen = new LoadingScreenRenderer(this);
-+        this.loadingScreen = new GuiVRLoadingScreenRenderer(this);
- 
-         if (this.gameSettings.fullScreen && !this.fullscreen)
+@@ -403,6 +516,11 @@
          {
              this.toggleFullscreen();
          }
@@ -314,7 +296,7 @@
      }
  
      public void refreshResources()
-@@ -495,8 +614,7 @@
+@@ -495,8 +613,7 @@
          }
  
          Display.setDisplayMode(var2);
@@ -324,7 +306,7 @@
      }
  
      /**
-@@ -595,21 +713,27 @@
+@@ -595,21 +712,27 @@
          {
              this.setIngameNotInFocus();
              ScaledResolution var2 = new ScaledResolution(this.gameSettings, this.displayWidth, this.displayHeight);
@@ -356,7 +338,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -622,6 +746,15 @@
+@@ -622,6 +745,15 @@
          }
      }
  
@@ -372,7 +354,7 @@
      /**
       * Shuts down the minecraft applet by stopping the resource downloads, and clearing up GL stuff; called when the
       * application (or web page) is exited.
-@@ -652,6 +785,8 @@
+@@ -652,6 +784,8 @@
              }
  
              this.sndManager.cleanup();
@@ -381,7 +363,7 @@
          }
          finally
          {
-@@ -683,6 +818,7 @@
+@@ -683,6 +817,7 @@
              return;
          }
  
@@ -389,7 +371,7 @@
          try
          {
              while (this.running)
-@@ -782,7 +918,8 @@
+@@ -782,7 +917,8 @@
          this.checkGLError("Pre render");
          RenderBlocks.fancyGrass = this.gameSettings.fancyGraphics;
          this.mcProfiler.endStartSection("sound");
@@ -399,7 +381,7 @@
  
          if (!this.isGamePaused)
          {
-@@ -808,9 +945,44 @@
+@@ -808,9 +944,44 @@
  
          if (!this.skipRenderWorld)
          {
@@ -444,7 +426,7 @@
          }
  
          GL11.glFlush();
-@@ -837,7 +1009,7 @@
+@@ -837,7 +1008,7 @@
              this.prevFrameTime = System.nanoTime();
          }
  
@@ -453,7 +435,7 @@
          this.mcProfiler.startSection("root");
          Thread.yield();
  
-@@ -850,20 +1022,9 @@
+@@ -850,20 +1021,9 @@
  
          if (!this.fullscreen && Display.wasResized())
          {
@@ -477,7 +459,7 @@
          }
  
          this.checkGLError("Post render");
-@@ -901,7 +1062,7 @@
+@@ -901,7 +1061,7 @@
  
      private int getLimitFramerate()
      {
@@ -486,7 +468,7 @@
      }
  
      public void freeMemory()
-@@ -950,7 +1111,7 @@
+@@ -950,7 +1110,7 @@
              if (!this.isTakingScreenshot)
              {
                  this.isTakingScreenshot = true;
@@ -495,7 +477,7 @@
              }
          }
          else
-@@ -1009,7 +1170,7 @@
+@@ -1009,7 +1169,7 @@
              GL11.glMatrixMode(GL11.GL_PROJECTION);
              GL11.glEnable(GL11.GL_COLOR_MATERIAL);
              GL11.glLoadIdentity();
@@ -504,7 +486,7 @@
              GL11.glMatrixMode(GL11.GL_MODELVIEW);
              GL11.glLoadIdentity();
              GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
-@@ -1017,8 +1178,8 @@
+@@ -1017,8 +1177,8 @@
              GL11.glDisable(GL11.GL_TEXTURE_2D);
              Tessellator var5 = Tessellator.instance;
              short var6 = 160;
@@ -515,7 +497,7 @@
              GL11.glEnable(GL11.GL_BLEND);
              var5.startDrawingQuads();
              var5.setColorRGBA_I(0, 200);
-@@ -1145,9 +1306,19 @@
+@@ -1145,9 +1305,19 @@
      {
          if (this.inGameHasFocus)
          {
@@ -538,7 +520,7 @@
          }
      }
  
-@@ -1200,7 +1371,7 @@
+@@ -1200,7 +1370,7 @@
       * Called whenever the mouse is clicked. Button clicked is 0 for left clicking and 1 for right clicking. Args:
       * buttonClicked
       */
@@ -547,7 +529,7 @@
      {
          if (par1 != 0 || this.leftClickCounter <= 0)
          {
-@@ -1290,46 +1461,25 @@
+@@ -1290,46 +1460,25 @@
       */
      public void toggleFullscreen()
      {
@@ -605,7 +587,7 @@
              }
  
              Display.setFullscreen(this.fullscreen);
-@@ -1345,17 +1495,35 @@
+@@ -1345,17 +1494,35 @@
      /**
       * Called to resize the current screen.
       */
@@ -647,7 +629,7 @@
          }
      }
  
-@@ -1364,10 +1532,24 @@
+@@ -1364,10 +1531,24 @@
       */
      public void runTick()
      {
@@ -672,7 +654,7 @@
  
          this.mcProfiler.startSection("stats");
          this.statFileWriter.func_77449_e();
-@@ -1375,6 +1557,8 @@
+@@ -1375,6 +1556,8 @@
  
          if (!this.isGamePaused)
          {
@@ -681,7 +663,7 @@
              this.ingameGUI.updateTick();
          }
  
-@@ -1394,6 +1578,7 @@
+@@ -1394,6 +1577,7 @@
              this.renderEngine.tick();
          }
  
@@ -689,7 +671,7 @@
          if (this.currentScreen == null && this.thePlayer != null)
          {
              if (this.thePlayer.getHealth() <= 0.0F)
-@@ -1504,7 +1689,7 @@
+@@ -1504,7 +1688,7 @@
                      }
                      else if (this.currentScreen != null)
                      {
@@ -698,7 +680,7 @@
                      }
                  }
              }
-@@ -1562,6 +1747,11 @@
+@@ -1562,6 +1746,11 @@
                                  this.displayInGameMenu();
                              }
  
@@ -710,7 +692,7 @@
                              if (Keyboard.getEventKey() == 31 && Keyboard.isKeyDown(61))
                              {
                                  this.refreshResources();
-@@ -1607,6 +1797,7 @@
+@@ -1607,6 +1796,7 @@
  
                              if (Keyboard.getEventKey() == 61)
                              {
@@ -718,7 +700,7 @@
                                  this.gameSettings.showDebugInfo = !this.gameSettings.showDebugInfo;
                                  this.gameSettings.showDebugProfilerChart = GuiScreen.isShiftKeyDown();
                              }
-@@ -1738,6 +1929,12 @@
+@@ -1738,6 +1928,12 @@
  
              this.sendClickBlockToController(0, this.currentScreen == null && this.gameSettings.keyBindAttack.pressed && this.inGameHasFocus);
          }
@@ -731,7 +713,7 @@
  
          if (this.theWorld != null)
          {
-@@ -1824,6 +2021,11 @@
+@@ -1824,6 +2020,11 @@
              this.myNetworkManager.processReadPackets();
          }
  
@@ -743,7 +725,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -1850,35 +2052,86 @@
+@@ -1850,8 +2051,43 @@
          }
  
          this.statFileWriter.readStat(StatList.startGameStat, 1);
@@ -785,74 +767,9 @@
 +    {
 +        
          this.integratedServerIsRunning = true;
-+        this.loadingScreen.setEnabled(true);
          this.loadingScreen.displayProgressMessage(I18n.getString("menu.loadingLevel"));
-+        long start = Minecraft.getSystemTime();
  
-         while (!this.theIntegratedServer.serverIsInRunLoop())
-         {
--            String var6 = this.theIntegratedServer.getUserMessage();
--
--            if (var6 != null)
--            {
--                this.loadingScreen.resetProgresAndWorkingMessage(I18n.getString(var6));
--            }
--            else
-+            long now = Minecraft.getSystemTime();
-+            if (now - start >= 200L)
-             {
--                this.loadingScreen.resetProgresAndWorkingMessage("");
-+                String var6 = this.theIntegratedServer.getUserMessage();
-+
-+                if (var6 != null)
-+                {
-+                    this.loadingScreen.resetProgresAndWorkingMessage(I18n.getString(var6));
-+                }
-+                else
-+                {
-+                    this.loadingScreen.resetProgresAndWorkingMessage("");
-+                }
-+                start = now;
-             }
- 
--            try
-+            if (this.vrSettings.useVRRenderer)
-             {
--                Thread.sleep(200L);
-+                this.vrRenderer.renderGUIandWorld(0.0f);
-+                Display.update();
-             }
--            catch (InterruptedException var9)
-+            else
-             {
--                ;
-+                try
-+                {
-+                    Thread.sleep(200L);
-+                }
-+                catch (InterruptedException var9)
-+                {
-+                    ;
-+                }
-             }
-         }
- 
--        this.displayGuiScreen((GuiScreen)null);
-+        if (!this.vrSettings.useVRRenderer)
-+            this.displayGuiScreen((GuiScreen)null);
- 
-         try
-         {
-@@ -1889,6 +2142,8 @@
-         {
-             this.displayCrashReport(this.addGraphicsAndWorldToCrashReport(new CrashReport("Connecting to integrated server", var8)));
-         }
-+
-+        this.loadingScreen.setEnabled(false);
-     }
- 
-     /**
-@@ -1905,6 +2160,11 @@
+@@ -1905,6 +2141,11 @@
      public void loadWorld(WorldClient par1WorldClient, String par2Str)
      {
          this.statFileWriter.syncStats();
@@ -864,7 +781,7 @@
  
          if (par1WorldClient == null)
          {
-@@ -1941,6 +2201,7 @@
+@@ -1941,6 +2182,7 @@
          {
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -872,7 +789,7 @@
          }
  
          this.sndManager.playStreaming((String)null, 0.0F, 0.0F, 0.0F);
-@@ -2096,107 +2357,114 @@
+@@ -2096,107 +2338,114 @@
          if (this.objectMouseOver != null)
          {
              boolean var1 = this.thePlayer.capabilities.isCreativeMode;
@@ -1082,7 +999,7 @@
  
              if (var1)
              {
-@@ -2282,8 +2550,13 @@
+@@ -2282,8 +2531,13 @@
      /**
       * Used in the usage snooper.
       */
@@ -1096,7 +1013,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2291,6 +2564,7 @@
+@@ -2291,6 +2545,7 @@
  
              if (var1 != 0)
              {
@@ -1104,7 +1021,7 @@
                  return var0;
              }
          }
-@@ -2416,4 +2690,63 @@
+@@ -2416,4 +2671,63 @@
      {
          return par0Minecraft.mcLanguageManager;
      }
