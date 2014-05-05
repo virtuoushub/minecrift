@@ -22,8 +22,7 @@ public class FBOParams
 
     protected static FBO_SUPPORT fboSupport = FBO_SUPPORT.USE_EXT_UNKNOWN;
 
-	public FBOParams(String fboName, int textureType, int internalFormat, int baseFormat, int bufferType, int fboWidth, int fboHeight )
-	{
+	public FBOParams(String fboName, int textureType, int internalFormat, int baseFormat, int bufferType, int fboWidth, int fboHeight ) throws Exception {
         Minecraft mc = Minecraft.getMinecraft();
         _textureType = textureType;
 
@@ -114,7 +113,9 @@ public class FBOParams
 
         if (!checkFramebufferStatus())
         {
-            int i = 0;
+            // OK, if we have an error here - then throw an exception
+            System.out.println("[Minecrift] FAILED to create framebuffer!!");
+            throw new Exception("Failed to create framebuffer");
         }
 	}
 	

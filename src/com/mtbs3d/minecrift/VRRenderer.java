@@ -77,6 +77,8 @@ public class VRRenderer extends EntityRenderer
     FBOParams postDistortionFBO; 
     FBOParams postSuperSampleFBO;
 
+    boolean useQuaternions     = false;
+    boolean debugOrientation   = false;
     Quaternion orientation     = QuaternionHelper.IDENTITY_QUATERNION;
     FloatBuffer cameraMatrix4f = QuaternionHelper.quatToMatrix4fFloatBuf(orientation);
 
@@ -357,27 +359,10 @@ public class VRRenderer extends EntityRenderer
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-        	if (this.mc.vrSettings.useQuaternions)
+        	if (useQuaternions)
             {
-                //GL11.glMultMatrix(cameraMatrix4f);   // This doesn't work currently - we still need
-                                                     // the weird +180...
-
-                // So do this instead...
-                float[] rawYawPitchRoll = OculusRift.getEulerAngles(orientation.x,
-                        orientation.y,
-                        orientation.z,
-                        orientation.w,
-                        1f,
-                        OculusRift.HANDED_L,
-                        OculusRift.ROTATE_CCW);
-
-                if (this.mc.gameSettings.thirdPersonView == 2)
-                    GL11.glRotatef(-rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
-                else
-                    GL11.glRotatef(rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
-
-                GL11.glRotatef(rawYawPitchRoll[1], 1.0F, 0.0F, 0.0F);
-                GL11.glRotatef(rawYawPitchRoll[0] + 180.0F, 0.0F, 1.0F, 0.0F);
+                GL11.glMultMatrix(cameraMatrix4f);
+                //GL11.glLoadMatrix(cameraMatrix4f);
             }
             else
             {
@@ -534,12 +519,12 @@ public class VRRenderer extends EntityRenderer
             prevHeadPitch = headPitch;
             prevHeadRoll  = headRoll;
 
-            if (this.mc.vrSettings.useQuaternions == false)
+            if (useQuaternions == false)
             {
                 // Get Euler angles
-                headRoll   = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.getHeadTrackSensitivity();
-                headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.getHeadTrackSensitivity();
-                headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.getHeadTrackSensitivity();
+                headRoll   = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.headTrackSensitivity;
+                headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.headTrackSensitivity;
+                headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.headTrackSensitivity;
 
                 cameraPitch = (lookPitchOffset + headPitch )%180;
                 cameraYaw   = (lookYawOffset   + headYaw ) % 360;
@@ -563,7 +548,7 @@ public class VRRenderer extends EntityRenderer
 
                 // TODO: This does not work currently
                 // Scale the rotation if necessary
-                if (this.mc.vrSettings.getHeadTrackSensitivity() != 1f)
+                if (this.mc.vrSettings.headTrackSensitivity != 1f)
                 {
 //                    System.out.println(String.format("Head track sensitivity: %.2f", new Object[] {Float.valueOf(this.mc.vrSettings.headTrackSensitivity)}));
 //                    QuaternionHelper.dump("RAW", orientation);
@@ -630,7 +615,7 @@ public class VRRenderer extends EntityRenderer
                 cameraRoll   = correctedYawPitchRoll[2];
             }
 
-            if (this.mc.vrSettings.debugPose)
+            if (debugOrientation)
             {
                 System.out.println(String.format("headYaw:   %.2f, headPitch:   %.2f, headRoll:   %.2f", new Object[] {Float.valueOf(headYaw), Float.valueOf(headPitch), Float.valueOf(headRoll)}));
                 System.out.println(String.format("cameraYaw: %.2f, cameraPitch: %.2f, cameraRoll: %.2f", new Object[] {Float.valueOf(cameraYaw), Float.valueOf(cameraPitch), Float.valueOf(cameraRoll)}));
@@ -740,7 +725,8 @@ public class VRRenderer extends EntityRenderer
         }
 
         //Ensure FBO are in place and initialized
-        setupFBOs();
+        if (!setupFBOs())
+            return;
 
         boolean guiShowingThisFrame = false;
         int mouseX = 0;
@@ -1024,207 +1010,195 @@ public class VRRenderer extends EntityRenderer
         }
     }
     
-    private void setupFBOs()
+    private boolean setupFBOs()
     {
-        if (this.mc.displayFBWidth != _previousDisplayWidth || this.mc.displayFBHeight != _previousDisplayHeight || !_FBOInitialised)
-        {
-            _FBOInitialised = false;
+        try {
+            if (this.mc.displayFBWidth != _previousDisplayWidth || this.mc.displayFBHeight != _previousDisplayHeight || !_FBOInitialised) {
+                _FBOInitialised = false;
 
-            _previousDisplayWidth = this.mc.displayFBWidth;
-            _previousDisplayHeight = this.mc.displayFBHeight;
+                _previousDisplayWidth = this.mc.displayFBWidth;
+                _previousDisplayHeight = this.mc.displayFBHeight;
 
-            _DistortionShader_DistortionMapUniform     = -1;
-            _DistortionShader_RenderTextureUniform     = -1;
-            _DistortionShader_half_screenWidthUniform  = -1;
-            _DistortionShader_LeftLensCenterUniform    = -1;
-            _DistortionShader_RightLensCenterUniform   = -1;
-            _DistortionShader_LeftScreenCenterUniform  = -1;
-            _DistortionShader_RightScreenCenterUniform = -1;
-            _DistortionShader_ScaleUniform             = -1;
-            _DistortionShader_ScaleInUniform           = -1;
-            _DistortionShader_HmdWarpParamUniform      = -1;
-            _DistortionShader_ChromAbParamUniform      = -1;
+                _DistortionShader_DistortionMapUniform = -1;
+                _DistortionShader_RenderTextureUniform = -1;
+                _DistortionShader_half_screenWidthUniform = -1;
+                _DistortionShader_LeftLensCenterUniform = -1;
+                _DistortionShader_RightLensCenterUniform = -1;
+                _DistortionShader_LeftScreenCenterUniform = -1;
+                _DistortionShader_RightScreenCenterUniform = -1;
+                _DistortionShader_ScaleUniform = -1;
+                _DistortionShader_ScaleInUniform = -1;
+                _DistortionShader_HmdWarpParamUniform = -1;
+                _DistortionShader_ChromAbParamUniform = -1;
 
-            if( preDistortionFBO != null )
-	            preDistortionFBO.delete();
-            preDistortionFBO = null;
+                if (preDistortionFBO != null)
+                    preDistortionFBO.delete();
+                preDistortionFBO = null;
 
-            if( guiFBO != null )
-	            guiFBO.delete();
-            guiFBO = null;
+                if (guiFBO != null)
+                    guiFBO.delete();
+                guiFBO = null;
 
-            if (fxaaFBO != null)
-                fxaaFBO.delete();
-            fxaaFBO = null;
+                if (fxaaFBO != null)
+                    fxaaFBO.delete();
+                fxaaFBO = null;
 
-            if( postDistortionFBO != null )
-                postDistortionFBO.delete();
-            postDistortionFBO = null;
+                if (postDistortionFBO != null)
+                    postDistortionFBO.delete();
+                postDistortionFBO = null;
 
-            if( postSuperSampleFBO != null )
-                postSuperSampleFBO.delete();
-            postSuperSampleFBO = null;
+                if (postSuperSampleFBO != null)
+                    postSuperSampleFBO.delete();
+                postSuperSampleFBO = null;
 
-            _LanczosShader_texelWidthOffsetUniform = -1;
-            _LanczosShader_texelHeightOffsetUniform = -1;
-            _LanczosShader_inputImageTextureUniform = -1;
-
-            if (distortParams != null)
-                distortParams.delete();
-        }
-
-        if (!_FBOInitialised)
-        {
-            //Setup eye render params
-            if (this.mc.vrSettings.useSupersample)
-            {
-                eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
-                        0,
-                        (int)ceil(this.mc.displayFBWidth  * this.mc.vrSettings.superSampleScaleFactor),
-                        (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor),
-                        0.05F,
-                        this.farPlaneDistance * 2.0F,
-                        this.mc.vrSettings.fovScaleFactor,
-                        this.mc.vrSettings.lensSeparationScaleFactor,
-                        getDistortionFitX(),
-                        getDistortionFitY(),
-                        this.mc.vrSettings.getAspectRatioCorrectionMode());
-            }
-            else
-            {
-                eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
-                        0,
-                        this.mc.displayFBWidth,
-                        this.mc.displayFBHeight,
-                        0.05F,
-                        this.farPlaneDistance * 2.0F,
-                        this.mc.vrSettings.fovScaleFactor,
-                        this.mc.vrSettings.lensSeparationScaleFactor,
-                        getDistortionFitX(),
-                        getDistortionFitY(),
-                        this.mc.vrSettings.getAspectRatioCorrectionMode());
-            }
-
-            System.out.println("[Minecrift] INITIALISE Display");
-            System.out.println("[Minecrift] Distortion: " + (this.mc.vrSettings.useDistortion ? "ON" : "OFF"));
-            System.out.println("[Minecrift] Display w: " + this.mc.displayFBWidth + ", h: " + this.mc.displayFBHeight);
-            System.out.println("[Minecrift] Renderscale: " + eyeRenderParams._renderScale);
-            if (this.mc.vrSettings.useSupersample)
-                System.out.println("[Minecrift] FSAA Scale: " + this.mc.vrSettings.superSampleScaleFactor);
-            else
-                System.out.println("[Minecrift] FSAA OFF");
-
-            if (this.mc.vrSettings.useSupersample)
-            {
-                preDistortionFBO = new FBOParams("preDistortionFBO (SS)", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor));
-            }
-            else
-            {
-                preDistortionFBO = new FBOParams("preDistortionFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int)ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale), (int)ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale));
-            }
-            mc.checkGLError("FBO create");
-
-            if (this.mc.vrSettings.useDistortionTextureLookupOptimisation)
-            {
-                if (this.mc.vrSettings.useChromaticAbCorrection)
-                {
-                    _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION_DIST_MAP, false);
-                }
-                else
-                {
-                    _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION_DIST_MAP, false);
-                }
-            }
-            else
-            {
-                if (this.mc.vrSettings.useChromaticAbCorrection)
-                {
-                    _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION, false);
-                }
-                else
-                {
-                    _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION, false);
-                }
-            }
-
-            // Setup uniform IDs
-            _DistortionShader_DistortionMapUniform     = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "distortionMap");
-            _DistortionShader_RenderTextureUniform     = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "bgl_RenderTexture");
-            _DistortionShader_half_screenWidthUniform  = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "half_screenWidth");
-            _DistortionShader_LeftLensCenterUniform    = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "LeftLensCenter");
-            _DistortionShader_RightLensCenterUniform   = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "RightLensCenter");
-            _DistortionShader_LeftScreenCenterUniform  = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "LeftScreenCenter");
-            _DistortionShader_RightScreenCenterUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "RightScreenCenter");
-            _DistortionShader_ScaleUniform             = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "Scale");
-            _DistortionShader_ScaleInUniform           = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "ScaleIn");
-            _DistortionShader_HmdWarpParamUniform      = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "HmdWarpParam");
-            _DistortionShader_ChromAbParamUniform      = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "ChromAbParam");
-
-            ShaderHelper.checkGLError("FBO init shader");
-
-            // GUI FBO
-            guiFBO = new FBOParams("guiFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, this.mc.displayWidth, this.mc.displayHeight);
-
-            // FXAA FBO
-            if (this.mc.vrSettings.useFXAA)
-            {
-                // Shader init
-                _FXAA_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, FXAA_FRAGMENT_SHADER, false);
-
-                _FXAA_RenderTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_FXAA_shaderProgramId, "sampler0");
-                _FXAA_RenderedTextureSizeUniform = ARBShaderObjects.glGetUniformLocationARB(_FXAA_shaderProgramId, "resolution");
-
-                if (this.mc.vrSettings.useSupersample)
-                {
-                    fxaaFBO = new FBOParams("fxaaFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int)ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
-                }
-                else
-                {
-                    fxaaFBO = new FBOParams("fxaaFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, this.mc.displayFBWidth, this.mc.displayFBHeight);
-                }
-
-                ShaderHelper.checkGLError("Init FXAA");
-            }
-            
-            if (this.mc.vrSettings.useSupersample)
-            {
-                // Lanczos downsample FBOs
-                postDistortionFBO = new FBOParams("postDistortionFBO (SS)", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int)ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
-                postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int)ceil(this.mc.displayFBWidth), (int)ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
-
-                mc.checkGLError("Lanczos FBO create");
-
-                _Lanczos_shaderProgramId = ShaderHelper.initShaders(LANCZOS_SAMPLER_VERTEX_SHADER, LANCZOS_SAMPLER_FRAGMENT_SHADER, true);
-
-                ShaderHelper.checkGLError("@1");
-                GL20.glValidateProgram(_Lanczos_shaderProgramId);
-
-                // Setup uniform IDs
-                _LanczosShader_texelWidthOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelWidthOffset");
-                _LanczosShader_texelHeightOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelHeightOffset");
-                _LanczosShader_inputImageTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "inputImageTexture");
-
-                ShaderHelper.checkGLError("FBO init Lanczos shader");
-            }
-            else
-            {
-                _Lanczos_shaderProgramId = -1;
                 _LanczosShader_texelWidthOffsetUniform = -1;
                 _LanczosShader_texelHeightOffsetUniform = -1;
                 _LanczosShader_inputImageTextureUniform = -1;
+
+                if (distortParams != null)
+                    distortParams.delete();
             }
 
-            // Pre-calculate distortion map
-            distortParams = new DistortionParams(this.mc.hmdInfo.getHMDInfo(),
-                                                 this.eyeRenderParams,
-                                                 this.mc.displayFBWidth,
-                                                 this.mc.displayFBHeight,
-                                                 this.mc.vrSettings.useChromaticAbCorrection,
-                                                 this.mc.vrSettings.useSupersample,
-                                                 this.mc.vrSettings.superSampleScaleFactor);
+            if (!_FBOInitialised) {
+                //Setup eye render params
+                if (this.mc.vrSettings.useSupersample) {
+                    eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
+                            0,
+                            (int) ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor),
+                            (int) ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor),
+                            0.05F,
+                            this.farPlaneDistance * 2.0F,
+                            this.mc.vrSettings.fovScaleFactor,
+                            this.mc.vrSettings.lensSeparationScaleFactor,
+                            getDistortionFitX(),
+                            getDistortionFitY(),
+                            this.mc.vrSettings.getAspectRatioCorrectionMode());
+                } else {
+                    eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
+                            0,
+                            this.mc.displayFBWidth,
+                            this.mc.displayFBHeight,
+                            0.05F,
+                            this.farPlaneDistance * 2.0F,
+                            this.mc.vrSettings.fovScaleFactor,
+                            this.mc.vrSettings.lensSeparationScaleFactor,
+                            getDistortionFitX(),
+                            getDistortionFitY(),
+                            this.mc.vrSettings.getAspectRatioCorrectionMode());
+                }
 
-            _FBOInitialised = true;
+                System.out.println("[Minecrift] INITIALISE Display");
+                System.out.println("[Minecrift] Distortion: " + (this.mc.vrSettings.useDistortion ? "ON" : "OFF"));
+                System.out.println("[Minecrift] Display w: " + this.mc.displayFBWidth + ", h: " + this.mc.displayFBHeight);
+                System.out.println("[Minecrift] Renderscale: " + eyeRenderParams._renderScale);
+                if (this.mc.vrSettings.useSupersample)
+                    System.out.println("[Minecrift] FSAA Scale: " + this.mc.vrSettings.superSampleScaleFactor);
+                else
+                    System.out.println("[Minecrift] FSAA OFF");
+
+                if (this.mc.vrSettings.useSupersample) {
+                    preDistortionFBO = new FBOParams("preDistortionFBO (SS)", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int) ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor), (int) ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale * this.mc.vrSettings.superSampleScaleFactor));
+                } else {
+                    preDistortionFBO = new FBOParams("preDistortionFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int) ceil(this.mc.displayFBWidth * eyeRenderParams._renderScale), (int) ceil(this.mc.displayFBHeight * eyeRenderParams._renderScale));
+                }
+                mc.checkGLError("FBO create");
+
+                if (this.mc.vrSettings.useDistortionTextureLookupOptimisation) {
+                    if (this.mc.vrSettings.useChromaticAbCorrection) {
+                        _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION_DIST_MAP, false);
+                    } else {
+                        _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION_DIST_MAP, false);
+                    }
+                } else {
+                    if (this.mc.vrSettings.useChromaticAbCorrection) {
+                        _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_WITH_CHROMATIC_ABERRATION_CORRECTION, false);
+                    } else {
+                        _Distortion_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, OCULUS_DISTORTION_FRAGMENT_SHADER_NO_CHROMATIC_ABERRATION_CORRECTION, false);
+                    }
+                }
+
+                // Setup uniform IDs
+                _DistortionShader_DistortionMapUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "distortionMap");
+                _DistortionShader_RenderTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "bgl_RenderTexture");
+                _DistortionShader_half_screenWidthUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "half_screenWidth");
+                _DistortionShader_LeftLensCenterUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "LeftLensCenter");
+                _DistortionShader_RightLensCenterUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "RightLensCenter");
+                _DistortionShader_LeftScreenCenterUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "LeftScreenCenter");
+                _DistortionShader_RightScreenCenterUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "RightScreenCenter");
+                _DistortionShader_ScaleUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "Scale");
+                _DistortionShader_ScaleInUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "ScaleIn");
+                _DistortionShader_HmdWarpParamUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "HmdWarpParam");
+                _DistortionShader_ChromAbParamUniform = ARBShaderObjects.glGetUniformLocationARB(_Distortion_shaderProgramId, "ChromAbParam");
+
+                ShaderHelper.checkGLError("FBO init shader");
+
+                // GUI FBO
+                guiFBO = new FBOParams("guiFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, this.mc.displayWidth, this.mc.displayHeight);
+
+                // FXAA FBO
+                if (this.mc.vrSettings.useFXAA) {
+                    // Shader init
+                    _FXAA_shaderProgramId = ShaderHelper.initShaders(BASIC_VERTEX_SHADER, FXAA_FRAGMENT_SHADER, false);
+
+                    _FXAA_RenderTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_FXAA_shaderProgramId, "sampler0");
+                    _FXAA_RenderedTextureSizeUniform = ARBShaderObjects.glGetUniformLocationARB(_FXAA_shaderProgramId, "resolution");
+
+                    if (this.mc.vrSettings.useSupersample) {
+                        fxaaFBO = new FBOParams("fxaaFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int) ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int) ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
+                    } else {
+                        fxaaFBO = new FBOParams("fxaaFBO", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, this.mc.displayFBWidth, this.mc.displayFBHeight);
+                    }
+
+                    ShaderHelper.checkGLError("Init FXAA");
+                }
+
+                if (this.mc.vrSettings.useSupersample) {
+                    // Lanczos downsample FBOs
+                    postDistortionFBO = new FBOParams("postDistortionFBO (SS)", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int) ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor), (int) ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
+                    postSuperSampleFBO = new FBOParams("postSuperSampleFBO (SS)", GL11.GL_TEXTURE_2D, GL11.GL_RGBA8, GL11.GL_RGBA, GL11.GL_INT, (int) ceil(this.mc.displayFBWidth), (int) ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor));
+
+                    mc.checkGLError("Lanczos FBO create");
+
+                    _Lanczos_shaderProgramId = ShaderHelper.initShaders(LANCZOS_SAMPLER_VERTEX_SHADER, LANCZOS_SAMPLER_FRAGMENT_SHADER, true);
+
+                    ShaderHelper.checkGLError("@1");
+                    GL20.glValidateProgram(_Lanczos_shaderProgramId);
+
+                    // Setup uniform IDs
+                    _LanczosShader_texelWidthOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelWidthOffset");
+                    _LanczosShader_texelHeightOffsetUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "texelHeightOffset");
+                    _LanczosShader_inputImageTextureUniform = ARBShaderObjects.glGetUniformLocationARB(_Lanczos_shaderProgramId, "inputImageTexture");
+
+                    ShaderHelper.checkGLError("FBO init Lanczos shader");
+                } else {
+                    _Lanczos_shaderProgramId = -1;
+                    _LanczosShader_texelWidthOffsetUniform = -1;
+                    _LanczosShader_texelHeightOffsetUniform = -1;
+                    _LanczosShader_inputImageTextureUniform = -1;
+                }
+
+                // Pre-calculate distortion map
+                distortParams = new DistortionParams(this.mc.hmdInfo.getHMDInfo(),
+                        this.eyeRenderParams,
+                        this.mc.displayFBWidth,
+                        this.mc.displayFBHeight,
+                        this.mc.vrSettings.useChromaticAbCorrection,
+                        this.mc.vrSettings.useSupersample,
+                        this.mc.vrSettings.superSampleScaleFactor);
+
+                _FBOInitialised = true;
+            }
         }
+        catch (Exception ex)
+        {
+            // We had an issue. Set the usual suspects to defaults...
+            this.mc.vrSettings.useSupersample = false;
+            this.mc.vrSettings.superSampleScaleFactor = 2.0f;
+            this.mc.vrSettings.saveOptions();
+            return false;
+        }
+
+        return true;
     }
     
     private void setupEyeViewport( int renderSceneNumber )

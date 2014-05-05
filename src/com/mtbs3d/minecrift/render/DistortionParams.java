@@ -44,8 +44,7 @@ public class DistortionParams
                             int FBHeight,
                             boolean useChromaticAbCorrection,
                             boolean useSuperSample,
-                            float superSampleScaleFactor)
-    {
+                            float superSampleScaleFactor) throws Exception {
         DistortionK = new float[4];
         ChromaticAb = new float[4];
 

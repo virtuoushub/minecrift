@@ -34,7 +34,7 @@ public class ShaderHelper
         }
     }
 
-    public static void checkGLError(String par1Str)
+    public static int checkGLError(String par1Str)
     {
         int var2 = GL11.glGetError();
 
@@ -45,6 +45,8 @@ public class ShaderHelper
             System.out.println("@ " + par1Str);
             System.out.println(var2 + ": " + var3);
         }
+
+        return var2;
     }
 
     private static String getLogInfo(int obj) {
