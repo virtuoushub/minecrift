@@ -102,7 +102,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             else
             	bodyPitch = 0;
 
-            if (this.mc.vrRenderer != null && this.mc.vrRenderer.useQuaternions == true)
+            if (this.mc.vrRenderer != null && this.mc.vrSettings.useQuaternions == true)
             {
                 // No restrictions if using Quaternions
                 bodyPitch %= 360;

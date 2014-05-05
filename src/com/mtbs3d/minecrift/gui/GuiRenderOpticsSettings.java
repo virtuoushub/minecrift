@@ -19,7 +19,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             EnumOptions.LENS_SEPARATION_SCALE_FACTOR,
             EnumOptions.TEXTURE_LOOKUP_OPT,
             EnumOptions.CHROM_AB_CORRECTION,
-            EnumOptions.DUMMY,
+            EnumOptions.USE_QUATERNIONS,
             EnumOptions.ASPECT_RATIO_CORRECTION,
             EnumOptions.DUMMY,
             EnumOptions.DUMMY,
@@ -90,6 +90,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 }
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
+                slider.enabled = getEnabledState(var8);
                 this.buttonList.add(slider);
             }
             else
@@ -122,6 +123,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             else if (par1GuiButton.id == 201)
             {
 			    this.mc.vrSettings.useDistortion = true;
+                this.mc.vrSettings.useQuaternions = false;
 			    this.mc.vrSettings.useChromaticAbCorrection = true;
 			    this.mc.vrSettings.fovScaleFactor = 1.0f;
                 this.mc.vrSettings.lensSeparationScaleFactor = 1.0f;
@@ -218,6 +220,16 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     				"  OFF: game is rendered at the native resolution",
                     "Will only be available if supported by your graphics",
                     "driver."};
+        case USE_QUATERNIONS:
+            return new String[] {
+                    "Orientation render mode",
+                    "  Recommended: Euler; standard Minecraft view",
+                    "  orientation method",
+                    "  Euler: Standard; at extreme head angles view may",
+                    "  'skip' somewhat",
+                    "  Quaternion: [EXPERIMENTAL] Smooth motion through",
+                    "  extreme angles. However, currently disables head",
+                    "  track sensitivity (sets to 1.0)"};
     	case SUPERSAMPLE_SCALEFACTOR:
     		return new String[] {
     				"Full-Screen AntiAliasing Render Scale",
@@ -265,5 +277,10 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     		default:
     			return null;
     	}
+    }
+
+    private boolean getEnabledState(EnumOptions var8)
+    {
+        return true;
     }
 }

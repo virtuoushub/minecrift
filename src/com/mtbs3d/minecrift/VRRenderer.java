@@ -77,8 +77,6 @@ public class VRRenderer extends EntityRenderer
     FBOParams postDistortionFBO; 
     FBOParams postSuperSampleFBO;
 
-    boolean useQuaternions     = false;
-    boolean debugOrientation   = false;
     Quaternion orientation     = QuaternionHelper.IDENTITY_QUATERNION;
     FloatBuffer cameraMatrix4f = QuaternionHelper.quatToMatrix4fFloatBuf(orientation);
 
@@ -359,10 +357,27 @@ public class VRRenderer extends EntityRenderer
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-        	if (useQuaternions)
+        	if (this.mc.vrSettings.useQuaternions)
             {
-                GL11.glMultMatrix(cameraMatrix4f);
-                //GL11.glLoadMatrix(cameraMatrix4f);
+                //GL11.glMultMatrix(cameraMatrix4f);   // This doesn't work currently - we still need
+                                                     // the weird +180...
+
+                // So do this instead...
+                float[] rawYawPitchRoll = OculusRift.getEulerAngles(orientation.x,
+                        orientation.y,
+                        orientation.z,
+                        orientation.w,
+                        1f,
+                        OculusRift.HANDED_L,
+                        OculusRift.ROTATE_CCW);
+
+                if (this.mc.gameSettings.thirdPersonView == 2)
+                    GL11.glRotatef(-rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
+                else
+                    GL11.glRotatef(rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
+
+                GL11.glRotatef(rawYawPitchRoll[1], 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(rawYawPitchRoll[0] + 180.0F, 0.0F, 1.0F, 0.0F);
             }
             else
             {
@@ -519,12 +534,12 @@ public class VRRenderer extends EntityRenderer
             prevHeadPitch = headPitch;
             prevHeadRoll  = headRoll;
 
-            if (useQuaternions == false)
+            if (this.mc.vrSettings.useQuaternions == false)
             {
                 // Get Euler angles
-                headRoll   = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.headTrackSensitivity;
-                headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.headTrackSensitivity;
-                headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.headTrackSensitivity;
+                headRoll   = mc.headTracker.getHeadRollDegrees()  * this.mc.vrSettings.getHeadTrackSensitivity();
+                headPitch  = mc.headTracker.getHeadPitchDegrees() * this.mc.vrSettings.getHeadTrackSensitivity();
+                headYaw    = mc.headTracker.getHeadYawDegrees()   * this.mc.vrSettings.getHeadTrackSensitivity();
 
                 cameraPitch = (lookPitchOffset + headPitch )%180;
                 cameraYaw   = (lookYawOffset   + headYaw ) % 360;
@@ -548,7 +563,7 @@ public class VRRenderer extends EntityRenderer
 
                 // TODO: This does not work currently
                 // Scale the rotation if necessary
-                if (this.mc.vrSettings.headTrackSensitivity != 1f)
+                if (this.mc.vrSettings.getHeadTrackSensitivity() != 1f)
                 {
 //                    System.out.println(String.format("Head track sensitivity: %.2f", new Object[] {Float.valueOf(this.mc.vrSettings.headTrackSensitivity)}));
 //                    QuaternionHelper.dump("RAW", orientation);
@@ -615,7 +630,7 @@ public class VRRenderer extends EntityRenderer
                 cameraRoll   = correctedYawPitchRoll[2];
             }
 
-            if (debugOrientation)
+            if (this.mc.vrSettings.debugPose)
             {
                 System.out.println(String.format("headYaw:   %.2f, headPitch:   %.2f, headRoll:   %.2f", new Object[] {Float.valueOf(headYaw), Float.valueOf(headPitch), Float.valueOf(headRoll)}));
                 System.out.println(String.format("cameraYaw: %.2f, cameraPitch: %.2f, cameraRoll: %.2f", new Object[] {Float.valueOf(cameraYaw), Float.valueOf(cameraPitch), Float.valueOf(cameraRoll)}));

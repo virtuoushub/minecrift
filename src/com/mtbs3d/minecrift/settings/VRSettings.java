@@ -37,6 +37,8 @@ public class VRSettings {
     public static final int CALIBRATION_STRATEGY_AT_STARTUP = 0;
 
     public boolean useVRRenderer    = false; //default to false
+    public boolean useQuaternions = false;
+    public boolean debugPose = false;
 	protected float playerEyeHeight = 1.74f;  // Use getPlayerEyeHeight()
 	public float eyeProtrusion = 0.185f;
 	public float neckBaseToEyeHeight = 0.225f;
@@ -70,7 +72,7 @@ public class VRSettings {
     private IOculusRift.AspectCorrectionType aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_AUTO;
     private int aspectRatioCorrection = aspectRatioCorrectionMode.getValue();
     public int distortionFitPoint = 5;
-    public float headTrackSensitivity = 1.0f;
+    protected float headTrackSensitivity = 1.0f;
     public boolean useSupersample = false;   // default to off
     public float superSampleScaleFactor = 2.0f;
     public boolean lookMoveDecoupled = false;
@@ -160,6 +162,16 @@ public class VRSettings {
                     if (optionTokens[0].equals("useVRRenderer"))
                     {
                         this.useVRRenderer = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useQuaternions"))
+                    {
+                        this.useQuaternions = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("debugPose"))
+                    {
+                        this.debugPose = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("playerEyeHeight"))
@@ -596,6 +608,8 @@ public class VRSettings {
         switch( par1EnumOptions) {
 	        case USE_VR:
 	            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
+            case USE_QUATERNIONS:
+                return this.useQuaternions ? var4 + "Quaternion" : var4 + "Euler";
 	        case EYE_HEIGHT:
 	            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
 	        case EYE_PROTRUSION:
@@ -672,7 +686,7 @@ public class VRSettings {
 	            else
 	                return var4 + "Skip";
 	        case HEAD_TRACK_SENSITIVITY:
-	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.headTrackSensitivity) });
+	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.getHeadTrackSensitivity()) });
 	        case SUPERSAMPLING:
 	            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
 	        case SUPERSAMPLE_SCALEFACTOR:
@@ -846,7 +860,7 @@ public class VRSettings {
             case LENS_SEPARATION_SCALE_FACTOR:
                 return this.lensSeparationScaleFactor ;
 			case HEAD_TRACK_SENSITIVITY :
-				return this.headTrackSensitivity ;
+				return this.getHeadTrackSensitivity() ;
 			case SUPERSAMPLE_SCALEFACTOR :
 				return this.superSampleScaleFactor ;
 			case DISTORTION_FIT_POINT :
@@ -929,6 +943,9 @@ public class VRSettings {
 	            this.useVRRenderer = !this.useVRRenderer;
 	            mc.setUseVRRenderer(useVRRenderer);
 	            break;
+            case USE_QUATERNIONS:
+                this.useQuaternions = !this.useQuaternions;
+                break;
 	        case USE_DISTORTION:
 	            this.useDistortion = !this.useDistortion;
 	            break;
@@ -1288,6 +1305,8 @@ public class VRSettings {
             PrintWriter var5 = new PrintWriter(new FileWriter(this.optionsVRFile));
 
             var5.println("useVRRenderer:"+ this.useVRRenderer );
+            var5.println("useQuaternions:"+ this.useQuaternions );
+            var5.println("debugPose:"+ this.debugPose );
             var5.println("playerEyeHeight:" + this.playerEyeHeight);
             var5.println("eyeProtrusion:" + this.eyeProtrusion );
             var5.println("neckBaseToEyeHeight:" + this.neckBaseToEyeHeight );
@@ -1449,5 +1468,18 @@ public class VRSettings {
     public void setAspectRatioCorrectionMode(IOculusRift.AspectCorrectionType mode)
     {
         this.aspectRatioCorrection = mode.getValue();
+    }
+
+    public void setHeadTrackSensitivity(float value)
+    {
+        this.headTrackSensitivity = value;
+    }
+
+    public float getHeadTrackSensitivity()
+    {
+        if (this.useQuaternions)
+            return 1.0f;
+
+        return this.headTrackSensitivity;
     }
 }
