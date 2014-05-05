@@ -84,6 +84,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
 
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
+                slider.enabled = getEnabledState(var8);
                 this.buttonList.add(slider);
             }
             else
@@ -126,7 +127,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
                     this.mc.vrSettings.headTrackPredictionTimeSecs = 0.015f;
                     mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
                 }
-			    this.mc.vrSettings.headTrackSensitivity = 1.0f;
+			    this.mc.vrSettings.setHeadTrackSensitivity(1.0f);
                 this.reinit = true;
             }
             else if (par1GuiButton.id == 202)
@@ -153,6 +154,21 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         }
     }
 
+    private boolean getEnabledState(EnumOptions var8)
+    {
+        String s = var8.getEnumString();
+
+        if (var8 == EnumOptions.HEAD_TRACK_SENSITIVITY)
+        {
+            if (this.mc.vrSettings.useQuaternions)
+                return false;
+            else
+                return true;
+        }
+
+        return true;
+    }
+
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
@@ -175,7 +191,9 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
     	case HEAD_TRACK_SENSITIVITY:
     		return new String[] {
     				"In-game camera orientation multiplied by this value.", 
-    				"  Recommended value: 1.0"} ;   		
+    				"  Recommended value: 1.0",
+                    "NOTE: Will be locked at 1.0 if the Orientation render",
+                    "mode is set to 'Quaternion'."} ;
     	case HEAD_TRACK_PREDICTION_TIME:
     		return new String[] {
     				"Number of seconds to predict motion. Higher values will",

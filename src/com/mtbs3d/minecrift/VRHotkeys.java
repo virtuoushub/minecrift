@@ -120,8 +120,8 @@ public class VRHotkeys {
         {
             if (mc.vrRenderer != null)
             {
-                mc.vrRenderer.useQuaternions = !mc.vrRenderer.useQuaternions;
-                mc.printChatMessage("useQuaternions: " + (mc.vrRenderer.useQuaternions ? "On" : "Off"));
+                mc.vrSettings.useQuaternions = !mc.vrSettings.useQuaternions;
+                mc.printChatMessage("useQuaternions: " + (mc.vrSettings.useQuaternions ? "On" : "Off"));
             }
         }
 	
@@ -226,13 +226,20 @@ public class VRHotkeys {
 	    // Cycle head track sensitivity
 	    if (Keyboard.getEventKey() == Keyboard.KEY_V && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.vrSettings.headTrackSensitivity += 0.1f;
-	        if (mc.vrSettings.headTrackSensitivity > 4.05f)
-	        {
-	            mc.vrSettings.headTrackSensitivity = 0.5f;
-	        }
-	        mc.vrSettings.saveOptions();
-            mc.printChatMessage(String.format("Head track sensitivity: * %.1f", new Object[]{Float.valueOf(mc.vrSettings.headTrackSensitivity)}));
+            if (mc.vrSettings.useQuaternions == false) {
+                float sens = mc.vrSettings.getHeadTrackSensitivity();
+                sens += 0.1f;
+                if (sens > 4.05f) {
+                    sens = 0.5f;
+                }
+                mc.vrSettings.setHeadTrackSensitivity(sens);
+                mc.vrSettings.saveOptions();
+                mc.printChatMessage(String.format("Head track sensitivity: * %.1f", new Object[]{Float.valueOf(mc.vrSettings.getHeadTrackSensitivity())}));
+            }
+            else
+            {
+                mc.printChatMessage("Head track sensitivity LOCKED to 1.0 (orientation mode = Quaternion)");
+            }
 	    }
 	
 	    // Increase IPD
