@@ -182,7 +182,8 @@
 +            getPointedEntity(var6, var7, var2, var4);
 +        }
 +    }
-+
+ 
+-            for (int var13 = 0; var13 < var10.size(); ++var13)
 +    protected void getPointedEntity( Vec3 var6, Vec3 var7, double var2, double var4 )
 +    {
 +        Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
@@ -191,8 +192,7 @@
 +        float var9 = 1.0F;
 +        List var10 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var9, (double)var9, (double)var9));
 +        double var11 = var4;
- 
--            for (int var13 = 0; var13 < var10.size(); ++var13)
++
 +        for (int var13 = 0; var13 < var10.size(); ++var13)
 +        {
 +            Entity var14 = (Entity)var10.get(var13);
@@ -325,7 +325,7 @@
 +            {
 +                var8 = -1;
 +            }
- 
++
 +            if (this.mc.gameSettings.smoothCamera)
 +            {
 +                this.smoothCamYaw += var6;
@@ -343,13 +343,23 @@
 +        }
 +
 +        this.mc.mcProfiler.endSection();
-+
+ 
 +    }
 +    
      /**
       * Will update any inputs that effect the camera angle (mouse) and then render the world and GUI
       */
-@@ -999,6 +1051,29 @@
+@@ -986,6 +1038,9 @@
+         if (!this.initialized)
+         {
+             TextureUtils.registerResourceListener();
++            ItemRendererOF itemRendererOF = new ItemRendererOF(this.mc);
++            this.itemRenderer = itemRendererOF;
++            RenderManager.instance.itemRenderer = itemRendererOF;
+             this.initialized = true;
+         }
+ 
+@@ -999,6 +1054,29 @@
              Config.setNewRelease((String)null);
          }
  
@@ -379,7 +389,7 @@
          if (this.mc.currentScreen instanceof GuiMainMenu)
          {
              this.updateMainMenu((GuiMainMenu)this.mc.currentScreen);
-@@ -1036,124 +1111,98 @@
+@@ -1036,124 +1114,98 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
@@ -569,7 +579,32 @@
      {
          this.serverWaitTimeCurrent = 0;
  
-@@ -1466,7 +1515,14 @@
+@@ -1252,10 +1304,12 @@
+             this.prevFrameTimeNano = timeNowNano;
+             GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+             GL11.glMatrixMode(GL11.GL_PROJECTION);
++            GL11.glPushMatrix();
+             GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+             GL11.glLoadIdentity();
+             GL11.glOrtho(0.0D, (double)this.mc.displayWidth, (double)this.mc.displayHeight, 0.0D, 1000.0D, 3000.0D);
+             GL11.glMatrixMode(GL11.GL_MODELVIEW);
++            GL11.glPushMatrix();
+             GL11.glLoadIdentity();
+             GL11.glTranslatef(0.0F, 0.0F, -2000.0F);
+             GL11.glLineWidth(1.0F);
+@@ -1294,6 +1348,11 @@
+             }
+ 
+             tessellator.draw();
++            GL11.glMatrixMode(GL11.GL_PROJECTION);
++            GL11.glPopMatrix();
++            GL11.glMatrixMode(GL11.GL_MODELVIEW);
++            GL11.glPopMatrix();
++            GL11.glEnable(GL11.GL_TEXTURE_2D);
+         }
+     }
+ 
+@@ -1466,7 +1525,14 @@
                      Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(-1)});
                  }
  
@@ -584,7 +619,7 @@
  
                  if (this.mc.objectMouseOver != null && var4.isInsideOfMaterial(Material.water) && var4 instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
                  {
-@@ -1614,7 +1670,7 @@
+@@ -1614,7 +1680,7 @@
      /**
       * Render clouds if enabled
       */
@@ -593,7 +628,7 @@
      {
          if (this.mc.gameSettings.shouldRenderClouds())
          {
-@@ -1918,7 +1974,7 @@
+@@ -1918,211 +1984,186 @@
      /**
       * calculates fog and calls glClearColor
       */
@@ -602,7 +637,306 @@
      {
          WorldClient var2 = this.mc.theWorld;
          EntityLivingBase var3 = this.mc.renderViewEntity;
-@@ -2132,7 +2188,7 @@
+         float var4 = 1.0F / (float)(4 - this.mc.gameSettings.renderDistance);
+         var4 = 1.0F - (float)Math.pow((double)var4, 0.25D);
+         Vec3 var5 = var2.getSkyColor(this.mc.renderViewEntity, par1);
+-        int var6 = var2.provider.dimensionId;
+-
+-        switch (var6)
+-        {
+-            case 0:
+-                var5 = CustomColorizer.getSkyColor(var5, this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
+-                break;
+-
+-            case 1:
+-                var5 = CustomColorizer.getSkyColorEnd(var5);
+-        }
+-
+-        float var7 = (float)var5.xCoord;
+-        float var8 = (float)var5.yCoord;
+-        float var9 = (float)var5.zCoord;
+-        Vec3 var10 = var2.getFogColor(par1);
+-
+-        switch (var6)
+-        {
+-            case -1:
+-                var10 = CustomColorizer.getFogColorNether(var10);
+-                break;
+-
+-            case 0:
+-                var10 = CustomColorizer.getFogColor(var10, this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
+-                break;
+-
+-            case 1:
+-                var10 = CustomColorizer.getFogColorEnd(var10);
+-        }
+-
+-        this.fogColorRed = (float)var10.xCoord;
+-        this.fogColorGreen = (float)var10.yCoord;
+-        this.fogColorBlue = (float)var10.zCoord;
+-        float var11;
++        var5 = CustomColorizer.getWorldSkyColor(var5, var2, this.mc.renderViewEntity, par1);
++        float var6 = (float)var5.xCoord;
++        float var7 = (float)var5.yCoord;
++        float var8 = (float)var5.zCoord;
++        Vec3 var9 = var2.getFogColor(par1);
++        var9 = CustomColorizer.getWorldFogColor(var9, var2, par1);
++        this.fogColorRed = (float)var9.xCoord;
++        this.fogColorGreen = (float)var9.yCoord;
++        this.fogColorBlue = (float)var9.zCoord;
++        float var10;
+ 
+         if (this.mc.gameSettings.renderDistance < 2)
+         {
+-            Vec3 var12 = MathHelper.sin(var2.getCelestialAngleRadians(par1)) > 0.0F ? var2.getWorldVec3Pool().getVecFromPool(-1.0D, 0.0D, 0.0D) : var2.getWorldVec3Pool().getVecFromPool(1.0D, 0.0D, 0.0D);
+-            var11 = (float)var3.getLook(par1).dotProduct(var12);
++            Vec3 var11 = MathHelper.sin(var2.getCelestialAngleRadians(par1)) > 0.0F ? var2.getWorldVec3Pool().getVecFromPool(-1.0D, 0.0D, 0.0D) : var2.getWorldVec3Pool().getVecFromPool(1.0D, 0.0D, 0.0D);
++            var10 = (float)var3.getLook(par1).dotProduct(var11);
+ 
+-            if (var11 < 0.0F)
++            if (var10 < 0.0F)
+             {
+-                var11 = 0.0F;
++                var10 = 0.0F;
+             }
+ 
+-            if (var11 > 0.0F)
++            if (var10 > 0.0F)
+             {
+-                float[] var13 = var2.provider.calcSunriseSunsetColors(var2.getCelestialAngle(par1), par1);
++                float[] var12 = var2.provider.calcSunriseSunsetColors(var2.getCelestialAngle(par1), par1);
+ 
+-                if (var13 != null)
++                if (var12 != null)
+                 {
+-                    var11 *= var13[3];
+-                    this.fogColorRed = this.fogColorRed * (1.0F - var11) + var13[0] * var11;
+-                    this.fogColorGreen = this.fogColorGreen * (1.0F - var11) + var13[1] * var11;
+-                    this.fogColorBlue = this.fogColorBlue * (1.0F - var11) + var13[2] * var11;
++                    var10 *= var12[3];
++                    this.fogColorRed = this.fogColorRed * (1.0F - var10) + var12[0] * var10;
++                    this.fogColorGreen = this.fogColorGreen * (1.0F - var10) + var12[1] * var10;
++                    this.fogColorBlue = this.fogColorBlue * (1.0F - var10) + var12[2] * var10;
+                 }
+             }
+         }
+ 
+-        this.fogColorRed += (var7 - this.fogColorRed) * var4;
+-        this.fogColorGreen += (var8 - this.fogColorGreen) * var4;
+-        this.fogColorBlue += (var9 - this.fogColorBlue) * var4;
+-        float var23 = var2.getRainStrength(par1);
+-        float var24;
++        this.fogColorRed += (var6 - this.fogColorRed) * var4;
++        this.fogColorGreen += (var7 - this.fogColorGreen) * var4;
++        this.fogColorBlue += (var8 - this.fogColorBlue) * var4;
++        float var22 = var2.getRainStrength(par1);
++        float var23;
+ 
+-        if (var23 > 0.0F)
++        if (var22 > 0.0F)
+         {
+-            var11 = 1.0F - var23 * 0.5F;
+-            var24 = 1.0F - var23 * 0.4F;
+-            this.fogColorRed *= var11;
+-            this.fogColorGreen *= var11;
+-            this.fogColorBlue *= var24;
++            var10 = 1.0F - var22 * 0.5F;
++            var23 = 1.0F - var22 * 0.4F;
++            this.fogColorRed *= var10;
++            this.fogColorGreen *= var10;
++            this.fogColorBlue *= var23;
+         }
+ 
+-        var11 = var2.getWeightedThunderStrength(par1);
++        var10 = var2.getWeightedThunderStrength(par1);
+ 
+-        if (var11 > 0.0F)
++        if (var10 > 0.0F)
+         {
+-            var24 = 1.0F - var11 * 0.5F;
+-            this.fogColorRed *= var24;
+-            this.fogColorGreen *= var24;
+-            this.fogColorBlue *= var24;
++            var23 = 1.0F - var10 * 0.5F;
++            this.fogColorRed *= var23;
++            this.fogColorGreen *= var23;
++            this.fogColorBlue *= var23;
+         }
+ 
+-        int var14 = ActiveRenderInfo.getBlockIdAtEntityViewpoint(this.mc.theWorld, var3, par1);
+-        float var15;
+-        Vec3 var16;
++        int var13 = ActiveRenderInfo.getBlockIdAtEntityViewpoint(this.mc.theWorld, var3, par1);
++        float var14;
++        Vec3 var15;
+ 
+         if (this.cloudFog)
+         {
+-            var16 = var2.getCloudColour(par1);
+-            this.fogColorRed = (float)var16.xCoord;
+-            this.fogColorGreen = (float)var16.yCoord;
+-            this.fogColorBlue = (float)var16.zCoord;
++            var15 = var2.getCloudColour(par1);
++            this.fogColorRed = (float)var15.xCoord;
++            this.fogColorGreen = (float)var15.yCoord;
++            this.fogColorBlue = (float)var15.zCoord;
+         }
+-        else if (var14 != 0 && Block.blocksList[var14].blockMaterial == Material.water)
++        else if (var13 != 0 && Block.blocksList[var13].blockMaterial == Material.water)
+         {
+-            var15 = (float)EnchantmentHelper.getRespiration(var3) * 0.2F;
+-            this.fogColorRed = 0.02F + var15;
+-            this.fogColorGreen = 0.02F + var15;
+-            this.fogColorBlue = 0.2F + var15;
+-            var16 = CustomColorizer.getUnderwaterColor(this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
++            var14 = (float)EnchantmentHelper.getRespiration(var3) * 0.2F;
++            this.fogColorRed = 0.02F + var14;
++            this.fogColorGreen = 0.02F + var14;
++            this.fogColorBlue = 0.2F + var14;
++            var15 = CustomColorizer.getUnderwaterColor(this.mc.theWorld, this.mc.renderViewEntity.posX, this.mc.renderViewEntity.posY + 1.0D, this.mc.renderViewEntity.posZ);
+ 
+-            if (var16 != null)
++            if (var15 != null)
+             {
+-                this.fogColorRed = (float)var16.xCoord;
+-                this.fogColorGreen = (float)var16.yCoord;
+-                this.fogColorBlue = (float)var16.zCoord;
++                this.fogColorRed = (float)var15.xCoord;
++                this.fogColorGreen = (float)var15.yCoord;
++                this.fogColorBlue = (float)var15.zCoord;
+             }
+         }
+-        else if (var14 != 0 && Block.blocksList[var14].blockMaterial == Material.lava)
++        else if (var13 != 0 && Block.blocksList[var13].blockMaterial == Material.lava)
+         {
+             this.fogColorRed = 0.6F;
+             this.fogColorGreen = 0.1F;
+             this.fogColorBlue = 0.0F;
+         }
+ 
+-        var15 = this.fogColor2 + (this.fogColor1 - this.fogColor2) * par1;
+-        this.fogColorRed *= var15;
+-        this.fogColorGreen *= var15;
+-        this.fogColorBlue *= var15;
+-        double var25 = var2.provider.getVoidFogYFactor();
++        var14 = this.fogColor2 + (this.fogColor1 - this.fogColor2) * par1;
++        this.fogColorRed *= var14;
++        this.fogColorGreen *= var14;
++        this.fogColorBlue *= var14;
++        double var24 = var2.provider.getVoidFogYFactor();
+ 
+         if (!Config.isDepthFog())
+         {
+-            var25 = 1.0D;
++            var24 = 1.0D;
+         }
+ 
+-        double var18 = (var3.lastTickPosY + (var3.posY - var3.lastTickPosY) * (double)par1) * var25;
++        double var17 = (var3.lastTickPosY + (var3.posY - var3.lastTickPosY) * (double)par1) * var24;
+ 
+         if (var3.isPotionActive(Potion.blindness))
+         {
+-            int var20 = var3.getActivePotionEffect(Potion.blindness).getDuration();
++            int var19 = var3.getActivePotionEffect(Potion.blindness).getDuration();
+ 
+-            if (var20 < 20)
++            if (var19 < 20)
+             {
+-                var18 *= (double)(1.0F - (float)var20 / 20.0F);
++                var17 *= (double)(1.0F - (float)var19 / 20.0F);
+             }
+             else
+             {
+-                var18 = 0.0D;
++                var17 = 0.0D;
+             }
+         }
+ 
+-        if (var18 < 1.0D)
++        if (var17 < 1.0D)
+         {
+-            if (var18 < 0.0D)
++            if (var17 < 0.0D)
+             {
+-                var18 = 0.0D;
++                var17 = 0.0D;
+             }
+ 
+-            var18 *= var18;
+-            this.fogColorRed = (float)((double)this.fogColorRed * var18);
+-            this.fogColorGreen = (float)((double)this.fogColorGreen * var18);
+-            this.fogColorBlue = (float)((double)this.fogColorBlue * var18);
++            var17 *= var17;
++            this.fogColorRed = (float)((double)this.fogColorRed * var17);
++            this.fogColorGreen = (float)((double)this.fogColorGreen * var17);
++            this.fogColorBlue = (float)((double)this.fogColorBlue * var17);
+         }
+ 
+-        float var26;
++        float var25;
+ 
+         if (this.field_82831_U > 0.0F)
+         {
+-            var26 = this.field_82832_V + (this.field_82831_U - this.field_82832_V) * par1;
+-            this.fogColorRed = this.fogColorRed * (1.0F - var26) + this.fogColorRed * 0.7F * var26;
+-            this.fogColorGreen = this.fogColorGreen * (1.0F - var26) + this.fogColorGreen * 0.6F * var26;
+-            this.fogColorBlue = this.fogColorBlue * (1.0F - var26) + this.fogColorBlue * 0.6F * var26;
++            var25 = this.field_82832_V + (this.field_82831_U - this.field_82832_V) * par1;
++            this.fogColorRed = this.fogColorRed * (1.0F - var25) + this.fogColorRed * 0.7F * var25;
++            this.fogColorGreen = this.fogColorGreen * (1.0F - var25) + this.fogColorGreen * 0.6F * var25;
++            this.fogColorBlue = this.fogColorBlue * (1.0F - var25) + this.fogColorBlue * 0.6F * var25;
+         }
+ 
+-        float var21;
++        float var20;
+ 
+         if (var3.isPotionActive(Potion.nightVision))
+         {
+-            var26 = this.getNightVisionBrightness(this.mc.thePlayer, par1);
+-            var21 = 1.0F / this.fogColorRed;
++            var25 = this.getNightVisionBrightness(this.mc.thePlayer, par1);
++            var20 = 1.0F / this.fogColorRed;
+ 
+-            if (var21 > 1.0F / this.fogColorGreen)
++            if (var20 > 1.0F / this.fogColorGreen)
+             {
+-                var21 = 1.0F / this.fogColorGreen;
++                var20 = 1.0F / this.fogColorGreen;
+             }
+ 
+-            if (var21 > 1.0F / this.fogColorBlue)
++            if (var20 > 1.0F / this.fogColorBlue)
+             {
+-                var21 = 1.0F / this.fogColorBlue;
++                var20 = 1.0F / this.fogColorBlue;
+             }
+ 
+-            this.fogColorRed = this.fogColorRed * (1.0F - var26) + this.fogColorRed * var21 * var26;
+-            this.fogColorGreen = this.fogColorGreen * (1.0F - var26) + this.fogColorGreen * var21 * var26;
+-            this.fogColorBlue = this.fogColorBlue * (1.0F - var26) + this.fogColorBlue * var21 * var26;
++            this.fogColorRed = this.fogColorRed * (1.0F - var25) + this.fogColorRed * var20 * var25;
++            this.fogColorGreen = this.fogColorGreen * (1.0F - var25) + this.fogColorGreen * var20 * var25;
++            this.fogColorBlue = this.fogColorBlue * (1.0F - var25) + this.fogColorBlue * var20 * var25;
+         }
+ 
+         if (this.mc.gameSettings.anaglyph)
+         {
+-            var26 = (this.fogColorRed * 30.0F + this.fogColorGreen * 59.0F + this.fogColorBlue * 11.0F) / 100.0F;
+-            var21 = (this.fogColorRed * 30.0F + this.fogColorGreen * 70.0F) / 100.0F;
+-            float var22 = (this.fogColorRed * 30.0F + this.fogColorBlue * 70.0F) / 100.0F;
+-            this.fogColorRed = var26;
+-            this.fogColorGreen = var21;
+-            this.fogColorBlue = var22;
++            var25 = (this.fogColorRed * 30.0F + this.fogColorGreen * 59.0F + this.fogColorBlue * 11.0F) / 100.0F;
++            var20 = (this.fogColorRed * 30.0F + this.fogColorGreen * 70.0F) / 100.0F;
++            float var21 = (this.fogColorRed * 30.0F + this.fogColorBlue * 70.0F) / 100.0F;
++            this.fogColorRed = var25;
++            this.fogColorGreen = var20;
++            this.fogColorBlue = var21;
+         }
+ 
+         GL11.glClearColor(this.fogColorRed, this.fogColorGreen, this.fogColorBlue, 0.0F);
+@@ -2132,7 +2173,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
@@ -611,7 +945,7 @@
      {
          EntityLivingBase var3 = this.mc.renderViewEntity;
          boolean var4 = false;
-@@ -2310,25 +2366,14 @@
+@@ -2310,25 +2351,14 @@
      {
          Minecraft var1 = Config.getMinecraft();
  
@@ -630,12 +964,12 @@
 -        else
 -        {
 -            int var2 = Config.getGameSettings().ofLimitFramerateFine;
- 
+-
 -            if (var2 <= 0)
 -            {
 -                var2 = 10000;
 -            }
--
+ 
 -            return var2;
 -        }
 +        return var2;

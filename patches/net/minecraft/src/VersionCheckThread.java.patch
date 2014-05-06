@@ -1,0 +1,11 @@
+--- a/net/minecraft/src/VersionCheckThread.java
++++ b/net/minecraft/src/VersionCheckThread.java
+@@ -34,7 +34,7 @@
+                 String newVer = verLines[0];
+                 Config.dbg("Version found: " + newVer);
+ 
+-                if (Config.compareRelease(newVer, "C6") > 0)
++                if (Config.compareRelease(newVer, "D1") > 0)
+                 {
+                     Config.setNewRelease(newVer);
+                     return;

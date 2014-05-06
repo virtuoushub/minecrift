@@ -1,6 +1,14 @@
 --- a/net/minecraft/src/GameSettings.java
 +++ b/net/minecraft/src/GameSettings.java
-@@ -216,6 +216,10 @@
+@@ -89,6 +89,7 @@
+     public boolean ofShowCapes = true;
+     public int ofConnectedTextures = 2;
+     public boolean ofNaturalTextures = false;
++    public boolean ofFastMath = false;
+     public int ofAnimatedWater = 0;
+     public int ofAnimatedLava = 0;
+     public boolean ofAnimatedFire = true;
+@@ -216,6 +217,10 @@
          this.mc = par1Minecraft;
          this.optionsFile = new File(par2File, "options.txt");
          this.optionsFileOF = new File(par2File, "optionsof.txt");
@@ -11,7 +19,7 @@
          this.loadOptions();
          Config.initGameSettings(this);
      }
-@@ -230,6 +234,28 @@
+@@ -230,6 +235,28 @@
          this.noclipRate = 1.0F;
          this.debugCamRate = 1.0F;
          this.language = "en_US";
@@ -40,7 +48,60 @@
      }
  
      public String getKeyBindingDescription(int par1)
-@@ -2649,6 +2675,9 @@
+@@ -1047,6 +1074,12 @@
+             this.mc.renderGlobal.loadRenderers();
+         }
+ 
++        if (par1EnumOptions == EnumOptions.FAST_MATH)
++        {
++            this.ofFastMath = !this.ofFastMath;
++            MathHelper.fastMath = this.ofFastMath;
++        }
++
+         if (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING)
+         {
+             this.ofLazyChunkLoading = !this.ofLazyChunkLoading;
+@@ -1640,6 +1673,10 @@
+         {
+             return this.ofNaturalTextures ? var3 + "ON" : var3 + "OFF";
+         }
++        else if (par1EnumOptions == EnumOptions.FAST_MATH)
++        {
++            return this.ofFastMath ? var3 + "ON" : var3 + "OFF";
++        }
+         else if (par1EnumOptions == EnumOptions.LAZY_CHUNK_LOADING)
+         {
+             return this.ofLazyChunkLoading ? var3 + "ON" : var3 + "OFF";
+@@ -2375,6 +2412,12 @@
+                     {
+                         this.ofFullscreenMode = var12[1];
+                     }
++
++                    if (var12[0].equals("ofFastMath") && var12.length >= 2)
++                    {
++                        this.ofFastMath = Boolean.valueOf(var12[1]).booleanValue();
++                        MathHelper.fastMath = this.ofFastMath;
++                    }
+                 }
+                 catch (Exception var5)
+                 {
+@@ -2543,6 +2586,7 @@
+             var5.println("ofNaturalTextures:" + this.ofNaturalTextures);
+             var5.println("ofLazyChunkLoading:" + this.ofLazyChunkLoading);
+             var5.println("ofFullscreenMode:" + this.ofFullscreenMode);
++            var5.println("ofFastMath:" + this.ofFastMath);
+             var5.close();
+         }
+         catch (Exception var3)
+@@ -2594,6 +2638,7 @@
+         this.ofSmoothFps = false;
+         this.ofSmoothWorld = Config.isSingleProcessor();
+         this.ofLazyChunkLoading = Config.isSingleProcessor();
++        this.ofFastMath = false;
+         this.ofAoLevel = 1.0F;
+         this.ofAaLevel = 0;
+         this.ofAfLevel = 1;
+@@ -2649,6 +2694,9 @@
          this.updateWaterOpacity();
          this.mc.renderGlobal.setAllRenderersVisible();
          this.mc.refreshResources();

@@ -1,6 +1,6 @@
 --- a/net/minecraft/src/Reflector.java
 +++ b/net/minecraft/src/Reflector.java
-@@ -33,6 +33,9 @@
+@@ -33,23 +33,46 @@
      public static ReflectorMethod ForgeHooks_onLivingDrops = new ReflectorMethod(ForgeHooks, "onLivingDrops");
      public static ReflectorMethod ForgeHooks_onLivingFall = new ReflectorMethod(ForgeHooks, "onLivingFall");
      public static ReflectorMethod ForgeHooks_onLivingJump = new ReflectorMethod(ForgeHooks, "onLivingJump");
@@ -9,9 +9,11 @@
 +    public static ReflectorMethod ForgeHooks_onPickBlock = new ReflectorMethod(ForgeHooks, "onPickBlock");	
      public static ReflectorClass MinecraftForgeClient = new ReflectorClass("net.minecraftforge.client.MinecraftForgeClient");
      public static ReflectorMethod MinecraftForgeClient_getRenderPass = new ReflectorMethod(MinecraftForgeClient, "getRenderPass");
++    public static ReflectorMethod MinecraftForgeClient_getItemRenderer = new ReflectorMethod(MinecraftForgeClient, "getItemRenderer");
      public static ReflectorClass ForgeHooksClient = new ReflectorClass("net.minecraftforge.client.ForgeHooksClient");
-@@ -40,16 +43,32 @@
+     public static ReflectorMethod ForgeHooksClient_onDrawBlockHighlight = new ReflectorMethod(ForgeHooksClient, "onDrawBlockHighlight");
      public static ReflectorMethod ForgeHooksClient_orientBedCamera = new ReflectorMethod(ForgeHooksClient, "orientBedCamera");
++    public static ReflectorMethod ForgeHooksClient_renderEquippedItem = new ReflectorMethod(ForgeHooksClient, "renderEquippedItem");
      public static ReflectorMethod ForgeHooksClient_dispatchRenderLast = new ReflectorMethod(ForgeHooksClient, "dispatchRenderLast");
      public static ReflectorMethod ForgeHooksClient_onTextureLoadPre = new ReflectorMethod(ForgeHooksClient, "onTextureLoadPre");
 +    public static ReflectorMethod ForgeHooksClient_onTextureLoad = new ReflectorMethod(ForgeHooksClient, "onTextureLoad");
@@ -31,6 +33,8 @@
      public static ReflectorClass FMLClientHandler = new ReflectorClass("cpw.mods.fml.client.FMLClientHandler");
      public static ReflectorMethod FMLClientHandler_instance = new ReflectorMethod(FMLClientHandler, "instance");
      public static ReflectorMethod FMLClientHandler_isLoading = new ReflectorMethod(FMLClientHandler, "isLoading");
++    public static ReflectorClass ItemRenderType = new ReflectorClass("net.minecraftforge.client.IItemRenderer$ItemRenderType");
++    public static ReflectorField ItemRenderType_EQUIPPED = new ReflectorField(ItemRenderType, "EQUIPPED");
 +    public static ReflectorMethod FMLClientHandler_beginMinecraftLoading = new ReflectorMethod(FMLClientHandler, "beginMinecraftLoading");
 +    public static ReflectorMethod FMLClientHandler_beginMinecraftLoading2 = new ReflectorMethod(FMLClientHandler, "beginMinecraftLoading");
 +    public static ReflectorMethod FMLClientHandler_finishMinecraftLoading = new ReflectorMethod(FMLClientHandler, "finishMinecraftLoading");
@@ -43,7 +47,7 @@
      public static ReflectorClass ForgeWorldProvider = new ReflectorClass(WorldProvider.class);
      public static ReflectorMethod ForgeWorldProvider_getSkyRenderer = new ReflectorMethod(ForgeWorldProvider, "getSkyRenderer");
      public static ReflectorMethod ForgeWorldProvider_getCloudRenderer = new ReflectorMethod(ForgeWorldProvider, "getCloudRenderer");
-@@ -58,7 +77,9 @@
+@@ -58,7 +81,9 @@
      public static ReflectorClass DimensionManager = new ReflectorClass("net.minecraftforge.common.DimensionManager");
      public static ReflectorMethod DimensionManager_getStaticDimensionIDs = new ReflectorMethod(DimensionManager, "getStaticDimensionIDs");
      public static ReflectorClass WorldEvent_Load = new ReflectorClass("net.minecraftforge.event.world.WorldEvent$Load");
@@ -53,7 +57,7 @@
      public static ReflectorClass EventBus = new ReflectorClass("net.minecraftforge.event.EventBus");
      public static ReflectorMethod EventBus_post = new ReflectorMethod(EventBus, "post");
      public static ReflectorClass ChunkWatchEvent_UnWatch = new ReflectorClass("net.minecraftforge.event.world.ChunkWatchEvent$UnWatch");
-@@ -75,8 +96,14 @@
+@@ -75,8 +100,16 @@
      public static ReflectorMethod ForgeTileEntity_shouldRenderInPass = new ReflectorMethod(ForgeTileEntity, "shouldRenderInPass");
      public static ReflectorClass ForgeItem = new ReflectorClass(Item.class);
      public static ReflectorMethod ForgeItem_onEntitySwing = new ReflectorMethod(ForgeItem, "onEntitySwing");
@@ -61,6 +65,8 @@
 +    public static ReflectorMethod ForgeItem_getRenderPasses = new ReflectorMethod(ForgeItem, "getRenderPasses");
      public static ReflectorClass ForgePotionEffect = new ReflectorClass(PotionEffect.class);
      public static ReflectorMethod ForgePotionEffect_isCurativeItem = new ReflectorMethod(ForgePotionEffect, "isCurativeItem");
++    public static ReflectorClass ForgeItemStack = new ReflectorClass(ItemStack.class);
++    public static ReflectorMethod ForgeItemStack_hasEffect = new ReflectorMethod(ForgeItemStack, "hasEffect", new Class[] {Integer.TYPE});
 +    public static ReflectorClass ForgeGuiIngame = new ReflectorClass("net.minecraftforge.client.GuiIngameForge");
 +    public static ReflectorConstructor ForgeGuiIngame_Constructor = new ReflectorConstructor(ForgeGuiIngame, new Class[]{Minecraft.class});
 +    public static ReflectorField ForgeGuiIngame_renderCrosshairs = new ReflectorField(ForgeGuiIngame, "renderCrosshairs");
@@ -68,3 +74,33 @@
  
      public static void callVoid(ReflectorMethod refMethod, Object ... params)
      {
+@@ -542,4 +575,29 @@
+             return classes;
+         }
+     }
++
++    public static Field getFieldByType(Class cls, Class fieldType)
++    {
++        try
++        {
++            Field[] e = cls.getDeclaredFields();
++
++            for (int i = 0; i < e.length; ++i)
++            {
++                Field field = e[i];
++
++                if (field.getType() == fieldType)
++                {
++                    field.setAccessible(true);
++                    return field;
++                }
++            }
++
++            return null;
++        }
++        catch (Exception var5)
++        {
++            return null;
++        }
++    }
+ }

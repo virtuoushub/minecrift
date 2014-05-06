@@ -1,5 +1,25 @@
 --- a/net/minecraft/src/Config.java
 +++ b/net/minecraft/src/Config.java
+@@ -36,8 +36,8 @@
+     public static final String OF_NAME = "OptiFine";
+     public static final String MC_VERSION = "1.6.4";
+     public static final String OF_EDITION = "HD_U";
+-    public static final String OF_RELEASE = "C6";
+-    public static final String VERSION = "OptiFine_1.6.4_HD_U_C6";
++    public static final String OF_RELEASE = "D1";
++    public static final String VERSION = "OptiFine_1.6.4_HD_U_D1";
+     private static String newRelease = null;
+     private static GameSettings gameSettings = null;
+     private static Minecraft minecraft = null;
+@@ -67,7 +67,7 @@
+ 
+     public static String getVersion()
+     {
+-        return "OptiFine_1.6.4_HD_U_C6";
++        return "OptiFine_1.6.4_HD_U_D1";
+     }
+ 
+     public static void initGameSettings(GameSettings settings)
 @@ -1433,27 +1433,7 @@
                  }
  
