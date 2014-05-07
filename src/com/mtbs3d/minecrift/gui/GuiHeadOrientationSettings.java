@@ -77,7 +77,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
                 }
                 else if (var8 == EnumOptions.HEAD_TRACK_PREDICTION_TIME)
                 {
-                    minValue = 0.001f;
+                    minValue = 0.000f;
                     maxValue = 0.100f;
                     increment = 0.001f;
                 }
@@ -124,7 +124,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
                 if(this.mc.headTracker instanceof MCOculus)
                 {
                     this.mc.vrSettings.useHeadTrackPrediction = true;
-                    this.mc.vrSettings.headTrackPredictionTimeSecs = 0.015f;
+                    this.mc.vrSettings.headTrackPredictionTimeSecs = 0f;
                     mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
                 }
 			    this.mc.vrSettings.setHeadTrackSensitivity(1.0f);
@@ -187,7 +187,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
     				"For the Oculus Rift, enable Prediction?", 
     				" OFF: Prediction disabled",
     				" ON:  Prediction enabled",
-    				" Recommended value: ON" } ;
+    				" Recommended value: ON to reduce latency" } ;
     	case HEAD_TRACK_SENSITIVITY:
     		return new String[] {
     				"In-game camera orientation multiplied by this value.", 
@@ -198,8 +198,9 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
     		return new String[] {
     				"Number of seconds to predict motion. Higher values will",
     				"enhance the perceived precision of slow movements, but ",
-    				"cause issues with sudden movements",
-    				"  Recommended value: 0.015"};
+    				"cause issues with sudden movements. Auto attempts to",
+                    "dynamically set the value based on previous frame time.",
+    				"  Recommended value: AUTO (set to 0)"};
     	default:
     		return null;
     	}

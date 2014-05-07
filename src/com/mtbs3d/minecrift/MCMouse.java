@@ -61,7 +61,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 	}
 
 	@Override
-	public void poll() {
+	public void poll(float delta) {
 		if(this.mc.currentScreen == null && Display.isActive())
 		{
             this.mc.mouseHelper.mouseXYChange();

@@ -7,11 +7,8 @@
 package com.mtbs3d.minecrift;
 
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.render.DistortionParams;
@@ -21,7 +18,6 @@ import com.mtbs3d.minecrift.settings.VRSettings;
 import com.mtbs3d.minecrift.utils.Utils;
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.OculusRift;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
@@ -94,6 +90,12 @@ public class VRRenderer extends EntityRenderer
 
     // Debug
     double start = System.currentTimeMillis();
+
+    // Ghetto frame timing test
+    long startFrameTimeMicroSecs = 0;
+    long endFrameTimeNanoSecs = 0;
+    long frameTimeNanoSecs = 0;
+    long targetFrameTimeNanoSecs = 0;
 
     /*
      * MC:    the minecraft world rendering code, below
@@ -524,18 +526,27 @@ public class VRRenderer extends EntityRenderer
             this.mc.vrSettings.posTrackResetPosition = false;
         }
 
-        if (this.mc.gameSettings.ofSmoothFps)
+        // Get timing just before orient / position reading
+        startFrameTimeMicroSecs = System.nanoTime();
+
+        // Poll for position, orientation, setting prediction time
+        if (this.mc.vrSettings.useHeadTrackPrediction && this.mc.vrSettings.headTrackPredictionTimeSecs == 0)
         {
-            GL11.glFinish();
+            float frameTimeSecs = ((float) frameTimeNanoSecs) / 1000000000f;     // TODO: Take median over last n frames
+            //System.out.println("Frametime Secs: " + frameTimeSecs);
+            PluginManager.pollAll(frameTimeSecs);
+        }
+        else
+        {
+            PluginManager.pollAll(0.0f);
         }
 
-        PluginManager.pollAll();
         if(JoystickAim.selectedJoystickMode != null)
         	JoystickAim.selectedJoystickMode.update( renderPartialTicks );
         
         float lookYawOffset   = mc.lookaimController.getBodyYawDegrees();
-        float lookPitchOffset = mc.lookaimController.getBodyPitchDegrees(); 
-        
+        float lookPitchOffset = mc.lookaimController.getBodyPitchDegrees();
+
         if (mc.headTracker.isInitialized() && this.mc.vrSettings.useHeadTracking)
         {
             this.mc.mcProfiler.startSection("oculus");
@@ -1017,6 +1028,13 @@ public class VRRenderer extends EntityRenderer
 
         doDistortionAndSuperSample();
         checkLatencyTester();
+
+        // Finish frame
+        GL11.glFinish();
+
+        // Get end frame timings
+        endFrameTimeNanoSecs = System.nanoTime();
+        frameTimeNanoSecs = endFrameTimeNanoSecs - startFrameTimeMicroSecs;
 
         mc.checkGLError("After render world and GUI");
     }

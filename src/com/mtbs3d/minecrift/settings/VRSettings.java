@@ -47,7 +47,7 @@ public class VRSettings {
     public boolean loadMumbleLib = true;
     public boolean useHeadTracking = true;
     public boolean useHeadTrackPrediction = true;
-    public float headTrackPredictionTimeSecs = 0.015f;
+    public float headTrackPredictionTimeSecs = 0f;
     protected float ipd = 0.0635F;   // Use getIPD()
     protected float oculusProfileIpd = ipd;
     public String oculusProfileName;
@@ -629,7 +629,10 @@ public class VRSettings {
 	        case IPD:
 	            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getIPD() * 1000) });
 	        case HEAD_TRACK_PREDICTION_TIME:
-	            return var4 + String.format("%.0fms", new Object[] { Float.valueOf(this.headTrackPredictionTimeSecs * 1000) });
+                if (headTrackPredictionTimeSecs == 0.0f)
+                    return var4 + "Auto";
+                else
+	                return var4 + String.format("%.0fms", new Object[] { Float.valueOf(this.headTrackPredictionTimeSecs * 1000) });
 	        case HUD_OPACITY:
 	        	if( this.hudOpacity > 0.99)
 	        		return var4 +" Opaque";

@@ -323,7 +323,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	}
 
 	@Override
-	public void poll() {
+	public void poll(float delta) {
 		if(!loaded)
 			loadBindings();
 		JoystickAim.selectedJoystickMode = aimTypes[mc.vrSettings.joystickAimType];

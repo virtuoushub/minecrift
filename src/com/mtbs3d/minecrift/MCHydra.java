@@ -172,7 +172,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 	
 	@Override
-	public void poll()
+	public void poll(float delta)
     {
         if (!isInitialized())
             return;

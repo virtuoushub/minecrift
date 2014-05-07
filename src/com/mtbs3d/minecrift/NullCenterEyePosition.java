@@ -57,7 +57,7 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
 	}
 
 	@Override
-	public void poll() {
+	public void poll(float delta) {
 	}
 
 	@Override

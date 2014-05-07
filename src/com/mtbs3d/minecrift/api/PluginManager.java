@@ -155,12 +155,12 @@ public class PluginManager implements IEventListener
         thePluginManager.allPlugins.add(that);
     }
 
-    public static void pollAll()
+    public static void pollAll(float delta)
     {
         for( IBasePlugin p : thePluginManager.allPlugins )
         {
             if( p.isInitialized() )
-                p.poll();
+                p.poll(delta);
         }
     }
 

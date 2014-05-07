@@ -162,6 +162,20 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         }
     }
 
+    @Override
+    public void poll(float delta)
+    {
+        if (isInitialized())
+        {
+            if (delta != 0f)
+            {
+                _setPredictionEnabled(delta, true);
+            }
+            poll();
+        }
+    }
+
+
 	@Override
 	public float getHeadYawDegrees() {
 		return getYawDegrees_LH();

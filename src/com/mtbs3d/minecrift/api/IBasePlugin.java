@@ -34,7 +34,7 @@ public interface IBasePlugin {
 
 	public boolean isInitialized();
 
-	public void poll();
+	public void poll(float delta);
 
 	public void destroy();
 
