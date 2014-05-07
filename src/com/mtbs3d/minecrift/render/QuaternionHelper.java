@@ -39,6 +39,13 @@ public class QuaternionHelper
         return QuaternionHelper.scalarMultiply(vectorBit, (float)Math.pow(inputMagnitude, power));
     }
 
+    public static Quaternion mul(Quaternion left, Quaternion right)
+    {
+        Quaternion result = IDENTITY_QUATERNION;
+        Quaternion.mul(left, right, result);
+        return result;
+    }
+
     public static Quaternion exp(Quaternion input)
     {
         float inputA = input.w;
