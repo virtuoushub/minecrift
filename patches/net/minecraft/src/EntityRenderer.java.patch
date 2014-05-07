@@ -325,7 +325,7 @@
 +            {
 +                var8 = -1;
 +            }
-+
+ 
 +            if (this.mc.gameSettings.smoothCamera)
 +            {
 +                this.smoothCamYaw += var6;
@@ -343,7 +343,7 @@
 +        }
 +
 +        this.mc.mcProfiler.endSection();
- 
++
 +    }
 +    
      /**
@@ -528,9 +528,9 @@
 +                this.mc.ingameGUI.renderGameOverlay(par1, this.mc.currentScreen != null, var18, var20);
              }
 -        }
--
--        this.waitForServerThread();
  
+-        this.waitForServerThread();
+-
 -        if (this.mc.gameSettings.showDebugInfo != this.lastShowDebugInfo)
 -        {
 -            this.showExtendedDebugInfo = this.mc.gameSettings.showDebugProfilerChart;
@@ -604,22 +604,7 @@
          }
      }
  
-@@ -1466,7 +1525,14 @@
-                     Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(-1)});
-                 }
- 
-+                this.enableLightmap((double)par1);
-+                this.mc.mcProfiler.endStartSection("litParticles");
-+                var6.renderLitParticles(var4, par1);
-                 RenderHelper.disableStandardItemLighting();
-+                this.setupFog(0, par1);
-+                this.mc.mcProfiler.endStartSection("particles");
-+                var6.renderParticles(var4, par1);
-+                this.disableLightmap((double)par1);
- 
-                 if (this.mc.objectMouseOver != null && var4.isInsideOfMaterial(Material.water) && var4 instanceof EntityPlayer && !this.mc.gameSettings.hideGUI)
-                 {
-@@ -1614,7 +1680,7 @@
+@@ -1614,7 +1673,7 @@
      /**
       * Render clouds if enabled
       */
@@ -628,7 +613,7 @@
      {
          if (this.mc.gameSettings.shouldRenderClouds())
          {
-@@ -1918,211 +1984,186 @@
+@@ -1918,211 +1977,186 @@
      /**
       * calculates fog and calls glClearColor
       */
@@ -936,7 +921,7 @@
          }
  
          GL11.glClearColor(this.fogColorRed, this.fogColorGreen, this.fogColorBlue, 0.0F);
-@@ -2132,7 +2173,7 @@
+@@ -2132,7 +2166,7 @@
       * Sets up the fog to be rendered. If the arg passed in is -1 the fog starts at 0 and goes to 80% of far plane
       * distance and is used for sky rendering.
       */
@@ -945,7 +930,7 @@
      {
          EntityLivingBase var3 = this.mc.renderViewEntity;
          boolean var4 = false;
-@@ -2310,25 +2351,14 @@
+@@ -2310,25 +2344,14 @@
      {
          Minecraft var1 = Config.getMinecraft();
  

@@ -1096,7 +1096,13 @@ public class VRRenderer extends EntityRenderer
                     distortParams.delete();
             }
 
-            if (!_FBOInitialised) {
+            if (!_FBOInitialised)
+            {
+                float distance = this.farPlaneDistance * 2.0F;
+                if (distance < 128.0F) {
+                    distance = 128.0F;
+                }
+
                 //Setup eye render params
                 if (this.mc.vrSettings.useSupersample) {
                     eyeRenderParams = mc.hmdInfo.getEyeRenderParams(0,
@@ -1104,7 +1110,7 @@ public class VRRenderer extends EntityRenderer
                             (int) ceil(this.mc.displayFBWidth * this.mc.vrSettings.superSampleScaleFactor),
                             (int) ceil(this.mc.displayFBHeight * this.mc.vrSettings.superSampleScaleFactor),
                             0.05F,
-                            this.farPlaneDistance * 2.0F,
+                            distance,
                             this.mc.vrSettings.fovScaleFactor,
                             this.mc.vrSettings.lensSeparationScaleFactor,
                             getDistortionFitX(),
@@ -1116,7 +1122,7 @@ public class VRRenderer extends EntityRenderer
                             this.mc.displayFBWidth,
                             this.mc.displayFBHeight,
                             0.05F,
-                            this.farPlaneDistance * 2.0F,
+                            distance,
                             this.mc.vrSettings.fovScaleFactor,
                             this.mc.vrSettings.lensSeparationScaleFactor,
                             getDistortionFitX(),
@@ -1545,18 +1551,13 @@ public class VRRenderer extends EntityRenderer
                 Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(-1)});
             }
 
-            this.enableLightmap((double) renderPartialTicks);
-            this.mc.mcProfiler.endStartSection("litParticles");
-            effectRenderer.renderLitParticles(renderViewEntity, renderPartialTicks);
             RenderHelper.disableStandardItemLighting();
-            this.setupFog(0, renderPartialTicks);
-            this.mc.mcProfiler.endStartSection("particles");
-            effectRenderer.renderParticles(renderViewEntity, renderPartialTicks);
-            this.disableLightmap((double) renderPartialTicks);
+
         }
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDepthMask(true);
         this.setupFog(0, renderPartialTicks);
         GL11.glEnable(GL11.GL_BLEND);
@@ -1565,7 +1566,6 @@ public class VRRenderer extends EntityRenderer
         this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
         WrUpdates.resumeBackgroundUpdates();
 
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         if (Config.isWaterFancy())
         {
             this.mc.mcProfiler.endStartSection("water");
@@ -1575,7 +1575,24 @@ public class VRRenderer extends EntityRenderer
                 GL11.glShadeModel(GL11.GL_SMOOTH);
             }
 
+			GL11.glColorMask(false, false, false, false);
             int var17 = renderGlobal.renderAllSortedRenderers(1, (double)renderPartialTicks);
+
+            if (this.mc.gameSettings.anaglyph)
+            {
+                if (anaglyphField == 0)
+                {
+                    GL11.glColorMask(false, true, true, true);
+                }
+                else
+                {
+                    GL11.glColorMask(true, false, false, true);
+                }
+            }
+            else
+            {
+                GL11.glColorMask(true, true, true, true);
+            }
 
             if (var17 > 0)
             {
@@ -1591,12 +1608,22 @@ public class VRRenderer extends EntityRenderer
         }
 
         WrUpdates.pauseBackgroundUpdates();
+
+        if (var16 && this.debugViewDirection == 0)
+        {
+            RenderHelper.enableStandardItemLighting();
+            this.mc.mcProfiler.endStartSection("entities");
+            Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(1)});
+            this.mc.renderGlobal.renderEntities(renderViewEntity.getPosition(renderPartialTicks), frustrum, renderPartialTicks);
+            Reflector.callVoid(Reflector.ForgeHooksClient_setRenderPass, new Object[] {Integer.valueOf(-1)});
+            RenderHelper.disableStandardItemLighting();
+        }
+
         GL11.glDepthMask(true);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
 
         boolean renderOutline = this.mc.vrSettings.alwaysRenderBlockOutline || !this.mc.gameSettings.hideGUI;
-
         if (this.mc.currentScreen == null && this.cameraZoom == 1.0D && renderViewEntity instanceof EntityPlayer && this.mc.objectMouseOver != null && !renderViewEntity.isInsideOfMaterial(Material.water) && renderOutline)
         {
             var18 = (EntityPlayer)renderViewEntity;
@@ -1605,8 +1632,6 @@ public class VRRenderer extends EntityRenderer
 
             if (!var16 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderGlobal, var18, this.mc.objectMouseOver, Integer.valueOf(0), var18.inventory.getCurrentItem(), Float.valueOf(renderPartialTicks)}))
             {
-                //renderGlobal.drawBlockBreaking(var18, this.mc.objectMouseOver, 0, var18.inventory.getCurrentItem(), renderPartialTicks );
-
                 renderGlobal.drawSelectionBox(var18, this.mc.objectMouseOver, 0, renderPartialTicks );
             }
             GL11.glEnable(GL11.GL_ALPHA_TEST);
@@ -1626,7 +1651,7 @@ public class VRRenderer extends EntityRenderer
                 GL11.glEnable(GL11.GL_ALPHA_TEST);
             }
         }
-
+			
         this.mc.mcProfiler.endStartSection("destroyProgress");
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
@@ -1643,12 +1668,20 @@ public class VRRenderer extends EntityRenderer
             this.renderCloudsCheck(renderGlobal, renderPartialTicks);
         }
 
+        this.enableLightmap((double) renderPartialTicks);
+        this.mc.mcProfiler.endStartSection("litParticles");
+        RenderHelper.enableStandardItemLighting();
+        effectRenderer.renderLitParticles(renderViewEntity, renderPartialTicks);
+        RenderHelper.disableStandardItemLighting();
+        this.setupFog(0, renderPartialTicks);
+        this.mc.mcProfiler.endStartSection("particles");
+        effectRenderer.renderParticles(renderViewEntity, renderPartialTicks);
+        this.disableLightmap((double) renderPartialTicks);
+
         if (var16)
         {
-	        //mc.checkGLError("PreFRenderLast");
             this.mc.mcProfiler.endStartSection("FRenderLast");
             Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, new Object[] {renderGlobal, Float.valueOf(renderPartialTicks)});
-	        //mc.checkGLError("PostFRenderLast");
         }
 
         if (this.mc.vrSettings.renderFullFirstPersonModel == false)
