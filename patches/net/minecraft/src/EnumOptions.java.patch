@@ -9,12 +9,11 @@
      AF_LEVEL("Anisotropic Filtering", false, false),
      RENDER_DISTANCE_FINE("Render Distance", true, false),
      ANIMATED_TEXTURES("Textures Animated", false, false),
-@@ -97,7 +97,92 @@
-     HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
+@@ -98,7 +98,91 @@
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
--    CUSTOM_SKY("Custom Sky", false, false);
-+    CUSTOM_SKY("Custom Sky", false, false),
+     CUSTOM_SKY("Custom Sky", false, false),
+-    FAST_MATH("Fast Math", false, false);
 +    FAST_MATH("Fast Math", false, false),
 +    // Minecrift below here
 +    

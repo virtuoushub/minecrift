@@ -1,48 +1,8 @@
 --- a/net/minecraft/src/CustomColorizer.java
 +++ b/net/minecraft/src/CustomColorizer.java
-@@ -1053,4 +1053,45 @@
-             }
-         }
+@@ -1093,4 +1093,5 @@
+ 
+         return skyVec;
      }
-+
-+    public static Vec3 getWorldFogColor(Vec3 fogVec, WorldClient world, float partialTicks)
-+    {
-+        int worldType = world.provider.dimensionId;
-+
-+        switch (worldType)
-+        {
-+            case -1:
-+                fogVec = getFogColorNether(fogVec);
-+                break;
-+
-+            case 0:
-+                Minecraft mc = Minecraft.getMinecraft();
-+                fogVec = getFogColor(fogVec, mc.theWorld, mc.renderViewEntity.posX, mc.renderViewEntity.posY + 1.0D, mc.renderViewEntity.posZ);
-+                break;
-+
-+            case 1:
-+                fogVec = getFogColorEnd(fogVec);
-+        }
-+
-+        return fogVec;
-+    }
-+
-+    public static Vec3 getWorldSkyColor(Vec3 skyVec, WorldClient world, EntityLivingBase renderViewEntity, float partialTicks)
-+    {
-+        int worldType = world.provider.dimensionId;
-+
-+        switch (worldType)
-+        {
-+            case 0:
-+                Minecraft mc = Minecraft.getMinecraft();
-+                skyVec = getSkyColor(skyVec, mc.theWorld, mc.renderViewEntity.posX, mc.renderViewEntity.posY + 1.0D, mc.renderViewEntity.posZ);
-+                break;
-+
-+            case 1:
-+                skyVec = getSkyColorEnd(skyVec);
-+        }
-+
-+        return skyVec;
-+    }
 +
  }
