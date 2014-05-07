@@ -11,7 +11,7 @@ from applychanges import applychanges, apply_patch
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 mc_version = "1.6.4"
-of_version = mc_version+"_HD_U_C6"
+of_version = mc_version+"_HD_U_D1"
 of_file_extension = ".jar"
 mcp_version = "mcp811"
 
@@ -104,7 +104,9 @@ def download_deps( mcp_dir ):
     optifine_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_version )
     mkdir_p( optifine_dir )
 
-    download_file( "http://optifine.net/download.php?f=OptiFine_"+of_version+of_file_extension, os.path.join( optifine_dir, "OptiFine-"+of_version+".jar" ))
+    optifine_url = "http://optifine.net/download.php?f=OptiFine_"+of_version+of_file_extension
+    print 'Downloading Optifine from: %s' % optifine_url
+    download_file( optifine_url, os.path.join( optifine_dir, "OptiFine-"+of_version+".jar" ))
 
     json_obj = []
     with open(json_file,"rb") as f:

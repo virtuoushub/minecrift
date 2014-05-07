@@ -34,7 +34,7 @@ import javax.swing.border.LineBorder;
 public class Installer extends JPanel  implements PropertyChangeListener {
 	private static final long serialVersionUID = -562178983462626162L;
 	private static final String MC_VERSION = "1.6.4";
-	private static final String OF_VERSION = "1.6.4_HD_U_C6";
+	private static final String OF_VERSION = "1.6.4_HD_U_D1";
     private static final String OF_VERSION_EXT = "jar";
     private static final String OF_LIB_PATH = "libraries/optifine/OptiFine/";
 
