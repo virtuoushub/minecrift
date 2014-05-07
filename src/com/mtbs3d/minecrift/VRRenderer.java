@@ -364,30 +364,30 @@ public class VRRenderer extends EntityRenderer
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-        	if (this.mc.vrSettings.useQuaternions)
-            {
-                //GL11.glMultMatrix(cameraMatrix4f);   // This doesn't work currently - we still need
-                                                     // the weird +180...
-
-                // So do this instead...
-                float[] rawYawPitchRoll = OculusRift.getEulerAngles(orientation.x,
-                        orientation.y,
-                        orientation.z,
-                        orientation.w,
-                        1f,
-                        OculusRift.HANDED_L,
-                        OculusRift.ROTATE_CCW);
-
-                if (this.mc.gameSettings.thirdPersonView == 2)
-                    GL11.glRotatef(-rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
-                else
-                    GL11.glRotatef(rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
-
-                GL11.glRotatef(rawYawPitchRoll[1], 1.0F, 0.0F, 0.0F);
-                GL11.glRotatef(rawYawPitchRoll[0] + 180.0F, 0.0F, 1.0F, 0.0F);
-            }
-            else
-            {
+//        	if (this.mc.vrSettings.useQuaternions)
+//            {
+//                //GL11.glMultMatrix(cameraMatrix4f);   // This doesn't work currently - we still need
+//                                                     // the weird +180...
+//
+//                // So do this instead...
+//                float[] rawYawPitchRoll = OculusRift.getEulerAngles(orientation.x,
+//                        orientation.y,
+//                        orientation.z,
+//                        orientation.w,
+//                        1f,
+//                        OculusRift.HANDED_L,
+//                        OculusRift.ROTATE_CCW);
+//
+//                if (this.mc.gameSettings.thirdPersonView == 2)
+//                    GL11.glRotatef(-rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
+//                else
+//                    GL11.glRotatef(rawYawPitchRoll[2], 0.0F, 0.0F, 1.0F);
+//
+//                GL11.glRotatef(rawYawPitchRoll[1], 1.0F, 0.0F, 0.0F);
+//                GL11.glRotatef(rawYawPitchRoll[0] + 180.0F, 0.0F, 1.0F, 0.0F);
+//            }
+//            else
+//            {
                 if (this.mc.gameSettings.thirdPersonView == 2)
                     GL11.glRotatef(-this.cameraRoll, 0.0F, 0.0F, 1.0F);
                 else
@@ -395,7 +395,7 @@ public class VRRenderer extends EntityRenderer
 
                 GL11.glRotatef(this.cameraPitch, 1.0F, 0.0F, 0.0F);
                 GL11.glRotatef(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
-            }
+//            }
         }
 
         GL11.glTranslated(-camRelX, cameraYOffset - camRelY, -camRelZ);
