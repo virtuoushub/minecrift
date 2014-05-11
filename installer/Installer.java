@@ -10,6 +10,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URI;
 import java.nio.channels.Channels;
@@ -52,7 +53,13 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	private JCheckBox useForge;
 	private JComboBox forgeVersion;
 	private JCheckBox useHydra;
+    private JCheckBox useHrtf;
 	static private final String forgeNotFound = "Forge not found..." ;
+
+    private String userHomeDir;
+    private String osType;
+    private boolean isWindows = false;
+    private String appDataDir;
 
 	class InstallTask extends SwingWorker<Void, Void>{
 		private boolean DownloadOptiFine()
@@ -189,6 +196,39 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			return false;
 		}
 
+        private boolean EnableHRTF()           // Implementation by Zach Jaggi
+        {
+            // Find the correct location to stick alsoftrc
+            File alsoftrc;
+
+            //I honestly have no clue where Mac stores this, so I'm assuming the same as Linux.
+            if (isWindows && appDataDir != null)
+            {
+                alsoftrc = new File(appDataDir, "alsoft.ini");
+            }
+            else
+            {
+                alsoftrc = new File(userHomeDir, ".alsoftrc");
+            }
+            try
+            {
+                //Overwrite the current file.
+                alsoftrc.createNewFile();
+                PrintWriter writer = new PrintWriter(alsoftrc);
+                writer.write("hrtf = true\n");
+                writer.write("frequency = 44100\n");
+                writer.close();
+                return true;
+            }
+            catch (Exception e)
+            {
+                finalMessage += " Error: "+e.getLocalizedMessage();
+            }
+
+            return false;
+        }
+                
+
 		/*
 		 * Main task. Executed in background thread.
 		 */
@@ -215,6 +255,15 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			{
 				return null;
 			}
+            if(useHrtf.isSelected())
+            {
+                setProgress(99);
+                finalMessage = "Failed to set up HRTF! Your game will still work but audio won't be binaural.";
+                if(!EnableHRTF())
+                {
+                    return null;
+                }
+            }
 			finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-"+version+mod;
 			setProgress(100);
 			return null;
@@ -330,7 +379,14 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		} catch (IOException e) {
 		} catch( IllegalArgumentException e) {
 		}
-	    
+
+        userHomeDir = System.getProperty("user.home", ".");
+        osType = System.getProperty("os.name").toLowerCase();
+        if (osType.contains("win"))
+        {
+            isWindows = true;
+            appDataDir = System.getenv("APPDATA");
+        }
 
 	    version = "UNKNOWN";
 		try {
@@ -416,10 +472,19 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		useHydra = new JCheckBox("Include Razer Hydra support",false);
 		useHydra.setAlignmentX(LEFT_ALIGNMENT);
 
+        useHrtf = new JCheckBox("Setup binaural sound (OpenAL HRTF)", false);
+        useHrtf.setToolTipText("<html>Checking this will tell the installer to create the configuration file needed for ear-aware sound in Minecraft (and other games).<br>" +
+                " If the file has previously been created, you do not need to select this again.<br>" +
+                " NOTE: Your sound card's output MUST be set to 44.1Khz.<br>" +
+                " WARNING, will overwrite " + (isWindows ? (appDataDir + "\\alsoft.ini") : (userHomeDir + "/.alsoftrc")) + "!<br>" +
+                " Delete the " + (isWindows ? "alsoft.ini" : "alsoftrc") + " file to disable HRTF again.</html>");
+        useHrtf.setAlignmentX(LEFT_ALIGNMENT);
+
 		//Add option panels option panel
 		forgePanel.setAlignmentX(LEFT_ALIGNMENT);
 		optPanel.add(forgePanel);
 		optPanel.add(useHydra);
+        optPanel.add(useHrtf);
 		this.add(optPanel);
 
 
