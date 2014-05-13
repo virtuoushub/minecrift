@@ -6,10 +6,7 @@ package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
 
-import net.minecraft.src.EnumOptions;
-import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiScreen;
-import net.minecraft.src.StringTranslate;
+import net.minecraft.src.*;
 
 public class GuiMinecriftSettings extends BaseGuiSettings
 {
@@ -43,11 +40,15 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 
     /** An array of all of EnumOption's video options. */
 
+    GameSettings settings;
+
     public GuiMinecriftSettings( GuiScreen par1GuiScreen,
-                                VRSettings par2vrSettings)
+                                VRSettings par2vrSettings,
+                                GameSettings gameSettings)
     {
     	super( par1GuiScreen, par2vrSettings );
     	screenTitle = "VR Settings";
+        settings = gameSettings;
     }
 
     /**
@@ -142,7 +143,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             	if( mc.headTracker != null && mc.hmdInfo != null && mc.positionTracker != null )
             	{
 	                this.mc.vrSettings.saveOptions();
-	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guivrSettings));
+	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guivrSettings, this.settings));
             	}
             } 
             else if (par1GuiButton.id == 207)

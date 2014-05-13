@@ -8,7 +8,7 @@ package com.mtbs3d.minecrift;
 
 import java.lang.reflect.Field;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
+import java.util.*;
 
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.render.DistortionParams;
@@ -92,10 +92,12 @@ public class VRRenderer extends EntityRenderer
     double start = System.currentTimeMillis();
 
     // Ghetto frame timing test
-    long startFrameTimeMicroSecs = 0;
-    long endFrameTimeNanoSecs = 0;
-    long frameTimeNanoSecs = 0;
-    long targetFrameTimeNanoSecs = 0;
+    long startFrameRenderNanos = 0;
+    long endFrameTimeNanos = 0;
+    Deque<Long> frameTimeNanos = new ArrayDeque<Long>();
+    long startVSyncPeriodNanos = 0;
+    long vsyncPeriodNanos = 0;
+    long medianFrameTimeNanos = 0;
 
     /*
      * MC:    the minecraft world rendering code, below
@@ -526,20 +528,9 @@ public class VRRenderer extends EntityRenderer
             this.mc.vrSettings.posTrackResetPosition = false;
         }
 
-        // Get timing just before orient / position reading
-        startFrameTimeMicroSecs = System.nanoTime();
-
-        // Poll for position, orientation, setting prediction time
-        if (this.mc.vrSettings.useHeadTrackPrediction && this.mc.vrSettings.headTrackPredictionTimeSecs == 0)
-        {
-            float frameTimeSecs = ((float) frameTimeNanoSecs) / 1000000000f;     // TODO: Take median over last n frames
-            //System.out.println("Frametime Secs: " + frameTimeSecs);
-            PluginManager.pollAll(frameTimeSecs);
-        }
-        else
-        {
-            PluginManager.pollAll(0.0f);
-        }
+        // Poll sensors. We may actually sleep inside this
+        // to reduce latency.
+        pollSensors();
 
         if(JoystickAim.selectedJoystickMode != null)
         	JoystickAim.selectedJoystickMode.update( renderPartialTicks );
@@ -1033,8 +1024,9 @@ public class VRRenderer extends EntityRenderer
         GL11.glFinish();
 
         // Get end frame timings
-        endFrameTimeNanoSecs = System.nanoTime();
-        frameTimeNanoSecs = endFrameTimeNanoSecs - startFrameTimeMicroSecs;
+        endFrameTimeNanos = startVSyncPeriodNanos = System.nanoTime();
+        long frameTime = endFrameTimeNanos - startFrameRenderNanos;
+        addRenderFrameTimeNanos(frameTime);
 
         mc.checkGLError("After render world and GUI");
     }
@@ -1246,6 +1238,13 @@ public class VRRenderer extends EntityRenderer
                         this.mc.vrSettings.useChromaticAbCorrection,
                         this.mc.vrSettings.useSupersample,
                         this.mc.vrSettings.superSampleScaleFactor);
+
+                // Get our refresh period
+                int Hz = Display.getDisplayMode().getFrequency();
+                if (Hz != 0)
+                    vsyncPeriodNanos = 1000000000L / Hz;
+                else
+                    vsyncPeriodNanos = 0;
 
                 _FBOInitialised = true;
             }
@@ -2567,5 +2566,80 @@ public class VRRenderer extends EntityRenderer
         var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.minY, par1AxisAlignedBB.maxZ);
         var2.addVertex(par1AxisAlignedBB.minX, par1AxisAlignedBB.maxY, par1AxisAlignedBB.maxZ);
         var2.draw();
+    }
+
+    private void pollSensors()
+    {
+        // Sleep if we can, so that we poll orientation and position and start rendering at the
+        // last possible moment; and still finish before VSync
+        if (this.mc.vrSettings.frameTimingEnableVsyncSleep && this.mc.gameSettings.enableVsync)
+        {
+            long pollAndRenderTimeNanos = getMedianRenderFrameTimeNanos();
+            long nanosSinceLastRefresh = System.nanoTime() - startVSyncPeriodNanos;
+            long sleepTimeNanos = vsyncPeriodNanos - pollAndRenderTimeNanos - nanosSinceLastRefresh - this.mc.vrSettings.frameTimingSleepSafetyBufferNanos;
+            if (sleepTimeNanos > 0)
+                sleepNanos(sleepTimeNanos);
+        }
+
+        // Get timing just before orient / position reading
+        startFrameRenderNanos = System.nanoTime();
+
+        // Poll for position, orientation, setting prediction time
+        if (this.mc.vrSettings.useHeadTrackPrediction && this.mc.vrSettings.headTrackPredictionTimeSecs == 0)
+        {
+            long timeDeltaInFutureNanos = getMedianRenderFrameTimeNanos() + this.mc.vrSettings.frameTimingPredictDeltaFromEndFrameNanos;
+            float timeDeltaInFutureSecs = ((float) timeDeltaInFutureNanos) / 1000000000f;
+            //System.out.println("Predict ahead secs: " + timeDeltaInFutureSecs);
+            PluginManager.pollAll(timeDeltaInFutureSecs);
+        }
+        else
+        {
+            PluginManager.pollAll(0.0f);
+        }
+    }
+
+    private static void sleepNanos (long nanoDelay)
+    {
+        final long end = System.nanoTime() + nanoDelay;
+        do
+        {
+            Thread.yield();  // This is a busy wait sadly...
+        }
+        while (System.nanoTime() < end);
+    }
+
+    private void addRenderFrameTimeNanos(long frameTime)
+    {
+        int i = 0;
+        medianFrameTimeNanos = frameTime;
+
+        if (this.mc.vrSettings.frameTimingSmoothOverFrameCount < 1)
+            this.mc.vrSettings.frameTimingSmoothOverFrameCount = 1;
+
+        if (this.mc.vrSettings.frameTimingSmoothOverFrameCount % 2 == 0)
+        {
+            // Need an odd number for this
+            this.mc.vrSettings.frameTimingSmoothOverFrameCount++;
+        }
+
+        frameTimeNanos.addFirst(frameTime);
+        while (frameTimeNanos.size() > this.mc.vrSettings.frameTimingSmoothOverFrameCount)
+            frameTimeNanos.removeLast();
+
+        if (frameTimeNanos.size() == this.mc.vrSettings.frameTimingSmoothOverFrameCount)
+        {
+            Long[] array = new Long[frameTimeNanos.size()];
+            for (Iterator itr = frameTimeNanos.iterator(); itr.hasNext(); i++)
+            {
+                array[i] = (Long)itr.next();
+            }
+            Arrays.sort(array);
+            medianFrameTimeNanos = array[array.length / 2];
+        }
+    }
+
+    private long getMedianRenderFrameTimeNanos()
+    {
+        return medianFrameTimeNanos;
     }
 }

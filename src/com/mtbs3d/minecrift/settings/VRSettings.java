@@ -124,7 +124,27 @@ public class VRSettings {
 	public float chatOffsetX = 0;
 	public float chatOffsetY = 0;
 	public float aimPitchOffset = 0;
-    
+
+    // Experimental: frame timing parameters   - to use these, generally you should have already configured Minecraft's graphics
+    //                                           so that you have a frame rate as high as possible. Auto head prediction time enabled.
+    public int frameTimingSmoothOverFrameCount = 11;           // Calculate the median time to render a frame over
+                                                               // this number of frames. Should be an odd number.
+    public int frameTimingPredictDeltaFromEndFrameNanos = -0;  // Negative numbers to move prediction time a set amount before
+                                                               // the end of the frame, positive for after. This is added to the
+                                                               // median frame time to generate a prediction time in the future for
+                                                               // the Oculus SDK.
+
+    // Experimental: sleep before render settings.      - Again, framerate should already be configured to be quite a bit above vsync framerate.
+    //                                                    VSync must be on.
+
+    public boolean frameTimingEnableVsyncSleep = false;        // Enable sleep before start of render. Renderer should sleep, then read sensor
+                                                               // at the last possible moment before starting the render, and still
+                                                               // have time to finish before vsync. Too high a sleep value means
+                                                               // we may not finish the scene before vsync. Too low and the HMD poll latency
+                                                               // will increase.
+    public int frameTimingSleepSafetyBufferNanos = 0;          // Positive values increase the safety margin between
+                                                               // end-of-render and vsync. Negative values reduce.
+
     private Minecraft mc;
 
     private File optionsVRFile;
@@ -575,6 +595,26 @@ public class VRSettings {
                     {
                         this.oculusProfilePlayerEyeHeight = this.parseFloat(optionTokens[1]);
                     }
+
+                    if (optionTokens[0].equals("frameTimingEnableVsyncSleep"))
+                    {
+                        this.frameTimingEnableVsyncSleep = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("frameTimingSleepSafetyBufferNanos"))
+                    {
+                        this.frameTimingSleepSafetyBufferNanos = Integer.parseInt(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("frameTimingSmoothOverFrameCount"))
+                    {
+                        this.frameTimingSmoothOverFrameCount = Integer.parseInt(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("frameTimingPredictDeltaFromEndFrameNanos"))
+                    {
+                        this.frameTimingPredictDeltaFromEndFrameNanos = Integer.parseInt(optionTokens[1]);
+                    }
                 }
                 catch (Exception var7)
                 {
@@ -626,6 +666,8 @@ public class VRSettings {
 	            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
 	        case HEAD_TRACK_PREDICTION:
 	            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
+            case DELAYED_RENDER:
+                return this.frameTimingEnableVsyncSleep ? var4 + "Immediate" : var4 + "Delayed";
 	        case IPD:
 	            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getIPD() * 1000) });
 	        case HEAD_TRACK_PREDICTION_TIME:
@@ -957,6 +999,9 @@ public class VRSettings {
 	        case HEAD_TRACKING:
 	            this.useHeadTracking = !this.useHeadTracking;
 	            break;
+            case DELAYED_RENDER:
+                this.frameTimingEnableVsyncSleep = !this.frameTimingEnableVsyncSleep;
+                break;
 	        case RENDER_OWN_HEADWEAR:
 	            this.renderHeadWear = !this.renderHeadWear;
 	            break;
@@ -1390,6 +1435,10 @@ public class VRSettings {
             var5.println("chatOffsetX:" + this.chatOffsetX);
             var5.println("chatOffsetY:" + this.chatOffsetY);
             var5.println("aimPitchOffset:" + this.aimPitchOffset);
+            var5.println("frameTimingEnableVsyncSleep:" + this.frameTimingEnableVsyncSleep);
+            var5.println("frameTimingSleepSafetyBufferNanos:" + this.frameTimingSleepSafetyBufferNanos);
+            var5.println("frameTimingSmoothOverFrameCount:" + this.frameTimingSmoothOverFrameCount);
+            var5.println("frameTimingPredictDeltaFromEndFrameNanos:" + this.frameTimingPredictDeltaFromEndFrameNanos);
 
             var5.close();
         }

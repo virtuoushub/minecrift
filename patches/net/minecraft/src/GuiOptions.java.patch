@@ -48,7 +48,7 @@
 +            if (par1GuiButton.id == 666)
 +            {
 +                this.mc.gameSettings.saveOptions();
-+                this.mc.displayGuiScreen(new GuiMinecriftSettings(this, this.mc.vrSettings));
++                this.mc.displayGuiScreen(new GuiMinecriftSettings(this, this.mc.vrSettings, this.mc.gameSettings));
 +            }
          }
      }

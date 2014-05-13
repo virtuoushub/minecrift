@@ -9,7 +9,7 @@
      AF_LEVEL("Anisotropic Filtering", false, false),
      RENDER_DISTANCE_FINE("Render Distance", true, false),
      ANIMATED_TEXTURES("Textures Animated", false, false),
-@@ -98,7 +98,91 @@
+@@ -98,7 +98,92 @@
      DROPPED_ITEMS("Dropped Items", false, false),
      LAZY_CHUNK_LOADING("Lazy Chunk Loading", false, false),
      CUSTOM_SKY("Custom Sky", false, false),
@@ -65,6 +65,7 @@
 +    SUPERSAMPLING("FSAA", false, true),
 +    SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
 +    USE_QUATERNIONS("Orient. Mode", false, true),
++    DELAYED_RENDER("Render Mode", false, true),
 +
 +    //Head orientation tracking
 +    HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),

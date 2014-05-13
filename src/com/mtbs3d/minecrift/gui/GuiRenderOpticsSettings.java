@@ -21,18 +21,20 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             EnumOptions.CHROM_AB_CORRECTION,
             EnumOptions.USE_QUATERNIONS,
             EnumOptions.ASPECT_RATIO_CORRECTION,
-            EnumOptions.DUMMY,
+            EnumOptions.DELAYED_RENDER,
             EnumOptions.DUMMY,
             EnumOptions.SUPERSAMPLING,
             EnumOptions.SUPERSAMPLE_SCALEFACTOR,
             EnumOptions.FXAA,
     };
 
+    GameSettings settings;
 
-    public GuiRenderOpticsSettings(GuiScreen par1GuiScreen, VRSettings par2vrSettings)
+    public GuiRenderOpticsSettings(GuiScreen par1GuiScreen, VRSettings par2vrSettings, GameSettings gameSettings)
     {
     	super( par1GuiScreen, par2vrSettings);
         screenTitle = "Optics / Render Settings";
+        settings = gameSettings;
     }
 
     /**
@@ -95,7 +97,17 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             }
             else
             {
-                GuiSmallButtonEx button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8));
+                GuiSmallButtonEx button = null;
+                String keyBinding = this.guivrSettings.getKeyBinding(var8);
+                if (var8 == EnumOptions.DELAYED_RENDER && !settings.enableVsync)
+                {
+                    button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, "Render Mode: Immediate");
+                }
+                else
+                {
+                    button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, keyBinding);
+                }
+                button.enabled = getEnabledState(var8);
                 this.buttonList.add(button);
             }
         }
@@ -128,6 +140,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 			    this.mc.vrSettings.fovScaleFactor = 1.0f;
                 this.mc.vrSettings.lensSeparationScaleFactor = 1.0f;
 			    this.mc.vrSettings.distortionFitPoint = 5;
+                this.mc.vrSettings.frameTimingEnableVsyncSleep = false;
 			    this.mc.vrSettings.useSupersample = false;
                 this.mc.vrSettings.superSampleScaleFactor = 2.0f;
                 this.mc.vrSettings.useDistortionTextureLookupOptimisation = false;
@@ -256,6 +269,17 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     "  distortion (most noticable on head roll). If so, try the",
                     "  other settings. It *may* correct the aspect ratio."
             };
+        case DELAYED_RENDER:
+            return new String[] {
+                    "Whether to render a frame as soon as possible, or",
+                    "delay the start of the rendering.",
+                    "  Immediate: The sensors are polled and the frame",
+                    "  is rendered as soon as possible.",
+                    "  Delayed: [EXPERIMENTAL] Requires VSync ON. The thread",
+                    "  sleeps then polls/starts rendering, timing ",
+                    "  the end of the render to complete just before",
+                    "  VSync. Lower latency if frame time is low."
+            };
     	default:
     		return null;
     	}
@@ -281,6 +305,13 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 
     private boolean getEnabledState(EnumOptions var8)
     {
+        if (var8 == EnumOptions.DELAYED_RENDER)
+        {
+            if (!this.mc.gameSettings.enableVsync)
+            {
+                return false;
+            }
+        }
         return true;
     }
 }
