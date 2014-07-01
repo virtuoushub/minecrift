@@ -473,8 +473,8 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		useHydra.setAlignmentX(LEFT_ALIGNMENT);
 
         useHrtf = new JCheckBox("Setup binaural sound (OpenAL HRTF)", false);
-        useHrtf.setToolTipText("<html>Checking this will tell the installer to create the configuration file needed for ear-aware sound in Minecraft (and other games).<br>" +
-                " If the file has previously been created, you do not need to select this again.<br>" +
+        useHrtf.setToolTipText("<html>If checked, the installer will create the configuration file needed for ear-aware sound in Minecraft (and other games).<br>" +
+                " If the file has previously been created, you do not need to check this again.<br>" +
                 " NOTE: Your sound card's output MUST be set to 44.1Khz.<br>" +
                 " WARNING, will overwrite " + (isWindows ? (appDataDir + "\\alsoft.ini") : (userHomeDir + "/.alsoftrc")) + "!<br>" +
                 " Delete the " + (isWindows ? "alsoft.ini" : "alsoftrc") + " file to disable HRTF again.</html>");
