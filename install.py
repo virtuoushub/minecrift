@@ -1,5 +1,6 @@
 import os, os.path, sys
 import zipfile, urllib2
+import platform
 import shutil, tempfile, json
 import errno
 from hashlib import md5  # pylint: disable-msg=E0611
@@ -10,10 +11,10 @@ from applychanges import applychanges, apply_patch
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-mc_version = "1.6.4"
-of_version = mc_version+"_HD_U_D1"
+mc_version = "1.7.10"
+of_version = mc_version+"_HD_U_A2"
 of_file_extension = ".jar"
-mcp_version = "mcp811"
+mcp_version = "mcp908"
 
 try:
     WindowsError
@@ -132,7 +133,9 @@ def download_deps( mcp_dir ):
                 url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+"-"+lib["natives"][native]+".jar"
             else:
                 url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+".jar"
+                
             file = os.path.join(jars,"libraries",url.replace("/",os.sep))
+            file = file.replace('${arch}', osArch())
             mkdir_p(os.path.dirname(file))
             download_file( repo + url, file )
 
@@ -202,6 +205,12 @@ def symlink(source, link_name):
         flags = 1 if os.path.isdir(source) else 0
         if csl(link_name, source, flags) == 0:
             raise ctypes.WinError()
+
+def osArch():
+    if platform.machine().endswith('64'):
+        return '64'
+    else:
+        return '32'
 
 def main(mcp_dir):
     print 'Using mcp dir: %s' % mcp_dir
