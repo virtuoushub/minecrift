@@ -133,9 +133,9 @@ def download_deps( mcp_dir ):
                 url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+"-"+lib["natives"][native]+".jar"
             else:
                 url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+".jar"
-                
+
+            url = url.replace('${arch}', osArch())
             file = os.path.join(jars,"libraries",url.replace("/",os.sep))
-            file = file.replace('${arch}', osArch())
             mkdir_p(os.path.dirname(file))
             download_file( repo + url, file )
 
