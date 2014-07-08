@@ -1,8 +1,0 @@
---- a/net/minecraft/src/CustomColorizer.java
-+++ b/net/minecraft/src/CustomColorizer.java
-@@ -1093,4 +1093,5 @@
- 
-         return skyVec;
-     }
-+
- }
