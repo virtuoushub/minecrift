@@ -4,12 +4,11 @@
  */
 package com.mtbs3d.minecrift.gui;
 
-import com.mtbs3d.minecrift.VRRenderer;
+import com.minecraft_vr.render.VRRenderer;
 import com.mtbs3d.minecrift.settings.VRSettings;
-
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 
 public class BaseGuiSettings extends GuiScreen
 {
@@ -61,7 +60,7 @@ public class BaseGuiSettings extends GuiScreen
 
         if( drawBackground)
         	this.drawDefaultBackground();
-        this.drawCenteredString(this.fontRenderer, this.screenTitle, this.width / 2, 15, 16777215);
+        this.drawCenteredString(this.fontRendererObj, this.screenTitle, this.width / 2, 15, 16777215);
         super.drawScreen(par1, par2, par3);
 
         if (Math.abs(par1 - this.lastMouseX) <= 5 && Math.abs(par2 - this.lastMouseY) <= 5)
@@ -97,7 +96,7 @@ public class BaseGuiSettings extends GuiScreen
                     for (int var12 = 0; var12 < var11.length; ++var12)
                     {
                         String var13 = var11[var12];
-                        this.fontRenderer.drawStringWithShadow(var13, var5 + 5, var6 + 5 + var12 * 11, 14540253);
+                        this.fontRendererObj.drawStringWithShadow(var13, var5 + 5, var6 + 5 + var12 * 11, 14540253);
                     }
                 }
             }

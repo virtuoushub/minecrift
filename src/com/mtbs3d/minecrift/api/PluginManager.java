@@ -1,18 +1,15 @@
 package com.mtbs3d.minecrift.api;
 
-import net.minecraft.src.Minecraft;
+import de.fruitfly.ovr.enums.EyeType;
+import de.fruitfly.ovr.structs.Posef;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Vec3;
+import org.lwjgl.util.vector.Quaternion;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Pete
- * Date: 6/28/13
- * Time: 7:41 AM
- * To change this template use File | Settings | File Templates.
- */
 public class PluginManager implements IEventListener
 {
     static public PluginManager thePluginManager = new PluginManager();
@@ -20,8 +17,9 @@ public class PluginManager implements IEventListener
     public List<IBasePlugin> allPlugins = new ArrayList<IBasePlugin>();
     public List<IHMDInfo> hmdInfoPlugins = new ArrayList<IHMDInfo>();
     public List<IOrientationProvider> orientPlugins = new ArrayList<IOrientationProvider>();
-    public List<ICenterEyePositionProvider> positionPlugins = new ArrayList<ICenterEyePositionProvider>();
+    public List<IEyePositionProvider> positionPlugins = new ArrayList<IEyePositionProvider>();
     public List<IBodyAimController> controllerPlugins = new ArrayList<IBodyAimController>();
+    public List<IStereoProvider> stereoProviderPlugins = new ArrayList<IStereoProvider>();
 
     public static void create()
     {
@@ -76,10 +74,10 @@ public class PluginManager implements IEventListener
         return headTracker;
     }
 
-    public static ICenterEyePositionProvider configurePosition( String pluginID )
+    public static IEyePositionProvider configurePosition( String pluginID )
     {
-        ICenterEyePositionProvider positionTracker = null;
-        for( ICenterEyePositionProvider posTracker: thePluginManager.positionPlugins )
+        IEyePositionProvider positionTracker = null;
+        for( IEyePositionProvider posTracker: thePluginManager.positionPlugins )
         {
             if( posTracker.getID().equals( pluginID ) )
             {
@@ -125,6 +123,31 @@ public class PluginManager implements IEventListener
         return lookaimController;
     }
 
+    public static IStereoProvider configureStereoProvider( String pluginID )
+    {
+
+        IStereoProvider stereoProvider = null;
+        for( IStereoProvider sp : thePluginManager.stereoProviderPlugins )
+        {
+            if( sp.getID().equals( pluginID ) )
+            {
+                stereoProvider = sp;
+                break;
+            }
+        }
+        // If we still don't have one, try to use the first in the list
+        if( stereoProvider == null && thePluginManager.stereoProviderPlugins.size() > 0 )
+        {
+            stereoProvider = thePluginManager.stereoProviderPlugins.get(0);
+        }
+
+        if( stereoProvider != null )
+        {
+            initForMinecrift( stereoProvider );
+        }
+        return stereoProvider;
+    }
+
     private static void initForMinecrift(IBasePlugin plugin)
     {
     	for( String path :System.getProperty("java.library.path").split(":") )
@@ -148,10 +171,12 @@ public class PluginManager implements IEventListener
                 ((IEventNotifier)that).registerListener(thePluginManager);
             }
         }
-        if( that instanceof ICenterEyePositionProvider )
-            thePluginManager.positionPlugins.add((ICenterEyePositionProvider) that);
+        if( that instanceof IEyePositionProvider)
+            thePluginManager.positionPlugins.add((IEyePositionProvider) that);
         if( that instanceof IBodyAimController )
             thePluginManager.controllerPlugins.add((IBodyAimController) that);
+        if( that instanceof IStereoProvider )
+            thePluginManager.stereoProviderPlugins.add((IStereoProvider) that);
         thePluginManager.allPlugins.add(that);
     }
 
@@ -161,6 +186,81 @@ public class PluginManager implements IEventListener
         {
             if( p.isInitialized() )
                 p.poll(delta);
+        }
+    }
+
+    public static void beginFrameAll()
+    {
+        for( IBasePlugin p : thePluginManager.allPlugins )
+        {
+            if( p.isInitialized() )
+                p.beginFrame();
+        }
+    }
+
+    public static Posef beginEyeRender(EyeType eye)
+    {
+        Posef pose = new Posef();
+
+        // Poll all plugins
+        //pollAll(0f);
+
+        // Mark beginEyeRender with stereo providers
+        for( IBasePlugin p : thePluginManager.allPlugins )
+        {
+            if( p instanceof IStereoProvider && p.isInitialized() )
+                ((IStereoProvider)p).beginEyeRender(eye);
+        }
+
+        // Pull together position, orientation information (TODO: also body orientation)
+
+        // Get orient first...
+        for( IBasePlugin p : thePluginManager.allPlugins )
+        {
+            if (p instanceof IOrientationProvider && p.isInitialized() ) {
+                Quaternion orient = ((IOrientationProvider) p).getOrientationQuaternion();
+                if (orient != null) {
+                    pose.Orientation.x = orient.x;
+                    pose.Orientation.y = orient.y;
+                    pose.Orientation.z = orient.z;
+                    pose.Orientation.w = orient.w;
+                }
+            }
+        }
+
+        // ...as some position providers also require orientation information
+        for( IBasePlugin p : thePluginManager.allPlugins )
+        {
+            if (p instanceof IEyePositionProvider && p.isInitialized())
+            {
+                Vec3 pos = ((IEyePositionProvider) p).getEyePosition(eye);
+                if (pos != null)
+                {
+                    pose.Position.x = (float) pos.xCoord;
+                    pose.Position.y = (float) pos.yCoord;
+                    pose.Position.z = (float) pos.zCoord;
+                }
+            }
+        }
+
+        return pose;
+    }
+
+    public static void endEyeRenderAll(EyeType eye)
+    {
+        for( IBasePlugin p : thePluginManager.allPlugins )
+        {
+            if( p instanceof IStereoProvider &&  p.isInitialized() )
+                ((IStereoProvider)p).endEyeRender(eye);
+        }
+    }
+
+    public static void endFrameAll()
+    {
+        for( IBasePlugin p : thePluginManager.allPlugins )
+        {
+            if( p.isInitialized() )
+                p.endFrame();
         }
     }
 

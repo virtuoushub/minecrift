@@ -7,25 +7,23 @@ package com.mtbs3d.minecrift;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-
 import com.mtbs3d.minecrift.api.*;
 import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.settings.VRSettings;
 import com.sixense.utils.enums.EnumControllerDesc;
+import de.fruitfly.ovr.enums.EyeType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-
 import com.sixense.ControllerData;
 import com.sixense.EnumButton;
 import com.sixense.Sixense;
 import com.sixense.utils.ControllerManager;
 import com.sixense.utils.enums.EnumSetupStep;
-
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.EntityClientPlayerMP;
-import net.minecraft.src.GameSettings;
-import net.minecraft.src.MathHelper;
-import net.minecraft.src.Vec3;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -33,12 +31,14 @@ import org.lwjgl.util.vector.Vector4f;
  * @author Mark Browning
  *
  */
-public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, IOrientationProvider, IBodyAimController, IEventListener {
+public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrientationProvider, IBodyAimController, IEventListener {
 
     ControllerManager cm;
     public static ControllerData[] newData = {new ControllerData(), new ControllerData(), new ControllerData(), new ControllerData()};
 
     Vec3 headPos; //in meters, in world coordinates
+    Vec3 leftEyePos;
+    Vec3 rightEyePos;
     Vec3 origin = Vec3.createVectorHelper(0, 0, 0);  //in meters, relative to hydra base station
 
     public final float[] IDENTITY_QUAT = {0.0f, 0.0f, 0.0f, 1.0f};   // x, y, z, w
@@ -177,6 +177,11 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         if (!isInitialized())
             return;
 
+        if (polledThisFrame)      // TODO: Support poll for left pos, poll for right pos?
+            return;
+
+        polledThisFrame = true;
+
         Minecraft mc = Minecraft.getMinecraft();
 
         // Poll hydras; get orientation, and position information in metres
@@ -301,7 +306,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        	headYaw = mc.headTracker.getHeadYawDegrees();
 	        	
 	        	//Adjust keyhole width on controller pitch; otherwise its a very narrow window at the top and bottom
-	        	float keyholeYaw = mc.vrSettings.aimKeyholeWidthDegrees/2/MathHelper.cos(cont2Pitch*PIOVER180);
+	        	float keyholeYaw = mc.vrSettings.aimKeyholeWidthDegrees/2/ MathHelper.cos(cont2Pitch * PIOVER180);
 	        	
 	        	float bodyYawT = cont2Yaw - baseStationYawOffset; //
 
@@ -342,7 +347,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        if( cont2.trigger > 0.05 )
 		        {
 		        	if( !leftMouseClicked )
-		        		mc.clickMouse(0);
+		        		mc.func_147116_af();
 		        	settings.keyBindAttack.pressed = true;
 		        	leftMouseClicked = true;
 		        }
@@ -355,7 +360,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		        if((cont2.buttons & EnumButton.BUMPER.mask()) >0 && 
 		        	 (lastcont2Buttons & EnumButton.BUMPER.mask()) == 0)
 		        {
-		        	mc.clickMouse(1);
+		        	mc.func_147121_ag();
 		        }
 
 	        	settings.keyBindUseItem.pressed = (cont2.buttons & EnumButton.BUMPER.mask()) >0 ;
@@ -499,7 +504,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	}
 
 	@Override
-	public void update(float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
+	public void update(float ipd, float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees)
     {
         if (!hydraInitialized)
@@ -603,6 +608,11 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
         // Rotate the centre eye position around any world yaw offset (mouse/controller induced rotation)
         headPos.rotateAroundY(-worldYawOffsetDegrees*PIOVER180);
 
+        leftEyePos = Vec3.createVectorHelper(headPos.xCoord, headPos.yCoord, headPos.zCoord);
+        leftEyePos.xCoord -= (ipd / 2f);
+        rightEyePos = Vec3.createVectorHelper(headPos.xCoord, headPos.yCoord, headPos.zCoord);
+        rightEyePos.xCoord += (ipd / 2f);
+
         //System.out.println(String.format("Positional Track: (l/r)x=%.3fcm, (up/down)y=%.3fcm, (in/out)z=%.3fcm", new Object[] {Float.valueOf((float)headPos.xCoord * 100.0f), Float.valueOf((float)headPos.yCoord * 100.0f), Float.valueOf((float)headPos.zCoord * 100.0f)}));
 	}
 
@@ -610,6 +620,15 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 	public Vec3 getCenterEyePosition() {
 		return headPos;
 	}
+
+    @Override
+    public Vec3 getEyePosition(EyeType eye)
+    {
+        if (eye == EyeType.ovrEye_Left)
+            return leftEyePos;
+        else
+            return rightEyePos;
+    }
 
 	@Override
 	public void resetOrigin() {
@@ -730,4 +749,7 @@ public class MCHydra extends BasePlugin implements ICenterEyePositionProvider, I
 		// TODO Auto-generated method stub
 		
 	}
+
+    public void beginFrame() { polledThisFrame = false; }
+    public void endFrame() { }
 }

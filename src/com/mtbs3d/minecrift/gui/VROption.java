@@ -1,15 +1,8 @@
 package com.mtbs3d.minecrift.gui;
 
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.EnumOptions;
+import com.mtbs3d.minecrift.settings.VRSettings;
+import net.minecraft.client.Minecraft;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Engineer
- * Date: 7/7/13
- * Time: 2:44 PM
- * To change this template use File | Settings | File Templates.
- */
 public class VROption
 {
     public static enum Position
@@ -22,7 +15,7 @@ public class VROption
     public static final boolean ENABLED = true;
     public static final boolean DISABLED = false;
 
-    EnumOptions _e;
+    VRSettings.VrOptions _e;
     Position _pos;
     float _row;
     boolean _enabled;
@@ -41,7 +34,7 @@ public class VROption
     int _mini;
     int _incrementi;
 
-    VROption(EnumOptions e, Position pos, float row, boolean enabled, String title)
+    VROption(VRSettings.VrOptions e, Position pos, float row, boolean enabled, String title)
     {
         _e = e;
         _pos = pos;

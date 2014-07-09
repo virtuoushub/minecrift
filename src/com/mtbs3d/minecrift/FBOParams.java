@@ -4,13 +4,17 @@
  */
 package com.mtbs3d.minecrift;
 
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.OpenGlHelper;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.*;
+import org.lwjgl.util.glu.GLU;
 
 public class FBOParams
 {
+    public static final Logger logger = LogManager.getLogger();
+
     protected enum FBO_SUPPORT
     {
         USE_EXT_UNKNOWN,
@@ -63,10 +67,10 @@ public class FBOParams
             _depthRenderBufferId = GL30.glGenRenderbuffers();
 
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, _frameBufferId);
-            mc.checkGLError("FBO bind framebuffer");
+            checkGLError("FBO bind framebuffer");
 
             GL11.glBindTexture(textureType, _colorTextureId);
-            mc.checkGLError("FBO bind texture");
+            checkGLError("FBO bind texture");
 
             GL11.glEnable(textureType);
             GL11.glTexParameterf(textureType, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
@@ -77,12 +81,12 @@ public class FBOParams
 
             GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, textureType, _colorTextureId, 0);
 
-            mc.checkGLError("FBO bind texture framebuffer");
+            checkGLError("FBO bind texture framebuffer");
 
             GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, _depthRenderBufferId);                // bind the depth renderbuffer
             GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT24, fboWidth, fboHeight); // get the data space for it
             GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, _depthRenderBufferId);
-            mc.checkGLError("FBO bind depth framebuffer");
+            checkGLError("FBO bind depth framebuffer");
         }
         else
         {
@@ -90,10 +94,10 @@ public class FBOParams
             _depthRenderBufferId = EXTFramebufferObject.glGenRenderbuffersEXT();
 
             EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, _frameBufferId);
-            mc.checkGLError("FBO bind framebuffer");
+            checkGLError("FBO bind framebuffer");
 
             GL11.glBindTexture(textureType, _colorTextureId);
-            mc.checkGLError("FBO bind texture");
+            checkGLError("FBO bind texture");
 
             GL11.glEnable(textureType);
             GL11.glTexParameterf(textureType, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
@@ -103,12 +107,12 @@ public class FBOParams
 
             EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, textureType, _colorTextureId, 0);
 
-            mc.checkGLError("FBO bind texture framebuffer");
+            checkGLError("FBO bind texture framebuffer");
 
             EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, _depthRenderBufferId);                // bind the depth renderbuffer
             EXTFramebufferObject.glRenderbufferStorageEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, GL14.GL_DEPTH_COMPONENT24, fboWidth, fboHeight); // get the data space for it
             EXTFramebufferObject.glFramebufferRenderbufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT, EXTFramebufferObject.GL_RENDERBUFFER_EXT, _depthRenderBufferId);
-            mc.checkGLError("FBO bind depth framebuffer");
+            checkGLError("FBO bind depth framebuffer");
         }
 
         if (!checkFramebufferStatus())
@@ -215,6 +219,22 @@ public class FBOParams
             default:
                 System.out.println("[ERROR] Framebuffer incomplete: Unknown error.");
                 return false;
+        }
+    }
+
+    /**
+     * Checks for an OpenGL error. If there is one, prints the error ID and error string.
+     */
+    public void checkGLError(String par1Str)
+    {
+        int i = GL11.glGetError();
+
+        if (i != 0)
+        {
+            String s1 = GLU.gluErrorString(i);
+            logger.error("########## GL ERROR ##########");
+            logger.error("@ " + par1Str);
+            logger.error(i + ": " + s1);
         }
     }
 

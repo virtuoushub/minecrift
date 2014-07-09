@@ -4,7 +4,7 @@
  */
 package com.mtbs3d.minecrift.control;
 
-import net.minecraft.src.Minecraft;
+import net.minecraft.client.Minecraft;
 
 public class MenuBinding extends ControlBinding {
 

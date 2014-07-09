@@ -4,8 +4,8 @@
  */
 package com.mtbs3d.minecrift.control;
 
-import net.minecraft.src.KeyBinding;
-import net.minecraft.src.Minecraft;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 
 public class KeyControlBinding extends ControlBinding {
 

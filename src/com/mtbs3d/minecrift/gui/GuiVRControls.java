@@ -4,16 +4,15 @@
  */
 package com.mtbs3d.minecrift.gui;
 
-import net.minecraft.src.EnumChatFormatting;
-import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiScreen;
-import net.minecraft.src.GuiSlot;
-import net.minecraft.src.StringTranslate;
-import net.minecraft.src.Tessellator;
-
 import com.mtbs3d.minecrift.control.ControlBinding;
 import com.mtbs3d.minecrift.control.ControlBinding.ControlBindCallback;
 import com.mtbs3d.minecrift.settings.VRSettings;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.EnumChatFormatting;
 
 public class GuiVRControls extends BaseGuiSettings {
 
@@ -34,16 +33,16 @@ public class GuiVRControls extends BaseGuiSettings {
 		}
 
 		@Override
-		protected void elementClicked(int controlIndex, boolean var2) {
+		protected void elementClicked(int controlIndex, boolean var2, int mousex, int mousey) {
 			if( currentlyBinding > -1 && currentlyBinding != controlIndex ) {
 				ControlBinding.bindings.get(currentlyBinding).doneBinding();
-				mc.lookaimController.mapBinding(null);
+                Minecraft.getMinecraft().lookaimController.mapBinding(null);
 			}
 			selected = controlIndex;
 			if( var2 ) {
 				currentlyBinding = controlIndex;
 				ControlBinding.bindings.get(currentlyBinding).setDoneBindingCallback(this);
-				mc.lookaimController.mapBinding(ControlBinding.bindings.get(currentlyBinding));
+                Minecraft.getMinecraft().lookaimController.mapBinding(ControlBinding.bindings.get(currentlyBinding));
 			}
 			
 		}
@@ -59,15 +58,15 @@ public class GuiVRControls extends BaseGuiSettings {
 		}
 
 		@Override
-		protected void drawSlot(int index, int xPos, int yPos, int height, Tessellator var5) {
+		protected void drawSlot(int index, int xPos, int yPos, int height, Tessellator var5, int mousex, int mousey) {
 			String display = "";
 			if( index == currentlyBinding ) {
 				display = "" + EnumChatFormatting.WHITE + "> " + EnumChatFormatting.YELLOW + "??? " + EnumChatFormatting.WHITE + "<";
 			} else { 
 				ControlBinding binding = ControlBinding.bindings.get(index);
-				display = (binding.isValid() ? "" : (""+ EnumChatFormatting.RED )) +StringTranslate.getInstance().translateKey(binding.getDescription())+": "+binding.boundTo();
+				display = (binding.isValid() ? "" : (""+ EnumChatFormatting.RED )) + binding.getDescription()+": "+binding.boundTo();
 			}
-			drawString(fontRenderer,display, xPos, yPos, 8421504);
+			drawString(fontRendererObj,display, xPos, yPos, 8421504);
 		}
 
 		@Override
@@ -99,10 +98,9 @@ public class GuiVRControls extends BaseGuiSettings {
      * Adds the buttons (and other controls) to the screen in question.
      */
     public void initGui() {
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         //this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
         
         slots = new ControlSlot(this);
         slots.registerScrollButtons(201, 202);

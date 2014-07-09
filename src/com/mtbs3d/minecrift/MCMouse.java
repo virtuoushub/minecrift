@@ -6,9 +6,8 @@ package com.mtbs3d.minecrift;
 
 import java.io.File;
 
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.MathHelper;
 
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
@@ -61,7 +60,13 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 	}
 
 	@Override
-	public void poll(float delta) {
+	public void poll(float delta)
+    {
+        if (polledThisFrame)
+            return;
+
+        polledThisFrame = true;
+
 		if(this.mc.currentScreen == null && Display.isActive())
 		{
             this.mc.mouseHelper.mouseXYChange();
@@ -198,4 +203,6 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 	@Override
 	public void mapBinding(ControlBinding binding) {
 	}
+    public void beginFrame() { polledThisFrame = false; }
+    public void endFrame() { }
 }

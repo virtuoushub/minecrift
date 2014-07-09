@@ -4,9 +4,10 @@
  */
 package com.mtbs3d.minecrift.control;
 
+import net.minecraft.client.settings.GameSettings;
+
 import java.util.ArrayList;
 
-import net.minecraft.src.GameSettings;
 
 public abstract class ControlBinding {
 	public interface ControlBindCallback {
@@ -42,14 +43,14 @@ public abstract class ControlBinding {
 		bindings.add( new MenuBinding() );
 		bindings.add( new KeyControlBinding( settings.keyBindPlayerList ));
 		//TODO: read from settings.keyBindings, instead, which is populated by Forge.
-		bindings.add( new GuiScreenNaviator.GuiUpBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiDownBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiLeftBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiRightBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiSelectBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiAltSelectBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiBackBinding() ); 
-		bindings.add( new GuiScreenNaviator.GuiShiftBinding() ); 
+		bindings.add( new GuiScreenNavigator.GuiUpBinding() );
+		bindings.add( new GuiScreenNavigator.GuiDownBinding() );
+		bindings.add( new GuiScreenNavigator.GuiLeftBinding() );
+		bindings.add( new GuiScreenNavigator.GuiRightBinding() );
+		bindings.add( new GuiScreenNavigator.GuiSelectBinding() );
+		bindings.add( new GuiScreenNavigator.GuiAltSelectBinding() );
+		bindings.add( new GuiScreenNavigator.GuiBackBinding() );
+		bindings.add( new GuiScreenNavigator.GuiShiftBinding() );
 		
 	}
 	

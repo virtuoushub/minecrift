@@ -1,10 +1,8 @@
 package com.mtbs3d.minecrift.settings;
 
 import java.lang.reflect.Field;
-
 import com.mtbs3d.minecrift.api.IBasePlugin;
-
-import net.minecraft.src.Minecraft;
+import net.minecraft.client.Minecraft;
 
 public class PluginValue extends StringValue {
 

@@ -11,19 +11,18 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiContainer;
-import net.minecraft.src.GuiIngameMenu;
-import net.minecraft.src.GuiScreen;
-import net.minecraft.src.GuiSlot;
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.Slot;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiIngameMenu;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.inventory.Slot;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-public class GuiScreenNaviator {
+public class GuiScreenNavigator {
 	public ArrayList<Pair<Integer,Integer>> points = new ArrayList<Pair<Integer,Integer>>();
 	private GuiSlot slot;
 	private int slotIndex = -1;
@@ -43,7 +42,7 @@ public class GuiScreenNaviator {
 	
 	static final int AXIS_PREFERENCE = 5;
 	
-	private static GuiScreenNaviator nav;
+	private static GuiScreenNavigator nav;
 	static abstract class GuiControlBinding extends ControlBinding {
 
 		public GuiControlBinding(String desc) {
@@ -156,7 +155,7 @@ public class GuiScreenNaviator {
 		}
 	}
 	
-	public GuiScreenNaviator( GuiScreen screen ) {
+	public GuiScreenNavigator(GuiScreen screen) {
 		mc = Minecraft.getMinecraft();
 		nav = this;
 		
@@ -222,7 +221,7 @@ public class GuiScreenNaviator {
 	}
 	
 	public void back() {
-		if( screen instanceof GuiIngameMenu ) 
+		if( screen instanceof GuiIngameMenu)
 			mc.displayGuiScreen(null);
 		else if(parentScreen != null)
 			mc.displayGuiScreen(parentScreen);
@@ -389,7 +388,7 @@ public class GuiScreenNaviator {
 	protected void parsePoints() {
 		points.clear();
         for (GuiButton button : screen.buttonList ) {
-        	if( button.drawButton )
+        	if( button.visible )
         		points.add(Pair.of(button.xPosition+5,button.yPosition+5));
         }
         if( screen instanceof GuiContainer ) {

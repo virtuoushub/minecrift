@@ -6,20 +6,22 @@ package com.mtbs3d.minecrift;
 
 import java.io.File;
 
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.Vec3;
-
+import com.mtbs3d.minecrift.api.IEyePositionProvider;
+import de.fruitfly.ovr.enums.EyeType;
 import com.mtbs3d.minecrift.api.BasePlugin;
-import com.mtbs3d.minecrift.api.ICenterEyePositionProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Vec3;
 
 /**
  * "None" head position plugin
  * @author mabrowning
  *
  */
-public class NullCenterEyePosition extends BasePlugin implements ICenterEyePositionProvider {
+public class NullEyePosition extends BasePlugin implements IEyePositionProvider {
 
 	private Vec3 headPos;
+    private Vec3 leftEyePos;
+    private Vec3 rightEyePos;
 
 	@Override
 	public String getID() {
@@ -76,14 +78,18 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
 
 	//Basic neck model:
 	@Override
-	public void update(float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
+	public void update(float ipd, float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees)
     {
         float cameraYaw = (worldYawOffsetDegrees + yawHeadDegrees ) % 360;
-        headPos = Vec3.fakePool.getVecFromPool(0, Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight, -Minecraft.getMinecraft().vrSettings.eyeProtrusion);
+        headPos = Vec3.createVectorHelper(0, Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight, -Minecraft.getMinecraft().vrSettings.eyeProtrusion);
 		headPos.rotateAroundZ( rollHeadDegrees  * PIOVER180 );
 		headPos.rotateAroundX( pitchHeadDegrees * PIOVER180 );
         headPos.rotateAroundY( -cameraYaw * PIOVER180 );
+        leftEyePos = Vec3.createVectorHelper(headPos.xCoord, headPos.yCoord, headPos.zCoord);
+        leftEyePos.xCoord -= (ipd / 2f);
+        rightEyePos = Vec3.createVectorHelper(headPos.xCoord, headPos.yCoord, headPos.zCoord);
+        rightEyePos.xCoord += (ipd / 2f);
 	}
 
 	@Override
@@ -91,6 +97,14 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
 		return headPos;
 	}
 
+    @Override
+    public Vec3 getEyePosition(EyeType eye)
+    {
+        if (eye == EyeType.ovrEye_Left)
+            return leftEyePos;
+        else
+            return rightEyePos;
+    }
 
 	@Override
 	public void resetOrigin() {
@@ -107,4 +121,7 @@ public class NullCenterEyePosition extends BasePlugin implements ICenterEyePosit
     @Override
     public void eventNotification(int eventId) {
     }
+
+    public void beginFrame() { polledThisFrame = false; }
+    public void endFrame() { }
 }

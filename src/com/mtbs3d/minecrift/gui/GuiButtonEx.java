@@ -4,16 +4,9 @@
  */
 package com.mtbs3d.minecrift.gui;
 
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Engineer
- * Date: 6/5/13
- * Time: 7:17 AM
- * To change this template use File | Settings | File Templates.
- */
 public class GuiButtonEx extends GuiButton
 {
     public GuiButtonEx(int par1, int par2, int par3, int par4, int par5, String par6Str)

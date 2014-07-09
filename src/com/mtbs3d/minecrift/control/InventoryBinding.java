@@ -4,7 +4,7 @@
  */
 package com.mtbs3d.minecrift.control;
 
-import net.minecraft.src.KeyBinding;
+import net.minecraft.client.settings.KeyBinding;
 
 public class InventoryBinding extends KeyControlBinding {
 

@@ -1,10 +1,8 @@
 package com.mtbs3d.minecrift.utils;
 
-import net.minecraft.src.Session;
-
+import net.minecraft.util.Session;
 import java.io.*;
 import java.net.*;
-import java.util.UUID;
 
 public class SessionID
 {
@@ -25,7 +23,8 @@ public class SessionID
         String[] pieces = response.split("\"");
         String sessionID = "token:" + pieces[3] + ":" + pieces[13];    // TODO: Get these values based on json field name, not just index location (which may change and then be invalid!)
         String userName = pieces[17];
-        Session session = new Session(userName, sessionID);
+        String profileName = null;
+        Session session = new Session(userName, profileName, sessionID, "legacy");   // TODO: May need to use something other than null ProfileName
         return session;
     }
 

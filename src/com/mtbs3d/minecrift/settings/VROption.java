@@ -12,6 +12,7 @@ public enum VROption {
     VR_HEAD_ORIENTATION( new PluginValue("headTrackerPluginID","Head Orientation","oculus","headTracker")),
     VR_HEAD_POSITION( new PluginValue("headPositionPluginID","Head Position","oculus","positionTracker")),
     HMD_CHOIES( new PluginValue("hmdPluginID","HMD Plugin","oculus","hmdInfo")),
+    STEREO_PROVIDER_CHOICES( new PluginValue("stereoProviderPluginID","Stereo Provider","oculus","stereoProvider")),
     VR_CONTROLLER( new PluginValue("controllerPluginID","Controller","mouse","lookaimController")),
     CROSSHAIR_SCALE( new FloatValue("crosshairScale", "Crosshair Size", 1.0f, "%0.2f", 0.25f, 2.5f, 0.01f )),
     CROSSHAIR_ALWAYS_SHOW( new BooleanValue("alwaysRenderInGameCrosshair", "Show Crosshair", false, "Always","With HUD")),

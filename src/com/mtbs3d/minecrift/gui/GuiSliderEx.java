@@ -4,13 +4,9 @@
  */
 package com.mtbs3d.minecrift.gui;
 
-import com.mtbs3d.minecrift.gui.GuiButtonEx;
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.EnumOptions;
+import com.mtbs3d.minecrift.settings.VRSettings;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class GuiSliderEx extends GuiButtonEx
 {
@@ -21,7 +17,7 @@ public class GuiSliderEx extends GuiButtonEx
     private boolean dragging = false;
 
     /** Additional ID for this slider control. */
-    private EnumOptions idFloat = null;
+    private VRSettings.VrOptions idFloat = null;
 
     /** The maximum actual value of this slider control. */
     private float maxValue = 1.0f;
@@ -41,7 +37,7 @@ public class GuiSliderEx extends GuiButtonEx
     GuiEventEx _eventHandler = null;
 
     public GuiSliderEx(int par1, int par2, int par3,
-                       EnumOptions par4EnumOptions, String par5Str,
+                       VRSettings.VrOptions par4EnumOptions, String par5Str,
                        float minValue, float maxValue, float increment, float currentValue)
     {
         super(par1, par2, par3, 150, 20, par5Str);
@@ -69,7 +65,7 @@ public class GuiSliderEx extends GuiButtonEx
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
      */
-    protected int getHoverState(boolean par1)
+    public int getHoverState(boolean par1)
     {
         return 0;
     }
@@ -79,7 +75,7 @@ public class GuiSliderEx extends GuiButtonEx
      */
     protected void mouseDragged(Minecraft par1Minecraft, int par2, int par3)
     {
-        if (this.enabled && this.drawButton)
+        if (this.enabled && this.visible)
         {
             if (this.dragging && par2 != this.lastMouseX)
             {

@@ -1,6 +1,11 @@
 package com.mtbs3d.minecrift.gui;
 
-import net.minecraft.src.*;
+import net.minecraft.client.LoadingScreenRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.MinecraftError;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -30,7 +35,7 @@ public class GuiVRLoadingScreenRenderer extends LoadingScreenRenderer
         }
         else if (this.mc.vrSettings.useVRRenderer == false)
         {
-            ScaledResolution var2 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+            ScaledResolution var2 = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
             GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glMatrixMode(GL11.GL_PROJECTION);
             GL11.glLoadIdentity();
@@ -65,7 +70,7 @@ public class GuiVRLoadingScreenRenderer extends LoadingScreenRenderer
 
                 if (this.mc.vrSettings.useVRRenderer == false)
                 {
-                    ScaledResolution var4 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+                    ScaledResolution var4 = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
                     int var5 = var4.getScaledWidth();
                     int var6 = var4.getScaledHeight();
                     GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);

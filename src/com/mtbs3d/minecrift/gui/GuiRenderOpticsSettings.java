@@ -7,25 +7,30 @@ package com.mtbs3d.minecrift.gui;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
 import de.fruitfly.ovr.IOculusRift;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.src.*;
+import net.minecraft.util.StringTranslate;
 
 public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEventEx
 {
     /** An array of all of EnumOption's video options. */
-    static EnumOptions[] minecriftDisplayOptions = new EnumOptions[] {
-            EnumOptions.USE_DISTORTION,
-            EnumOptions.FOV_SCALE_FACTOR,
-            EnumOptions.DISTORTION_FIT_POINT,
-            EnumOptions.LENS_SEPARATION_SCALE_FACTOR,
-            EnumOptions.TEXTURE_LOOKUP_OPT,
-            EnumOptions.CHROM_AB_CORRECTION,
-            EnumOptions.USE_QUATERNIONS,
-            EnumOptions.ASPECT_RATIO_CORRECTION,
-            EnumOptions.DELAYED_RENDER,
-            EnumOptions.DUMMY,
-            EnumOptions.SUPERSAMPLING,
-            EnumOptions.SUPERSAMPLE_SCALEFACTOR,
-            EnumOptions.FXAA,
+    static VRSettings.VrOptions[] minecriftDisplayOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.CHROM_AB_CORRECTION,
+            VRSettings.VrOptions.TIMEWARP,
+            VRSettings.VrOptions.VIGNETTE,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.USE_QUATERNIONS,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.SUPERSAMPLING,
+            VRSettings.VrOptions.SUPERSAMPLE_SCALEFACTOR,
+            VRSettings.VrOptions.FXAA,
     };
 
     GameSettings settings;
@@ -42,22 +47,21 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
      */
     public void initGui()
     {
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
 
-        EnumOptions[] var10 = minecriftDisplayOptions;
+        VRSettings.VrOptions[] var10 = minecriftDisplayOptions;
         int var11 = var10.length;
 
         for (int var12 = 0; var12 < var11; ++var12)
         {
-            EnumOptions var8 = var10[var12];
+            VRSettings.VrOptions var8 = var10[var12];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
-            if (var8 == EnumOptions.DUMMY)
+            if (var8 == VRSettings.VrOptions.DUMMY)
                 continue;
 
             if (var8.getEnumFloat())
@@ -66,25 +70,25 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 float maxValue = 1.0f;
                 float increment = 0.001f;
 
-                if (var8 == EnumOptions.FOV_SCALE_FACTOR)
+                if (var8 == VRSettings.VrOptions.FOV_SCALE_FACTOR)
                 {
                     minValue = 0.5f;
                     maxValue = 1.5f;
                     increment = 0.01f;
                 }
-                if (var8 == EnumOptions.LENS_SEPARATION_SCALE_FACTOR)
+                if (var8 == VRSettings.VrOptions.LENS_SEPARATION_SCALE_FACTOR)
                 {
                     minValue = 0.5f;
                     maxValue = 1.5f;
                     increment = 0.001f;
                 }
-                if (var8 == EnumOptions.SUPERSAMPLE_SCALEFACTOR)
+                if (var8 == VRSettings.VrOptions.SUPERSAMPLE_SCALEFACTOR)
                 {
                     minValue = 1.5f;
                     maxValue = 4.0f;
                     increment = 0.5f;
                 }
-                if (var8 == EnumOptions.DISTORTION_FIT_POINT)
+                if (var8 == VRSettings.VrOptions.DISTORTION_FIT_POINT)
                 {
                     minValue = 0.0f;
                     maxValue = 14.0f;
@@ -99,7 +103,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             {
                 GuiSmallButtonEx button = null;
                 String keyBinding = this.guivrSettings.getKeyBinding(var8);
-                if (var8 == EnumOptions.DELAYED_RENDER && !settings.enableVsync)
+                if (var8 == VRSettings.VrOptions.DELAYED_RENDER && !settings.enableVsync)
                 {
                     button = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, "Render Mode: Immediate");
                 }
@@ -118,70 +122,72 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
      */
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
+        VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
+        Minecraft minecraft = Minecraft.getMinecraft();
 
         if (par1GuiButton.enabled)
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.vrSettings.saveOptions();
+                minecraft.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201)
             {
-			    this.mc.vrSettings.useDistortion = true;
-                this.mc.vrSettings.useQuaternions = false;
-			    this.mc.vrSettings.useChromaticAbCorrection = true;
-			    this.mc.vrSettings.fovScaleFactor = 1.0f;
-                this.mc.vrSettings.lensSeparationScaleFactor = 1.0f;
-			    this.mc.vrSettings.distortionFitPoint = 5;
-                this.mc.vrSettings.frameTimingEnableVsyncSleep = false;
-			    this.mc.vrSettings.useSupersample = false;
-                this.mc.vrSettings.superSampleScaleFactor = 2.0f;
-                this.mc.vrSettings.useDistortionTextureLookupOptimisation = false;
-                this.mc.vrSettings.useFXAA = false;
-                this.mc.vrSettings.setAspectRatioCorrectionMode(IOculusRift.AspectCorrectionType.CORRECTION_AUTO);
-                if (vrRenderer != null)
-	                vrRenderer._FBOInitialised = false;
-			    this.mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
+                minecraft.vrSettings.useDistortion = true;
+                minecraft.vrSettings.useTimewarp = true;
+                minecraft.vrSettings.useVignette = true;
+                minecraft.vrSettings.useQuaternions = false;
+                minecraft.vrSettings.useChromaticAbCorrection = true;
+                minecraft.vrSettings.fovScaleFactor = 1.0f;
+                minecraft.vrSettings.lensSeparationScaleFactor = 1.0f;
+                minecraft.vrSettings.distortionFitPoint = 5;
+                minecraft.vrSettings.frameTimingEnableVsyncSleep = false;
+                minecraft.vrSettings.useSupersample = false;
+                minecraft.vrSettings.superSampleScaleFactor = 2.0f;
+                minecraft.vrSettings.useDistortionTextureLookupOptimisation = false;
+                minecraft.vrSettings.useFXAA = false;
+                minecraft.vrSettings.setAspectRatioCorrectionMode(IOculusRift.AspectCorrectionType.CORRECTION_AUTO);
+                minecraft.reinitFramebuffers = true;
+			    Minecraft.getMinecraft().setUseVRRenderer(Minecraft.getMinecraft().vrSettings.useVRRenderer);
 			    this.guivrSettings.saveOptions();
             }
 
-            if (num == EnumOptions.USE_DISTORTION ||
-	            num == EnumOptions.SUPERSAMPLING ||
-	            num == EnumOptions.CHROM_AB_CORRECTION ||
-                num == EnumOptions.TEXTURE_LOOKUP_OPT ||
-                num == EnumOptions.FXAA ||
-                num == EnumOptions.ASPECT_RATIO_CORRECTION)
+            if (num == VRSettings.VrOptions.USE_DISTORTION ||
+	            num == VRSettings.VrOptions.SUPERSAMPLING ||
+	            num == VRSettings.VrOptions.CHROM_AB_CORRECTION ||
+                num == VRSettings.VrOptions.TIMEWARP ||
+                num == VRSettings.VrOptions.VIGNETTE ||
+                num == VRSettings.VrOptions.TEXTURE_LOOKUP_OPT ||
+                num == VRSettings.VrOptions.FXAA ||
+                num == VRSettings.VrOptions.ASPECT_RATIO_CORRECTION)
 	        {
-	            if (vrRenderer != null)
-	                vrRenderer._FBOInitialised = false;
+                minecraft.reinitFramebuffers = true;
 	        }
         }
     }
 
     @Override
-    public void event(int id, EnumOptions enumm)
+    public void event(int id, VRSettings.VrOptions enumm)
     {
-        if (enumm == EnumOptions.DISTORTION_FIT_POINT ||
-            enumm == EnumOptions.SUPERSAMPLE_SCALEFACTOR ||
-            enumm == EnumOptions.FOV_SCALE_FACTOR ||
-            enumm == EnumOptions.LENS_SEPARATION_SCALE_FACTOR)
+        if (enumm == VRSettings.VrOptions.DISTORTION_FIT_POINT ||
+            enumm == VRSettings.VrOptions.SUPERSAMPLE_SCALEFACTOR ||
+            enumm == VRSettings.VrOptions.FOV_SCALE_FACTOR ||
+            enumm == VRSettings.VrOptions.LENS_SEPARATION_SCALE_FACTOR)
         {
-            if (vrRenderer != null)
-                vrRenderer._FBOInitialised = false;
+            Minecraft.getMinecraft().reinitFramebuffers = true;
         }
     }
 
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-    	EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        VRSettings.VrOptions e = VRSettings.VrOptions.getEnumOptions(buttonId);
     	if( e != null )
     	switch(e)
     	{
@@ -303,9 +309,9 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     	}
     }
 
-    private boolean getEnabledState(EnumOptions var8)
+    private boolean getEnabledState(VRSettings.VrOptions var8)
     {
-        if (var8 == EnumOptions.DELAYED_RENDER)
+        if (var8 == VRSettings.VrOptions.DELAYED_RENDER)
         {
             if (!this.mc.gameSettings.enableVsync)
             {

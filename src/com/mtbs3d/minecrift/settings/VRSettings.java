@@ -12,13 +12,19 @@ import java.io.PrintWriter;
 
 import com.mtbs3d.minecrift.MCHydra;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import de.fruitfly.ovr.IOculusRift;
-import net.minecraft.src.Config;
-import net.minecraft.src.EnumOptions;
-import net.minecraft.src.I18n;
-import net.minecraft.src.Minecraft;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.util.MathHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class VRSettings {
+public class VRSettings
+{
+    public static final Logger logger = LogManager.getLogger();
 	public static VRSettings inst;
     // Minecrift
     public static final int POS_TRACK_NECK = 0;
@@ -59,6 +65,9 @@ public class VRSettings {
     public boolean renderFullFirstPersonModel = true;
     public float renderPlayerOffset = 0.25f;
     public boolean useChromaticAbCorrection = true;
+    public boolean useTimewarp = true;
+    public boolean useVignette = true;
+    public boolean useLowPersistence = true; // TODO: Support properly
     public boolean useDistortionTextureLookupOptimisation = false;
     public boolean useFXAA = false;
     public float hudScale = 0.65f;
@@ -113,6 +122,7 @@ public class VRSettings {
 	public String headPositionPluginID = "null-pos";
 	public String headTrackerPluginID = "oculus";
 	public String hmdPluginID = "oculus";
+    public String stereoProviderID = "oculus";
 	public String controllerPluginID = "mouse";
     public int calibrationStrategy = CALIBRATION_STRATEGY_AT_STARTUP;
     public float crosshairScale = 1.0f;
@@ -234,6 +244,11 @@ public class VRSettings {
                         this.hmdPluginID = optionTokens[1];
                     }
 
+                    if (optionTokens[0].equals("stereoProviderPluginID"))
+                    {
+                        this.stereoProviderID = optionTokens[1];
+                    }
+
                     if (optionTokens[0].equals("controllerPluginID"))
                     {
                         this.controllerPluginID = optionTokens[1];
@@ -289,6 +304,16 @@ public class VRSettings {
                     if (optionTokens[0].equals("useChromaticAbCorrection"))
                     {
                         this.useChromaticAbCorrection = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useTimewarp"))
+                    {
+                        this.useTimewarp = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useVignette"))
+                    {
+                        this.useVignette = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("useDistortionTextureLookupOptimisation"))
@@ -618,7 +643,7 @@ public class VRSettings {
                 }
                 catch (Exception var7)
                 {
-                    this.mc.getLogAgent().logWarning("Skipping bad VR option: " + var2);
+                    logger.warn("Skipping bad VR option: " + var2);
                     var7.printStackTrace();
                 }
             }
@@ -627,19 +652,14 @@ public class VRSettings {
         }
         catch (Exception var8)
         {
-            this.mc.getLogAgent().logWarning("Failed to load VR options!");
+            logger.warn("Failed to load VR options!");
             var8.printStackTrace();
         }
     }
     
-    public String getKeyBinding( EnumOptions par1EnumOptions )
+    public String getKeyBinding( VRSettings.VrOptions par1EnumOptions )
     {
-        String var2 = I18n.getString(par1EnumOptions.getEnumString());
-
-        if (var2 == null)
-        {
-            var2 = par1EnumOptions.getEnumString();
-        }
+        String var2 = par1EnumOptions.getEnumString();
 
         String var3 = var2 + ": ";
         String var4 = var3;
@@ -689,6 +709,10 @@ public class VRSettings {
 	            return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
 	        case CHROM_AB_CORRECTION:
 	            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
+            case TIMEWARP:
+                return this.useTimewarp ? var4 + "ON" : var4 + "OFF";
+            case VIGNETTE:
+                return this.useVignette ? var4 + "ON" : var4 + "OFF";
             case TEXTURE_LOOKUP_OPT:
                 return this.useDistortionTextureLookupOptimisation ? var4 + "Texture Lookup" : var4 + "Brute Force";
             case FXAA:
@@ -865,7 +889,7 @@ public class VRSettings {
         }
     }
 
-    public float getOptionFloatValue(EnumOptions par1EnumOptions)
+    public float getOptionFloatValue(VRSettings.VrOptions par1EnumOptions)
     {
     	switch( par1EnumOptions ) {
 			case EYE_HEIGHT :
@@ -980,13 +1004,13 @@ public class VRSettings {
     /**
      * For non-float options. Toggles the option on/off, or cycles through the list i.e. render distances.
      */
-    public void setOptionValue(EnumOptions par1EnumOptions, int par2)
+    public void setOptionValue(VRSettings.VrOptions par1EnumOptions, int par2)
     {
     	switch( par1EnumOptions )
     	{
 	        case USE_VR:
 	            this.useVRRenderer = !this.useVRRenderer;
-	            mc.setUseVRRenderer(useVRRenderer);
+	            //mc.setUseVRRenderer(useVRRenderer);      // TODO:
 	            break;
             case USE_QUATERNIONS:
                 this.useQuaternions = !this.useQuaternions;
@@ -1020,6 +1044,12 @@ public class VRSettings {
 	        case CHROM_AB_CORRECTION:
 	            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
 	            break;
+            case TIMEWARP:
+                this.useTimewarp = !this.useTimewarp;
+                break;
+            case VIGNETTE:
+                this.useVignette = !this.useVignette;
+                break;
             case TEXTURE_LOOKUP_OPT:
                 this.useDistortionTextureLookupOptimisation = !this.useDistortionTextureLookupOptimisation;
                 break;
@@ -1097,7 +1127,7 @@ public class VRSettings {
         this.saveOptions();
     }
 
-    public void setOptionFloatValue(EnumOptions par1EnumOptions, float par2)
+    public void setOptionFloatValue(VRSettings.VrOptions par1EnumOptions, float par2)
     {
     	switch( par1EnumOptions ) {
 	        case EYE_HEIGHT:
@@ -1361,6 +1391,7 @@ public class VRSettings {
             var5.println("headTrackerPluginID:"+ this.headTrackerPluginID);
             var5.println("headPositionPluginID:"+ this.headPositionPluginID);
             var5.println("hmdPluginID:"+ this.hmdPluginID);
+            var5.println("stereoProviderPluginID:"+ this.stereoProviderID);
             var5.println("controllerPluginID:"+ this.controllerPluginID);
             var5.println("ipd:" + this.ipd);
             var5.println("headTrackPredictionTimeSecs:" + this.headTrackPredictionTimeSecs);
@@ -1374,6 +1405,8 @@ public class VRSettings {
             var5.println("hideGUI:" + this.mc.gameSettings.hideGUI);
             var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
+            var5.println("useTimewarp:" + this.useTimewarp);
+            var5.println("useVignette:" + this.useVignette);
             var5.println("useDistortionTextureLookupOptimisation:" + this.useDistortionTextureLookupOptimisation);
             var5.println("useFXAA:" + this.useFXAA);
             var5.println("hudScale:" + this.hudScale);
@@ -1444,7 +1477,7 @@ public class VRSettings {
         }
         catch (Exception var3)
         {
-            Config.dbg("Failed to save VR options");
+            logger.warn("Failed to save VR options");
             var3.printStackTrace();
         }
     }
@@ -1533,5 +1566,208 @@ public class VRSettings {
             return 1.0f;
 
         return this.headTrackSensitivity;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static enum VrOptions
+    {
+        // Minecrift below here
+
+        //General
+        USE_VR("VR mode", false, true),
+        HUD_SCALE("HUD Scale", true, false),
+        HUD_DISTANCE("HUD Distance", true, false),
+        HUD_PITCH("HUD Vertical Offset", true, false),
+        HUD_YAW("HUD Horiz. Offset", true, false),
+        HUD_LOCK_TO("HUD Orientation Lock", false, true),
+        HUD_OPACITY("HUD Opacity", true, false),
+        RENDER_MENU_BACKGROUND("Menu Background", false, true),
+        HUD_HIDE("Hide HUD (F1)", false, true),
+        HUD_OCCLUSION("HUD Occlusion", false, true),
+        HEAD_TRACKING("Head Tracking", false, true),
+        DUMMY("Dummy", false, true),
+        VR_HEAD_ORIENTATION("Head Orientation", false, true),
+        VR_HEAD_POSITION("Head Position", false, true),
+        VR_CONTROLLER("Controller", false, true),
+        CROSSHAIR_SCALE("Crosshair Size", true, false),
+        CROSSHAIR_ALWAYS_SHOW("Show Crosshair", false, true),
+        CROSSHAIR_ROLL("Roll Crosshair", false, true),
+        BLOCK_OUTLINE_ALWAYS_SHOW("Show Block Outline", false, true),
+        CHAT_OFFSET_X("Chat Offset X",true,false),
+        CHAT_OFFSET_Y("Chat Offset Y",true,false),
+        LOAD_MUMBLE_LIB("Load Mumble Lib", false, true),
+
+        // Player
+        EYE_HEIGHT("Eye Height", true, false),
+        EYE_PROTRUSION("Eye Protrusion", true, false),
+        NECK_LENGTH("Neck Length", true, false),
+        RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
+        RENDER_FULL_FIRST_PERSON_MODEL("First Person Model", false, true),
+        RENDER_PLAYER_OFFSET("View Body Offset", true, false),
+        IPD("IPD", true, false),
+        OCULUS_PROFILE("Use Oculus Profile", false, false),
+        OCULUS_PROFILE_NAME("Name", false, true),
+        OCULUS_PROFILE_GENDER("Gender", false, true),
+
+        //HMD/render
+        USE_DISTORTION("Distortion", false, true),
+        CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
+        TIMEWARP("Timewarp", false, true),
+        VIGNETTE("Vignette", false, true),
+        TEXTURE_LOOKUP_OPT("Dist. Method", false, true),
+        FXAA("FXAA", false, true),
+        FOV_SCALE_FACTOR("FOV Scale", true, false),
+        LENS_SEPARATION_SCALE_FACTOR("Lens Sep. Scale", true, false),
+        DISTORTION_FIT_POINT("Distortion Border", true, false),
+        ASPECT_RATIO_CORRECTION("Asp. Correction", false, false),
+        SUPERSAMPLING("FSAA", false, true),
+        SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
+        USE_QUATERNIONS("Orient. Mode", false, true),
+        DELAYED_RENDER("Render Mode", false, true),
+
+        //Head orientation tracking
+        HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),
+        HEAD_TRACK_SENSITIVITY("Head Track Sensitivity", true, false),
+        HEAD_TRACK_PREDICTION_TIME("Prediction time", true, false),
+
+        //eye center position tracking
+        POS_TRACK_HYDRALOC("Position", false, false),
+        POS_TRACK_HYDRA_OFFSET_X("Hydra X Offset", true, false),
+        POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
+        POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
+        POS_TRACK_OFFSET_SET_DEFAULT("Default Offsets", false, true),
+        POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
+        POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
+        POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT("Hydra Direction", false, true),
+        HYDRA_USE_FILTER("Filter", false, true),
+        POS_TRACK_Y_AXIS_DISTANCE_SKEW("Distance Skew Angle", true, false),
+
+        //Movement/aiming controls
+        DECOUPLE_LOOK_MOVE("Decouple Look/Move", false, true),
+        MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
+        PITCH_AFFECTS_CAMERA("Pitch Affects Camera", false, true),
+        JOYSTICK_SENSITIVITY("Joystick Sensitivity",true,false),
+        JOYSTICK_DEADZONE("Joystick Deadzone",true,false),
+        KEYHOLE_WIDTH("Keyhole Width",true,false),
+        KEYHOLE_HEIGHT("Keyhole Height",true,false),
+        KEYHOLE_HEAD_RELATIVE("Keyhole Moves With Head",false,true),
+        MOVEAIM_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
+        JOYSTICK_AIM_TYPE("Aim Type", false, false),
+        AIM_PITCH_OFFSET("Vertical Crosshair Offset",true,false),
+
+        // Calibration
+        CALIBRATION_STRATEGY("Initial Calibration", false, false);
+
+//        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
+//                {
+//                    private static final String __OBFID = "CL_00000654";
+//                    protected float snapToStep(float p_148264_1_)
+//                    {
+//                        return (float) MathHelper.roundUpToPowerOfTwo((int) p_148264_1_);
+//                    }
+//                },
+
+        private final boolean enumFloat;
+        private final boolean enumBoolean;
+        private final String enumString;
+        private final float valueStep;
+        private float valueMin;
+        private float valueMax;
+
+        private static final String __OBFID = "CL_00000653";
+
+        public static VRSettings.VrOptions getEnumOptions(int par0)
+        {
+            VRSettings.VrOptions[] aoptions = values();
+            int j = aoptions.length;
+
+            for (int k = 0; k < j; ++k)
+            {
+                VRSettings.VrOptions options = aoptions[k];
+
+                if (options.returnEnumOrdinal() == par0)
+                {
+                    return options;
+                }
+            }
+
+            return null;
+        }
+
+        private VrOptions(String par3Str, boolean par4, boolean par5)
+        {
+            this(par3Str, par4, par5, 0.0F, 1.0F, 0.0F);
+        }
+
+        private VrOptions(String p_i45004_3_, boolean p_i45004_4_, boolean p_i45004_5_, float p_i45004_6_, float p_i45004_7_, float p_i45004_8_)
+        {
+            this.enumString = p_i45004_3_;
+            this.enumFloat = p_i45004_4_;
+            this.enumBoolean = p_i45004_5_;
+            this.valueMin = p_i45004_6_;
+            this.valueMax = p_i45004_7_;
+            this.valueStep = p_i45004_8_;
+        }
+
+        public boolean getEnumFloat()
+        {
+            return this.enumFloat;
+        }
+
+        public boolean getEnumBoolean()
+        {
+            return this.enumBoolean;
+        }
+
+        public int returnEnumOrdinal()
+        {
+            return this.ordinal();
+        }
+
+        public String getEnumString()
+        {
+            return this.enumString;
+        }
+
+        public float getValueMax()
+        {
+            return this.valueMax;
+        }
+
+        public void setValueMax(float p_148263_1_)
+        {
+            this.valueMax = p_148263_1_;
+        }
+
+        public float normalizeValue(float p_148266_1_)
+        {
+            return MathHelper.clamp_float((this.snapToStepClamp(p_148266_1_) - this.valueMin) / (this.valueMax - this.valueMin), 0.0F, 1.0F);
+        }
+
+        public float denormalizeValue(float p_148262_1_)
+        {
+            return this.snapToStepClamp(this.valueMin + (this.valueMax - this.valueMin) * MathHelper.clamp_float(p_148262_1_, 0.0F, 1.0F));
+        }
+
+        public float snapToStepClamp(float p_148268_1_)
+        {
+            p_148268_1_ = this.snapToStep(p_148268_1_);
+            return MathHelper.clamp_float(p_148268_1_, this.valueMin, this.valueMax);
+        }
+
+        protected float snapToStep(float p_148264_1_)
+        {
+            if (this.valueStep > 0.0F)
+            {
+                p_148264_1_ = this.valueStep * (float)Math.round(p_148264_1_ / this.valueStep);
+            }
+
+            return p_148264_1_;
+        }
+
+        VrOptions(String p_i45005_3_, boolean p_i45005_4_, boolean p_i45005_5_, float p_i45005_6_, float p_i45005_7_, float p_i45005_8_, Object p_i45005_9_)
+        {
+            this(p_i45005_3_, p_i45005_4_, p_i45005_5_, p_i45005_6_, p_i45005_7_, p_i45005_8_);
+        }
     }
 }

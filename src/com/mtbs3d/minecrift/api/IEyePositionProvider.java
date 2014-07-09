@@ -4,18 +4,20 @@
  */
 package com.mtbs3d.minecrift.api;
 
-import net.minecraft.src.Vec3;
+import de.fruitfly.ovr.enums.EyeType;
+import net.minecraft.util.Vec3;
 
 /**
- * The "head-position" module. Provides center eye position relative to the eye orientation reference frame co-ordinates.
+ * The "head-position" module. Provides left, right or center eye position relative to the eye orientation reference frame co-ordinates.
  *
  * @author Mark Browning
  *
  */
-public interface ICenterEyePositionProvider extends IBasePlugin {
+public interface IEyePositionProvider extends IBasePlugin {
 
     /**
      * Updates the model with the current head orientation
+     * @param ipd hmd ipd
      * @param yawHeadDegrees Yaw of head only
      * @param pitchHeadDegrees Pitch of head only
      * @param rollHeadDegrees Roll of head only
@@ -23,14 +25,18 @@ public interface ICenterEyePositionProvider extends IBasePlugin {
      * @param worldPitchOffsetDegrees Additional pitch input (e.g. mouse)
      * @param worldRollOffsetDegrees Additional roll input
      */
-    public void update(float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
+    public void update(float ipd, float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees,
                        float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees);
 
     /**
-     * @return The coordinate of the center eye position relative to the head yaw plane
+     * @return The coordinate of the 'center' eye position relative to the head yaw plane
      */
     public Vec3 getCenterEyePosition();
 
+    /**
+     * @return The coordinate of the left or right eye position relative to the head yaw plane
+     */
+    public Vec3 getEyePosition(EyeType eye);
 
     /**
      * Resets the current origin position

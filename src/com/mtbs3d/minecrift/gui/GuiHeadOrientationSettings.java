@@ -8,26 +8,26 @@ import java.util.List;
 
 import com.mtbs3d.minecrift.MCHydra;
 import com.mtbs3d.minecrift.MCOculus;
-import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBasePlugin;
-
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.settings.VRSettings;
-
-import net.minecraft.src.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.StringTranslate;
 
 public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiEventEx
 {
     /** An array of all of EnumOption's video options. */
-    static EnumOptions[] oculusHeadOrientationOptions = new EnumOptions[] {
-            EnumOptions.HEAD_TRACKING,
-            EnumOptions.HEAD_TRACK_SENSITIVITY,
-            EnumOptions.HEAD_TRACK_PREDICTION,
-            EnumOptions.HEAD_TRACK_PREDICTION_TIME,
+    static VRSettings.VrOptions[] oculusHeadOrientationOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.HEAD_TRACKING,
+            VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY,
+            VRSettings.VrOptions.HEAD_TRACK_PREDICTION,
+            VRSettings.VrOptions.HEAD_TRACK_PREDICTION_TIME,
     };
-    static EnumOptions[] hydraHeadOrientationOptions = new EnumOptions[] {
-            EnumOptions.HEAD_TRACKING,
-            EnumOptions.HEAD_TRACK_SENSITIVITY,
+    static VRSettings.VrOptions[] hydraHeadOrientationOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.HEAD_TRACKING,
+            VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
     public GuiHeadOrientationSettings(GuiScreen par1GuiScreen,
@@ -42,15 +42,14 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
      */
     public void initGui()
     {
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
         pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.orientPlugins, this.guivrSettings.headTrackerPluginID );
         this.buttonList.add(pluginModeChangeutton);
-        EnumOptions[] var10 = null;
-        if( this.mc.headTracker instanceof MCHydra )
+        VRSettings.VrOptions[] var10 = null;
+        if( Minecraft.getMinecraft().headTracker instanceof MCHydra )
             var10 = hydraHeadOrientationOptions;
         else
             var10 = oculusHeadOrientationOptions;
@@ -59,7 +58,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
         {
-            EnumOptions var8 = var10[var12-2];
+            VRSettings.VrOptions var8 = var10[var12-2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
@@ -69,13 +68,13 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
                 float maxValue = 1.0f;
                 float increment = 0.001f;
 
-                if (var8 == EnumOptions.HEAD_TRACK_SENSITIVITY)
+                if (var8 == VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY)
                 {
                     minValue = 0.5f;
                     maxValue = 3.0f;
                     increment = 0.01f;
                 }
-                else if (var8 == EnumOptions.HEAD_TRACK_PREDICTION_TIME)
+                else if (var8 == VRSettings.VrOptions.HEAD_TRACK_PREDICTION_TIME)
                 {
                     minValue = 0.000f;
                     maxValue = 0.100f;
@@ -99,35 +98,37 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
      */
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
+        VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
 
         if (par1GuiButton.enabled)
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
 
-                if (num == EnumOptions.HEAD_TRACK_PREDICTION)
+                if (num == VRSettings.VrOptions.HEAD_TRACK_PREDICTION)
                 {
-                    mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
+                    // TODO: Prediction
+                   // mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
                 }
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201)
             {
-			    this.mc.vrSettings.useHeadTracking = true;
-                if(this.mc.headTracker instanceof MCOculus)
+                Minecraft.getMinecraft().vrSettings.useHeadTracking = true;
+                if(Minecraft.getMinecraft().headTracker instanceof MCOculus)
                 {
-                    this.mc.vrSettings.useHeadTrackPrediction = true;
-                    this.mc.vrSettings.headTrackPredictionTimeSecs = 0f;
-                    mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
+                    Minecraft.getMinecraft().vrSettings.useHeadTrackPrediction = true;
+                    Minecraft.getMinecraft().vrSettings.headTrackPredictionTimeSecs = 0f;
+                    // TODO: Prediction
+                    //Minecraft.getMinecraft().headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
                 }
-			    this.mc.vrSettings.setHeadTrackSensitivity(1.0f);
+                Minecraft.getMinecraft().vrSettings.setHeadTrackSensitivity(1.0f);
                 this.reinit = true;
             }
             else if (par1GuiButton.id == 202)
@@ -137,30 +138,31 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
             }
             else if (par1GuiButton.id == 203) // Mode Change
             {
-            	this.mc.vrSettings.headTrackerPluginID = pluginModeChangeutton.getSelectedID();
-                this.mc.vrSettings.saveOptions();
-            	this.mc.headTracker = PluginManager.configureOrientation(this.mc.vrSettings.headTrackerPluginID);
+                Minecraft.getMinecraft().vrSettings.headTrackerPluginID = pluginModeChangeutton.getSelectedID();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
+                Minecraft.getMinecraft().headTracker = PluginManager.configureOrientation(Minecraft.getMinecraft().vrSettings.headTrackerPluginID);
                 this.reinit = true;
             }
         }
     }
 
     @Override
-    public void event(int id, EnumOptions enumm)
+    public void event(int id, VRSettings.VrOptions enumm)
     {
-        if (enumm == EnumOptions.HEAD_TRACK_PREDICTION_TIME)
+        if (enumm == VRSettings.VrOptions.HEAD_TRACK_PREDICTION_TIME)
         {
-            mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
+            // TODO: Prediction
+            //mc.headTracker.setPrediction(this.mc.vrSettings.headTrackPredictionTimeSecs, this.mc.vrSettings.useHeadTrackPrediction);
         }
     }
 
-    private boolean getEnabledState(EnumOptions var8)
+    private boolean getEnabledState(VRSettings.VrOptions var8)
     {
         String s = var8.getEnumString();
 
-        if (var8 == EnumOptions.HEAD_TRACK_SENSITIVITY)
+        if (var8 == VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY)
         {
-            if (this.mc.vrSettings.useQuaternions)
+            if (Minecraft.getMinecraft().vrSettings.useQuaternions)
                 return false;
             else
                 return true;
@@ -172,7 +174,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-    	EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        VRSettings.VrOptions e = VRSettings.VrOptions.getEnumOptions(buttonId);
     	if( e != null )
     	switch(e)
     	{

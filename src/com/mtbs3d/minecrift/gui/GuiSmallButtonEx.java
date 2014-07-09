@@ -4,41 +4,34 @@
  */
 package com.mtbs3d.minecrift.gui;
 
-import net.minecraft.src.Minecraft;
-import net.minecraft.src.EnumOptions;
+import com.mtbs3d.minecrift.settings.VRSettings;
+import net.minecraft.client.Minecraft;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Engineer
- * Date: 6/5/13
- * Time: 7:38 AM
- * To change this template use File | Settings | File Templates.
- */
 public class GuiSmallButtonEx extends GuiButtonEx
 {
-    private final EnumOptions enumOptions;
+    public VRSettings.VrOptions vrOptions;
+
     GuiEventEx _eventHandler = null;
 
     public GuiSmallButtonEx(int par1, int par2, int par3, String par4Str)
     {
-        this(par1, par2, par3, (EnumOptions)null, par4Str);
+        this(par1, par2, par3, (VRSettings.VrOptions)null, par4Str);
     }
 
     public GuiSmallButtonEx(int par1, int par2, int par3, int par4, int par5, String par6Str)
     {
         super(par1, par2, par3, par4, par5, par6Str);
-        this.enumOptions = null;
     }
 
-    public GuiSmallButtonEx(int par1, int par2, int par3, EnumOptions par4EnumOptions, String par5Str)
+    public GuiSmallButtonEx(int par1, int par2, int par3, VRSettings.VrOptions vrOptions, String par5Str)
     {
         super(par1, par2, par3, 150, 20, par5Str);
-        this.enumOptions = par4EnumOptions;
+        this.vrOptions = vrOptions;
     }
 
-    public EnumOptions returnEnumOptions()
+    public VRSettings.VrOptions returnVrEnumOptions()
     {
-        return this.enumOptions;
+        return this.vrOptions;
     }
 
     void setEventHandler(GuiEventEx eventHandler)
@@ -51,7 +44,10 @@ public class GuiSmallButtonEx extends GuiButtonEx
         boolean result = super.mousePressed(par1Minecraft, par2, par3);
 
         if (_eventHandler != null && result)
-            _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, enumOptions);
+        {
+            if (vrOptions != null)
+                _eventHandler.event(GuiEventEx.ID_VALUE_CHANGED, vrOptions);
+        }
 
         return result;
     }

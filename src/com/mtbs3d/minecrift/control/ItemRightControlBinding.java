@@ -4,9 +4,8 @@
  */
 package com.mtbs3d.minecrift.control;
 
-import net.minecraft.src.EntityClientPlayerMP;
-import net.minecraft.src.Minecraft;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 
 public class ItemRightControlBinding extends ControlBinding {
 

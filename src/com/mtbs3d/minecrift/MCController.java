@@ -5,7 +5,6 @@
 package com.mtbs3d.minecrift;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,29 +14,25 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.src.Config;
-import net.minecraft.src.GuiScreen;
-import net.minecraft.src.Minecraft;
+import com.mtbs3d.minecrift.control.*;
 
+import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Controller;
 import org.lwjgl.input.Controllers;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IBodyAimController;
-import com.mtbs3d.minecrift.control.ControlBinding;
-import com.mtbs3d.minecrift.control.GuiScreenNaviator;
-import com.mtbs3d.minecrift.control.InventoryBinding;
-import com.mtbs3d.minecrift.control.JoystickAim;
-import com.mtbs3d.minecrift.control.JoystickAimLoose;
-import com.mtbs3d.minecrift.control.JoystickRecenterAim;
-import com.mtbs3d.minecrift.control.MenuBinding;
+import com.mtbs3d.minecrift.control.GuiScreenNavigator;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
 
-public class MCController extends BasePlugin implements IBodyAimController {
-
+public class MCController extends BasePlugin implements IBodyAimController
+{
+    public static final Logger logger = LogManager.getLogger();
 	float aimOffset = 0.0f;
 	JoystickAim joyAim;
 	boolean hasControllers = false;
@@ -280,7 +275,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	BindingMap GUI    = new BindingMap();
 	JoystickAim[] aimTypes = new JoystickAim[] { new JoystickAim(), new JoystickAimLoose(), new JoystickRecenterAim() };
 	private Minecraft mc;
-	private GuiScreenNaviator screenNavigator;
+	private GuiScreenNavigator screenNavigator;
 	private boolean loaded = false;
 	public MCController() {
 		super();
@@ -323,7 +318,13 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	}
 
 	@Override
-	public void poll(float delta) {
+	public void poll(float delta)
+    {
+        if (polledThisFrame)
+            return;
+
+        polledThisFrame = true;
+
 		if(!loaded)
 			loadBindings();
 		JoystickAim.selectedJoystickMode = aimTypes[mc.vrSettings.joystickAimType];
@@ -335,7 +336,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			}
 		}
         if( this.mc.currentScreen != null && (this.screenNavigator == null || this.screenNavigator.screen != this.mc.currentScreen) )
-        	this.screenNavigator = new GuiScreenNaviator(this.mc.currentScreen );
+        	this.screenNavigator = new GuiScreenNavigator(this.mc.currentScreen );
 		Controllers.poll();
 		while (Controllers.next()) {
 			if( nextBind != null ) {
@@ -372,7 +373,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 			}
 			bindingsWriter.close();
 		} catch (IOException e) {
-            Config.dbg("Failed to save controller bindings");
+            logger.error("Failed to save controller bindings: " + e.getMessage());
 		}
 	}
 	
@@ -485,4 +486,7 @@ public class MCController extends BasePlugin implements IBodyAimController {
 	public void mapBinding(ControlBinding binding) {
 		nextBind = binding;
 	}
+
+    public void beginFrame() { polledThisFrame = false; }
+    public void endFrame() { }
 }

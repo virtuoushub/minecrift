@@ -4,9 +4,8 @@
  */
 package com.mtbs3d.minecrift.control;
 
-import net.minecraft.src.Minecraft;
-
 import com.mtbs3d.minecrift.settings.VRSettings;
+import net.minecraft.client.Minecraft;
 
 public class JoystickAim {
 	static public float aimPitch = 0.0f;

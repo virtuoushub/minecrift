@@ -13,35 +13,39 @@ import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.settings.VRSettings;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.src.*;
+import net.minecraft.util.StringTranslate;
 
 public class GuiMoveAimSettings extends BaseGuiSettings
 {
     /** An array of all of EnumOption's movement options relevant to the hydra. */
-    static EnumOptions[] hydraMoveAimOptions = new EnumOptions[] {
-        EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEAD_RELATIVE,
-        EnumOptions.DECOUPLE_LOOK_MOVE,
-        EnumOptions.JOYSTICK_SENSITIVITY,
-        EnumOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE,
+    static VRSettings.VrOptions[] hydraMoveAimOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.KEYHOLE_WIDTH,
+            VRSettings.VrOptions.KEYHOLE_HEAD_RELATIVE,
+            VRSettings.VrOptions.DECOUPLE_LOOK_MOVE,
+            VRSettings.VrOptions.JOYSTICK_SENSITIVITY,
+            VRSettings.VrOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE,
     };
     /** An array of all of EnumOption's movement options relevant to the mouse. */
-    static EnumOptions[] mouseMoveAimOptions = new EnumOptions[] {
-        EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEIGHT,
-        EnumOptions.DECOUPLE_LOOK_MOVE,
-        EnumOptions.PITCH_AFFECTS_CAMERA,
-        EnumOptions.AIM_PITCH_OFFSET,
+    static VRSettings.VrOptions[] mouseMoveAimOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.KEYHOLE_WIDTH,
+            VRSettings.VrOptions.KEYHOLE_HEIGHT,
+            VRSettings.VrOptions.DECOUPLE_LOOK_MOVE,
+            VRSettings.VrOptions.PITCH_AFFECTS_CAMERA,
+            VRSettings.VrOptions.AIM_PITCH_OFFSET,
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
-    static EnumOptions[] controllerMoveAimOptions = new EnumOptions[] {
-        EnumOptions.KEYHOLE_WIDTH,
-        EnumOptions.KEYHOLE_HEIGHT,
-        EnumOptions.DECOUPLE_LOOK_MOVE,
-        EnumOptions.PITCH_AFFECTS_CAMERA,
-        EnumOptions.JOYSTICK_SENSITIVITY,
-        EnumOptions.JOYSTICK_DEADZONE,
-        EnumOptions.JOYSTICK_AIM_TYPE,
+    static VRSettings.VrOptions[] controllerMoveAimOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.KEYHOLE_WIDTH,
+            VRSettings.VrOptions.KEYHOLE_HEIGHT,
+            VRSettings.VrOptions.DECOUPLE_LOOK_MOVE,
+            VRSettings.VrOptions.PITCH_AFFECTS_CAMERA,
+            VRSettings.VrOptions.JOYSTICK_SENSITIVITY,
+            VRSettings.VrOptions.JOYSTICK_DEADZONE,
+            VRSettings.VrOptions.JOYSTICK_AIM_TYPE,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
 	private boolean reinit;
@@ -58,11 +62,10 @@ public class GuiMoveAimSettings extends BaseGuiSettings
      */
     public void initGui()
     {
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        if(! ( mc.lookaimController instanceof MCMouse )  )
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
+        if(! ( Minecraft.getMinecraft().lookaimController instanceof MCMouse )  )
         {
         	this.buttonList.add(new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 128, "Remap Controls"));
         }
@@ -70,11 +73,11 @@ public class GuiMoveAimSettings extends BaseGuiSettings
         pluginModeChangeutton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.controllerPlugins, this.guivrSettings.controllerPluginID );
         this.buttonList.add(pluginModeChangeutton);
 
-        EnumOptions[] var10;
+        VRSettings.VrOptions[] var10;
 
-        if( this.mc.lookaimController instanceof MCHydra )
+        if( Minecraft.getMinecraft().lookaimController instanceof MCHydra )
         	var10 = hydraMoveAimOptions;
-    	else if( this.mc.lookaimController instanceof MCController )
+    	else if( Minecraft.getMinecraft().lookaimController instanceof MCController )
     		var10 = controllerMoveAimOptions;
     	else
         	var10 = mouseMoveAimOptions ;
@@ -82,7 +85,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
 
         for (int var12 = 2; var12 < var11 + 2; ++var12)
         {
-            EnumOptions var8 = var10[var12 - 2];
+            VRSettings.VrOptions var8 = var10[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
@@ -92,37 +95,37 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-                if (var8 == EnumOptions.MOVEMENT_MULTIPLIER)
+                if (var8 == VRSettings.VrOptions.MOVEMENT_MULTIPLIER)
                 {
                     minValue = 0.15f;
                     maxValue = 1.0f;
                     increment = 0.01f;
                 }
-                else if( var8 == EnumOptions.JOYSTICK_SENSITIVITY )
+                else if( var8 == VRSettings.VrOptions.JOYSTICK_SENSITIVITY )
                 {
                 	minValue = 0.5f;
                 	maxValue = 10.0f;
                 	increment= 0.1f;
                 }
-                else if( var8 == EnumOptions.JOYSTICK_DEADZONE )
+                else if( var8 == VRSettings.VrOptions.JOYSTICK_DEADZONE )
                 {
                 	minValue = 0.0f;
                 	maxValue = 0.4f;
                 	increment= 0.01f;
                 }
-                else if( var8 == EnumOptions.KEYHOLE_WIDTH)
+                else if( var8 == VRSettings.VrOptions.KEYHOLE_WIDTH)
                 {
                 	minValue = 0.0f;
                 	maxValue = 90f;
                 	increment= 1.0f;
                 }
-                else if( var8 == EnumOptions.KEYHOLE_HEIGHT)
+                else if( var8 == VRSettings.VrOptions.KEYHOLE_HEIGHT)
                 {
                 	minValue = 0.0f;
                 	maxValue = 180f;
                 	increment= 1.0f;
                 }
-                else if( var8 == EnumOptions.AIM_PITCH_OFFSET )
+                else if( var8 == VRSettings.VrOptions.AIM_PITCH_OFFSET )
                 {
                 	minValue = -90f;
                 	maxValue = 90f;
@@ -159,14 +162,14 @@ public class GuiMoveAimSettings extends BaseGuiSettings
      */
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
+        VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
 
         if (par1GuiButton.enabled)
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
@@ -177,12 +180,12 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             {
             	this.guivrSettings.controllerPluginID = pluginModeChangeutton.getSelectedID();
                 this.guivrSettings.saveOptions();
-            	this.mc.lookaimController = PluginManager.configureController(this.guivrSettings.controllerPluginID);
+                Minecraft.getMinecraft().lookaimController = PluginManager.configureController(this.guivrSettings.controllerPluginID);
             	this.reinit = true;
             }
             else if (par1GuiButton.id == 202) // Defaults
             {
-                if (this.mc.lookaimController instanceof MCHydra )
+                if (Minecraft.getMinecraft().lookaimController instanceof MCHydra )
                 {
                     this.guivrSettings.aimKeyholeWidthDegrees = 90f;
                     this.guivrSettings.keyholeHeadRelative = true;
@@ -212,7 +215,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-        EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        VRSettings.VrOptions e = VRSettings.VrOptions.getEnumOptions(buttonId);
         if( e != null )
             switch(e)
             {

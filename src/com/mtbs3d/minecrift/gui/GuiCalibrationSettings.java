@@ -1,13 +1,15 @@
 package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
-
-import net.minecraft.src.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.StringTranslate;
 
 public class GuiCalibrationSettings extends BaseGuiSettings
 {
-    static EnumOptions[] calibrationOptions = new EnumOptions[] {
-        EnumOptions.CALIBRATION_STRATEGY,
+    static VRSettings.VrOptions[] calibrationOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.CALIBRATION_STRATEGY,
     };
 
     public GuiCalibrationSettings(GuiScreen guiScreen, VRSettings guivrSettings) {
@@ -20,17 +22,16 @@ public class GuiCalibrationSettings extends BaseGuiSettings
      */
     public void initGui()
     {
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-//        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.USE_VR, this.guivrSettings.getKeyBinding(EnumOptions.USE_VR)));
+//        this.buttonList.add(new GuiSmallButtonEx(VRSettings.VrOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, VRSettings.VrOptions.USE_VR, this.guivrSettings.getKeyBinding(VRSettings.VrOptions.USE_VR)));
         this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        EnumOptions[] buttons = calibrationOptions;
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
+        VRSettings.VrOptions[] buttons = calibrationOptions;
 
         for (int var12 = 2; var12 < buttons.length + 2; ++var12)
         {
-            EnumOptions var8 = buttons[var12 - 2];
+            VRSettings.VrOptions var8 = buttons[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
@@ -40,13 +41,13 @@ public class GuiCalibrationSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-                if (var8 == EnumOptions.HUD_SCALE)
+                if (var8 == VRSettings.VrOptions.HUD_SCALE)
                 {
                     minValue = 0.5f;
                     maxValue = 1.5f;
                     increment = 0.01f;
                 }
-                if (var8 == EnumOptions.HUD_DISTANCE)
+                if (var8 == VRSettings.VrOptions.HUD_DISTANCE)
                 {
                     minValue = 0.5f;
                     maxValue = 3.0f;
@@ -71,19 +72,19 @@ public class GuiCalibrationSettings extends BaseGuiSettings
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201)
             {
                 this.guivrSettings.calibrationStrategy = VRSettings.CALIBRATION_STRATEGY_AT_STARTUP;
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.reinit = true;
             }
             else if (par1GuiButton.id == 202)
@@ -97,7 +98,7 @@ public class GuiCalibrationSettings extends BaseGuiSettings
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-        EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        VRSettings.VrOptions e = VRSettings.VrOptions.getEnumOptions(buttonId);
         if( e != null )
             switch(e)
             {

@@ -41,4 +41,8 @@ public interface IBasePlugin {
 	public boolean isCalibrated();
 	
 	public String getCalibrationStep();
+
+    public void beginFrame();
+
+    public void endFrame();
 }

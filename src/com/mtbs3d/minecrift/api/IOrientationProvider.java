@@ -19,14 +19,6 @@ public interface IOrientationProvider extends IBasePlugin {
 
     public static final int EVENT_ORIENTATION_AT_ORIGIN = 0;
 
-	/**
-	 * Enables/Disables prediction. On the Oculus Rift, this improves performance significantly.
-	 * 
-	 * @param delta ??
-	 * @param enable True if prediction should be enabled
-	 */
-    public void setPrediction(float delta, boolean enable);
-    
     /**
      * Gets the Yaw(Y) from YXZ Euler angle representation of orientation
      * 

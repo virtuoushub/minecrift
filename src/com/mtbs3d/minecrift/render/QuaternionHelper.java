@@ -1,15 +1,18 @@
 package com.mtbs3d.minecrift.render;
 
 import de.fruitfly.ovr.OculusRift;
-import net.minecraft.src.OpenGlHelper;
-import net.minecraft.src.Vec3;
+import de.fruitfly.ovr.enums.Axis;
+import de.fruitfly.ovr.enums.HandedSystem;
+import de.fruitfly.ovr.enums.RotateDirection;
+import de.fruitfly.ovr.structs.EulerOrient;
+import de.fruitfly.ovr.structs.Quatf;
+import net.minecraft.util.Vec3;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 /**
  * With thanks to 'Exemplos de LWJGL', by fabcam...@hotmail.com
@@ -19,10 +22,16 @@ public class QuaternionHelper
 {
     public static final Quaternion IDENTITY_QUATERNION = new Quaternion().setIdentity();
 
-    public static void dump(String name, Quaternion q1)
+    public static String toEulerDegString(String name, Quaternion q1, Axis rot1, Axis rot2, Axis rot3, HandedSystem hand, RotateDirection rotDir)
     {
-        float[] angles = OculusRift.getEulerAngles(q1.x, q1.y, q1.z, q1.w, 1.0f, 1, 1);
-        System.out.println(String.format("%s: Yaw: %.2f, Pitch: %.2f, Roll: %.2f", new Object[] {name, Float.valueOf(-angles[0]), Float.valueOf(-angles[1]), Float.valueOf(-angles[2])}));
+        Quatf quat = new Quatf(q1.x, q1.y, q1.z, q1.w);
+        return toEulerDegString(name, quat, rot1, rot2, rot3, hand, rotDir);
+    }
+
+    public static String toEulerDegString(String name, Quatf q1, Axis rot1, Axis rot2, Axis rot3, HandedSystem hand, RotateDirection rotDir)
+    {
+        EulerOrient euler = OculusRift.getEulerAnglesDeg(q1, 1.0f, rot1, rot2, rot3, hand, rotDir);
+        return String.format("%s: Yaw: %.3f, Pitch: %.3f, Roll: %.3f", new Object[] {name, Float.valueOf(euler.yaw), Float.valueOf(euler.pitch), Float.valueOf(euler.roll)});
     }
 
     public static Quaternion clone(Quaternion q1)
@@ -34,7 +43,7 @@ public class QuaternionHelper
     {
         Quaternion input = QuaternionHelper.clone(q1);
         float inputMagnitude = QuaternionHelper.magnitude(input);
-        Vec3 nHat = Vec3.fakePool.getVecFromPool(input.x, input.y, input.z).normalize();
+        Vec3 nHat = Vec3.createVectorHelper(input.x, input.y, input.z).normalize();
         Quaternion vectorBit = QuaternionHelper.exp(QuaternionHelper.scalarMultiply(new Quaternion((float)nHat.xCoord, (float)nHat.yCoord, (float)nHat.zCoord, 0), (float)(power * Math.acos(input.w / inputMagnitude))));
         return QuaternionHelper.scalarMultiply(vectorBit, (float)Math.pow(inputMagnitude, power));
     }
@@ -49,9 +58,9 @@ public class QuaternionHelper
     public static Quaternion exp(Quaternion input)
     {
         float inputA = input.w;
-        Vec3 inputV = Vec3.fakePool.getVecFromPool(input.x, input.y, input.z);
+        Vec3 inputV = Vec3.createVectorHelper(input.x, input.y, input.z);
         float outputA = (float)(Math.exp(inputA) * Math.cos(inputV.lengthVector()));
-        Vec3 outputV = Vec3.fakePool.getVecFromPool(0, 0, 0);
+        Vec3 outputV = Vec3.createVectorHelper(0, 0, 0);
         outputV.xCoord = Math.exp(inputA) * (inputV.normalize().xCoord * (float)Math.sin(inputV.lengthVector()));
         outputV.yCoord = Math.exp(inputA) * (inputV.normalize().yCoord * (float)Math.sin(inputV.lengthVector()));
         outputV.zCoord = Math.exp(inputA) * (inputV.normalize().zCoord * (float)Math.sin(inputV.lengthVector()));

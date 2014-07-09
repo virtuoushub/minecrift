@@ -5,11 +5,9 @@
 package com.mtbs3d.minecrift;
 
 import java.util.*;
-
-import net.minecraft.src.Minecraft;
-
 import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
+import net.minecraft.client.Minecraft;
 
 public class CalibrationHelper {
 	public ArrayList<IBasePlugin> pluginsToCalibrate = new ArrayList<IBasePlugin>();

@@ -2,24 +2,28 @@ package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.src.*;
+import net.minecraft.util.StringTranslate;
 
 public class GuiHUDSettings extends BaseGuiSettings
 {
-    static EnumOptions[] hudOptions = new EnumOptions[] {
-//            EnumOptions.HUD_HIDE,
-            EnumOptions.HUD_LOCK_TO,
-            EnumOptions.HUD_OCCLUSION,
-            EnumOptions.HUD_SCALE,
-            EnumOptions.HUD_DISTANCE,
-            EnumOptions.HUD_PITCH,
-            EnumOptions.HUD_YAW,
-            EnumOptions.HUD_OPACITY,
-            EnumOptions.RENDER_MENU_BACKGROUND,
-            EnumOptions.CROSSHAIR_SCALE,
-            EnumOptions.CROSSHAIR_ALWAYS_SHOW,
-            EnumOptions.CROSSHAIR_ROLL,
-            EnumOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
+    static VRSettings.VrOptions[] hudOptions = new VRSettings.VrOptions[] {
+//            VRSettings.VrOptions.HUD_HIDE,
+            VRSettings.VrOptions.HUD_LOCK_TO,
+            VRSettings.VrOptions.HUD_OCCLUSION,
+            VRSettings.VrOptions.HUD_SCALE,
+            VRSettings.VrOptions.HUD_DISTANCE,
+            VRSettings.VrOptions.HUD_PITCH,
+            VRSettings.VrOptions.HUD_YAW,
+            VRSettings.VrOptions.HUD_OPACITY,
+            VRSettings.VrOptions.RENDER_MENU_BACKGROUND,
+            VRSettings.VrOptions.CROSSHAIR_SCALE,
+            VRSettings.VrOptions.CROSSHAIR_ALWAYS_SHOW,
+            VRSettings.VrOptions.CROSSHAIR_ROLL,
+            VRSettings.VrOptions.BLOCK_OUTLINE_ALWAYS_SHOW,
     };
 
     public GuiHUDSettings(GuiScreen guiScreen, VRSettings guivrSettings) {
@@ -32,20 +36,19 @@ public class GuiHUDSettings extends BaseGuiSettings
      */
     public void initGui()
     {
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.HUD_HIDE.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, EnumOptions.HUD_HIDE, this.guivrSettings.getKeyBinding(EnumOptions.HUD_HIDE)));
+        this.buttonList.add(new GuiSmallButtonEx(VRSettings.VrOptions.HUD_HIDE.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, VRSettings.VrOptions.HUD_HIDE, this.guivrSettings.getKeyBinding(VRSettings.VrOptions.HUD_HIDE)));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
-        EnumOptions[] buttons = hudOptions;
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
+        VRSettings.VrOptions[] buttons = hudOptions;
 
         for (int var12 = 2; var12 < buttons.length + 2; ++var12)
         {
-            EnumOptions var8 = buttons[var12 - 2];
+            VRSettings.VrOptions var8 = buttons[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
 
-            if (var8 == EnumOptions.DUMMY)
+            if (var8 == VRSettings.VrOptions.DUMMY)
                 continue;
 
             if (var8.getEnumFloat())
@@ -54,37 +57,37 @@ public class GuiHUDSettings extends BaseGuiSettings
                 float maxValue = 1.0f;
                 float increment = 0.01f;
 
-                if (var8 == EnumOptions.HUD_SCALE)
+                if (var8 == VRSettings.VrOptions.HUD_SCALE)
                 {
                     minValue = 0.35f;
                     maxValue = 2.5f;
                     increment = 0.01f;
                 }
-                else if (var8 == EnumOptions.HUD_DISTANCE)
+                else if (var8 == VRSettings.VrOptions.HUD_DISTANCE)
                 {
                     minValue = 0.25f;
                     maxValue = 5.0f;
                     increment = 0.01f;
                 }
-                else if (var8 == EnumOptions.CROSSHAIR_SCALE)
+                else if (var8 == VRSettings.VrOptions.CROSSHAIR_SCALE)
                 {
                     minValue = 0.25f;
                     maxValue = 2.5f;
                     increment = 0.01f;
                 }
-                else if (var8 == EnumOptions.HUD_PITCH)
+                else if (var8 == VRSettings.VrOptions.HUD_PITCH)
                 {
                     minValue = -45f;
                     maxValue = 45f;
                     increment = 1f;
                 }
-                else if (var8 == EnumOptions.HUD_YAW)
+                else if (var8 == VRSettings.VrOptions.HUD_YAW)
                 {
                     minValue = -100f;
                     maxValue = 100f;
                     increment = 1f;
                 }
-                else if (var8 == EnumOptions.HUD_OPACITY)
+                else if (var8 == VRSettings.VrOptions.HUD_OPACITY)
                 {
                     minValue = 0.15f;
                     maxValue = 1.0f;
@@ -109,13 +112,13 @@ public class GuiHUDSettings extends BaseGuiSettings
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
             else if (par1GuiButton.id == 201)
@@ -133,7 +136,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guivrSettings.alwaysRenderBlockOutline = false;
                 this.guivrSettings.alwaysRenderInGameCrosshair = false;
                 this.guivrSettings.crosshairRollsWithHead = true;
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.reinit = true;
             }
         }
@@ -142,7 +145,7 @@ public class GuiHUDSettings extends BaseGuiSettings
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-        EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        VRSettings.VrOptions e = VRSettings.VrOptions.getEnumOptions(buttonId);
         if( e != null )
             switch(e)
             {

@@ -4,10 +4,6 @@
  */
 package com.mtbs3d.minecrift;
 
-import java.io.File;
-
-import net.minecraft.src.Minecraft;
-
 import de.fruitfly.ovr.OculusRift;
 
 public class TestOculus extends OculusRift {

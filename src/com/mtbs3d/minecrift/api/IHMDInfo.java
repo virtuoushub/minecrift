@@ -5,6 +5,10 @@
 package com.mtbs3d.minecrift.api;
 
 import de.fruitfly.ovr.*;
+import de.fruitfly.ovr.structs.FovTextureInfo;
+import de.fruitfly.ovr.structs.GLConfig;
+import de.fruitfly.ovr.structs.HmdDesc;
+import de.fruitfly.ovr.structs.Sizei;
 
 /**
  * Implement this class to inform Minecrift of distortion, resolution, and
@@ -15,42 +19,22 @@ import de.fruitfly.ovr.*;
  */
 public interface IHMDInfo extends IBasePlugin
 {
-	public HMDInfo getHMDInfo();
-	public SensorInfo getSensorInfo();
-    public EyeRenderParams getEyeRenderParams(int viewPortWidth, int viewPortHeight);
-    public EyeRenderParams getEyeRenderParams(int viewPortX, int viewPortY, int viewPortWidth, int viewPortHeight, float nearClip, float farClip);
-    public EyeRenderParams getEyeRenderParams(int viewPortX,
-                                              int viewPortY,
-                                              int viewPortWidth,
-                                              int viewPortHeight,
-                                              float clipNear,
-                                              float clipFar,
-                                              float eyeToScreenDistanceScaleFactor,
-                                              float lensSeparationScaleFactor);
-    public EyeRenderParams getEyeRenderParams(int viewPortX,
-                                              int viewPortY,
-                                              int viewPortWidth,
-                                              int viewPortHeight,
-                                              float clipNear,
-                                              float clipFar,
-                                              float eyeToScreenDistanceScaleFactor,
-                                              float lensSeparationScaleFactor,
-                                              float distortionFitX,
-                                              float distortionFitY,
-                                              IOculusRift.AspectCorrectionType aspectCorrectionType);
+	public HmdDesc getHMDInfo();
+	//public SensorInfo getSensorInfo();
+
     /**
      * Sets/saves the IPD for use in the eyeRenderParams
      * 
      * @param ipd Interpupillary distance, in meters.
      */
-    public void setIPD(float ipd);
+    //public void setIPD(float ipd);
 
     /**
      * Gets the IPD
      * 
      * @return Interpupillary distance, in meters.
      */
-    public float getIPD();
+   // public float getIPD();
 
     /* Gets the current user profile data */
     public UserProfileData getProfileData();
@@ -62,6 +46,6 @@ public interface IHMDInfo extends IBasePlugin
     public boolean loadProfile(String profileName);
 
     /* Oculus latency tester info */
-    public float[] latencyTesterDisplayScreenColor();
-    public String latencyTesterGetResultsString();
+    //public float[] latencyTesterDisplayScreenColor();    // TODO:
+    //public String latencyTesterGetResultsString();       // TODO:
 }

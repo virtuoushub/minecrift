@@ -6,10 +6,8 @@ package com.mtbs3d.minecrift;
 
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.api.PluginManager;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
-
-
-import net.minecraft.src.Minecraft;
 
 public class VRHotkeys {
 
@@ -38,7 +36,7 @@ public class VRHotkeys {
 	        {
 	            mc.vrSettings.useChromaticAbCorrection = !mc.vrSettings.useChromaticAbCorrection;
 	            mc.vrSettings.saveOptions();
-	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
 
                 if (mc.vrSettings.useChromaticAbCorrection)
                     mc.printChatMessage("Chromatic Aberration Correction ON");
@@ -67,7 +65,7 @@ public class VRHotkeys {
                 }
 
                 mc.vrSettings.saveOptions();
-                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
 	        }
 	    }
 	
@@ -83,14 +81,14 @@ public class VRHotkeys {
 	                mc.vrSettings.superSampleScaleFactor = 1.5f;
 	            }
 	            mc.vrSettings.saveOptions();
-	            mc.vrRenderer._FBOInitialised = false;
+                Minecraft.getMinecraft().reinitFramebuffers = true;
                 mc.printChatMessage(String.format("FSAA scale factor: %.1f", new Object[]{Float.valueOf(mc.vrSettings.superSampleScaleFactor)}));
 	        }
 	        else
 	        {
 	            mc.vrSettings.useSupersample = !mc.vrSettings.useSupersample;
 	            mc.vrSettings.saveOptions();
-	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage("FSAA: " + (mc.vrSettings.useSupersample ? "On" : "Off"));
 	        }
 	    }
@@ -101,7 +99,7 @@ public class VRHotkeys {
 	        if (Keyboard.isKeyDown(Keyboard.KEY_LMENU))
 	        {
 	            mc.vrSettings.useHeadTrackPrediction = !mc.vrSettings.useHeadTrackPrediction;
-                mc.headTracker.setPrediction(mc.vrSettings.headTrackPredictionTimeSecs, mc.vrSettings.useHeadTrackPrediction);
+                //mc.headTracker.setPrediction(mc.vrSettings.headTrackPredictionTimeSecs, mc.vrSettings.useHeadTrackPrediction);   // TODO:
 	            mc.vrSettings.saveOptions();
                 if (mc.vrSettings.useHeadTrackPrediction)
                     mc.printChatMessage(String.format("Head tracking prediction: On (%.2fms)", new Object[]{Float.valueOf(mc.vrSettings.headTrackPredictionTimeSecs * 1000)}));
@@ -187,7 +185,7 @@ public class VRHotkeys {
 	            if (mc.vrSettings.distortionFitPoint > 14)
 	                mc.vrSettings.distortionFitPoint = 14;
 	            mc.vrSettings.saveOptions();
-	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage(String.format("Distortion fit point: %.0f", new Object[]{Float.valueOf(mc.vrSettings.distortionFitPoint)}));
 	        }
 	        else
@@ -195,7 +193,7 @@ public class VRHotkeys {
 	            // FOV
 	            mc.vrSettings.fovScaleFactor += 0.001f;
 	            mc.vrSettings.saveOptions();
-                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage(String.format("FOV scale factor: %.3f", new Object[]{Float.valueOf(mc.vrSettings.fovScaleFactor)}));
 	        }
 	    }
@@ -210,7 +208,7 @@ public class VRHotkeys {
 	            if (mc.vrSettings.distortionFitPoint < 0)
 	                mc.vrSettings.distortionFitPoint = 0;
 	            mc.vrSettings.saveOptions();
-	            mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage(String.format("Distortion fit point: %.0f", new Object[]{Float.valueOf(mc.vrSettings.distortionFitPoint)}));
 	        }
 	        else
@@ -218,7 +216,7 @@ public class VRHotkeys {
 	            // FOV
 	            mc.vrSettings.fovScaleFactor -= 0.001f;
 	            mc.vrSettings.saveOptions();
-                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage(String.format("FOV scale factor: %.3f", new Object[]{Float.valueOf(mc.vrSettings.fovScaleFactor)}));
 	        }
 	    }
@@ -260,10 +258,10 @@ public class VRHotkeys {
                 {
                     newIpd = mc.vrSettings.getIPD() + 0.0001f;
                 }
-                mc.hmdInfo.setIPD(newIpd);
+                //mc.hmdInfo.setIPD(newIpd);     // TODO: IPD
                 mc.vrSettings.setMinecraftIpd(newIpd);
                 mc.vrSettings.saveOptions();
-                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage(String.format("IPD: %.1fmm", new Object[]{Float.valueOf(mc.vrSettings.getIPD() * 1000f)}));
             }
 	    }
@@ -286,10 +284,10 @@ public class VRHotkeys {
                 {
                     newIpd = mc.vrSettings.getIPD() - 0.0001f;
                 }
-                mc.hmdInfo.setIPD(newIpd);
+                //mc.hmdInfo.setIPD(newIpd);       // TODO: IPD
                 mc.vrSettings.setMinecraftIpd(newIpd);
                 mc.vrSettings.saveOptions();
-                mc.vrRenderer._FBOInitialised = false; // Reinit FBO and shaders
+                Minecraft.getMinecraft().reinitFramebuffers = true; // Reinit FBO and shaders
                 mc.printChatMessage(String.format("IPD: %.1fmm", new Object[]{Float.valueOf(mc.vrSettings.getIPD() * 1000f)}));
             }
 	    }

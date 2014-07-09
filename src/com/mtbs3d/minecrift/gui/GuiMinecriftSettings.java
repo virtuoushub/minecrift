@@ -5,8 +5,11 @@
 package com.mtbs3d.minecrift.gui;
 
 import com.mtbs3d.minecrift.settings.VRSettings;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.settings.GameSettings;
 
-import net.minecraft.src.*;
 
 public class GuiMinecriftSettings extends BaseGuiSettings
 {
@@ -17,11 +20,11 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             new VROption(206,                             VROption.Position.POS_LEFT,   2,    VROption.DISABLED, "Optics/Rendering..."),
             new VROption(203,                             VROption.Position.POS_RIGHT,  2,    VROption.DISABLED, "Device Calibration..."),
             new VROption(205,                             VROption.Position.POS_LEFT,   3.25f, VROption.DISABLED, "Head Orientation Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
+            new VROption(VRSettings.VrOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
             new VROption(207,                             VROption.Position.POS_LEFT,   4.25f, VROption.DISABLED, "Head Position Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
+            new VROption(VRSettings.VrOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
             new VROption(208,                             VROption.Position.POS_LEFT,   5.25f, VROption.DISABLED, "Move/Aim Control..."),
-            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
+            new VROption(VRSettings.VrOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
         };
 
     static VROption[] vrOnDeviceList = new VROption[]
@@ -31,11 +34,11 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             new VROption(206,                             VROption.Position.POS_LEFT,   2,    VROption.ENABLED, "Optics/Rendering..."),
             new VROption(203,                             VROption.Position.POS_RIGHT,  2,    VROption.ENABLED, "Device Calibration..."),
             new VROption(205,                             VROption.Position.POS_LEFT,   3.25f, VROption.ENABLED, "Head Orientation Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
+            new VROption(VRSettings.VrOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
             new VROption(207,                             VROption.Position.POS_LEFT,   4.25f, VROption.ENABLED, "Head Position Tracking..."),
-            new VROption(EnumOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
+            new VROption(VRSettings.VrOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
             new VROption(208,                             VROption.Position.POS_LEFT,   5.25f, VROption.ENABLED, "Move/Aim Control..."),
-            new VROption(EnumOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
+            new VROption(VRSettings.VrOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
         };
 
     /** An array of all of EnumOption's video options. */
@@ -57,12 +60,11 @@ public class GuiMinecriftSettings extends BaseGuiSettings
     public void initGui()
     {
         GuiButtonEx buttonOrigin, buttonRecali;
-        StringTranslate stringTranslate = StringTranslate.getInstance();
         this.buttonList.clear();
-        this.buttonList.add(new GuiSmallButtonEx(EnumOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, EnumOptions.USE_VR, this.guivrSettings.getKeyBinding(EnumOptions.USE_VR)));
-        buttonOrigin = new GuiButtonEx(211, this.width / 2 - 100, this.height / 6 + 128, stringTranslate.translateKey("Reset Origin"));
-        buttonRecali = new GuiButtonEx(210, this.width / 2 - 100, this.height / 6 + 148, stringTranslate.translateKey("Recalibrate..."));
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, stringTranslate.translateKey("gui.done")));
+        this.buttonList.add(new GuiSmallButtonEx(VRSettings.VrOptions.USE_VR.returnEnumOrdinal(), this.width / 2 - 155 + 1 * 160 / 2, this.height / 6 - 14, VRSettings.VrOptions.USE_VR, this.guivrSettings.getKeyBinding(VRSettings.VrOptions.USE_VR)));
+        buttonOrigin = new GuiButtonEx(211, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
+        buttonRecali = new GuiButtonEx(210, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
+        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
         VROption[] buttons = null;
         if (this.guivrSettings.useVRRenderer)
         {
@@ -101,83 +103,82 @@ public class GuiMinecriftSettings extends BaseGuiSettings
         {
             if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
-                EnumOptions num = EnumOptions.getEnumOptions(par1GuiButton.id);
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(EnumOptions.getEnumOptions(par1GuiButton.id));
+                VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
 
-                if (num == EnumOptions.USE_VR)
+                if (num == VRSettings.VrOptions.USE_VR)
                 {
-                    if (vrRenderer != null)
-                        vrRenderer._FBOInitialised = false;
+                    Minecraft.getMinecraft().reinitFramebuffers = true;
                     this.reinit = true;
                 }
             }
             else if (par1GuiButton.id == 201)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(new GuiPlayerPreferenceSettings(this, this.guivrSettings));
             }
             else if (par1GuiButton.id == 202)
             {
-                if( mc.headTracker != null )
+                if( Minecraft.getMinecraft().headTracker != null )
                 {
-                    this.mc.vrSettings.saveOptions();
+                    Minecraft.getMinecraft().vrSettings.saveOptions();
                     this.mc.displayGuiScreen(new GuiHUDSettings(this, this.guivrSettings));
                 }
             }
             else if (par1GuiButton.id == 203)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(new GuiCalibrationSettings(this, this.guivrSettings));
             }
             else if (par1GuiButton.id == 205)
             {
-            	if( mc.headTracker != null )
+            	if( Minecraft.getMinecraft().headTracker != null )
             	{
-	                this.mc.vrSettings.saveOptions();
+                    Minecraft.getMinecraft().vrSettings.saveOptions();
 	                this.mc.displayGuiScreen(new GuiHeadOrientationSettings(this, this.guivrSettings));
             	}
             } 
             else if (par1GuiButton.id == 206)
             {
-            	if( mc.headTracker != null && mc.hmdInfo != null && mc.positionTracker != null )
+            	if( Minecraft.getMinecraft().headTracker != null && Minecraft.getMinecraft().hmdInfo != null && Minecraft.getMinecraft().positionTracker != null )
             	{
-	                this.mc.vrSettings.saveOptions();
+                    Minecraft.getMinecraft().vrSettings.saveOptions();
 	                this.mc.displayGuiScreen(new GuiRenderOpticsSettings(this, this.guivrSettings, this.settings));
             	}
             } 
             else if (par1GuiButton.id == 207)
             {
-            	if( mc.positionTracker != null )
+            	if( Minecraft.getMinecraft().positionTracker != null )
             	{
-	                this.mc.vrSettings.saveOptions();
+                    Minecraft.getMinecraft().vrSettings.saveOptions();
 	                this.mc.displayGuiScreen(new GuiHeadPositionSettings(this, this.guivrSettings));
             	}
             } 
             else if (par1GuiButton.id == 208)
             {
-            	if( mc.lookaimController != null )
+            	if( Minecraft.getMinecraft().lookaimController != null )
             	{
-	                this.mc.vrSettings.saveOptions();
+                    Minecraft.getMinecraft().vrSettings.saveOptions();
 	                this.mc.displayGuiScreen(new GuiMoveAimSettings(this, this.guivrSettings));
             	}
             }
             else if (par1GuiButton.id == 210)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 if (vrRenderer != null)
                     vrRenderer.startCalibration();
             }
             else if (par1GuiButton.id == 211)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.guivrSettings.posTrackResetPosition = true;
                 if (vrRenderer != null)
                     vrRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 200)
             {
-                this.mc.vrSettings.saveOptions();
+                Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
         }
@@ -186,7 +187,7 @@ public class GuiMinecriftSettings extends BaseGuiSettings
     @Override
     protected String[] getTooltipLines(String displayString, int buttonId)
     {
-    	EnumOptions e = EnumOptions.getEnumOptions(buttonId);
+        VRSettings.VrOptions e = VRSettings.VrOptions.getEnumOptions(buttonId);
     	if( e != null )
     	switch(e)
     	{
