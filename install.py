@@ -134,10 +134,22 @@ def download_deps( mcp_dir ):
             else:
                 url = group.replace(".","/")+ "/"+artifact+"/"+version +"/"+artifact+"-"+version+".jar"
 
-            url = url.replace('${arch}', osArch())
-            file = os.path.join(jars,"libraries",url.replace("/",os.sep))
-            mkdir_p(os.path.dirname(file))
-            download_file( repo + url, file )
+            index = url.find('${arch}')
+            if index > -1:
+                # Get both 32 and 64 bit versions
+                url32 = url.replace('${arch}', '32')
+                file32 = os.path.join(jars,"libraries",url32.replace("/",os.sep))
+                mkdir_p(os.path.dirname(file32))
+                download_file( repo + url32, file32 )
+                
+                url64 = url.replace('${arch}', '64')
+                file64 = os.path.join(jars,"libraries",url64.replace("/",os.sep))
+                mkdir_p(os.path.dirname(file64))
+                download_file( repo + url64, file64 )                
+            else:
+                file = os.path.join(jars,"libraries",url.replace("/",os.sep))
+                mkdir_p(os.path.dirname(file))
+                download_file( repo + url, file )
 
             if "natives" in lib:
                 folder = os.path.join(jars,"versions",mc_version,mc_version+"-natives")
