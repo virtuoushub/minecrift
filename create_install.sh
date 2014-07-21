@@ -1,3 +1,2 @@
-#!/usr/bin/env python
-from build import create_install
-create_install("mcp811")
+#!/bin/bash
+python create_install.py $@

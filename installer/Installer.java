@@ -25,7 +25,7 @@ import javax.swing.border.LineBorder;
 
 /**
  * Derived from https://github.com/MinecraftForge/Installer/
- * Copyright 2013 MinecraftForge developers, Mark Browning, StellaArtois
+ * Copyright 2013 MinecraftForge developers, & Mark Browning, StellaArtois
  * 
  * Licensed under GNU LGPL v2.1 or later.
  * 
@@ -34,8 +34,9 @@ import javax.swing.border.LineBorder;
  */
 public class Installer extends JPanel  implements PropertyChangeListener {
 	private static final long serialVersionUID = -562178983462626162L;
-	private static final String MC_VERSION = "1.6.4";
-	private static final String OF_VERSION = "1.6.4_HD_U_D1";
+	private static final String MC_VERSION = "1.7.10";
+	private static final String OF_VERSION = "1.7.10_HD_U_A4";
+    private static final String FORGE_VERSION = "10.13.0.1180";
     private static final String OF_VERSION_EXT = "jar";
     private static final String OF_LIB_PATH = "libraries/optifine/OptiFine/";
 
@@ -121,7 +122,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			if( jar_id != null )
 			{
 				InputStream version_json; 
-				if(useForge.isSelected() && forgeVersion.getSelectedItem() != forgeNotFound ) {
+				if(useForge.isSelected() /*&& forgeVersion.getSelectedItem() != forgeNotFound*/ ) {
 					String filename;
 					if( useHydra.isSelected() ) {
 						filename = "version-forge.json";
@@ -136,7 +137,7 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 							int ret = in.read(buff);
 							if( ret > 0 ) {
 								String s = new String( buff,0, ret, "UTF-8");
-								s = s.replace("$FORGE_VERSION", (String)forgeVersion.getSelectedItem());
+								//s = s.replace("$FORGE_VERSION", (String)forgeVersion.getSelectedItem());
 								ret = s.length();
 								System.arraycopy(s.getBytes("UTF-8"), 0, buff, 0, ret);
 							}
@@ -460,24 +461,28 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 		JPanel forgePanel = new JPanel();
 		forgePanel.setLayout( new BoxLayout(forgePanel, BoxLayout.X_AXIS));
         //Create forge: no/yes buttons
-		useForge = new JCheckBox("Install with Forge",false);
+		useForge = new JCheckBox("Install with Forge " + FORGE_VERSION,false);
 		forgeVersion = new JComboBox();
 
 		//Add "yes" and "which version" to the forgePanel
 		useForge.setAlignmentX(LEFT_ALIGNMENT);
 		forgeVersion.setAlignmentX(LEFT_ALIGNMENT);
 		forgePanel.add(useForge);
-		forgePanel.add(forgeVersion);
+		//forgePanel.add(forgeVersion);
 		
 		useHydra = new JCheckBox("Include Razer Hydra support",false);
 		useHydra.setAlignmentX(LEFT_ALIGNMENT);
 
-        useHrtf = new JCheckBox("Setup binaural sound (OpenAL HRTF)", false);
-        useHrtf.setToolTipText("<html>If checked, the installer will create the configuration file needed for ear-aware sound in Minecraft (and other games).<br>" +
+        useHrtf = new JCheckBox("Setup binaural audio", false);
+        useHrtf.setToolTipText(
+                "<html>" +
+                "If checked, the installer will create the configuration file needed for OpenAL HRTF<br>" +
+                "ear-aware sound in Minecraft (and other games).<br>" +
                 " If the file has previously been created, you do not need to check this again.<br>" +
                 " NOTE: Your sound card's output MUST be set to 44.1Khz.<br>" +
                 " WARNING, will overwrite " + (isWindows ? (appDataDir + "\\alsoft.ini") : (userHomeDir + "/.alsoftrc")) + "!<br>" +
-                " Delete the " + (isWindows ? "alsoft.ini" : "alsoftrc") + " file to disable HRTF again.</html>");
+                " Delete the " + (isWindows ? "alsoft.ini" : "alsoftrc") + " file to disable HRTF again." +
+                "</html>");
         useHrtf.setAlignmentX(LEFT_ALIGNMENT);
 
 		//Add option panels option panel

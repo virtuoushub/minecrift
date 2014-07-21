@@ -97,10 +97,6 @@
 	    "url": "http://repo.minecraft-vr.com/"
     },
     {
-      "name": "com.sixense:SixenseJava:062612.1",
-	    "url": "http://repo.minecraft-vr.com/"
-    },
-    {
       "name": "net.aib42.mumblelink:JMumble:1.0",
 	    "url": "http://repo.minecraft-vr.com/"
     },    
@@ -203,21 +199,7 @@
           "META-INF/"
         ]
       }
-    },
-    {
-      "name": "com.sixense:SixenseJavaLibrary:062612.0",
-	    "url": "http://repo.minecraft-vr.com/",
-      "natives": {
-        "linux": "natives-linux",
-        "windows": "natives-windows",
-        "osx": "natives-osx"
-      },
-      "extract": {
-        "exclude": [
-          "META-INF/"
-        ]
-      }
-    }    
+    }
   ],
   "mainClass": "net.minecraft.launchwrapper.Launch",
   "minimumLauncherVersion": 13,

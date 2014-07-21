@@ -3,7 +3,7 @@ import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
 import subprocess, shlex
 
-mc_ver ="1.6.4"
+mc_ver ="1.7.10"
 
 try:
     WindowsError
