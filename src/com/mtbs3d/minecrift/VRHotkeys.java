@@ -6,6 +6,7 @@ package com.mtbs3d.minecrift;
 
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.api.PluginManager;
+import com.mtbs3d.minecrift.settings.VRSettings;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
@@ -116,11 +117,8 @@ public class VRHotkeys {
         // Quaternion prototype on / off
         if (Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
-            if (mc.vrRenderer != null)
-            {
-                mc.vrSettings.useQuaternions = !mc.vrSettings.useQuaternions;
-                mc.printChatMessage("useQuaternions: " + (mc.vrSettings.useQuaternions ? "On" : "Off"));
-            }
+            mc.vrSettings.useQuaternions = !mc.vrSettings.useQuaternions;
+            mc.printChatMessage("useQuaternions: " + (mc.vrSettings.useQuaternions ? "On" : "Off"));
         }
 	
 	    // Lock distance
@@ -295,9 +293,12 @@ public class VRHotkeys {
         // Render full player model or just an disembodied hand...
         if (Keyboard.getEventKey() == Keyboard.KEY_H && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
-            mc.vrSettings.renderFullFirstPersonModel = !mc.vrSettings.renderFullFirstPersonModel;
+            mc.vrSettings.renderFullFirstPersonModelMode++;
+            if (mc.vrSettings.renderFullFirstPersonModelMode > VRSettings.RENDER_FIRST_PERSON_NONE)
+                mc.vrSettings.renderFullFirstPersonModelMode = VRSettings.RENDER_FIRST_PERSON_FULL;
             mc.vrSettings.saveOptions();
-            mc.printChatMessage("First person model: " + (mc.vrSettings.renderFullFirstPersonModel ? "Full" : "Hand only"));
+            mc.printChatMessage("First person model: " + (mc.vrSettings.renderFullFirstPersonModelMode == VRSettings.RENDER_FIRST_PERSON_FULL ? "Full" :
+                    (mc.vrSettings.renderFullFirstPersonModelMode == VRSettings.RENDER_FIRST_PERSON_HAND ? "Hand only" : "None")));
         }
 
         // Reset positional track origin

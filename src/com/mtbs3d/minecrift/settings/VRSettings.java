@@ -9,15 +9,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-
 import com.mtbs3d.minecrift.MCHydra;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,8 +36,18 @@ public class VRSettings
 
     public static final int CALIBRATION_STRATEGY_AT_STARTUP = 0;
 
-    public boolean useVRRenderer    = false; //default to false
-    public boolean useQuaternions = false;
+    public static final int RENDER_FIRST_PERSON_FULL = 0;
+    public static final int RENDER_FIRST_PERSON_HAND = 1;
+    public static final int RENDER_FIRST_PERSON_NONE = 2;
+    public static final int RENDER_CROSSHAIR_MODE_ALWAYS = 0;
+    public static final int RENDER_CROSSHAIR_MODE_HUD = 1;
+    public static final int RENDER_CROSSHAIR_MODE_NEVER = 2;
+    public static final int RENDER_BLOCK_OUTLINE_MODE_ALWAYS = 0;
+    public static final int RENDER_BLOCK_OUTLINE_MODE_HUD = 1;
+    public static final int RENDER_BLOCK_OUTLINE_MODE_NEVER = 2;
+
+    public boolean useVRRenderer  = false; //default to false
+    public boolean useQuaternions = true;
     public boolean debugPose = false;
 	protected float playerEyeHeight = 1.74f;  // Use getPlayerEyeHeight()
 	public float eyeProtrusion = 0.185f;
@@ -62,12 +66,21 @@ public class VRSettings
     public float hudOpacity = 1.0f;
     public boolean menuBackground = false;
     public boolean renderHeadWear = false;
-    public boolean renderFullFirstPersonModel = true;
+    public int renderFullFirstPersonModelMode = RENDER_FIRST_PERSON_FULL;
     public float renderPlayerOffset = 0.25f;
     public boolean useChromaticAbCorrection = true;
+    // SDK 0.4.0
     public boolean useTimewarp = true;
     public boolean useVignette = true;
-    public boolean useLowPersistence = true; // TODO: Support properly
+    public boolean useLowPersistence = true;
+    public boolean useDynamicPrediction = true;
+    public float   renderScaleFactor = 1.0f;
+    public boolean useDirectRenderMode = false;
+    public boolean useDisplayMirroring = true;
+    public boolean useDisplayOverdrive = false;
+    public boolean posTrackBlankOnCollision = false;
+
+    // TODO: Clean-up all the redundant crap!
     public boolean useDistortionTextureLookupOptimisation = false;
     public boolean useFXAA = false;
     public float hudScale = 0.65f;
@@ -85,7 +98,7 @@ public class VRSettings
     public boolean useSupersample = false;   // default to off
     public float superSampleScaleFactor = 2.0f;
     public boolean lookMoveDecoupled = false;
-    public boolean useOculusProfile = false;
+    public boolean useOculusProfile = true;
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
     public boolean posTrackHydraUseController1 = true;
     public boolean posTrackHydraDebugCentreEyePos = false;
@@ -122,12 +135,12 @@ public class VRSettings
 	public String headPositionPluginID = "null-pos";
 	public String headTrackerPluginID = "oculus";
 	public String hmdPluginID = "oculus";
-    public String stereoProviderID = "oculus";
+    public String stereoProviderPluginID = "oculus";
 	public String controllerPluginID = "mouse";
-    public int calibrationStrategy = CALIBRATION_STRATEGY_AT_STARTUP;
+    public int calibrationStrategy = 1;
     public float crosshairScale = 1.0f;
-    public boolean alwaysRenderInGameCrosshair = false;
-    public boolean alwaysRenderBlockOutline = false;
+    public int renderInGameCrosshairMode = RENDER_CROSSHAIR_MODE_HUD;
+    public int renderBlockOutlineMode = RENDER_BLOCK_OUTLINE_MODE_HUD;
     public boolean showEntityOutline = false;
     public boolean crosshairRollsWithHead = true;
     public boolean hudOcclusion = false;
@@ -246,7 +259,7 @@ public class VRSettings
 
                     if (optionTokens[0].equals("stereoProviderPluginID"))
                     {
-                        this.stereoProviderID = optionTokens[1];
+                        this.stereoProviderPluginID = optionTokens[1];
                     }
 
                     if (optionTokens[0].equals("controllerPluginID"))
@@ -296,9 +309,9 @@ public class VRSettings
                         this.mc.gameSettings.hideGUI = optionTokens[1].equals("true");
                     }
 
-                    if (optionTokens[0].equals("renderFullFirstPersonModel"))
+                    if (optionTokens[0].equals("renderFullFirstPersonModelMode"))
                     {
-                        this.renderFullFirstPersonModel = optionTokens[1].equals("true");
+                        this.renderFullFirstPersonModelMode = Integer.parseInt(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("useChromaticAbCorrection"))
@@ -314,6 +327,36 @@ public class VRSettings
                     if (optionTokens[0].equals("useVignette"))
                     {
                         this.useVignette = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("posTrackBlankOnCollision"))
+                    {
+                        this.posTrackBlankOnCollision = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useLowPersistence"))
+                    {
+                        this.useLowPersistence = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useDynamicPrediction"))
+                    {
+                        this.useDynamicPrediction = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useDisplayOverdrive"))
+                    {
+                        this.useDisplayOverdrive = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useDirectRenderMode"))
+                    {
+                        this.useDirectRenderMode = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useDisplayMirroring"))
+                    {
+                        this.useDisplayMirroring = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("useDistortionTextureLookupOptimisation"))
@@ -334,6 +377,11 @@ public class VRSettings
                     if (optionTokens[0].equals("renderPlayerOffset"))
                     {
                         this.renderPlayerOffset = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("renderScaleFactor"))
+                    {
+                        this.renderScaleFactor = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("allowMousePitchInput"))
@@ -415,6 +463,21 @@ public class VRSettings
                     if (optionTokens[0].equals("posTrackHydraLoc"))
                     {
                         this.posTrackHydraLoc = Integer.parseInt(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("renderFullFirstPersonModelMode"))
+                    {
+                        this.renderFullFirstPersonModelMode = Integer.parseInt(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("renderInGameCrosshairMode"))
+                    {
+                        this.renderInGameCrosshairMode = Integer.parseInt(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("renderBlockOutlineMode"))
+                    {
+                        this.renderBlockOutlineMode = Integer.parseInt(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("posTrackHydraLROffsetX"))
@@ -537,14 +600,14 @@ public class VRSettings
                         this.hydraUseFilter = optionTokens[1].equals("true");
                     }
 
-                    if (optionTokens[0].equals("alwaysRenderInGameCrosshair"))
+                    if (optionTokens[0].equals("renderInGameCrosshairMode"))
                     {
-                        this.alwaysRenderInGameCrosshair = optionTokens[1].equals("true");
+                        this.renderInGameCrosshairMode = Integer.parseInt(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("alwaysRenderBlockOutline"))
+                    if (optionTokens[0].equals("renderBlockOutlineMode"))
                     {
-                        this.alwaysRenderBlockOutline = optionTokens[1].equals("true");
+                        this.renderBlockOutlineMode = Integer.parseInt(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("showEntityOutline"))
@@ -705,14 +768,35 @@ public class VRSettings
                 return this.menuBackground ? var4 + "ON" : var4 + "OFF";
 	        case HUD_HIDE:
 	            return this.mc.gameSettings.hideGUI ? var4 + "YES" : var4 + "NO";
-	        case RENDER_FULL_FIRST_PERSON_MODEL:
-	            return this.renderFullFirstPersonModel ? var4 + "Full" : var4 + "Hand";
+	        case RENDER_FULL_FIRST_PERSON_MODEL_MODE:
+                if (this.renderFullFirstPersonModelMode == RENDER_FIRST_PERSON_FULL)
+                    return var4 + "Full";
+                else if (this.renderFullFirstPersonModelMode == RENDER_FIRST_PERSON_HAND)
+                    return var4 + "Hand";
+                else if (this.renderFullFirstPersonModelMode == RENDER_FIRST_PERSON_NONE)
+                    return var4 + "None";
 	        case CHROM_AB_CORRECTION:
 	            return this.useChromaticAbCorrection ? var4 + "ON" : var4 + "OFF";
+            // 0.4.0
             case TIMEWARP:
                 return this.useTimewarp ? var4 + "ON" : var4 + "OFF";
             case VIGNETTE:
                 return this.useVignette ? var4 + "ON" : var4 + "OFF";
+            case LOW_PERSISTENCE:
+                return this.useLowPersistence ? var4 + "ON" : var4 + "OFF";
+            case DYNAMIC_PREDICTION:
+                return this.useDynamicPrediction ? var4 + "ON" : var4 + "OFF";
+            case OVERDRIVE_DISPLAY:
+                return this.useDisplayOverdrive ? var4 + "ON" : var4 + "OFF";
+            case ENABLE_DIRECT:
+                return this.useDirectRenderMode ? var4 + "Direct" : var4 + "Extended";
+            case MIRROR_DISPLAY:
+                return this.useDisplayMirroring ? var4 + "ON" : var4 + "OFF";
+            case POS_TRACK_HIDE_COLLISION:
+                return this.posTrackBlankOnCollision ? var4 + "YES" : var4 + "NO";
+            case RENDER_SCALEFACTOR:
+                return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.renderScaleFactor) });
+
             case TEXTURE_LOOKUP_OPT:
                 return this.useDistortionTextureLookupOptimisation ? var4 + "Texture Lookup" : var4 + "Brute Force";
             case FXAA:
@@ -826,16 +910,31 @@ public class VRSettings
 	            return var4 + this.oculusProfileGender;
 	        case HYDRA_USE_FILTER:
 	            return this.hydraUseFilter ? var4 + "ON" : var4 + "OFF";
-	        case CROSSHAIR_ALWAYS_SHOW:
-	            return this.alwaysRenderInGameCrosshair ? var4 + "Always" : var4 + "With HUD";
-	        case BLOCK_OUTLINE_ALWAYS_SHOW:
-	            return this.alwaysRenderBlockOutline ? var4 + "Always" : var4 + "With HUD";
+	        case RENDER_CROSSHAIR_MODE:
+                if (this.renderInGameCrosshairMode == RENDER_CROSSHAIR_MODE_HUD)
+                    return var4 + "With HUD";
+                else if (this.renderInGameCrosshairMode == RENDER_CROSSHAIR_MODE_ALWAYS)
+                    return var4 + "Always";
+                else if (this.renderInGameCrosshairMode == RENDER_CROSSHAIR_MODE_NEVER)
+                    return var4 + "Never";
+	        case RENDER_BLOCK_OUTLINE_MODE:
+                if (this.renderBlockOutlineMode == RENDER_BLOCK_OUTLINE_MODE_HUD)
+                    return var4 + "With HUD";
+                else if (this.renderBlockOutlineMode == RENDER_BLOCK_OUTLINE_MODE_ALWAYS)
+                    return var4 + "Always";
+                else if (this.renderBlockOutlineMode == RENDER_BLOCK_OUTLINE_MODE_NEVER)
+                    return var4 + "Never";
 	        case CROSSHAIR_ROLL:
 	            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
 	        case HUD_OCCLUSION:
 	            return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
 	        case KEYHOLE_HEAD_RELATIVE:
 	            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
+            case VR_RENDERER:
+                if (this.mc.stereoProvider != null)
+                    return this.mc.stereoProvider.getName();
+
+                return "None";
 	        case VR_HEAD_ORIENTATION:
 	            if (this.mc.headTracker != null)
 	                return this.mc.headTracker.getName();
@@ -918,6 +1017,8 @@ public class VRSettings
 				return this.hudOpacity ;
 			case RENDER_PLAYER_OFFSET :
 				return this.renderPlayerOffset ;
+            case RENDER_SCALEFACTOR:
+                return this.renderScaleFactor;
 			case HUD_DISTANCE :
 				return this.hudDistance ;
 			case HUD_PITCH :
@@ -1020,6 +1121,7 @@ public class VRSettings
 	            break;
             case LOAD_MUMBLE_LIB:
                 this.loadMumbleLib = !this.loadMumbleLib;
+                break;
 	        case HEAD_TRACKING:
 	            this.useHeadTracking = !this.useHeadTracking;
 	            break;
@@ -1035,8 +1137,10 @@ public class VRSettings
 	        case HUD_HIDE:
 	            this.mc.gameSettings.hideGUI = !this.mc.gameSettings.hideGUI;
 	            break;
-	        case RENDER_FULL_FIRST_PERSON_MODEL:
-	            this.renderFullFirstPersonModel = !this.renderFullFirstPersonModel;
+	        case RENDER_FULL_FIRST_PERSON_MODEL_MODE:
+                this.renderFullFirstPersonModelMode++;
+                if (this.renderFullFirstPersonModelMode > RENDER_FIRST_PERSON_NONE)
+                    this.renderFullFirstPersonModelMode = RENDER_FIRST_PERSON_FULL;
 	            break;
 	        case HEAD_TRACK_PREDICTION:
 	            this.useHeadTrackPrediction = !this.useHeadTrackPrediction;
@@ -1044,11 +1148,30 @@ public class VRSettings
 	        case CHROM_AB_CORRECTION:
 	            this.useChromaticAbCorrection = !this.useChromaticAbCorrection;
 	            break;
+            // 0.4.0
             case TIMEWARP:
                 this.useTimewarp = !this.useTimewarp;
                 break;
             case VIGNETTE:
                 this.useVignette = !this.useVignette;
+                break;
+            case LOW_PERSISTENCE:
+                this.useLowPersistence = !this.useLowPersistence;
+                break;
+            case DYNAMIC_PREDICTION:
+                this.useDynamicPrediction = !this.useDynamicPrediction;
+                break;
+            case OVERDRIVE_DISPLAY:
+                this.useDisplayOverdrive = !this.useDisplayOverdrive;
+                break;
+            case ENABLE_DIRECT:
+                this.useDirectRenderMode = !this.useDirectRenderMode;
+                break;
+            case MIRROR_DISPLAY:
+                this.useDisplayMirroring = !this.useDisplayMirroring;
+                break;
+            case POS_TRACK_HIDE_COLLISION:
+                this.posTrackBlankOnCollision = !this.posTrackBlankOnCollision;
                 break;
             case TEXTURE_LOOKUP_OPT:
                 this.useDistortionTextureLookupOptimisation = !this.useDistortionTextureLookupOptimisation;
@@ -1100,11 +1223,15 @@ public class VRSettings
 	        case HYDRA_USE_FILTER:
 	            this.hydraUseFilter = !this.hydraUseFilter;
 	            break;
-	        case CROSSHAIR_ALWAYS_SHOW:
-	            this.alwaysRenderInGameCrosshair = !this.alwaysRenderInGameCrosshair;
+	        case RENDER_CROSSHAIR_MODE:
+	            this.renderInGameCrosshairMode++;
+                if (this.renderInGameCrosshairMode > RENDER_CROSSHAIR_MODE_NEVER)
+                    this.renderInGameCrosshairMode = RENDER_CROSSHAIR_MODE_ALWAYS;
 	            break;
-	        case BLOCK_OUTLINE_ALWAYS_SHOW:
-	            this.alwaysRenderBlockOutline = !this.alwaysRenderBlockOutline;
+	        case RENDER_BLOCK_OUTLINE_MODE:
+                this.renderBlockOutlineMode++;
+                if (this.renderBlockOutlineMode > RENDER_BLOCK_OUTLINE_MODE_NEVER)
+                    this.renderBlockOutlineMode = RENDER_BLOCK_OUTLINE_MODE_ALWAYS;
 	            break;
 	        case CROSSHAIR_ROLL:
 	            this.crosshairRollsWithHead = !this.crosshairRollsWithHead;
@@ -1169,6 +1296,9 @@ public class VRSettings
 	        case RENDER_PLAYER_OFFSET:
 	            this.renderPlayerOffset = par2;
 	        	break;
+            case RENDER_SCALEFACTOR:
+                this.renderScaleFactor = par2;
+                break;
 	        case HUD_DISTANCE:
 	            this.hudDistance = par2;
 	        	break;
@@ -1219,7 +1349,6 @@ public class VRSettings
 	                    break;
 	            }
 	        	break;
-
 	        case POS_TRACK_HYDRA_OFFSET_Y:
 	            switch (this.posTrackHydraLoc)
 	            {
@@ -1242,6 +1371,7 @@ public class VRSettings
 	                        this.posTrackHydraBROffsetY = par2;
 	                    break;
 	            }
+                break;
 	        case POS_TRACK_HYDRA_OFFSET_Z:
 	            switch (this.posTrackHydraLoc)
 	            {
@@ -1264,6 +1394,7 @@ public class VRSettings
 	                        this.posTrackHydraBROffsetZ = par2;
 	                    break;
 	            }
+                break;
 	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
 	            this.posTrackHydraDistanceScale = par2;
 	        	break;
@@ -1281,6 +1412,7 @@ public class VRSettings
 	        	break;
 	        case AIM_PITCH_OFFSET:
 	        	this.aimPitchOffset = par2;
+                break;
 	        default:
 	        	break;
     	}
@@ -1391,7 +1523,7 @@ public class VRSettings
             var5.println("headTrackerPluginID:"+ this.headTrackerPluginID);
             var5.println("headPositionPluginID:"+ this.headPositionPluginID);
             var5.println("hmdPluginID:"+ this.hmdPluginID);
-            var5.println("stereoProviderPluginID:"+ this.stereoProviderID);
+            var5.println("stereoProviderPluginID:"+ this.stereoProviderPluginID);
             var5.println("controllerPluginID:"+ this.controllerPluginID);
             var5.println("ipd:" + this.ipd);
             var5.println("headTrackPredictionTimeSecs:" + this.headTrackPredictionTimeSecs);
@@ -1403,14 +1535,23 @@ public class VRSettings
             var5.println("renderHeadWear:" + this.renderHeadWear);
             var5.println("menuBackground:" + this.menuBackground);
             var5.println("hideGUI:" + this.mc.gameSettings.hideGUI);
-            var5.println("renderFullFirstPersonModel:" + this.renderFullFirstPersonModel);
+            var5.println("renderFullFirstPersonModelMode:" + this.renderFullFirstPersonModelMode);
             var5.println("useChromaticAbCorrection:" + this.useChromaticAbCorrection);
+            // 0.4.0
             var5.println("useTimewarp:" + this.useTimewarp);
             var5.println("useVignette:" + this.useVignette);
+            var5.println("useLowPersistence:" + this.useLowPersistence);
+            var5.println("useDynamicPrediction:" + this.useDynamicPrediction);
+            var5.println("useDisplayOverdrive:" + this.useDisplayOverdrive);
+            var5.println("useDirectRenderMode:" + this.useDirectRenderMode);
+            var5.println("useDisplayMirroring:" + this.useDisplayMirroring);
+            var5.println("posTrackBlankOnCollision:" + this.posTrackBlankOnCollision);
+
             var5.println("useDistortionTextureLookupOptimisation:" + this.useDistortionTextureLookupOptimisation);
             var5.println("useFXAA:" + this.useFXAA);
             var5.println("hudScale:" + this.hudScale);
             var5.println("renderPlayerOffset:" + this.renderPlayerOffset);
+            var5.println("renderScaleFactor:" + this.renderScaleFactor);
             var5.println("allowMousePitchInput:" + this.allowMousePitchInput);
             var5.println("hudLockToHead:" + this.hudLockToHead);
             var5.println("hudDistance:" + this.hudDistance);
@@ -1450,8 +1591,8 @@ public class VRSettings
             var5.println("posTrackHydraBIsPointingLeft:" + this.posTrackHydraBIsPointingLeft);
             var5.println("posTrackHydraYAxisDistanceSkewAngleDeg:" + this.posTrackHydraYAxisDistanceSkewAngleDeg);
             var5.println("hydraUseFilter:" + this.hydraUseFilter);
-            var5.println("alwaysRenderInGameCrosshair:" + this.alwaysRenderInGameCrosshair);
-            var5.println("alwaysRenderBlockOutline:" + this.alwaysRenderBlockOutline);
+            var5.println("renderInGameCrosshairMode:" + this.renderInGameCrosshairMode);
+            var5.println("renderBlockOutlineMode:" + this.renderBlockOutlineMode);
             var5.println("showEntityOutline:" + this.showEntityOutline);
             var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
             var5.println("hudOcclusion:" + this.hudOcclusion);
@@ -1568,14 +1709,15 @@ public class VRSettings
         return this.headTrackSensitivity;
     }
 
-    @SideOnly(Side.CLIENT)
     public static enum VrOptions
     {
         // Minecrift below here
 
+        // TODO: Port to Mark's excellent VROption implementation
+
         //General
         USE_VR("VR mode", false, true),
-        HUD_SCALE("HUD Scale", true, false),
+        HUD_SCALE("HUD Size", true, false),
         HUD_DISTANCE("HUD Distance", true, false),
         HUD_PITCH("HUD Vertical Offset", true, false),
         HUD_YAW("HUD Horiz. Offset", true, false),
@@ -1586,13 +1728,14 @@ public class VRSettings
         HUD_OCCLUSION("HUD Occlusion", false, true),
         HEAD_TRACKING("Head Tracking", false, true),
         DUMMY("Dummy", false, true),
+        VR_RENDERER("Stereo Renderer", false, true),
         VR_HEAD_ORIENTATION("Head Orientation", false, true),
         VR_HEAD_POSITION("Head Position", false, true),
         VR_CONTROLLER("Controller", false, true),
         CROSSHAIR_SCALE("Crosshair Size", true, false),
-        CROSSHAIR_ALWAYS_SHOW("Show Crosshair", false, true),
+        RENDER_CROSSHAIR_MODE("Show Crosshair", false, true),
         CROSSHAIR_ROLL("Roll Crosshair", false, true),
-        BLOCK_OUTLINE_ALWAYS_SHOW("Show Block Outline", false, true),
+        RENDER_BLOCK_OUTLINE_MODE("Show Block Outline", false, true),
         CHAT_OFFSET_X("Chat Offset X",true,false),
         CHAT_OFFSET_Y("Chat Offset Y",true,false),
         LOAD_MUMBLE_LIB("Load Mumble Lib", false, true),
@@ -1602,7 +1745,7 @@ public class VRSettings
         EYE_PROTRUSION("Eye Protrusion", true, false),
         NECK_LENGTH("Neck Length", true, false),
         RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
-        RENDER_FULL_FIRST_PERSON_MODEL("First Person Model", false, true),
+        RENDER_FULL_FIRST_PERSON_MODEL_MODE("First Person Model", false, true),
         RENDER_PLAYER_OFFSET("View Body Offset", true, false),
         IPD("IPD", true, false),
         OCULUS_PROFILE("Use Oculus Profile", false, false),
@@ -1624,6 +1767,14 @@ public class VRSettings
         SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
         USE_QUATERNIONS("Orient. Mode", false, true),
         DELAYED_RENDER("Render Mode", false, true),
+        // SDK 0.4.0 up
+        RENDER_SCALEFACTOR("Render Scale", true, false),
+        ENABLE_DIRECT("Render Mode", false, true),
+        MIRROR_DISPLAY("Mirror Display", false, true),
+        LOW_PERSISTENCE("Low Persistence", false, true),
+        DYNAMIC_PREDICTION("Dynamic Prediction", false, true),
+        OVERDRIVE_DISPLAY("Overdrive Display", false, true),
+        HMD_NAME_PLACEHOLDER("", false, true),
 
         //Head orientation tracking
         HEAD_TRACK_PREDICTION("Head Track Prediction", false, true),
@@ -1641,6 +1792,8 @@ public class VRSettings
         POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT("Hydra Direction", false, true),
         HYDRA_USE_FILTER("Filter", false, true),
         POS_TRACK_Y_AXIS_DISTANCE_SKEW("Distance Skew Angle", true, false),
+        // SDK 0.4.0 up
+        POS_TRACK_HIDE_COLLISION("Blank on collision", false, true),
 
         //Movement/aiming controls
         DECOUPLE_LOOK_MOVE("Decouple Look/Move", false, true),

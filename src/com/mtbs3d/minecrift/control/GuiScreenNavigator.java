@@ -388,8 +388,8 @@ public class GuiScreenNavigator {
 	protected void parsePoints() {
 		points.clear();
         for (GuiButton button : screen.buttonList ) {
-        	if( button.visible )
-        		points.add(Pair.of(button.xPosition+5,button.yPosition+5));
+        	if( button.field_146125_m )
+        		points.add(Pair.of(button.field_146128_h+5,button.field_146129_i+5));
         }
         if( screen instanceof GuiContainer ) {
         	GuiContainer container = (GuiContainer)screen;
@@ -401,7 +401,7 @@ public class GuiScreenNavigator {
 					yOffset = guiTop.getInt(container);
 				} catch (Exception e) { e.printStackTrace(); }
         	}
-        	for( Slot slot : (List<Slot>)container.inventorySlots.inventorySlots )
+        	for( Slot slot : (List<Slot>)container.field_147002_h.inventorySlots )
         	{
         		points.add(Pair.of(xOffset + slot.xDisplayPosition + 8, yOffset + slot.yDisplayPosition + 8 ));
         	}

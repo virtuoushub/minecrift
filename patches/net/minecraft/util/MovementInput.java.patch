@@ -1,0 +1,12 @@
+--- a/net/minecraft/util/MovementInput.java
++++ b/net/minecraft/util/MovementInput.java
+@@ -15,5 +15,9 @@
+     public boolean sneak;
+     private static final String __OBFID = "CL_00000936";
+ 
++    /** Minecrift **/  // TODO: Add these via asm instead
++    public float baseMoveStrafe = 0.0F;
++    public float baseMoveForward = 0.0F;
++
+     public void updatePlayerMoveState() {}
+ }

@@ -15,29 +15,29 @@ public class GuiMinecriftSettings extends BaseGuiSettings
 {
     static VROption[] vrOffDeviceList = new VROption[]
         {
-            new VROption(201,                             VROption.Position.POS_LEFT,   1,    VROption.DISABLED, "Player Preferences..."),
-            new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.DISABLED, "HUD / Overlay Settings..."),
-            new VROption(206,                             VROption.Position.POS_LEFT,   2,    VROption.DISABLED, "Optics/Rendering..."),
-            new VROption(203,                             VROption.Position.POS_RIGHT,  2,    VROption.DISABLED, "Device Calibration..."),
-            new VROption(205,                             VROption.Position.POS_LEFT,   3.25f, VROption.DISABLED, "Head Orientation Tracking..."),
+            new VROption(201,                                      VROption.Position.POS_LEFT,   1,     VROption.DISABLED, "Player Preferences..."),
+            new VROption(202,                                      VROption.Position.POS_RIGHT,  1,     VROption.DISABLED, "HUD / Overlay Settings..."),
+            new VROption(206,                                      VROption.Position.POS_LEFT,   2.25f, VROption.DISABLED, "Stereo Rendering..."),
+            new VROption(VRSettings.VrOptions.VR_RENDERER,         VROption.Position.POS_RIGHT,  2.25f, VROption.DISABLED, null),
+            new VROption(205,                                      VROption.Position.POS_LEFT,   3.25f, VROption.DISABLED, "Head Orientation Tracking..."),
             new VROption(VRSettings.VrOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
-            new VROption(207,                             VROption.Position.POS_LEFT,   4.25f, VROption.DISABLED, "Head Position Tracking..."),
+            new VROption(207,                                      VROption.Position.POS_LEFT,   4.25f, VROption.DISABLED, "Head Position Tracking..."),
             new VROption(VRSettings.VrOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
-            new VROption(208,                             VROption.Position.POS_LEFT,   5.25f, VROption.DISABLED, "Move/Aim Control..."),
+            new VROption(208,                                      VROption.Position.POS_LEFT,   5.25f, VROption.DISABLED, "Move/Aim Control..."),
             new VROption(VRSettings.VrOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
         };
 
     static VROption[] vrOnDeviceList = new VROption[]
         {
-            new VROption(201,                             VROption.Position.POS_LEFT,   1,    VROption.ENABLED, "Player Preferences..."),
-            new VROption(202,                             VROption.Position.POS_RIGHT,  1,    VROption.ENABLED, "HUD / Overlay Settings..."),
-            new VROption(206,                             VROption.Position.POS_LEFT,   2,    VROption.ENABLED, "Optics/Rendering..."),
-            new VROption(203,                             VROption.Position.POS_RIGHT,  2,    VROption.ENABLED, "Device Calibration..."),
-            new VROption(205,                             VROption.Position.POS_LEFT,   3.25f, VROption.ENABLED, "Head Orientation Tracking..."),
+            new VROption(201,                                      VROption.Position.POS_LEFT,   1,     VROption.ENABLED, "Player Preferences..."),
+            new VROption(202,                                      VROption.Position.POS_RIGHT,  1,     VROption.ENABLED, "HUD / Overlay Settings..."),
+            new VROption(206,                                      VROption.Position.POS_LEFT,   2.25f, VROption.ENABLED, "Stereo Rendering..."),
+            new VROption(VRSettings.VrOptions.VR_RENDERER,         VROption.Position.POS_RIGHT,  2.25f, VROption.DISABLED, null),
+            new VROption(205,                                      VROption.Position.POS_LEFT,   3.25f, VROption.ENABLED, "Head Orientation Tracking..."),
             new VROption(VRSettings.VrOptions.VR_HEAD_ORIENTATION, VROption.Position.POS_RIGHT,  3.25f, VROption.DISABLED, null),
-            new VROption(207,                             VROption.Position.POS_LEFT,   4.25f, VROption.ENABLED, "Head Position Tracking..."),
+            new VROption(207,                                      VROption.Position.POS_LEFT,   4.25f, VROption.ENABLED, "Head Position Tracking..."),
             new VROption(VRSettings.VrOptions.VR_HEAD_POSITION,    VROption.Position.POS_RIGHT,  4.25f, VROption.DISABLED, null),
-            new VROption(208,                             VROption.Position.POS_LEFT,   5.25f, VROption.ENABLED, "Move/Aim Control..."),
+            new VROption(208,                                      VROption.Position.POS_LEFT,   5.25f, VROption.ENABLED, "Move/Aim Control..."),
             new VROption(VRSettings.VrOptions.VR_CONTROLLER,       VROption.Position.POS_RIGHT,  5.25f, VROption.DISABLED, null),
         };
 
@@ -126,11 +126,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
                     this.mc.displayGuiScreen(new GuiHUDSettings(this, this.guivrSettings));
                 }
             }
-            else if (par1GuiButton.id == 203)
-            {
-                Minecraft.getMinecraft().vrSettings.saveOptions();
-                this.mc.displayGuiScreen(new GuiCalibrationSettings(this, this.guivrSettings));
-            }
             else if (par1GuiButton.id == 205)
             {
             	if( Minecraft.getMinecraft().headTracker != null )
@@ -166,15 +161,13 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             else if (par1GuiButton.id == 210)
             {
                 Minecraft.getMinecraft().vrSettings.saveOptions();
-                if (vrRenderer != null)
-                    vrRenderer.startCalibration();
+                this.mc.entityRenderer.startCalibration();
             }
             else if (par1GuiButton.id == 211)
             {
                 Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.guivrSettings.posTrackResetPosition = true;
-                if (vrRenderer != null)
-                    vrRenderer.resetGuiYawOrientation();
+                this.mc.entityRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 200)
             {

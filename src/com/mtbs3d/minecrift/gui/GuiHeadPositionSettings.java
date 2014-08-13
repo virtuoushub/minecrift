@@ -43,7 +43,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     };
 
     static VRSettings.VrOptions[] oculusOptions = new VRSettings.VrOptions[] {
-            VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
+            VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
     };
 
     protected boolean reinit = false;
@@ -72,8 +72,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         if (this.reinit)
         {
             this.guivrSettings.posTrackResetPosition = true;
-            if (vrRenderer != null)
-                vrRenderer.resetGuiYawOrientation();
+            this.mc.entityRenderer.resetGuiYawOrientation();
         }
 
         this.buttonList.clear();
@@ -244,13 +243,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             else if (par1GuiButton.id == 202) // Reset origin
             {
                 this.guivrSettings.posTrackResetPosition = true;
-                if (vrRenderer != null)
-                    vrRenderer.resetGuiYawOrientation();
+                this.mc.entityRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 203)
             {
-                if (vrRenderer != null)
-                    vrRenderer.startCalibration();
+                this.mc.entityRenderer.startCalibration();
             }
 
             if (num == VRSettings.VrOptions.HYDRA_USE_FILTER)

@@ -1,0 +1,47 @@
+--- a/net/minecraft/client/model/ModelBiped.java
++++ b/net/minecraft/client/model/ModelBiped.java
+@@ -16,6 +16,11 @@
+     public ModelRenderer bipedEars;
+     public ModelRenderer bipedCloak;
+ 
++    // Minecrift
++    public boolean _renderHead = true;
++    public boolean _renderHeadWear = true;
++    public float vrOffset = 0.0F;
++
+     /**
+      * Records whether the model should be rendered holding an item in the left hand, and if that item is a block.
+      */
+@@ -97,18 +102,29 @@
+             this.bipedLeftArm.render(p_78088_7_);
+             this.bipedRightLeg.render(p_78088_7_);
+             this.bipedLeftLeg.render(p_78088_7_);
+-            this.bipedHeadwear.render(p_78088_7_);
++
++            if (_renderHeadWear)  // Minecrift
++                this.bipedHeadwear.render(p_78088_7_);
++
+             GL11.glPopMatrix();
+         }
+         else
+         {
+-            this.bipedHead.render(p_78088_7_);
++            // Minecrift
++            GL11.glTranslatef(0.0F, 0.0F, vrOffset );
++            if (_renderHead)
++                this.bipedHead.render(p_78088_7_);
++
+             this.bipedBody.render(p_78088_7_);
+             this.bipedRightArm.render(p_78088_7_);
+             this.bipedLeftArm.render(p_78088_7_);
+             this.bipedRightLeg.render(p_78088_7_);
+             this.bipedLeftLeg.render(p_78088_7_);
+-            this.bipedHeadwear.render(p_78088_7_);
++
++            // Minecrift
++            if (_renderHeadWear)
++                this.bipedHeadwear.render(p_78088_7_);
++            GL11.glTranslatef(0.0F, 0.0F, -vrOffset );
+         }
+     }
+ 

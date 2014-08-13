@@ -282,7 +282,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
 	        	if(mc.currentScreen != null)
 		        	thePlayer.closeScreen();
 	        	else
-		        	settings.keyBindInventory.pressTime=1;
+		        	settings.keyBindInventory.presses=1;
 	        }
 
 	        if((cont1.buttons & EnumButton.START.mask())>0 &&
@@ -379,7 +379,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
 		        if((cont2.buttons & EnumButton.BUTTON_1.mask())>0 &&
 		        	(lastcont2Buttons & EnumButton.BUTTON_1.mask()) == 0)
 		        {
-		        	settings.keyBindDrop.pressTime++;
+		        	settings.keyBindDrop.presses++;
 		        }
 	
 		        if((cont2.buttons & EnumButton.BUTTON_2.mask())>0 &&

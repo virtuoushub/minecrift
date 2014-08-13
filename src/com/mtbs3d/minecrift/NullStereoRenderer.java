@@ -66,18 +66,13 @@ public class NullStereoRenderer extends BasePlugin implements IStereoProvider {
     }
 
     @Override
-    public Posef beginEyeRender(EyeType eye) {
+    public Posef getEyePose(EyeType eye) {
         return null;
     }
 
     @Override
     public Matrix4f getMatrix4fProjection(FovPort fov, float nearClip, float farClip) {
         return null;
-    }
-
-    @Override
-    public void endEyeRender(EyeType eye) {
-
     }
 
     @Override

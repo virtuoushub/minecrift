@@ -13,6 +13,7 @@ import de.fruitfly.ovr.OculusRift;
 import de.fruitfly.ovr.UserProfileData;
 import de.fruitfly.ovr.enums.EyeType;
 import de.fruitfly.ovr.structs.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.Display;
@@ -36,6 +37,8 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private int MagCalSampleCount = 0;
     private boolean forceMagCalibration = false; // Don't force mag cal initially
     private FrameTiming frameTiming = new FrameTiming();
+    private float yawOffsetRad = 0f;
+    private float pitchOffsetRad = 0f;
 
     @Override
     public EyeType eyeRenderOrder(int index)
@@ -72,9 +75,9 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         frameTiming = super.beginFrameGetTiming();
     }
 
-    public Posef beginEyeRender(EyeType eye)
+    public Posef getEyePose(EyeType eye)
     {
-        return super.beginEyeRender(eye);
+        return super.getEyePose(eye);
     }
 
     public Matrix4f getMatrix4fProjection(FovPort fov,
@@ -82,11 +85,6 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                                           float farClip)
     {
          return super.getMatrix4fProjection(fov, nearClip, farClip);
-    }
-
-    public void endEyeRender(EyeType eye)
-    {
-        super.endEyeRender(eye);
     }
 
     public void endFrame()
@@ -97,6 +95,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         // End the frame
         super.endFrame();
 
+        GL11.glFrontFace(GL11.GL_CCW);   // Needed for OVR SDK 0.4.0
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); // Unbind GL_ARRAY_BUFFER for my own vertex arrays to work...
         GL11.glEnable(GL11.GL_CULL_FACE); // Turn back on...
         GL11.glEnable(GL11.GL_DEPTH_TEST); // Turn back on...
@@ -127,8 +126,16 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	}
 
     @Override
-    public void update(float ipd, float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees, float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees) {
-        // TODO:
+    public void update(float ipd,
+                       float yawHeadDegrees,
+                       float pitchHeadDegrees,
+                       float rollHeadDegrees,
+                       float worldYawOffsetDegrees,
+                       float worldPitchOffsetDegrees,
+                       float worldRollOffsetDegrees)
+    {
+        yawOffsetRad = (float)Math.toRadians(worldYawOffsetDegrees);
+        pitchOffsetRad = (float)Math.toRadians(worldPitchOffsetDegrees);
     }
 
     @Override
@@ -140,12 +147,19 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     @Override
     public Vec3 getEyePosition(EyeType eye)
     {
-        return super.getEyePosition(eye);
+        Vector3f eyePos = super.getEyePos(eye);
+        Vec3 eyePosition = Vec3.createVectorHelper(eyePos.x, eyePos.y, eyePos.z);
+        //eyePosition.yCoord += Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight;        // TODO:? This seems to be good already
+        eyePosition.zCoord -= Minecraft.getMinecraft().vrSettings.eyeProtrusion;
+        eyePosition.rotateAroundY(-yawOffsetRad);
+        // TODO: Rotate around pitch offset
+
+        return eyePosition;
     }
 
     @Override
 	public void resetOrigin() {
-        // TODO:
+        super.resetTracking();
     }
 
     @Override
@@ -155,7 +169,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
     @Override
     public void setPrediction(float delta, boolean enable) {
-        // TODO: Ignored for now
+        // Now ignored
     }
 
     @Override
@@ -318,32 +332,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
         if (isInitialized())
         {
-            //userProfile = _getUserProfileData();   // TODO: Profiles
+            userProfile = _getUserProfileData();
+        }
+        else
+        {
+            userProfile = new UserProfileData();
         }
 
         return userProfile;
-    }
-
-    @Override
-    public String[] getUserProfiles()
-    {
-        String[] profileNames = null;
-
-        if (isInitialized())
-        {
-            //profileNames = _getUserProfiles();    // TODO: Profiles
-        }
-
-        return profileNames;
-    }
-
-    @Override
-    public boolean loadProfile(String profileName)
-    {
-        if (!isInitialized())
-            return false;
-
-        return false;//_loadUserProfile(profileName);     // TODO: Profiles
     }
 
     public EyeRenderParams getEyeRenderParams(int viewPortWidth, int viewPortHeight)

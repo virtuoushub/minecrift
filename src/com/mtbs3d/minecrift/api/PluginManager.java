@@ -198,18 +198,18 @@ public class PluginManager implements IEventListener
         }
     }
 
-    public static Posef beginEyeRender(EyeType eye)
+    public static Posef getEyePose(EyeType eye)
     {
         Posef pose = new Posef();
 
         // Poll all plugins
         //pollAll(0f);
 
-        // Mark beginEyeRender with stereo providers
+        // Mark getEyePose with stereo providers
         for( IBasePlugin p : thePluginManager.allPlugins )
         {
             if( p instanceof IStereoProvider && p.isInitialized() )
-                ((IStereoProvider)p).beginEyeRender(eye);
+                ((IStereoProvider)p).getEyePose(eye);
         }
 
         // Pull together position, orientation information (TODO: also body orientation)
@@ -244,15 +244,6 @@ public class PluginManager implements IEventListener
         }
 
         return pose;
-    }
-
-    public static void endEyeRenderAll(EyeType eye)
-    {
-        for( IBasePlugin p : thePluginManager.allPlugins )
-        {
-            if( p instanceof IStereoProvider &&  p.isInitialized() )
-                ((IStereoProvider)p).endEyeRender(eye);
-        }
     }
 
     public static void endFrameAll()
