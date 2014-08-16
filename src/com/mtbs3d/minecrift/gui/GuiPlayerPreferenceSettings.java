@@ -23,7 +23,6 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
 
     static VRSettings.VrOptions[] playerOptionsWithProfile = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.OCULUS_PROFILE_NAME,
-            VRSettings.VrOptions.OCULUS_PROFILE_GENDER,
             VRSettings.VrOptions.IPD,
             VRSettings.VrOptions.EYE_HEIGHT,
             VRSettings.VrOptions.EYE_PROTRUSION,
@@ -31,8 +30,10 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
             VRSettings.VrOptions.RENDER_OWN_HEADWEAR,
             VRSettings.VrOptions.RENDER_PLAYER_OFFSET,
             VRSettings.VrOptions.RENDER_FULL_FIRST_PERSON_MODEL_MODE,
-            VRSettings.VrOptions.CALIBRATION_STRATEGY
-
+            VRSettings.VrOptions.SOUND_ORIENT,
+            VRSettings.VrOptions.CALIBRATION_STRATEGY,
+            VRSettings.VrOptions.CHAT_OFFSET_X,
+            VRSettings.VrOptions.CHAT_OFFSET_Y,
     };
 
     public GuiPlayerPreferenceSettings(GuiScreen guiScreen, VRSettings guivrSettings) {
@@ -145,6 +146,10 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
 
     private boolean getEnabledState(VRSettings.VrOptions e)
     {
+        // TODO: Remove when sound orient supported
+        if (e == VRSettings.VrOptions.SOUND_ORIENT)
+            return false;
+
         if (this.guivrSettings.useOculusProfile)
         {
             if (e == VRSettings.VrOptions.IPD ||
@@ -185,10 +190,11 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                 this.guivrSettings.setMinecraftPlayerEyeHeight(1.74f);
                 this.guivrSettings.renderHeadWear = false;
                 this.guivrSettings.renderFullFirstPersonModelMode = VRSettings.RENDER_FIRST_PERSON_FULL;
-                this.guivrSettings.renderPlayerOffset = 0.25f;
+                this.guivrSettings.renderPlayerOffset = 0f;
                 this.guivrSettings.eyeProtrusion = 0.185f;
                 this.guivrSettings.neckBaseToEyeHeight = 0.225f;
-                this.guivrSettings.calibrationStrategy = 1;
+                this.guivrSettings.calibrationStrategy = VRSettings.CALIBRATION_STRATEGY_AT_STARTUP;
+                this.guivrSettings.soundOrientWithHead = true;
 
                 this.guivrSettings.saveOptions();
                 Minecraft.getMinecraft().reinitFramebuffers = true;
@@ -264,6 +270,13 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                             "                               \\ Y /",
                             "                                 |Y|"
                     };
+            case SOUND_ORIENT:
+                return new String[] {
+                        "Sets the sound position dependent on how you are",
+                        "listening to Minecraft.",
+                        "  Headphones: Sound oriented with head.",
+                        "  Speakers:   Sound oriented with body."
+                };
             case CALIBRATION_STRATEGY:
                 return new String[] {
                         "Sets whether device calibration is performed when",

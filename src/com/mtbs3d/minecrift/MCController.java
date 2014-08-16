@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mtbs3d.minecrift.api.PluginType;
 import com.mtbs3d.minecrift.control.*;
 
 import net.minecraft.client.Minecraft;
@@ -443,12 +444,18 @@ public class MCController extends BasePlugin implements IBodyAimController
 	}
 
 	@Override
-	public boolean isCalibrated() {
+	public boolean isCalibrated(PluginType type) {
 		return true;
 	}
 
+    @Override
+    public void beginCalibration(PluginType type) {}
+
+    @Override
+    public void updateCalibration(PluginType type) {}
+
 	@Override
-	public String getCalibrationStep() {
+	public String getCalibrationStep(PluginType type) {
 		return "";
 	}
 

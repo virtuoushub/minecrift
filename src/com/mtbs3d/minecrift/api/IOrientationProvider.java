@@ -17,8 +17,6 @@ public interface IOrientationProvider extends IBasePlugin {
     public final float MAXPITCH = (90 * 0.98f);
     public final float MAXROLL = (180 * 0.98f);
 
-    public static final int EVENT_ORIENTATION_AT_ORIGIN = 0;
-
     /**
      * Gets the Yaw(Y) from YXZ Euler angle representation of orientation
      * 
@@ -46,10 +44,6 @@ public interface IOrientationProvider extends IBasePlugin {
      * @return quaternion w, x, y & z components
      */
     public Quaternion getOrientationQuaternion();
-
-	void beginAutomaticCalibration();
-
-	void updateAutomaticCalibration();
 
     /**
      * Resets the current position/orientation to the origin

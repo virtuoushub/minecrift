@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/Minecraft.java
 +++ b/net/minecraft/client/Minecraft.java
-@@ -9,11 +9,34 @@
+@@ -9,11 +9,35 @@
  import com.google.common.util.concurrent.ListenableFutureTask;
  import com.mojang.authlib.minecraft.MinecraftSessionService;
  import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
@@ -9,6 +9,7 @@
 +import com.mtbs3d.minecrift.MCOculus;
 +import com.mtbs3d.minecrift.NullEyePosition;
 +import com.mtbs3d.minecrift.NullStereoRenderer;
++import com.mtbs3d.minecrift.VRHotkeys;
 +import com.mtbs3d.minecrift.api.IBodyAimController;
 +import com.mtbs3d.minecrift.api.IEyePositionProvider;
 +import com.mtbs3d.minecrift.api.IHMDInfo;
@@ -35,7 +36,7 @@
  import java.net.Proxy;
  import java.net.SocketAddress;
  import java.nio.ByteBuffer;
-@@ -31,6 +54,7 @@
+@@ -31,10 +55,12 @@
  import java.util.concurrent.Executors;
  import java.util.concurrent.FutureTask;
  import javax.imageio.ImageIO;
@@ -43,7 +44,12 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.material.Material;
  import net.minecraft.client.audio.MusicTicker;
-@@ -97,6 +121,7 @@
+ import net.minecraft.client.audio.SoundHandler;
++import net.minecraft.client.audio.SoundManager;
+ import net.minecraft.client.entity.EntityClientPlayerMP;
+ import net.minecraft.client.gui.FontRenderer;
+ import net.minecraft.client.gui.GuiChat;
+@@ -97,6 +123,7 @@
  import net.minecraft.client.settings.GameSettings;
  import net.minecraft.client.settings.KeyBinding;
  import net.minecraft.client.shader.Framebuffer;
@@ -51,7 +57,7 @@
  import net.minecraft.client.stream.IStream;
  import net.minecraft.client.stream.NullStream;
  import net.minecraft.client.stream.TwitchStream;
-@@ -127,6 +152,8 @@
+@@ -127,6 +154,8 @@
  import net.minecraft.profiler.Profiler;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.integrated.IntegratedServer;
@@ -60,7 +66,7 @@
  import net.minecraft.stats.AchievementList;
  import net.minecraft.stats.IStatStringFormat;
  import net.minecraft.stats.StatFileWriter;
-@@ -153,8 +180,11 @@
+@@ -153,8 +182,11 @@
  import org.apache.commons.lang3.Validate;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -72,7 +78,16 @@
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
  import org.lwjgl.opengl.ContextCapabilities;
-@@ -327,8 +357,56 @@
+@@ -300,7 +332,7 @@
+     private IStream field_152353_at;
+     private Framebuffer mcFramebuffer;
+     private TextureMap textureMapBlocks;
+-    private SoundHandler mcSoundHandler;
++    public  SoundHandler mcSoundHandler; // Minecrift
+     private MusicTicker mcMusicTicker;
+     private ResourceLocation field_152354_ay;
+     private final MinecraftSessionService field_152355_az;
+@@ -327,8 +359,57 @@
      private String debugProfilerName = "root";
      private static final String __OBFID = "CL_00000631";
  
@@ -120,6 +135,7 @@
 +    public boolean lastFogFancy = true;
 +    public boolean lastFogFast = false;
 +    public int lastDimensionId = -1;
++    public SoundManager sndManager = null;
 +	/**end Minecraft-vr**/
 +
      public Minecraft(Session p_i1103_1_, int p_i1103_2_, int p_i1103_3_, boolean p_i1103_4_, boolean p_i1103_5_, File p_i1103_6_, File p_i1103_7_, File p_i1103_8_, Proxy p_i1103_9_, String p_i1103_10_, Multimap p_i1103_11_, String p_i1103_12_)
@@ -129,7 +145,7 @@
          theMinecraft = this;
          this.mcDataDir = p_i1103_6_;
          this.fileAssets = p_i1103_7_;
-@@ -418,21 +496,33 @@
+@@ -418,21 +499,33 @@
          File var3 = new File(var2, "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-client.txt");
          System.out.println(p_71377_1_.getCompleteReport());
  
@@ -166,7 +182,7 @@
      }
  
      public void setServer(String p_71367_1_, int p_71367_2_)
-@@ -476,7 +566,7 @@
+@@ -476,7 +569,7 @@
          }
  
          Display.setResizable(true);
@@ -175,7 +191,7 @@
          logger.info("LWJGL Version: " + Sys.getVersion());
          Util.EnumOS var1 = Util.getOSType();
  
-@@ -500,7 +590,12 @@
+@@ -500,7 +593,12 @@
  
          try
          {
@@ -189,7 +205,7 @@
          }
          catch (LWJGLException var7)
          {
-@@ -548,7 +643,18 @@
+@@ -548,7 +646,18 @@
          this.mcResourceManager = new SimpleReloadableResourceManager(this.metadataSerializer_);
          this.mcLanguageManager = new LanguageManager(this.metadataSerializer_, this.gameSettings.language);
          this.mcResourceManager.registerReloadListener(this.mcLanguageManager);
@@ -209,7 +225,7 @@
          this.renderEngine = new TextureManager(this.mcResourceManager);
          this.mcResourceManager.registerReloadListener(this.renderEngine);
          this.field_152350_aA = new SkinManager(this.renderEngine, new File(this.fileAssets, "skins"), this.field_152355_az);
-@@ -564,6 +670,9 @@
+@@ -564,6 +673,9 @@
              this.fontRenderer.setBidiFlag(this.mcLanguageManager.isCurrentLanguageBidirectional());
          }
  
@@ -219,7 +235,7 @@
          this.standardGalacticFontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii_sga.png"), this.renderEngine, false);
          this.mcResourceManager.registerReloadListener(this.fontRenderer);
          this.mcResourceManager.registerReloadListener(this.standardGalacticFontRenderer);
-@@ -588,6 +697,7 @@
+@@ -588,6 +700,7 @@
              }
          });
          this.mouseHelper = new MouseHelper();
@@ -227,7 +243,7 @@
          this.checkGLError("Pre startup");
          GL11.glEnable(GL11.GL_TEXTURE_2D);
          GL11.glShadeModel(GL11.GL_SMOOTH);
-@@ -609,12 +719,38 @@
+@@ -609,12 +722,38 @@
          this.renderEngine.loadTextureMap(TextureMap.locationItemsTexture, new TextureMap(1, "textures/items"));
          GL11.glViewport(0, 0, this.displayWidth, this.displayHeight);
          this.effectRenderer = new EffectRenderer(this.theWorld, this.renderEngine);
@@ -268,7 +284,7 @@
          }
          else
          {
-@@ -630,6 +766,9 @@
+@@ -630,6 +769,9 @@
              this.toggleFullscreen();
          }
  
@@ -278,7 +294,7 @@
          try
          {
              Display.setVSyncEnabled(this.gameSettings.enableVsync);
-@@ -841,7 +980,7 @@
+@@ -841,7 +983,7 @@
       */
      public void displayGuiScreen(GuiScreen p_147108_1_)
      {
@@ -287,7 +303,7 @@
          {
              this.currentScreen.onGuiClosed();
          }
-@@ -855,6 +994,20 @@
+@@ -855,6 +997,20 @@
              p_147108_1_ = new GuiGameOver();
          }
  
@@ -308,7 +324,7 @@
          if (p_147108_1_ instanceof GuiMainMenu)
          {
              this.gameSettings.showDebugInfo = false;
-@@ -866,7 +1019,7 @@
+@@ -866,7 +1022,7 @@
          if (p_147108_1_ != null)
          {
              this.setIngameNotInFocus();
@@ -317,7 +333,7 @@
              int var3 = var2.getScaledWidth();
              int var4 = var2.getScaledHeight();
              ((GuiScreen)p_147108_1_).setWorldAndResolution(this, var3, var4);
-@@ -882,7 +1035,7 @@
+@@ -882,7 +1038,7 @@
      /**
       * Checks for an OpenGL error. If there is one, prints the error ID and error string.
       */
@@ -326,7 +342,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -979,12 +1132,11 @@
+@@ -979,12 +1135,11 @@
                      }
  
                      this.displayCrashReport(this.crashReporter);
@@ -340,7 +356,7 @@
              }
              catch (ReportedException var13)
              {
-@@ -992,6 +1144,7 @@
+@@ -992,6 +1147,7 @@
                  this.freeMemory();
                  logger.fatal("Reported exception thrown!", var13);
                  this.displayCrashReport(var13.getCrashReport());
@@ -348,7 +364,7 @@
              }
              catch (Throwable var14)
              {
-@@ -999,6 +1152,7 @@
+@@ -999,6 +1155,7 @@
                  this.freeMemory();
                  logger.fatal("Unreported exception thrown!", var14);
                  this.displayCrashReport(var2);
@@ -356,7 +372,7 @@
              }
              finally
              {
-@@ -1021,6 +1175,9 @@
+@@ -1021,6 +1178,9 @@
              this.shutdown();
          }
  
@@ -366,7 +382,7 @@
          if (this.isGamePaused && this.theWorld != null)
          {
              float var1 = this.timer.renderPartialTicks;
-@@ -1039,76 +1196,148 @@
+@@ -1039,76 +1199,148 @@
          }
  
          long var5 = System.nanoTime();
@@ -559,7 +575,7 @@
          Thread.yield();
          this.mcProfiler.startSection("stream");
          this.mcProfiler.startSection("update");
-@@ -1117,10 +1346,11 @@
+@@ -1117,10 +1349,11 @@
          this.field_152353_at.func_152922_k();
          this.mcProfiler.endSection();
          this.mcProfiler.endSection();
@@ -573,7 +589,7 @@
          while (getSystemTime() >= this.debugUpdateTime + 1000L)
          {
              debugFPS = this.fpsCounter;
-@@ -1138,43 +1368,43 @@
+@@ -1138,43 +1371,43 @@
  
          this.mcProfiler.endSection();
  
@@ -647,7 +663,7 @@
      }
  
      public boolean isFramerateLimitBelowMax()
-@@ -1457,7 +1687,7 @@
+@@ -1457,7 +1690,7 @@
          }
      }
  
@@ -656,7 +672,7 @@
      {
          if (this.leftClickCounter <= 0)
          {
-@@ -1501,7 +1731,7 @@
+@@ -1501,7 +1734,7 @@
          }
      }
  
@@ -665,7 +681,7 @@
      {
          this.rightClickDelayTimer = 4;
          boolean var1 = true;
-@@ -1532,7 +1762,12 @@
+@@ -1532,7 +1765,12 @@
                      {
                          int var6 = var2 != null ? var2.stackSize : 0;
  
@@ -679,7 +695,7 @@
                          {
                              var1 = false;
                              this.thePlayer.swingItem();
-@@ -1559,7 +1794,12 @@
+@@ -1559,7 +1797,12 @@
          {
              ItemStack var7 = this.thePlayer.inventory.getCurrentItem();
  
@@ -693,7 +709,7 @@
              {
                  this.entityRenderer.itemRenderer.resetEquippedProgress2();
              }
-@@ -1619,11 +1859,14 @@
+@@ -1619,11 +1862,14 @@
  
              Display.setFullscreen(this.fullscreen);
              Display.setVSyncEnabled(this.gameSettings.enableVsync);
@@ -711,7 +727,7 @@
          }
      }
  
-@@ -1632,19 +1875,21 @@
+@@ -1632,19 +1878,21 @@
       */
      private void resize(int p_71370_1_, int p_71370_2_)
      {
@@ -745,7 +761,7 @@
      }
  
      private void updateFramebufferSize()
-@@ -1680,6 +1925,14 @@
+@@ -1680,6 +1928,14 @@
              --this.rightClickDelayTimer;
          }
  
@@ -760,7 +776,7 @@
          this.mcProfiler.startSection("gui");
  
          if (!this.isGamePaused)
-@@ -1778,6 +2031,10 @@
+@@ -1778,6 +2034,10 @@
  
              while (Mouse.next())
              {
@@ -771,7 +787,7 @@
                  var9 = Mouse.getEventButton();
                  KeyBinding.setKeyBindState(var9 - 100, Mouse.getEventButtonState());
  
-@@ -1824,6 +2081,9 @@
+@@ -1824,6 +2084,9 @@
                          this.currentScreen.handleMouseInput();
                      }
                  }
@@ -781,15 +797,12 @@
              }
  
              if (this.leftClickCounter > 0)
-@@ -1875,6 +2135,13 @@
+@@ -1875,6 +2138,10 @@
                      }
                      else
                      {
 +						/** Minecrift **/
-+                        if (Keyboard.getEventKey() == Keyboard.KEY_R && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-+                        {
-+                            this.renderStereo = !this.renderStereo;
-+                        }
++                        VRHotkeys.handleKeyboardInputs(this);
 +						/** end Minecrift **/
 +
                          if (Keyboard.getEventKey() == 1)
@@ -805,7 +818,20 @@
                  }
              }
  
-@@ -2151,6 +2421,10 @@
+@@ -2056,6 +2326,12 @@
+ 
+             this.func_147115_a(this.currentScreen == null && this.gameSettings.keyBindAttack.getIsKeyPressed() && this.inGameHasFocus);
+         }
++        /** Minecrift */
++        else
++        {
++            VRHotkeys.handleKeyboardInputs(this);
++        }
++        /* end Minecrift */
+ 
+         if (this.theWorld != null)
+         {
+@@ -2151,6 +2427,10 @@
              this.myNetworkManager.processReceivedPackets();
          }
  
@@ -816,7 +842,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -2160,6 +2434,13 @@
+@@ -2160,6 +2440,13 @@
       */
      public void launchIntegratedServer(String p_71371_1_, String p_71371_2_, WorldSettings p_71371_3_)
      {
@@ -830,7 +856,7 @@
          this.loadWorld((WorldClient)null);
          System.gc();
          ISaveHandler var4 = this.saveLoader.getSaveLoader(p_71371_1_, false);
-@@ -2193,37 +2474,80 @@
+@@ -2193,37 +2480,80 @@
  
          this.loadingScreen.displayProgressMessage(I18n.format("menu.loadingLevel", new Object[0]));
  
@@ -934,7 +960,7 @@
  
      /**
       * unloads the current world first
-@@ -2238,6 +2562,11 @@
+@@ -2238,6 +2568,11 @@
       */
      public void loadWorld(WorldClient p_71353_1_, String p_71353_2_)
      {
@@ -946,7 +972,7 @@
          if (p_71353_1_ == null)
          {
              NetHandlerPlayClient var3 = this.getNetHandler();
-@@ -2250,6 +2579,21 @@
+@@ -2250,6 +2585,21 @@
              if (this.theIntegratedServer != null)
              {
                  this.theIntegratedServer.initiateShutdown();
@@ -968,7 +994,7 @@
              }
  
              this.theIntegratedServer = null;
-@@ -2262,7 +2606,7 @@
+@@ -2262,7 +2612,7 @@
  
          if (this.loadingScreen != null)
          {
@@ -977,7 +1003,7 @@
              this.loadingScreen.resetProgresAndWorkingMessage("");
          }
  
-@@ -2276,6 +2620,13 @@
+@@ -2276,6 +2626,13 @@
              this.mcResourcePackRepository.func_148529_f();
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -991,7 +1017,7 @@
          }
  
          this.mcSoundHandler.func_147690_c();
-@@ -2420,107 +2771,115 @@
+@@ -2420,108 +2777,116 @@
              Item var2;
              int var5;
  
@@ -1122,9 +1148,7 @@
 -                var4 = var2.getHasSubtypes();
 -                Block var9 = var2 instanceof ItemBlock && !var8.isFlowerPot() ? Block.getBlockFromItem(var2) : var8;
 -                var3 = var9.getDamageValue(this.theWorld, var5, var6, var7);
-+                // We delete this code wholly instead of commenting it out, to make sure we detect changes in it between MC versions
-+                return;
-             }
+-            }
 -            else
 -            {
 -                if (this.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
@@ -1200,13 +1224,16 @@
 -                        return;
 -                    }
 -                }
--            }
--
--            this.thePlayer.inventory.func_146030_a(var2, var3, var4, var1);
++                // We delete this code wholly instead of commenting it out, to make sure we detect changes in it between MC versions
++                return;
+             }
  
+-            this.thePlayer.inventory.func_146030_a(var2, var3, var4, var1);
+-
              if (var1)
              {
-@@ -2793,11 +3152,18 @@
+                 var5 = this.thePlayer.inventoryContainer.inventorySlots.size() - 9 + this.thePlayer.inventory.currentItem;
+@@ -2793,11 +3158,18 @@
          p_70001_1_.func_152767_b("gl_max_texture_size", Integer.valueOf(getGLMaximumTextureSize()));
      }
  
@@ -1225,7 +1252,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2805,6 +3171,7 @@
+@@ -2805,6 +3177,7 @@
  
              if (var1 != 0)
              {
@@ -1233,7 +1260,7 @@
                  return var0;
              }
          }
-@@ -2962,6 +3329,12 @@
+@@ -2962,6 +3335,12 @@
  
          if (var1 != 0 && !Keyboard.isRepeatEvent())
          {
@@ -1246,7 +1273,7 @@
              if (!(this.currentScreen instanceof GuiControls) || ((GuiControls)this.currentScreen).field_152177_g <= getSystemTime() - 20L)
              {
                  if (Keyboard.getEventKeyState())
-@@ -3117,4 +3490,412 @@
+@@ -3117,4 +3496,410 @@
              }
          }
      }
@@ -1613,14 +1640,12 @@
 +        }
 +    }
 +
-+    public void setUseVRRenderer(boolean enableVr)
-+    {
-+        // TODO:
-+    }
-+
 +    public void printChatMessage(String msg)
 +    {
-+        // TODO:
++        if (this.theWorld != null) {
++            ChatComponentText chatText = new ChatComponentText("\u00a7e[Minecrift]: " + msg + "\u00a7f");
++            this.ingameGUI.getChatGUI().func_146227_a(chatText);
++        }
 +    }
 +
 +    public void resetMousePos(int mouseFBX, int mouseFBY ) {

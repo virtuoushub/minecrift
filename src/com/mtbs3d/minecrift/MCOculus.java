@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.vector.Quaternion;
 
-public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting 
+public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting
 	implements IEyePositionProvider, IOrientationProvider, IBasePlugin, IHMDInfo, IStereoProvider, IEventNotifier, IEventListener {
 
     public static final int NOT_CALIBRATING = 0;
@@ -173,29 +173,32 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     }
 
     @Override
-    public void beginAutomaticCalibration()
+    public void beginCalibration(PluginType type)
     {
         if (isInitialized())
             processCalibration();
     }
 
     @Override
-    public void updateAutomaticCalibration()
+    public void updateCalibration(PluginType type)
     {
         if (isInitialized())
             processCalibration();
     }
 
     @Override
-    public boolean isCalibrated() {
+    public boolean isCalibrated(PluginType type) {
         if (!isInitialized())
             return true;  // Return true if not initialised
+
+        if (type != PluginType.PLUGIN_POSITION)   // Only position provider needs calibrating
+            return true;
 
         return isCalibrated;
     }
 
 	@Override
-	public String getCalibrationStep()
+	public String getCalibrationStep(PluginType type)
     {
         String step = "";
 
@@ -222,7 +225,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     {
         switch (eventId)
         {
-            case IOrientationProvider.EVENT_ORIENTATION_AT_ORIGIN:
+            case IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN:
             {
                 if (calibrationStep == CALIBRATE_AWAITING_FIRST_ORIGIN)
                 {
@@ -231,7 +234,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 }
                 break;
             }
-            case IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN:
+            case IBasePlugin.EVENT_SET_ORIGIN:
             {
                 resetOrigin();
             }
@@ -274,7 +277,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 coolDownStart = System.currentTimeMillis();
                 calibrationStep = CALIBRATE_COOLDOWN;
                 resetOrigin();
-                notifyListeners(IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN);
+                notifyListeners(IBasePlugin.EVENT_SET_ORIGIN);
 
                 break;
             }

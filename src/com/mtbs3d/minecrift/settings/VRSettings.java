@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import com.mtbs3d.minecrift.MCHydra;
 import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.src.Config;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +48,7 @@ public class VRSettings
     public static final int RENDER_BLOCK_OUTLINE_MODE_HUD = 1;
     public static final int RENDER_BLOCK_OUTLINE_MODE_NEVER = 2;
 
+    public boolean newlyCreated = true;
     public boolean useVRRenderer  = false; //default to false
     public boolean useQuaternions = true;
     public boolean debugPose = false;
@@ -67,23 +70,23 @@ public class VRSettings
     public boolean menuBackground = false;
     public boolean renderHeadWear = false;
     public int renderFullFirstPersonModelMode = RENDER_FIRST_PERSON_FULL;
-    public float renderPlayerOffset = 0.25f;
+    public float renderPlayerOffset = 0.0f;
     public boolean useChromaticAbCorrection = true;
     // SDK 0.4.0
     public boolean useTimewarp = true;
     public boolean useVignette = true;
     public boolean useLowPersistence = true;
-    public boolean useDynamicPrediction = true;
+    public boolean useDynamicPrediction = false; // Default to off for now
     public float   renderScaleFactor = 1.0f;
     public boolean useDirectRenderMode = false;
-    public boolean useDisplayMirroring = true;
-    public boolean useDisplayOverdrive = false;
+    public boolean useDisplayMirroring = false;
+    public boolean useDisplayOverdrive = true;
     public boolean posTrackBlankOnCollision = false;
 
     // TODO: Clean-up all the redundant crap!
     public boolean useDistortionTextureLookupOptimisation = false;
     public boolean useFXAA = false;
-    public float hudScale = 0.65f;
+    public float hudScale = 1.25f;
     public boolean allowMousePitchInput = false;
     public float hudDistance = 1.25f;
     public float hudPitchOffset = 0.0f;
@@ -132,18 +135,19 @@ public class VRSettings
 	public boolean keyholeHeadRelative = true;
     public boolean hydraUseFilter = true;
     public float magRefDistance = 0.15f;
-	public String headPositionPluginID = "null-pos";
+	public String headPositionPluginID = "oculus";
 	public String headTrackerPluginID = "oculus";
 	public String hmdPluginID = "oculus";
     public String stereoProviderPluginID = "oculus";
 	public String controllerPluginID = "mouse";
-    public int calibrationStrategy = 1;
+    public int calibrationStrategy = CALIBRATION_STRATEGY_AT_STARTUP;
     public float crosshairScale = 1.0f;
     public int renderInGameCrosshairMode = RENDER_CROSSHAIR_MODE_HUD;
     public int renderBlockOutlineMode = RENDER_BLOCK_OUTLINE_MODE_HUD;
     public boolean showEntityOutline = false;
     public boolean crosshairRollsWithHead = true;
     public boolean hudOcclusion = false;
+    public boolean soundOrientWithHead = true;
 	public float chatOffsetX = 0;
 	public float chatOffsetY = 0;
 	public float aimPitchOffset = 0;
@@ -176,8 +180,9 @@ public class VRSettings
     {
     	mc = minecraft;
     	inst = this;
-        this.optionsVRFile = new File(dataDir, "optionsvr.txt");
+        this.optionsVRFile = new File(dataDir, "optionsvr17.txt");
         this.loadOptions();
+        this.setDefaults();
         this.saveOptions();  // Make sure defaults are initialised in the file
     }
     
@@ -201,6 +206,11 @@ public class VRSettings
                 try
                 {
                     String[] optionTokens = var2.split(":");
+
+                    if (optionTokens[0].equals("newlyCreated"))
+                    {
+                        this.newlyCreated = optionTokens[1].equals("true");
+                    }
 
                     if (optionTokens[0].equals("useVRRenderer"))
                     {
@@ -625,6 +635,11 @@ public class VRSettings
                         this.hudOcclusion = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("soundOrientWithHead"))
+                    {
+                        this.soundOrientWithHead = optionTokens[1].equals("true");
+                    }
+
                     if (optionTokens[0].equals("chatOffsetX"))
                     {
                         this.chatOffsetX = this.parseFloat(optionTokens[1]);
@@ -717,6 +732,18 @@ public class VRSettings
         {
             logger.warn("Failed to load VR options!");
             var8.printStackTrace();
+        }
+    }
+
+    public void setDefaults()
+    {
+        if (newlyCreated)
+        {
+            // Set reasonable Optifine / game defaults
+            this.mc.gameSettings.limitFramerate = (int) GameSettings.Options.FRAMERATE_LIMIT.getValueMax();
+            this.mc.gameSettings.enableVsync = true;
+            this.mc.gameSettings.ofChunkLoading = 1;
+            this.mc.gameSettings.renderDistanceChunks = 8;
         }
     }
     
@@ -928,6 +955,8 @@ public class VRSettings
 	            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
 	        case HUD_OCCLUSION:
 	            return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
+	        case SOUND_ORIENT:
+	            return this.soundOrientWithHead ? var4 + "Headphones" : var4 + "Speakers";
 	        case KEYHOLE_HEAD_RELATIVE:
 	            return this.keyholeHeadRelative? var4 + "YES" : var4 + "NO";
             case VR_RENDERER:
@@ -1239,6 +1268,9 @@ public class VRSettings
 	        case HUD_OCCLUSION:
 	            this.hudOcclusion = !this.hudOcclusion;
 	            break;
+	        case SOUND_ORIENT:
+	            this.soundOrientWithHead = !this.soundOrientWithHead;
+	            break;
 	        case KEYHOLE_HEAD_RELATIVE:
 	        	this.keyholeHeadRelative = !this.keyholeHeadRelative;
 	            break;
@@ -1514,6 +1546,7 @@ public class VRSettings
         {
             PrintWriter var5 = new PrintWriter(new FileWriter(this.optionsVRFile));
 
+            var5.println("newlyCreated:" + false );
             var5.println("useVRRenderer:"+ this.useVRRenderer );
             var5.println("useQuaternions:"+ this.useQuaternions );
             var5.println("debugPose:"+ this.debugPose );
@@ -1596,6 +1629,7 @@ public class VRSettings
             var5.println("showEntityOutline:" + this.showEntityOutline);
             var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
             var5.println("hudOcclusion:" + this.hudOcclusion);
+            var5.println("soundOrientWithHead:" + this.soundOrientWithHead);
             var5.println("joystickSensitivity:" + this.joystickSensitivity);
             var5.println("joystickDeadzone:" + this.joystickDeadzone);
             var5.println("joystickAimType:" + this.joystickAimType);
@@ -1726,6 +1760,7 @@ public class VRSettings
         RENDER_MENU_BACKGROUND("Menu Background", false, true),
         HUD_HIDE("Hide HUD (F1)", false, true),
         HUD_OCCLUSION("HUD Occlusion", false, true),
+        SOUND_ORIENT("Sound Source", false, true),
         HEAD_TRACKING("Head Tracking", false, true),
         DUMMY("Dummy", false, true),
         VR_RENDERER("Stereo Renderer", false, true),

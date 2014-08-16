@@ -6,50 +6,45 @@ package com.mtbs3d.minecrift;
 
 import java.util.*;
 import com.mtbs3d.minecrift.api.IBasePlugin;
-import com.mtbs3d.minecrift.api.IOrientationProvider;
+import com.mtbs3d.minecrift.api.PluginType;
 import net.minecraft.client.Minecraft;
 
 public class CalibrationHelper {
-	public ArrayList<IBasePlugin> pluginsToCalibrate = new ArrayList<IBasePlugin>();
+    public Map<PluginType, IBasePlugin> pluginsToCalibrate = new HashMap<PluginType, IBasePlugin>();
 	
 	public IBasePlugin currentPlugin = null;
-	public Iterator<IBasePlugin> iterator = null;
+	public Iterator<PluginType> iterator = null;
 	public String calibrationStep = "";
+    PluginType type = PluginType.PLUGIN_UNKNOWN;
 
-	public CalibrationHelper(Minecraft mc) {
-
-        // TODO: Will need a rethink to avoid multiple initialisation when Oculus
-        // is used for both pos track and orientation. Maybe static instance of
-        // Oculus lib?
-
+	public CalibrationHelper(Minecraft mc)
+	{
         // Never calibrate HMDInfo; not required currently
-        pluginsToCalibrate.add(mc.lookaimController);
-        pluginsToCalibrate.add(mc.positionTracker);
-		pluginsToCalibrate.add(mc.headTracker);
+        pluginsToCalibrate.put(PluginType.PLUGIN_LOOKAIM, mc.lookaimController);
+        pluginsToCalibrate.put(PluginType.PLUGIN_POSITION, mc.positionTracker);
+		pluginsToCalibrate.put(PluginType.PLUGIN_ORIENT, mc.headTracker);
 
-        iterator = pluginsToCalibrate.iterator();
+        iterator = pluginsToCalibrate.keySet().iterator();
 		currentPlugin = null;
 	}
 	
 	public boolean allPluginsCalibrated()
 	{
-		do
+        do
 		{
 			if( currentPlugin == null)
 			{
-				currentPlugin = iterator.next();
-				if( currentPlugin instanceof IOrientationProvider )
-				{
-					((IOrientationProvider)currentPlugin).beginAutomaticCalibration();
-				}
+                type = iterator.next();
+				currentPlugin = pluginsToCalibrate.get(type);
+                currentPlugin.beginCalibration(type);
 			}
 
-			if( currentPlugin instanceof IOrientationProvider )
-			{
-				((IOrientationProvider)currentPlugin).updateAutomaticCalibration();
-			}
+            if( currentPlugin != null )
+            {
+                currentPlugin.updateCalibration(type);
+            }
 
-			if( currentPlugin.isCalibrated() )
+			if( currentPlugin.isCalibrated(type) )
 			{
 				currentPlugin = null;
 			}
@@ -57,7 +52,7 @@ public class CalibrationHelper {
 		
 		if( currentPlugin != null )
 		{
-			calibrationStep = currentPlugin.getCalibrationStep();
+			calibrationStep = currentPlugin.getCalibrationStep(type);
 			return false; //Not done yet
 		}
 		//Otherwise, all are calibrated

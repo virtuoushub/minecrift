@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/EntityRenderer.java
 +++ b/net/minecraft/client/renderer/EntityRenderer.java
-@@ -4,15 +4,34 @@
+@@ -4,15 +4,35 @@
  import java.io.IOException;
  import java.lang.reflect.Field;
  import java.nio.FloatBuffer;
@@ -29,13 +29,14 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.material.Material;
  import net.minecraft.client.Minecraft;
++import net.minecraft.client.audio.SoundHandler;
 +import net.minecraft.client.audio.SoundManager;
  import net.minecraft.client.entity.EntityPlayerSP;
 +import net.minecraft.client.gui.Gui;
  import net.minecraft.client.gui.GuiDownloadTerrain;
  import net.minecraft.client.gui.GuiMainMenu;
  import net.minecraft.client.gui.MapItemRenderer;
-@@ -28,6 +47,7 @@
+@@ -28,6 +48,7 @@
  import net.minecraft.client.renderer.texture.TextureMap;
  import net.minecraft.client.resources.IResourceManager;
  import net.minecraft.client.resources.IResourceManagerReloadListener;
@@ -43,7 +44,7 @@
  import net.minecraft.client.shader.ShaderGroup;
  import net.minecraft.client.shader.ShaderLinkHelper;
  import net.minecraft.crash.CrashReport;
-@@ -64,9 +84,14 @@
+@@ -64,9 +85,14 @@
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
  import org.lwjgl.opengl.Display;
@@ -58,7 +59,7 @@
  
  public class EntityRenderer implements IResourceManagerReloadListener
  {
-@@ -80,7 +105,7 @@
+@@ -80,7 +106,7 @@
  
      /** A reference to the Minecraft object. */
      private Minecraft mc;
@@ -67,7 +68,7 @@
      public ItemRenderer itemRenderer;
      private final MapItemRenderer theMapItemRenderer;
  
-@@ -157,9 +182,10 @@
+@@ -157,9 +183,10 @@
      private boolean cloudFog;
      private final IResourceManager resourceManager;
      public ShaderGroup theShaderGroup;
@@ -80,7 +81,7 @@
      private double cameraZoom;
      private double cameraYaw;
      private double cameraPitch;
-@@ -238,7 +264,51 @@
+@@ -238,7 +265,51 @@
      public long prevFrameTimeNano = -1L;
      private boolean lastShowDebugInfo = false;
      private boolean showExtendedDebugInfo = false;
@@ -124,16 +125,16 @@
 +    public boolean headCollision = false;
 +    public float headCollisionDistance = -1f;
 +    public Field _soundManagerSndSystemField = null;
-+    public SoundManager sndManager;
 +    public float clipDistance = 0f;
 +    public float minClipDistance = 0.05f;
 +    public boolean[] generatedIconMipmaps = new boolean[2];
 +    public Matrix4f[] eyeproj = new Matrix4f[2];
++    public boolean trySoundSystemReflect = true;
 +    /** end Minecrift **/
  
      public EntityRenderer(Minecraft p_i45076_1_, IResourceManager p_i45076_2_)
      {
-@@ -255,6 +325,14 @@
+@@ -255,6 +326,14 @@
          this.locationLightMap = p_i45076_1_.getTextureManager().getDynamicTextureLocation("lightMap", this.lightmapTexture);
          this.lightmapColors = this.lightmapTexture.getTextureData();
          this.theShaderGroup = null;
@@ -148,7 +149,7 @@
      }
  
      public boolean isShaderActive()
-@@ -277,39 +355,43 @@
+@@ -277,39 +356,43 @@
      {
          if (OpenGlHelper.shadersSupported)
          {
@@ -215,7 +216,7 @@
  
      public void onResourceManagerReload(IResourceManager par1ResourceManager)
      {
-@@ -414,41 +496,62 @@
+@@ -414,41 +497,65 @@
       */
      public void getMouseOver(float par1)
      {
@@ -234,54 +235,60 @@
 +            double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
 +            double entityReachDistance = blockReachDistance;
 +            // TODO: CamRelX, Y, Z needs to be adjusted for eye height, eye protrusion where set?
-+            //float cameraYOffset = 1.62f - (this.mc.vrSettings.getPlayerEyeHeight() - this.mc.vrSettings.neckBaseToEyeHeight);
-+            Vec3 pos = Vec3.createVectorHelper(renderOriginX + camRelX, renderOriginY + camRelY /*- cameraYOffset*/, renderOriginZ + camRelZ);
++            float cameraYOffset = 0f;//1.62f;// - (this.mc.vrSettings.getPlayerEyeHeight() - this.mc.vrSettings.neckBaseToEyeHeight);
++            Vec3 pos = Vec3.createVectorHelper(renderOriginX + camRelX, renderOriginY + camRelY - cameraYOffset, renderOriginZ + camRelZ);
 +            Vec3 aim = Vec3.createVectorHelper(aimX, aimY, aimZ);
++            Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
++            //this.mc.objectMouseOver = this.mc.theWorld.rayTraceBlocks(pos, endPos);
++            this.mc.objectMouseOver = this.mc.theWorld.func_147447_a(pos, endPos, false, false, true);
  
-             if (this.mc.playerController.extendedReach())
+-            if (this.mc.playerController.extendedReach())
++            double crossDistance = 0;
++            if (this.mc.objectMouseOver != null)
              {
 -                var2 = 6.0D;
 -                var4 = 6.0D;
-+                blockReachDistance = 6.0D;
-+                entityReachDistance = 6.0D;
++                entityReachDistance = this.mc.objectMouseOver.hitVec.distanceTo(pos);
++                crossDistance = entityReachDistance;
              }
              else
              {
 -                if (var2 > 3.0D)
-+                if (blockReachDistance > 3.0D)
++                endPos = pos.addVector(aim.xCoord*128,aim.yCoord*128,aim.zCoord*128);
++                //MovingObjectPosition crossPos = this.mc.theWorld.rayTraceBlocks(pos, endPos);
++                MovingObjectPosition crossPos = this.mc.theWorld.func_147447_a(pos, endPos, false, false, true);
++                if( crossPos != null )
                  {
 -                    var4 = 3.0D;
-+                    entityReachDistance = 3.0D;
++                    crossDistance = crossPos.hitVec.distanceTo(pos);
                  }
- 
+-
 -                var2 = var4;
-+                blockReachDistance = entityReachDistance;
              }
  
-+            Vec3 endPos = pos.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
-+            this.mc.objectMouseOver = this.mc.theWorld.rayTraceBlocks(pos, endPos);
-+
-+            double crossDistance = 0;
-             if (this.mc.objectMouseOver != null)
-             {
--                var4 = this.mc.objectMouseOver.hitVec.distanceTo(var6);
-+                entityReachDistance = this.mc.objectMouseOver.hitVec.distanceTo(pos);
-+                crossDistance = entityReachDistance;
+-            if (this.mc.objectMouseOver != null)
++            if (this.mc.playerController.extendedReach())
++            {
++                blockReachDistance = 6.0D;
++                entityReachDistance = 6.0D;
 +            }
 +            else
-+            {
-+                endPos = pos.addVector(aim.xCoord*128,aim.yCoord*128,aim.zCoord*128);
-+                MovingObjectPosition crossPos = this.mc.theWorld.rayTraceBlocks(pos, endPos);
-+                if( crossPos != null )
+             {
+-                var4 = this.mc.objectMouseOver.hitVec.distanceTo(var6);
++                if (blockReachDistance > 3.0D)
 +                {
-+                    crossDistance = crossPos.hitVec.distanceTo(pos);
++                    entityReachDistance = 3.0D;
 +                }
++
++                blockReachDistance = entityReachDistance;
              }
  
 -            Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
 -            Vec3 var8 = var6.addVector(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2);
 +            //Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
-+            Vec3 var8 = pos.addVector(aim.xCoord * blockReachDistance, aim.yCoord * blockReachDistance, aim.zCoord * blockReachDistance);
++            Vec3 otherpos = mc.renderViewEntity.getPosition(par1);
++            //otherpos.yCoord -= (1.62f - this.mc.vrSettings.getPlayerEyeHeight()));   // Adjust for eye height
++            Vec3 var8 = otherpos.addVector(aim.xCoord * blockReachDistance, aim.yCoord * blockReachDistance, aim.zCoord * blockReachDistance);
              this.pointedEntity = null;
              Vec3 var9 = null;
              float var10 = 1.0F;
@@ -292,7 +299,7 @@
  
              for (int var14 = 0; var14 < var11.size(); ++var14)
              {
-@@ -458,20 +561,20 @@
+@@ -458,20 +565,20 @@
                  {
                      float var16 = var15.getCollisionBorderSize();
                      AxisAlignedBB var17 = var15.boundingBox.expand((double)var16, (double)var16, (double)var16);
@@ -317,7 +324,7 @@
  
                          if (var19 < var12 || var12 == 0.0D)
                          {
-@@ -501,15 +604,21 @@
+@@ -501,15 +608,30 @@
                  }
              }
  
@@ -330,7 +337,16 @@
                  if (this.pointedEntity instanceof EntityLivingBase || this.pointedEntity instanceof EntityItemFrame)
                  {
                      this.mc.pointedEntity = this.pointedEntity;
++                    //this.mc.printChatMessage("HIT: " + this.pointedEntity.toString());
                  }
++                else
++                {
++                    //this.mc.printChatMessage("Nowt");
++                }
++            }
++            else
++            {
++                //this.mc.printChatMessage("Nowt");
              }
 +
 +            // Set up crosshair position
@@ -340,7 +356,7 @@
          }
      }
  
-@@ -562,6 +671,7 @@
+@@ -562,6 +684,7 @@
                  var4 *= this.fovModifierHandPrev + (this.fovModifierHand - this.fovModifierHandPrev) * par1;
              }
  
@@ -348,7 +364,7 @@
              boolean zoomActive = false;
  
              if (this.mc.currentScreen == null)
-@@ -666,7 +776,11 @@
+@@ -666,7 +789,11 @@
          double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
          double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
          double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
@@ -361,7 +377,7 @@
  
          if (var2.isPlayerSleeping())
          {
-@@ -755,16 +869,27 @@
+@@ -755,16 +882,27 @@
          }
          else
          {
@@ -392,7 +408,7 @@
          var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
          var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
          var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
-@@ -776,68 +901,60 @@
+@@ -776,68 +914,60 @@
       */
      private void setupCameraTransform(float par1, int par2)
      {
@@ -498,7 +514,7 @@
  
          var4 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * par1;
  
-@@ -852,13 +969,16 @@
+@@ -852,13 +982,16 @@
  
              float var6 = 5.0F / (var4 * var4 + 5.0F) - var4 * 0.04F;
              var6 *= var6;
@@ -518,7 +534,7 @@
          if (this.debugViewDirection > 0)
          {
              int var71 = this.debugViewDirection - 1;
-@@ -887,7 +1007,7 @@
+@@ -887,7 +1020,7 @@
              {
                  GL11.glRotatef(-90.0F, 1.0F, 0.0F, 0.0F);
              }
@@ -527,7 +543,7 @@
      }
  
      /**
-@@ -981,8 +1101,6 @@
+@@ -981,8 +1114,6 @@
          GL11.glTranslatef(8.0F, 8.0F, 8.0F);
          GL11.glMatrixMode(GL11.GL_MODELVIEW);
          this.mc.getTextureManager().bindTexture(this.locationLightMap);
@@ -536,7 +552,7 @@
          GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
          GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
          GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-@@ -1222,37 +1340,59 @@
+@@ -1222,37 +1353,59 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
@@ -625,7 +641,7 @@
  
          this.mc.mcProfiler.endSection();
  
-@@ -1268,6 +1408,8 @@
+@@ -1268,6 +1421,8 @@
  
              if (this.mc.theWorld != null)
              {
@@ -634,7 +650,7 @@
                  this.mc.mcProfiler.startSection("level");
  
                  if (this.mc.isFramerateLimitBelowMax())
-@@ -1288,6 +1430,7 @@
+@@ -1288,6 +1443,7 @@
                          GL11.glLoadIdentity();
                          this.theShaderGroup.loadShaderGroup(par1);
                          GL11.glPopMatrix();
@@ -642,7 +658,7 @@
                      }
  
                      this.mc.getFramebuffer().bindFramebuffer(true);
-@@ -1296,26 +1439,58 @@
+@@ -1296,26 +1452,58 @@
                  this.renderEndNanoTime = System.nanoTime();
                  this.mc.mcProfiler.endStartSection("gui");
  
@@ -712,7 +728,7 @@
              {
                  GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
  
-@@ -1342,41 +1517,26 @@
+@@ -1342,41 +1530,26 @@
                      var11.addCrashSectionCallable("Screen name", new Callable()
                      {
                          private static final String __OBFID = "CL_00000948";
@@ -754,7 +770,7 @@
                      });
                      throw new ReportedException(var10);
                  }
-@@ -1401,6 +1561,254 @@
+@@ -1401,6 +1574,254 @@
              this.mc.gameSettings.showDebugProfilerChart = true;
          }
      }
@@ -843,7 +859,7 @@
 +            if (!this.mc.vrSettings.hudOcclusion)
 +                GL11.glDisable(GL11.GL_DEPTH_TEST);
 +
-+            drawSizedQuad(this.mc.displayFBWidth, this.mc.displayFBHeight, this.mc.vrSettings.hudScale * this.mc.vrSettings.renderScaleFactor);
++            drawSizedQuad(this.mc.displayFBWidth, this.mc.displayFBHeight, this.mc.vrSettings.hudScale);
 +
 +            GL11.glDisable(GL11.GL_BLEND);
 +            GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -1009,7 +1025,7 @@
  
      public void func_152430_c(float p_152430_1_)
      {
-@@ -1435,9 +1843,22 @@
+@@ -1435,9 +1856,22 @@
          EntityLivingBase var4 = this.mc.renderViewEntity;
          RenderGlobal var5 = this.mc.renderGlobal;
          EffectRenderer var6 = this.mc.effectRenderer;
@@ -1035,7 +1051,7 @@
          this.mc.mcProfiler.endStartSection("center");
  
          for (int var13 = 0; var13 < 2; ++var13)
-@@ -1463,6 +1884,13 @@
+@@ -1463,6 +1897,13 @@
              GL11.glEnable(GL11.GL_CULL_FACE);
              this.mc.mcProfiler.endStartSection("camera");
              this.setupCameraTransform(par1, var13);
@@ -1049,7 +1065,7 @@
              ActiveRenderInfo.updateRenderInfo(this.mc.thePlayer, this.mc.gameSettings.thirdPersonView == 2);
              this.mc.mcProfiler.endStartSection("frustrum");
              ClippingHelperImpl.getInstance();
-@@ -1488,10 +1916,10 @@
+@@ -1488,10 +1929,10 @@
  
              this.mc.mcProfiler.endStartSection("culling");
              Frustrum var14 = new Frustrum();
@@ -1062,7 +1078,7 @@
              {
                  this.mc.mcProfiler.endStartSection("updatechunks");
  
-@@ -1525,6 +1953,10 @@
+@@ -1525,6 +1966,10 @@
              boolean hasForge = Reflector.ForgeHooksClient.exists();
              EntityPlayer var18;
  
@@ -1073,7 +1089,7 @@
              if (this.debugViewDirection == 0)
              {
                  GL11.glMatrixMode(GL11.GL_MODELVIEW);
-@@ -1551,13 +1983,13 @@
+@@ -1551,13 +1996,13 @@
                  GL11.glPopMatrix();
                  GL11.glPushMatrix();
  
@@ -1089,7 +1105,7 @@
                      {
                          var5.drawSelectionBox(var18, this.mc.objectMouseOver, 0, par1);
                      }
-@@ -1568,13 +2000,13 @@
+@@ -1568,13 +2013,13 @@
              GL11.glMatrixMode(GL11.GL_MODELVIEW);
              GL11.glPopMatrix();
  
@@ -1105,7 +1121,7 @@
                  {
                      var5.drawSelectionBox(var18, this.mc.objectMouseOver, 0, par1);
                  }
-@@ -1682,13 +2114,23 @@
+@@ -1682,13 +2127,23 @@
                  Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, new Object[] {var5, Float.valueOf(par1)});
              }
  
@@ -1131,7 +1147,7 @@
              }
  
              if (!this.mc.gameSettings.anaglyph)
-@@ -1702,6 +2144,57 @@
+@@ -1702,6 +2157,57 @@
          this.mc.mcProfiler.endSection();
      }
  
@@ -1189,7 +1205,7 @@
      /**
       * Render clouds if enabled
       */
-@@ -2593,4 +3086,389 @@
+@@ -2593,4 +3099,427 @@
              ;
          }
      }
@@ -1217,8 +1233,8 @@
 +            this.mc.vrSettings.posTrackResetPosition = false;
 +        }
 +
-+        // Poll sensors    // TODO: Only poll controllers once per frame?
-+        PluginManager.pollAll(0.0f);
++        // Poll sensors
++        PluginManager.pollAll();
 +
 +        if(JoystickAim.selectedJoystickMode != null)
 +            JoystickAim.selectedJoystickMode.update( renderPartialTicks );
@@ -1447,80 +1463,118 @@
 +        GL11.glEnd();
 +    }
 +
++    // TODO: Move this into Reflector OR use existing Reflector function!
++    public Field getDeclaredField(Class clazz, String unObfuscatedName, String obfuscatedName)
++    {
++        Field field = null;
++        String s = clazz.getName();
++
++        try
++        {
++            field = clazz.getDeclaredField(unObfuscatedName);
++        }
++        catch (NoSuchFieldException e)
++        {
++            e.printStackTrace();
++
++            try
++            {
++                field = clazz.getDeclaredField(obfuscatedName);
++            }
++            catch (NoSuchFieldException e1)
++            {
++                e1.printStackTrace();
++            };
++        }
++
++        return field;
++    }
++
 +    /**
 +     * Sets the listener of sounds
 +     */
 +    public void setSoundListenerOrientation()
 +    {
-+        // TODO: Sort ListenerOrientation
++        SoundSystem sndSystem = null;
 +
-+//        SoundSystem sndSystem = null;
++        // Get the soundManager from mc.mcSoundHandler (field_147694_f)
++        // then get SoundSystem from it (field_148620_e)
++        // Obfuscated names (from MCP908/conf/joined.srg):
++        //    SoundHandler.field_147694_f = btp/a
++        //    SoundSystem.field_148620_e = btj/e
 +
-+        // TODO: Get the soundManager from mc.mcSoundHandler
-+//
-+//        // Use reflection to get the sndManager
-+//        if (sndSystemReflect && _soundManagerSndSystemField == null)
-+//        {
-+//            try
-+//            {
-+//                _soundManagerSndSystemField = SoundManager.class.getDeclaredField("sndSystem");
-+//                System.out.println("VRRender: Reflected sndSystem");
-+//            }
-+//            catch (NoSuchFieldException e) {
-+//                try
-+//                {
-+//                    _soundManagerSndSystemField = SoundManager.class.getDeclaredField("b"); //obfuscated name
-+//                    System.out.println("VRRender: Reflected obfuscated b");
-+//                }
-+//                catch (NoSuchFieldException e1) {
-+//                    System.out.println("VRRender: got sndSystem directly");
-+//                    sndSystemReflect = false;
-+//                };
-+//            }
-+//            if (_soundManagerSndSystemField != null)
-+//                _soundManagerSndSystemField.setAccessible(true);
-+//        }
-+//        if(!sndSystemReflect ){
-+//            if( this.mc.mcSoundHandler != null )
-+//                sndSystem = this.mc.mcSoundHandler.sndSystem;
-+//
-+//        }
-+//
-+//        if (_soundManagerSndSystemField != null && this.mc.sndManager != null)
-+//        {
-+//            try
-+//            {
-+//                sndSystem = (SoundSystem)_soundManagerSndSystemField.get(this.sndManager);
-+//            }
-+//            catch (IllegalArgumentException e) { }
-+//            catch (IllegalAccessException e) { };
-+//        }
-+//
-+//        float PIOVER180 = (float)(Math.PI/180);
-+//
-+//        // TODO: Set based on head orient (headphones) or body orient (speakers)
-+//
-+//        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
-+//        up.rotateAroundZ(-(float)cameraRoll * PIOVER180);
-+//        up.rotateAroundX(-(float)cameraPitch* PIOVER180);
-+//        up.rotateAroundY(-(float)cameraYaw  * PIOVER180);
-+//        if ( sndSystem != null && this.mc.gameSettings.soundVolume != 0.0F)
-+//        {
-+//            sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
-+//
-+//            sndSystem.setListenerOrientation(lookX, lookY, lookZ,
-+//                    (float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
-+//        }
-+//        if( mc.mumbleLink != null ) {
-+//            Vec3 forward = Vec3.createVectorHelper(0, 0 , -1);
-+//            forward.rotateAroundZ(-(float)cameraRoll * PIOVER180);
-+//            forward.rotateAroundX(-(float)cameraPitch* PIOVER180);
-+//            forward.rotateAroundY(-(float)cameraYaw  * PIOVER180);
-+//            mc.mumbleLink.updateMumble(
-+//                    (float)renderOriginX,  (float)renderOriginY,  (float)renderOriginZ,
-+//                    (float)forward.xCoord, (float)forward.yCoord, (float)forward.zCoord,
-+//                    (float)up.xCoord,      (float)up.yCoord,      (float)up.zCoord);
-+//        }
++        // Use reflection to get the sndManager
++        if (sndSystemReflect && _soundManagerSndSystemField == null && this.trySoundSystemReflect)
++        {
++            try
++            {
++                // Get SoundManager from the SoundHandler...
++                Field soundManagerField = getDeclaredField(mc.mcSoundHandler.getClass(), "field_147694_f", "f");
++                if (soundManagerField != null)
++                {
++                    soundManagerField.setAccessible(true);
++                    this.mc.sndManager = (SoundManager) soundManagerField.get(mc.mcSoundHandler);
++                }
++
++                // ...get SoundSystem from SoundManager
++                if (this.mc.sndManager != null)
++                {
++                    _soundManagerSndSystemField = getDeclaredField(this.mc.sndManager.getClass(), "field_148620_e", "e");
++                    if (_soundManagerSndSystemField != null)
++                    {
++                        _soundManagerSndSystemField.setAccessible(true);
++                        System.out.println("[Minecrift]: Reflected sndSystem");
++                    }
++                }
++            }
++            catch (IllegalAccessException e)
++            {
++                e.printStackTrace();
++            }
++
++            if (_soundManagerSndSystemField == null) {
++                this.trySoundSystemReflect = false;
++                System.out.println("[Minecrift]: FAILED to reflect sndSystem");
++            }
++        }
++
++        if (_soundManagerSndSystemField != null && this.mc.sndManager != null)
++        {
++            try
++            {
++                sndSystem = (SoundSystem)_soundManagerSndSystemField.get(this.mc.sndManager);
++            }
++            catch (IllegalArgumentException e) { }
++            catch (IllegalAccessException e) { };
++        }
++
++        float PIOVER180 = (float)(Math.PI/180);
++
++        // TODO: Set based on head orient (headphones) or body orient (speakers)
++
++        Vec3 up = Vec3.createVectorHelper(0, 1, 0);
++        up.rotateAroundZ(-(float)cameraRoll * PIOVER180);
++        up.rotateAroundX(-(float)cameraPitch* PIOVER180);
++        up.rotateAroundY(-(float)cameraYaw  * PIOVER180);
++        if ( sndSystem != null /* && this.mc.gameSettings.getSoundVolume(SoundCategory // Which sound category?) != 0f // this.mc.gameSettings.soundVolume != 0f */)
++        {
++            // The sound system is on a separate thread? Sync issues?
++
++            sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
++
++            sndSystem.setListenerOrientation(lookX, lookY, lookZ,
++                    (float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
++        }
++        if( mc.mumbleLink != null ) {
++            Vec3 forward = Vec3.createVectorHelper(0, 0 , -1);
++            forward.rotateAroundZ(-(float)cameraRoll * PIOVER180);
++            forward.rotateAroundX(-(float)cameraPitch* PIOVER180);
++            forward.rotateAroundY(-(float)cameraYaw  * PIOVER180);
++            mc.mumbleLink.updateMumble(
++                    (float)renderOriginX,  (float)renderOriginY,  (float)renderOriginZ,
++                    (float)forward.xCoord, (float)forward.yCoord, (float)forward.zCoord,
++                    (float)up.xCoord,      (float)up.yCoord,      (float)up.zCoord);
++        }
 +    }
 +
 +    public void startCalibration()

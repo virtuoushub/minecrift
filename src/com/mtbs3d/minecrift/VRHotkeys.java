@@ -4,6 +4,7 @@
  */
 package com.mtbs3d.minecrift;
 
+import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.api.PluginManager;
 import com.mtbs3d.minecrift.settings.VRSettings;
@@ -25,9 +26,13 @@ public class VRHotkeys {
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
             PluginManager.destroyAll();
-	    	mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
             mc.printChatMessage("Re-initialising all plugins...");
 	    }
+
+        if (Keyboard.getEventKey() == Keyboard.KEY_R && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        {
+            //mc.renderStereo = !mc.renderStereo;   // TODO: Disabled for now until mono works again
+        }
 
 	    // Distortion on / off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_P && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
@@ -168,7 +173,8 @@ public class VRHotkeys {
 	    // Allow mouse pitch
 	    if (Keyboard.getEventKey() == Keyboard.KEY_N && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.vrSettings.allowMousePitchInput = !mc.vrSettings.allowMousePitchInput;
+            // TODO: Disabled for now until working
+	        //mc.vrSettings.allowMousePitchInput = !mc.vrSettings.allowMousePitchInput;
 	        mc.vrSettings.saveOptions();
             mc.printChatMessage("Allow mouse pitch input: " + (mc.vrSettings.allowMousePitchInput ? "On" : "Off"));
 	    }
@@ -311,7 +317,7 @@ public class VRHotkeys {
         // If an orientation plugin is performing calibration, space also sets the origin
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {
-            PluginManager.notifyAll(IOrientationProvider.EVENT_ORIENTATION_AT_ORIGIN);
+            PluginManager.notifyAll(IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN);
         }
 	}
 }

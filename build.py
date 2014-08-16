@@ -76,7 +76,7 @@ def create_install(mcp_dir):
     elif os.getenv("BUILD_NUMBER"):
         version = "b"+os.getenv("BUILD_NUMBER")
     else:
-        version = "LOCAL"
+        version = "PREVIEW_1"
 
     version = mc_ver+"-"+version
 	

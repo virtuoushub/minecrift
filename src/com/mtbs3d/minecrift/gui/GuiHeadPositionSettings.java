@@ -23,7 +23,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     static VRSettings.VrOptions[] neckModelOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.EYE_PROTRUSION,
             VRSettings.VrOptions.NECK_LENGTH,
-            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
             VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
     };
 
@@ -36,7 +36,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             VRSettings.VrOptions.POS_TRACK_HYDRA_OFFSET_Y,
             VRSettings.VrOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT,
             VRSettings.VrOptions.POS_TRACK_HYDRA_OFFSET_Z,
-            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
         //VRSettings.VrOptions.EYE_PROTRUSION,
         //VRSettings.VrOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
             VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
@@ -193,6 +193,12 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     private boolean getEnabledState(VRSettings.VrOptions var8)
     {
         String s = var8.getEnumString();
+
+        // TODO: Remove this when working
+        if (var8 == VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION)
+        {
+            return false;
+        }
 
         if( ! (Minecraft.getMinecraft().positionTracker instanceof MCHydra) )
         {

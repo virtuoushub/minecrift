@@ -688,13 +688,13 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
         return orientation;
     }
 
-	@Override
-	public void beginAutomaticCalibration() { 
-		resetOriginRotation(); //Reset the head tracker/hydra orientation reference frame
-	}
+    @Override
+    public void beginCalibration(PluginType type) {
+        resetOriginRotation(); //Reset the head tracker/hydra orientation reference frame
+    }
 
-	@Override
-	public void updateAutomaticCalibration() {/*no-op*/ }
+    @Override
+    public void updateCalibration(PluginType type) {/*no-op*/ }
 
 	@Override
 	public float getBodyYawDegrees() {
@@ -721,12 +721,12 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
 	}
 
 	@Override
-	public boolean isCalibrated() { 
+	public boolean isCalibrated(PluginType type) {
 		return hydraRunning;
 	}
 
 	@Override
-	public String getCalibrationStep() {
+	public String getCalibrationStep(PluginType type) {
 		return calibrationStep;
 	}
 	
@@ -738,7 +738,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
     @Override
     public void eventNotification(int eventId)
     {
-        if (eventId == IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN)
+        if (eventId == IBasePlugin.EVENT_SET_ORIGIN)
         {
             resetOrigin();
             resetOriginRotation();

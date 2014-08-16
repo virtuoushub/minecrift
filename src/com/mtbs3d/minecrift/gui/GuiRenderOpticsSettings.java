@@ -174,11 +174,11 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 minecraft.vrSettings.useTimewarp = true;
                 minecraft.vrSettings.useVignette = true;
                 minecraft.vrSettings.useLowPersistence = true;
-                minecraft.vrSettings.useDynamicPrediction = true;
-                minecraft.vrSettings.renderScaleFactor = 1.5f;
+                minecraft.vrSettings.useDynamicPrediction = false; // Can cause judder with OVR 0.4.1...
+                minecraft.vrSettings.renderScaleFactor = 1.0f;
                 minecraft.vrSettings.useDirectRenderMode = false;
-                minecraft.vrSettings.useDisplayMirroring = true;
-                minecraft.vrSettings.useDisplayOverdrive = false;
+                minecraft.vrSettings.useDisplayMirroring = false;
+                minecraft.vrSettings.useDisplayOverdrive = true;
 
                 minecraft.reinitFramebuffers = true;
 			    this.guivrSettings.saveOptions();

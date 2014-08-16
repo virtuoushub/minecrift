@@ -164,28 +164,24 @@ public class PluginManager implements IEventListener
         if( that instanceof IHMDInfo )
             thePluginManager.hmdInfoPlugins.add((IHMDInfo) that);
         if( that instanceof IOrientationProvider )
-        {
             thePluginManager.orientPlugins.add((IOrientationProvider) that);
-            if (that instanceof IEventNotifier)
-            {
-                ((IEventNotifier)that).registerListener(thePluginManager);
-            }
-        }
         if( that instanceof IEyePositionProvider)
             thePluginManager.positionPlugins.add((IEyePositionProvider) that);
         if( that instanceof IBodyAimController )
             thePluginManager.controllerPlugins.add((IBodyAimController) that);
         if( that instanceof IStereoProvider )
             thePluginManager.stereoProviderPlugins.add((IStereoProvider) that);
+        if (that instanceof IEventNotifier)
+            ((IEventNotifier)that).registerListener(thePluginManager);
         thePluginManager.allPlugins.add(that);
     }
 
-    public static void pollAll(float delta)
+    public static void pollAll()
     {
         for( IBasePlugin p : thePluginManager.allPlugins )
         {
             if( p.isInitialized() )
-                p.poll(delta);
+                p.poll(0f);
         }
     }
 
@@ -278,7 +274,7 @@ public class PluginManager implements IEventListener
     {
         switch (eventId)
         {
-            case IOrientationProvider.EVENT_CALIBRATION_SET_ORIGIN:
+            case IBasePlugin.EVENT_SET_ORIGIN:
             {
                 Minecraft.getMinecraft().vrSettings.posTrackResetPosition = true;
                 break;

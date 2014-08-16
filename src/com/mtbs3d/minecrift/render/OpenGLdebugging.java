@@ -1,14 +1,14 @@
 package com.mtbs3d.minecrift.render;
 
+import org.apache.commons.io.IOUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -317,7 +317,8 @@ public class OpenGLdebugging
     {
         String msg = dumpOpenGLstate();
         try {
-            Files.write(Paths.get(filename), msg.getBytes());
+            FileOutputStream output = new FileOutputStream(new File(filename));
+            IOUtils.write(msg.getBytes(), output);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -348,7 +349,8 @@ public class OpenGLdebugging
     {
         String msg = dumpAllIsEnabled();
         try {
-            Files.write(Paths.get(filename), msg.getBytes());
+            FileOutputStream output = new FileOutputStream(new File(filename));
+            IOUtils.write(msg.getBytes(), output);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -379,7 +381,8 @@ public class OpenGLdebugging
     {
         String msg = dumpAllType(type);
         try {
-            Files.write(Paths.get(filename), msg.getBytes());
+            FileOutputStream output = new FileOutputStream(new File(filename));
+            IOUtils.write(msg.getBytes(), output);
         } catch (IOException e) {
             e.printStackTrace();
         }
