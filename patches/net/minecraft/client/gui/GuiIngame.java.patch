@@ -61,7 +61,7 @@
              this.mc.mcProfiler.startSection("debug");
              GL11.glPushMatrix();
 -            var8.drawStringWithShadow("Minecraft 1.7.10 (" + this.mc.debug + ")", 2, 2, 16777215);
-+            var8.drawStringWithShadow("Minecrift 1.7.10, " + OculusRift.getVersionString() + " (" + this.mc.debug + ")", 2, 2, 16777215);            // Minecrift
++            var8.drawStringWithShadow("Minecrift 1.7.10 Pre2, " + OculusRift.getVersionString() + " (" + this.mc.debug + ")", 2, 2, 16777215);            // Minecrift
              var8.drawStringWithShadow(this.mc.debugInfoRenders(), 2, 12, 16777215);
              var8.drawStringWithShadow(this.mc.getEntityDebug(), 2, 22, 16777215);
              var8.drawStringWithShadow(this.mc.debugInfoEntities(), 2, 32, 16777215);
