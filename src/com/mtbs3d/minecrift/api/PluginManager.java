@@ -194,7 +194,7 @@ public class PluginManager implements IEventListener
         }
     }
 
-    public static Posef getEyePose(EyeType eye)
+    public static Posef getEyePose(EyeType eye, float ipd)
     {
         Posef pose = new Posef();
 
@@ -229,7 +229,7 @@ public class PluginManager implements IEventListener
         {
             if (p instanceof IEyePositionProvider && p.isInitialized())
             {
-                Vec3 pos = ((IEyePositionProvider) p).getEyePosition(eye);
+                Vec3 pos = ((IEyePositionProvider) p).getEyePosition(eye, ipd);
                 if (pos != null)
                 {
                     pose.Position.x = (float) pos.xCoord;

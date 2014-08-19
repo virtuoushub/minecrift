@@ -19,6 +19,7 @@ import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Quaternion;
 
 public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting
@@ -39,6 +40,11 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private FrameTiming frameTiming = new FrameTiming();
     private float yawOffsetRad = 0f;
     private float pitchOffsetRad = 0f;
+    private float rollHeadRad = 0f;
+    private float pitchHeadRad = 0f;
+    private float yawHeadRad = 0f;
+    private boolean polledThisFrame = false;
+    private TrackerState ts = new TrackerState();
 
     @Override
     public EyeType eyeRenderOrder(int index)
@@ -48,6 +54,12 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
             return EyeType.ovrEye_Left;
 
         return desc.EyeRenderOrder[index];
+    }
+
+    @Override
+    public String getVersion()
+    {
+        return OculusRift.getVersionString();
     }
 
     @Override
@@ -72,6 +84,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
     public void beginFrame()
     {
+        polledThisFrame = false;
         frameTiming = super.beginFrameGetTiming();
     }
 
@@ -91,12 +104,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     {
         GL11.glDisable(GL11.GL_CULL_FACE);  // Oculus wants CW orientations, avoid the problem by turning off culling...
         GL11.glDisable(GL11.GL_DEPTH_TEST); // Nothing is drawn with depth test on...
+        GL30.glBindVertexArray(0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); // Unbind GL_ARRAY_BUFFER for my own vertex arrays to work...
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
         // End the frame
         super.endFrame();
 
         GL11.glFrontFace(GL11.GL_CCW);   // Needed for OVR SDK 0.4.0
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); // Unbind GL_ARRAY_BUFFER for my own vertex arrays to work...
         GL11.glEnable(GL11.GL_CULL_FACE); // Turn back on...
         GL11.glEnable(GL11.GL_DEPTH_TEST); // Turn back on...
         GL11.glClearDepth(1); // Oculus set this to 0 (the near plane), return to normal...
@@ -134,6 +149,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                        float worldPitchOffsetDegrees,
                        float worldRollOffsetDegrees)
     {
+        if (!polledThisFrame)
+        {
+            ts = poll(frameTiming.ScanoutMidpointSeconds);
+            polledThisFrame = true;
+        }
+        rollHeadRad = (float)Math.toRadians(rollHeadDegrees);
+        pitchHeadRad = (float)Math.toRadians(pitchHeadDegrees);
+        yawHeadRad =  (float)Math.toRadians(yawHeadDegrees);
         yawOffsetRad = (float)Math.toRadians(worldYawOffsetDegrees);
         pitchOffsetRad = (float)Math.toRadians(worldPitchOffsetDegrees);
     }
@@ -141,16 +164,28 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     @Override
     public Vec3 getCenterEyePosition()
     {
-        return null;
+        Vec3 eyePosition = Vec3.createVectorHelper(-ts.HeadPose.ThePose.Position.x, -ts.HeadPose.ThePose.Position.y, -ts.HeadPose.ThePose.Position.z);
+        eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
+        eyePosition.rotateAroundY(-yawOffsetRad);
+        // TODO: Rotate around pitch offset
+        return eyePosition;
     }
 
     @Override
-    public Vec3 getEyePosition(EyeType eye)
+    public Vec3 getEyePosition(EyeType eye, float ipd)
     {
+        //Minecraft.getMinecraft().printChatMessage("Eye: " + eye.toString() + ", IPD: " + -ipd);
         Vector3f eyePos = super.getEyePos(eye);
-        Vec3 eyePosition = Vec3.createVectorHelper(eyePos.x, eyePos.y, eyePos.z);
-        //eyePosition.yCoord += Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight;        // TODO:? This seems to be good already
-        eyePosition.zCoord -= Minecraft.getMinecraft().vrSettings.eyeProtrusion;
+        Vec3 eyePosition = Vec3.createVectorHelper(-eyePos.x, -eyePos.y, -eyePos.z);
+        Vec3 ipdAdjust = Vec3.createVectorHelper(-ipd, 0, 0);
+        ipdAdjust.rotateAroundZ(rollHeadRad);
+        ipdAdjust.rotateAroundX(pitchHeadRad);
+        ipdAdjust.rotateAroundY(-yawHeadRad);
+        //Minecraft.getMinecraft().printChatMessage("Yaw:         " + Math.toDegrees(yawHeadRad) + ", Pitch: " + Math.toDegrees(pitchHeadRad) + ", Roll: " + Math.toDegrees(rollHeadRad));
+        //Minecraft.getMinecraft().printChatMessage("IPDAdjust: x=" + ipdAdjust.xCoord +           ", y=     " + ipdAdjust.yCoord +             ", z=    " + ipdAdjust.zCoord);
+        eyePosition.xCoord += ipdAdjust.xCoord;  // Adjust for IPD!
+        eyePosition.yCoord += ipdAdjust.yCoord; // + Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight;        // TODO:? This seems to be good already
+        eyePosition.zCoord += (ipdAdjust.zCoord + Minecraft.getMinecraft().vrSettings.eyeProtrusion);
         eyePosition.rotateAroundY(-yawOffsetRad);
         // TODO: Rotate around pitch offset
 

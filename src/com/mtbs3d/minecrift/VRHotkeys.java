@@ -308,7 +308,7 @@ public class VRHotkeys {
         }
 
         // Reset positional track origin
-        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        if (Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
         {
             mc.vrSettings.posTrackResetPosition = true;
             mc.printChatMessage("Reset origin: done");

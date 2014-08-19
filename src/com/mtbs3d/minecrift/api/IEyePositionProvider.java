@@ -36,7 +36,7 @@ public interface IEyePositionProvider extends IBasePlugin {
     /**
      * @return The coordinate of the left or right eye position relative to the head yaw plane
      */
-    public Vec3 getEyePosition(EyeType eye);
+    public Vec3 getEyePosition(EyeType eye, float ipd);
 
     /**
      * Resets the current origin position

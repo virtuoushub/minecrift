@@ -164,18 +164,18 @@ public class GuiScreenNavigator {
 	        try {
 				keyDownField = Keyboard.class.getDeclaredField("keyDownBuffer");
 				keyDownField.setAccessible(true);
-	        	guiLeft = GuiContainer.class.getDeclaredField("guiLeft");
-	        	guiTop  = GuiContainer.class.getDeclaredField("guiTop");
-	        	System.out.println("[Minecrift]GuiScreenNavigator: Reflected guiLeft/guiTop");
+	        	guiLeft = GuiContainer.class.getDeclaredField("field_147003_i");  // was guiLeft
+	        	guiTop  = GuiContainer.class.getDeclaredField("field_147009_r");  // was guiTop
+	        	System.out.println("[Minecrift] GuiScreenNavigator: Reflected guiLeft/guiTop");
 	        }
 	        catch (NoSuchFieldException e) {
 		        try {
-		        	guiLeft = GuiContainer.class.getDeclaredField("p"); //obfuscated name
-		        	guiTop  = GuiContainer.class.getDeclaredField("q"); //obfuscated name
-		        	System.out.println("[Minecrift]GuiScreenNavigator: Reflected obfuscated guiLeft/guiTop (p/q)");
+		        	guiLeft = GuiContainer.class.getDeclaredField("i"); //obfuscated name  was p
+		        	guiTop  = GuiContainer.class.getDeclaredField("r"); //obfuscated name  was q
+		        	System.out.println("[Minecrift] GuiScreenNavigator: Reflected obfuscated guiLeft/guiTop (i/r)");
 		        }
 		        catch (NoSuchFieldException e1) { 
-		        	System.out.println("[Minecrift]GuiScreenNavigator: Couldn't get guiLeft/guiTop via reflection! Joystick navigation of inventories may be inaccurate.");
+		        	System.out.println("[Minecrift] GuiScreenNavigator: Couldn't get guiLeft/guiTop via reflection! Joystick navigation of inventories may be inaccurate.");
 		        };
 	        }
 	       	if ( guiLeft != null)

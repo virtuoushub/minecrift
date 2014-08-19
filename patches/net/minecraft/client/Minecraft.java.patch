@@ -284,7 +284,7 @@
          }
          else
          {
-@@ -630,6 +769,9 @@
+@@ -630,9 +769,12 @@
              this.toggleFullscreen();
          }
  
@@ -293,7 +293,11 @@
 +        }
          try
          {
-             Display.setVSyncEnabled(this.gameSettings.enableVsync);
+-            Display.setVSyncEnabled(this.gameSettings.enableVsync);
++            Display.setVSyncEnabled(true); // Minecrift
+         }
+         catch (OpenGLException var4)
+         {
 @@ -841,7 +983,7 @@
       */
      public void displayGuiScreen(GuiScreen p_147108_1_)
@@ -342,37 +346,7 @@
      {
          int var2 = GL11.glGetError();
  
-@@ -979,12 +1135,11 @@
-                     }
- 
-                     this.displayCrashReport(this.crashReporter);
--                    return;
-                 }
-             }
-             catch (MinecraftError var12)
-             {
--                ;
-+                break;
-             }
-             catch (ReportedException var13)
-             {
-@@ -992,6 +1147,7 @@
-                 this.freeMemory();
-                 logger.fatal("Reported exception thrown!", var13);
-                 this.displayCrashReport(var13.getCrashReport());
-+                break;
-             }
-             catch (Throwable var14)
-             {
-@@ -999,6 +1155,7 @@
-                 this.freeMemory();
-                 logger.fatal("Unreported exception thrown!", var14);
-                 this.displayCrashReport(var2);
-+                break;
-             }
-             finally
-             {
-@@ -1021,6 +1178,9 @@
+@@ -1022,6 +1178,9 @@
              this.shutdown();
          }
  
@@ -382,7 +356,7 @@
          if (this.isGamePaused && this.theWorld != null)
          {
              float var1 = this.timer.renderPartialTicks;
-@@ -1039,76 +1199,148 @@
+@@ -1040,76 +1199,148 @@
          }
  
          long var5 = System.nanoTime();
@@ -439,17 +413,17 @@
 +        /** Minecrift - main stereo render loop **/
  
 -        this.mcProfiler.endSection();
-+        OpenGLdebugging.dumpOpenGLstateToFileOnce("../BeforeInitialRenderGui.txt");
++        //OpenGLdebugging.dumpOpenGLstateToFileOnce("../BeforeInitialRenderGui.txt");
 +        // Render GUI to FBO if necessary
 +        this.entityRenderer.renderVrGui(this.timer.renderPartialTicks);
 +
-+        OpenGLdebugging.dumpOpenGLstateToFileOnce("../AfterInitialRenderGui.txt");
- 
--        if (!this.skipRenderWorld)
++        //OpenGLdebugging.dumpOpenGLstateToFileOnce("../AfterInitialRenderGui.txt");
++
 +        // Mark beginning of frame AFTER any GUI rendering to allow maximum
 +        // latency reduction
 +        PluginManager.beginFrameAll();
-+
+ 
+-        if (!this.skipRenderWorld)
 +        for (int i = 0; i < viewPortCount; i++)
          {
 -            this.mcProfiler.endStartSection("gameRenderer");
@@ -464,7 +438,7 @@
 +            }
 +
 +            this.currentEye = this.stereoProvider.eyeRenderOrder(i);
-+            currentPose = PluginManager.getEyePose(this.currentEye);
++            currentPose = PluginManager.getEyePose(this.currentEye, this.eyeRenderParams.Eyes[this.currentEye.value()].ViewAdjust.x);
 +
 +            GL11.glPushMatrix();
 +            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -575,7 +549,7 @@
          Thread.yield();
          this.mcProfiler.startSection("stream");
          this.mcProfiler.startSection("update");
-@@ -1117,10 +1349,11 @@
+@@ -1118,10 +1349,11 @@
          this.field_152353_at.func_152922_k();
          this.mcProfiler.endSection();
          this.mcProfiler.endSection();
@@ -589,7 +563,7 @@
          while (getSystemTime() >= this.debugUpdateTime + 1000L)
          {
              debugFPS = this.fpsCounter;
-@@ -1138,43 +1371,43 @@
+@@ -1139,43 +1371,43 @@
  
          this.mcProfiler.endSection();
  
@@ -663,7 +637,7 @@
      }
  
      public boolean isFramerateLimitBelowMax()
-@@ -1457,7 +1690,7 @@
+@@ -1458,7 +1690,7 @@
          }
      }
  
@@ -672,7 +646,7 @@
      {
          if (this.leftClickCounter <= 0)
          {
-@@ -1501,7 +1734,7 @@
+@@ -1502,7 +1734,7 @@
          }
      }
  
@@ -681,7 +655,7 @@
      {
          this.rightClickDelayTimer = 4;
          boolean var1 = true;
-@@ -1532,7 +1765,12 @@
+@@ -1533,7 +1765,12 @@
                      {
                          int var6 = var2 != null ? var2.stackSize : 0;
  
@@ -695,7 +669,7 @@
                          {
                              var1 = false;
                              this.thePlayer.swingItem();
-@@ -1559,7 +1797,12 @@
+@@ -1560,7 +1797,12 @@
          {
              ItemStack var7 = this.thePlayer.inventory.getCurrentItem();
  
@@ -709,12 +683,14 @@
              {
                  this.entityRenderer.itemRenderer.resetEquippedProgress2();
              }
-@@ -1619,11 +1862,14 @@
+@@ -1619,12 +1861,15 @@
+             }
  
              Display.setFullscreen(this.fullscreen);
-             Display.setVSyncEnabled(this.gameSettings.enableVsync);
+-            Display.setVSyncEnabled(this.gameSettings.enableVsync);
 -            this.func_147120_f();
-+			/** Minecrift **/
++            /** Minecrift **/
++            Display.setVSyncEnabled(true);
 +			this.func_147120_f();
 +            //Display.update();
 +			/** end Minecrift **/
@@ -727,7 +703,7 @@
          }
      }
  
-@@ -1632,19 +1878,21 @@
+@@ -1633,19 +1878,21 @@
       */
      private void resize(int p_71370_1_, int p_71370_2_)
      {
@@ -761,7 +737,7 @@
      }
  
      private void updateFramebufferSize()
-@@ -1680,6 +1928,14 @@
+@@ -1681,6 +1928,14 @@
              --this.rightClickDelayTimer;
          }
  
@@ -776,7 +752,7 @@
          this.mcProfiler.startSection("gui");
  
          if (!this.isGamePaused)
-@@ -1778,6 +2034,10 @@
+@@ -1779,6 +2034,10 @@
  
              while (Mouse.next())
              {
@@ -787,7 +763,7 @@
                  var9 = Mouse.getEventButton();
                  KeyBinding.setKeyBindState(var9 - 100, Mouse.getEventButtonState());
  
-@@ -1824,6 +2084,9 @@
+@@ -1825,6 +2084,9 @@
                          this.currentScreen.handleMouseInput();
                      }
                  }
@@ -797,7 +773,7 @@
              }
  
              if (this.leftClickCounter > 0)
-@@ -1875,6 +2138,10 @@
+@@ -1876,6 +2138,10 @@
                      }
                      else
                      {
@@ -808,7 +784,7 @@
                          if (Keyboard.getEventKey() == 1)
                          {
                              this.displayInGameMenu();
-@@ -1960,6 +2227,9 @@
+@@ -1961,6 +2227,9 @@
                              }
                          }
                      }
@@ -818,7 +794,7 @@
                  }
              }
  
-@@ -2056,6 +2326,12 @@
+@@ -2057,6 +2326,12 @@
  
              this.func_147115_a(this.currentScreen == null && this.gameSettings.keyBindAttack.getIsKeyPressed() && this.inGameHasFocus);
          }
@@ -831,7 +807,7 @@
  
          if (this.theWorld != null)
          {
-@@ -2151,6 +2427,10 @@
+@@ -2152,6 +2427,10 @@
              this.myNetworkManager.processReceivedPackets();
          }
  
@@ -842,7 +818,7 @@
          this.mcProfiler.endSection();
          this.systemTime = getSystemTime();
      }
-@@ -2160,6 +2440,13 @@
+@@ -2161,6 +2440,13 @@
       */
      public void launchIntegratedServer(String p_71371_1_, String p_71371_2_, WorldSettings p_71371_3_)
      {
@@ -856,7 +832,7 @@
          this.loadWorld((WorldClient)null);
          System.gc();
          ISaveHandler var4 = this.saveLoader.getSaveLoader(p_71371_1_, false);
-@@ -2193,37 +2480,80 @@
+@@ -2194,37 +2480,80 @@
  
          this.loadingScreen.displayProgressMessage(I18n.format("menu.loadingLevel", new Object[0]));
  
@@ -878,12 +854,12 @@
 +            long currentTime = System.currentTimeMillis();
  
 -            if (var6 != null)
-+            if (currentTime - lastIntegratedServerLaunchCheck > 200L)
-             {
+-            {
 -                this.loadingScreen.resetProgresAndWorkingMessage(I18n.format(var6, new Object[0]));
 -            }
 -            else
--            {
++            if (currentTime - lastIntegratedServerLaunchCheck > 200L)
+             {
 -                this.loadingScreen.resetProgresAndWorkingMessage("");
 -            }
 +                this.lastIntegratedServerLaunchCheck = currentTime;
@@ -935,7 +911,14 @@
 +        {
 +            this.lastIntegratedServerLaunchCheck = 0;
 +            this.integratedServerLaunchInProgress = false;
-+
+ 
+-        this.displayGuiScreen((GuiScreen)null);
+-        SocketAddress var11 = this.theIntegratedServer.func_147137_ag().addLocalEndpoint();
+-        NetworkManager var12 = NetworkManager.provideLocalClient(var11);
+-        var12.setNetHandler(new NetHandlerLoginClient(var12, this, (GuiScreen)null));
+-        var12.scheduleOutboundPacket(new C00Handshake(5, var11.toString(), 0, EnumConnectionState.LOGIN), new GenericFutureListener[0]);
+-        var12.scheduleOutboundPacket(new C00PacketLoginStart(this.getSession().func_148256_e()), new GenericFutureListener[0]);
+-        this.myNetworkManager = var12;
 +            // Ideally the network stuff below would also be part of the integrated server
 +            // launch, i.e. on it's own thread
 +            this.displayGuiScreen((GuiScreen) null);
@@ -945,14 +928,7 @@
 +            networkmanager.scheduleOutboundPacket(new C00Handshake(5, socketaddress.toString(), 0, EnumConnectionState.LOGIN), new GenericFutureListener[0]);
 +            networkmanager.scheduleOutboundPacket(new C00PacketLoginStart(this.getSession().func_148256_e()), new GenericFutureListener[0]);
 +            this.myNetworkManager = networkmanager;
- 
--        this.displayGuiScreen((GuiScreen)null);
--        SocketAddress var11 = this.theIntegratedServer.func_147137_ag().addLocalEndpoint();
--        NetworkManager var12 = NetworkManager.provideLocalClient(var11);
--        var12.setNetHandler(new NetHandlerLoginClient(var12, this, (GuiScreen)null));
--        var12.scheduleOutboundPacket(new C00Handshake(5, var11.toString(), 0, EnumConnectionState.LOGIN), new GenericFutureListener[0]);
--        var12.scheduleOutboundPacket(new C00PacketLoginStart(this.getSession().func_148256_e()), new GenericFutureListener[0]);
--        this.myNetworkManager = var12;
++
 +            return false;
 +        }
      }
@@ -960,7 +936,7 @@
  
      /**
       * unloads the current world first
-@@ -2238,6 +2568,11 @@
+@@ -2239,6 +2568,11 @@
       */
      public void loadWorld(WorldClient p_71353_1_, String p_71353_2_)
      {
@@ -972,7 +948,7 @@
          if (p_71353_1_ == null)
          {
              NetHandlerPlayClient var3 = this.getNetHandler();
-@@ -2250,6 +2585,21 @@
+@@ -2251,6 +2585,21 @@
              if (this.theIntegratedServer != null)
              {
                  this.theIntegratedServer.initiateShutdown();
@@ -994,7 +970,7 @@
              }
  
              this.theIntegratedServer = null;
-@@ -2262,7 +2612,7 @@
+@@ -2263,7 +2612,7 @@
  
          if (this.loadingScreen != null)
          {
@@ -1003,7 +979,7 @@
              this.loadingScreen.resetProgresAndWorkingMessage("");
          }
  
-@@ -2276,6 +2626,13 @@
+@@ -2277,6 +2626,13 @@
              this.mcResourcePackRepository.func_148529_f();
              this.setServerData((ServerData)null);
              this.integratedServerIsRunning = false;
@@ -1017,7 +993,7 @@
          }
  
          this.mcSoundHandler.func_147690_c();
-@@ -2420,108 +2777,116 @@
+@@ -2421,107 +2777,115 @@
              Item var2;
              int var5;
  
@@ -1148,7 +1124,9 @@
 -                var4 = var2.getHasSubtypes();
 -                Block var9 = var2 instanceof ItemBlock && !var8.isFlowerPot() ? Block.getBlockFromItem(var2) : var8;
 -                var3 = var9.getDamageValue(this.theWorld, var5, var6, var7);
--            }
++                // We delete this code wholly instead of commenting it out, to make sure we detect changes in it between MC versions
++                return;
+             }
 -            else
 -            {
 -                if (this.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY || this.objectMouseOver.entityHit == null || !var1)
@@ -1224,16 +1202,13 @@
 -                        return;
 -                    }
 -                }
-+                // We delete this code wholly instead of commenting it out, to make sure we detect changes in it between MC versions
-+                return;
-             }
- 
--            this.thePlayer.inventory.func_146030_a(var2, var3, var4, var1);
+-            }
 -
+-            this.thePlayer.inventory.func_146030_a(var2, var3, var4, var1);
+ 
              if (var1)
              {
-                 var5 = this.thePlayer.inventoryContainer.inventorySlots.size() - 9 + this.thePlayer.inventory.currentItem;
-@@ -2793,11 +3158,18 @@
+@@ -2794,11 +3158,18 @@
          p_70001_1_.func_152767_b("gl_max_texture_size", Integer.valueOf(getGLMaximumTextureSize()));
      }
  
@@ -1252,7 +1227,7 @@
          for (int var0 = 16384; var0 > 0; var0 >>= 1)
          {
              GL11.glTexImage2D(GL11.GL_PROXY_TEXTURE_2D, 0, GL11.GL_RGBA, var0, var0, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-@@ -2805,6 +3177,7 @@
+@@ -2806,6 +3177,7 @@
  
              if (var1 != 0)
              {
@@ -1260,7 +1235,7 @@
                  return var0;
              }
          }
-@@ -2962,6 +3335,12 @@
+@@ -2963,6 +3335,12 @@
  
          if (var1 != 0 && !Keyboard.isRepeatEvent())
          {
@@ -1273,7 +1248,7 @@
              if (!(this.currentScreen instanceof GuiControls) || ((GuiControls)this.currentScreen).field_152177_g <= getSystemTime() - 20L)
              {
                  if (Keyboard.getEventKeyState())
-@@ -3117,4 +3496,410 @@
+@@ -3118,4 +3496,410 @@
              }
          }
      }

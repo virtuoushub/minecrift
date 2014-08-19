@@ -175,7 +175,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                 minecraft.vrSettings.useVignette = true;
                 minecraft.vrSettings.useLowPersistence = true;
                 minecraft.vrSettings.useDynamicPrediction = false; // Can cause judder with OVR 0.4.1...
-                minecraft.vrSettings.renderScaleFactor = 1.0f;
+                minecraft.vrSettings.renderScaleFactor = 1.1f;
                 minecraft.vrSettings.useDirectRenderMode = false;
                 minecraft.vrSettings.useDisplayMirroring = false;
                 minecraft.vrSettings.useDisplayOverdrive = true;
@@ -242,14 +242,73 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     				"Corrects for color distortion due to lenses", 
     				"  OFF - no correction", 
     				"  ON - correction applied"} ;
-    	case DISTORTION_FIT_POINT:
-    		return new String[] {
-    				"The amount of space around the peripheral to leave empty",
-    				"  Lower values render more peripheral view. Going too" ,
-    				"    low negatively impacts performance.",
-    				"  Higher values limit the amount of rendering if the FOV",
-    				"    is constrained for some reason (e.g. wearing glasses)"
-    				};
+        case TIMEWARP:
+            return new String[] {
+                    "Reduces perceived head track latency by sampling sensor",
+                    "position just before the view is presented to your eyes,",
+                    "and rotating the rendered view subtly to match the new",
+                    "sensor orientation.",
+                    "  ON  - Timewarp applied. Some ghosting may be observed",
+                    "        during fast changes of head position.",
+                    "  OFF - No timewarp applied, higher latency head",
+                    "        tracking."
+            };
+            case RENDER_SCALEFACTOR:
+                return new String[] {
+                        "Determines quality of rendered image. Higher values",
+                        "increase quality but increase rendering load.",
+                        "Defaults to 1.1X."
+                };
+            case ENABLE_DIRECT:
+                return new String[] {
+                        "Direct rendering to HMD. Not currently working so",
+                        "OFF currently."
+                };
+            case MIRROR_DISPLAY:
+                return new String[] {
+                        "Mirrors image on HMD to separate desktop window.",
+                        "Only relevant if Direct mode is ON. Not currently",
+                        " working so set to NO currently."
+                };
+            case DYNAMIC_PREDICTION:
+                return new String[]{
+                        "If supported by your HMD, reduces perceived head",
+                        " track latency by continually monitoring to head",
+                        "to screen latency, and adjusting the frame-timing",
+                        "appropriately.",
+                        "  ON  - Dynamic prediction applied. A small",
+                        "        coloured square will be seen in the top",
+                        "        right of any mirrored display",
+                        "  OFF - Not applied."
+                };
+            case OVERDRIVE_DISPLAY:
+                return new String[] {
+                        "If supported by your HMD, attempts to reduce",
+                        "perceived image smearing during black-to-",
+                        "bright transitions.",
+                        "  ON  - Smearing may be reduced.",
+                        "  OFF - Not applied."
+                };
+            case LOW_PERSISTENCE:
+                return new String[] {
+                        "If supported by your HMD, displays each frame on the",
+                        "the HMDs OLED screen for a very short period of time.",
+                        "This greatly reduces perceived blurring during head",
+                        "motion.",
+                        "  ON  - Low persistence reduces image blur on",
+                        "        head movement.",
+                        "  OFF - Not applied."
+                };
+            case VIGNETTE:
+                return new String[] {
+                        "If enabled, blurs the edges of the distortion",
+                        "displayed for each eye, making the edges less",
+                        "noticeable at the edges of your field of view.",
+                        "  ON  - FOV edges blurred.",
+                        "  OFF - No burring of distortion edges. The edge",
+                        "        of distortion may be more noticeable",
+                        "        within your field of view."
+                };
     	// TODO: Add others
     	default:
     		return null;

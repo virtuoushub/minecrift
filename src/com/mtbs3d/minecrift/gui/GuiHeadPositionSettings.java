@@ -194,12 +194,6 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     {
         String s = var8.getEnumString();
 
-        // TODO: Remove this when working
-        if (var8 == VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION)
-        {
-            return false;
-        }
-
         if( ! (Minecraft.getMinecraft().positionTracker instanceof MCHydra) )
         {
             return true;
@@ -340,6 +334,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         {
             this.guivrSettings.eyeProtrusion = 0.185f;
             this.guivrSettings.neckBaseToEyeHeight = 0.225f;
+            this.guivrSettings.posTrackBlankOnCollision = true;
         }
     }
 
@@ -416,6 +411,17 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                             "        'jitter' may be noticed, especially at a greater",
                             "        distance from the Hydra base unit.",
                             "  ON  - Filter used. Less positional 'jitter', more latency."
+                    };
+                case POS_TRACK_HIDE_COLLISION:
+                    return new String[] {
+                            "Determines whether to fade to black on head collision",
+                            "with in-world objects.",
+                            "  YES - Screen will fade to black when near to or actually",
+                            "        colliding with an in-world object. Can help prevent",
+                            "        disorientation.",
+                            "  NO  - No fade to black - head position will not be allowed",
+                            "        to clip through the object and will halt. Shock",
+                            "        treatment, can cause disorientation!"
                     };
                 case POS_TRACK_OFFSET_SET_DEFAULT:
                     return new String[] {

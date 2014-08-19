@@ -622,7 +622,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
 	}
 
     @Override
-    public Vec3 getEyePosition(EyeType eye)
+    public Vec3 getEyePosition(EyeType eye, float ipd)
     {
         if (eye == EyeType.ovrEye_Left)
             return leftEyePos;

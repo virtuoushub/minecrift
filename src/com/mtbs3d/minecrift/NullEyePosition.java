@@ -105,7 +105,7 @@ public class NullEyePosition extends BasePlugin implements IEyePositionProvider 
 	}
 
     @Override
-    public Vec3 getEyePosition(EyeType eye)
+    public Vec3 getEyePosition(EyeType eye, float ipd)
     {
         if (eye == EyeType.ovrEye_Left)
             return leftEyePos;

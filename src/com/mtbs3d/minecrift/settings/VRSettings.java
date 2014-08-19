@@ -4,11 +4,8 @@
  */
 package com.mtbs3d.minecrift.settings;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
+
 import com.mtbs3d.minecrift.MCHydra;
 import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.client.Minecraft;
@@ -20,14 +17,18 @@ import org.apache.logging.log4j.Logger;
 
 public class VRSettings
 {
+    public static final int VERSION = 1;
     public static final Logger logger = LogManager.getLogger();
 	public static VRSettings inst;
+	public String defaults = new String();
+    public static final int UNKNOWN_VERSION = 0;
+
     // Minecrift
     public static final int POS_TRACK_NECK = 0;
     public static final int POS_TRACK_HYDRA = 1;
 
     private static final String[] POS_TRACK_HYDRA_LOC = new String[] {"HMD (L&R sides)", "HMD (Left side)", "HMD (Top)", "HMD (Right side)", "Back Of Head", "Direct"};
-    private static final String[] JOYSTICK_AIM_TYPE = new String[] {"Keyhole (tight)", "Keyhole (free)","Recentering" };
+    private static final String[] JOYSTICK_AIM_TYPE = new String[] {"Keyhole (tight)", "Keyhole (loose)","Recentering" };
     //TODO: Shouldn't these be an enum? 
     public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT = 0;
     public static final int POS_TRACK_HYDRA_LOC_HMD_LEFT = 1;
@@ -48,6 +49,7 @@ public class VRSettings
     public static final int RENDER_BLOCK_OUTLINE_MODE_HUD = 1;
     public static final int RENDER_BLOCK_OUTLINE_MODE_NEVER = 2;
 
+    public int version = UNKNOWN_VERSION;
     public boolean newlyCreated = true;
     public boolean useVRRenderer  = false; //default to false
     public boolean useQuaternions = true;
@@ -77,11 +79,11 @@ public class VRSettings
     public boolean useVignette = true;
     public boolean useLowPersistence = true;
     public boolean useDynamicPrediction = false; // Default to off for now
-    public float   renderScaleFactor = 1.0f;
+    public float   renderScaleFactor = 1.1f; // Avoid weird star shaped shimmer at renderscale = 1
     public boolean useDirectRenderMode = false;
     public boolean useDisplayMirroring = false;
     public boolean useDisplayOverdrive = true;
-    public boolean posTrackBlankOnCollision = false;
+    public boolean posTrackBlankOnCollision = true;
 
     // TODO: Clean-up all the redundant crap!
     public boolean useDistortionTextureLookupOptimisation = false;
@@ -175,29 +177,49 @@ public class VRSettings
     private Minecraft mc;
 
     private File optionsVRFile;
+    private File optionsVRBackupFile;
     
     public VRSettings( Minecraft minecraft, File dataDir )
     {
     	mc = minecraft;
     	inst = this;
-        this.optionsVRFile = new File(dataDir, "optionsvr17.txt");
+    	storeDefaults();
+
+        this.optionsVRFile = new File(dataDir, "optionsvr.txt");
+        this.optionsVRBackupFile = new File(dataDir, "optionsvr.bak");
         this.loadOptions();
         this.setDefaults();
         this.saveOptions();  // Make sure defaults are initialised in the file
     }
-    
+
     public void loadOptions()
     {
+        if (!this.optionsVRFile.exists())
+            return;
 
+        try
+        {
+            loadOptions(new FileReader(this.optionsVRFile));
+        }
+        catch (IOException e)
+        {
+            logger.warn("Failed to load VR options: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loadDefaults()
+    {
+        StringReader sr = new StringReader(this.defaults);
+        loadOptions(sr);
+    }
+    
+    public void loadOptions(Reader reader)
+    {
         // Load Minecrift options
         try
         {
-            if (!this.optionsVRFile.exists())
-            {
-                return;
-            }
-
-            BufferedReader optionsVRReader = new BufferedReader(new FileReader(this.optionsVRFile));
+            BufferedReader optionsVRReader = new BufferedReader(reader);
 
             String var2 = "";
 
@@ -206,6 +228,11 @@ public class VRSettings
                 try
                 {
                     String[] optionTokens = var2.split(":");
+
+                    if (optionTokens[0].equals("version"))
+                    {
+                        this.version = Integer.parseInt(optionTokens[1]);
+                    }
 
                     if (optionTokens[0].equals("newlyCreated"))
                     {
@@ -745,6 +772,23 @@ public class VRSettings
             this.mc.gameSettings.ofChunkLoading = 1;
             this.mc.gameSettings.renderDistanceChunks = 8;
         }
+
+        if (version == UNKNOWN_VERSION)
+        {
+            // Minecrift 1.6 or below --> 1.7.10 - wipe the file
+            try
+            {
+                saveOptions(new FileWriter(this.optionsVRBackupFile));
+            }
+            catch (IOException e)
+            {
+                logger.warn("Failed to backup VR options: " + e.getMessage());
+                e.printStackTrace();
+            }
+            loadDefaults();
+        }
+
+        version = VERSION;
     }
     
     public String getKeyBinding( VRSettings.VrOptions par1EnumOptions )
@@ -1541,11 +1585,32 @@ public class VRSettings
 
     public void saveOptions()
     {
+        try
+        {
+            saveOptions(new FileWriter(this.optionsVRFile));
+        }
+        catch (IOException e)
+        {
+            logger.warn("Failed to save VR options: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void storeDefaults()
+    {
+        StringWriter sw = new StringWriter();
+        saveOptions(sw);
+        this.defaults = sw.toString();
+    }
+
+    private void saveOptions(Writer writer)
+    {
         // Save Minecrift settings
         try
         {
-            PrintWriter var5 = new PrintWriter(new FileWriter(this.optionsVRFile));
+            PrintWriter var5 = new PrintWriter(writer);
 
+            var5.println("version:" + version);
             var5.println("newlyCreated:" + false );
             var5.println("useVRRenderer:"+ this.useVRRenderer );
             var5.println("useQuaternions:"+ this.useQuaternions );
@@ -1652,7 +1717,7 @@ public class VRSettings
         }
         catch (Exception var3)
         {
-            logger.warn("Failed to save VR options");
+            logger.warn("Failed to save VR options: " + var3.getMessage());
             var3.printStackTrace();
         }
     }

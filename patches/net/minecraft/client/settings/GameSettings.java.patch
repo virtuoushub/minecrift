@@ -16,6 +16,24 @@
  
      public GameSettings(Minecraft par1Minecraft, File par2File)
      {
+@@ -1239,7 +1237,7 @@
+         if (par1EnumOptions == GameSettings.Options.ENABLE_VSYNC)
+         {
+             this.enableVsync = !this.enableVsync;
+-            Display.setVSyncEnabled(this.enableVsync);
++            //Display.setVSyncEnabled(this.enableVsync); // Minecrift - don't update
+         }
+ 
+         this.saveOptions();
+@@ -2923,7 +2921,7 @@
+ 
+     public void updateVSync()
+     {
+-        Display.setVSyncEnabled(this.enableVsync);
++        //Display.setVSyncEnabled(this.enableVsync); // Minecrift: Don't update
+     }
+ 
+     private void updateWaterOpacity()
 @@ -3074,7 +3072,6 @@
          ANISOTROPIC_FILTERING("ANISOTROPIC_FILTERING", 32, "ANISOTROPIC_FILTERING", 32, "options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F, (Object)null, null)
          {

@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/gui/GuiMainMenu.java
 +++ b/net/minecraft/client/gui/GuiMainMenu.java
-@@ -4,16 +4,17 @@
+@@ -4,16 +4,18 @@
  import java.io.IOException;
  import java.io.InputStreamReader;
  import java.net.URI;
@@ -12,6 +12,7 @@
 +
 +import com.google.common.base.Strings;
 +import com.google.common.collect.Lists;
++import de.fruitfly.ovr.OculusRift;
  import net.minecraft.client.Minecraft;
  import net.minecraft.client.renderer.OpenGlHelper;
  import net.minecraft.client.renderer.Tessellator;
@@ -22,7 +23,7 @@
  import net.minecraft.util.EnumChatFormatting;
  import net.minecraft.util.MathHelper;
  import net.minecraft.util.ResourceLocation;
-@@ -214,9 +215,24 @@
+@@ -214,9 +216,24 @@
       */
      private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_)
      {
@@ -50,7 +51,7 @@
      }
  
      /**
-@@ -267,6 +283,11 @@
+@@ -267,6 +284,11 @@
              this.mc.shutdown();
          }
  
@@ -62,7 +63,7 @@
          if (p_146284_1_.id == 11)
          {
              this.mc.launchIntegratedServer("Demo_World", "Demo_World", DemoWorldServer.demoWorldSettings);
-@@ -448,7 +469,7 @@
+@@ -448,7 +470,7 @@
       */
      private void renderSkybox(int p_73971_1_, int p_73971_2_, float p_73971_3_)
      {
@@ -71,7 +72,7 @@
          GL11.glViewport(0, 0, 256, 256);
          this.drawPanorama(p_73971_1_, p_73971_2_, p_73971_3_);
          this.rotateAndBlurSkybox(p_73971_3_);
-@@ -458,7 +479,7 @@
+@@ -458,7 +480,7 @@
          this.rotateAndBlurSkybox(p_73971_3_);
          this.rotateAndBlurSkybox(p_73971_3_);
          this.rotateAndBlurSkybox(p_73971_3_);
@@ -80,7 +81,15 @@
          GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
          Tessellator var4 = Tessellator.instance;
          var4.startDrawingQuads();
-@@ -522,6 +543,22 @@
+@@ -515,13 +537,29 @@
+         GL11.glScalef(var8, var8, var8);
+         this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
+         GL11.glPopMatrix();
+-        String var9 = "Minecraft 1.7.10";
++        String var9 = "Minecrift 1.7.10, " + OculusRift.getVersionString();
+ 
+         if (this.mc.isDemo())
+         {
              var9 = var9 + " Demo";
          }
  
