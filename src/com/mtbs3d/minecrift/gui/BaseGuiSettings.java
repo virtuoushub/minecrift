@@ -4,9 +4,7 @@
  */
 package com.mtbs3d.minecrift.gui;
 
-import com.minecraft_vr.render.VRRenderer;
 import com.mtbs3d.minecrift.settings.VRSettings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
@@ -25,8 +23,6 @@ public class BaseGuiSettings extends GuiScreen
     private long mouseStillTimeMs = 0L;
     public static final long TOOLTIP_DELAY_MS = 750;
 
-    protected VRRenderer vrRenderer;
-
     protected boolean reinit = false;
 
     /**
@@ -41,7 +37,6 @@ public class BaseGuiSettings extends GuiScreen
     {
 		this.parentGuiScreen = par1GuiScreen;
         this.guivrSettings = par2vrSettings;
-        this.vrRenderer = Minecraft.getMinecraft().vrRenderer;
     }
 
     public void drawScreen(int par1, int par2, float par3) {
@@ -54,6 +49,7 @@ public class BaseGuiSettings extends GuiScreen
     {
         if (this.reinit)
         {
+            this.buttonList.clear();
             initGui();
             this.reinit = false;
         }
@@ -124,12 +120,15 @@ public class BaseGuiSettings extends GuiScreen
     {
         for (int var3 = 0; var3 < this.buttonList.size(); ++var3)
         {
-            GuiButtonEx var4 = (GuiButtonEx)this.buttonList.get(var3);
-            boolean var5 = var1 >= var4.xPosition && var2 >= var4.yPosition && var1 < var4.xPosition + var4.getWidth() && var2 < var4.yPosition + var4.getHeight();
-
-            if (var5)
+            if (this.buttonList.get(var3) instanceof GuiButtonEx)
             {
-                return var4;
+                GuiButtonEx var4 = (GuiButtonEx) this.buttonList.get(var3);
+                //                          xPos                           yPos
+                boolean var5 = var1 >= var4.field_146128_h && var2 >= var4.field_146129_i && var1 < var4.field_146128_h + var4.getWidth() && var2 < var4.field_146129_i + var4.getHeight();
+
+                if (var5) {
+                    return var4;
+                }
             }
         }
 

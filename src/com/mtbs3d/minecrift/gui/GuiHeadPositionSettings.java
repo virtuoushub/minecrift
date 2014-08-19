@@ -23,7 +23,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     static VRSettings.VrOptions[] neckModelOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.EYE_PROTRUSION,
             VRSettings.VrOptions.NECK_LENGTH,
-            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
             VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
     };
 
@@ -36,14 +36,14 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             VRSettings.VrOptions.POS_TRACK_HYDRA_OFFSET_Y,
             VRSettings.VrOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT,
             VRSettings.VrOptions.POS_TRACK_HYDRA_OFFSET_Z,
-            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
         //VRSettings.VrOptions.EYE_PROTRUSION,
         //VRSettings.VrOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW,
             VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
     };
 
     static VRSettings.VrOptions[] oculusOptions = new VRSettings.VrOptions[] {
-            VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
+            VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
     };
 
     protected boolean reinit = false;
@@ -72,8 +72,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         if (this.reinit)
         {
             this.guivrSettings.posTrackResetPosition = true;
-            if (vrRenderer != null)
-                vrRenderer.resetGuiYawOrientation();
+            this.mc.entityRenderer.resetGuiYawOrientation();
         }
 
         this.buttonList.clear();
@@ -195,6 +194,12 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     {
         String s = var8.getEnumString();
 
+        // TODO: Remove this when working
+        if (var8 == VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION)
+        {
+            return false;
+        }
+
         if( ! (Minecraft.getMinecraft().positionTracker instanceof MCHydra) )
         {
             return true;
@@ -244,13 +249,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             else if (par1GuiButton.id == 202) // Reset origin
             {
                 this.guivrSettings.posTrackResetPosition = true;
-                if (vrRenderer != null)
-                    vrRenderer.resetGuiYawOrientation();
+                this.mc.entityRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 203)
             {
-                if (vrRenderer != null)
-                    vrRenderer.startCalibration();
+                this.mc.entityRenderer.startCalibration();
             }
 
             if (num == VRSettings.VrOptions.HYDRA_USE_FILTER)

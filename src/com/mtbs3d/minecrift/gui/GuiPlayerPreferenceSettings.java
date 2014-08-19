@@ -9,28 +9,31 @@ import net.minecraft.util.StringTranslate;
 
 public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiEventEx
 {
-    static VRSettings.VrOptions[] playerOptionsNoProfile = new VRSettings.VrOptions[] {
-            VRSettings.VrOptions.DUMMY,
-            VRSettings.VrOptions.DUMMY,
-            VRSettings.VrOptions.IPD,
-            VRSettings.VrOptions.EYE_HEIGHT,
-            VRSettings.VrOptions.EYE_PROTRUSION,
-            VRSettings.VrOptions.NECK_LENGTH,
-            VRSettings.VrOptions.RENDER_OWN_HEADWEAR,
-            VRSettings.VrOptions.RENDER_PLAYER_OFFSET,
-            VRSettings.VrOptions.RENDER_FULL_FIRST_PERSON_MODEL,
-    };
+//    static VRSettings.VrOptions[] playerOptionsNoProfile = new VRSettings.VrOptions[] {
+//            VRSettings.VrOptions.DUMMY,
+//            VRSettings.VrOptions.DUMMY,
+//            VRSettings.VrOptions.IPD,
+//            VRSettings.VrOptions.EYE_HEIGHT,
+//            VRSettings.VrOptions.EYE_PROTRUSION,
+//            VRSettings.VrOptions.NECK_LENGTH,
+//            VRSettings.VrOptions.RENDER_OWN_HEADWEAR,
+//            VRSettings.VrOptions.RENDER_PLAYER_OFFSET,
+//            VRSettings.VrOptions.RENDER_FULL_FIRST_PERSON_MODEL,
+//    };
 
     static VRSettings.VrOptions[] playerOptionsWithProfile = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.OCULUS_PROFILE_NAME,
-            VRSettings.VrOptions.OCULUS_PROFILE_GENDER,
             VRSettings.VrOptions.IPD,
             VRSettings.VrOptions.EYE_HEIGHT,
             VRSettings.VrOptions.EYE_PROTRUSION,
             VRSettings.VrOptions.NECK_LENGTH,
             VRSettings.VrOptions.RENDER_OWN_HEADWEAR,
             VRSettings.VrOptions.RENDER_PLAYER_OFFSET,
-            VRSettings.VrOptions.RENDER_FULL_FIRST_PERSON_MODEL,
+            VRSettings.VrOptions.RENDER_FULL_FIRST_PERSON_MODEL_MODE,
+            VRSettings.VrOptions.SOUND_ORIENT,
+            VRSettings.VrOptions.CALIBRATION_STRATEGY,
+            VRSettings.VrOptions.CHAT_OFFSET_X,
+            VRSettings.VrOptions.CHAT_OFFSET_Y,
     };
 
     public GuiPlayerPreferenceSettings(GuiScreen guiScreen, VRSettings guivrSettings) {
@@ -44,7 +47,7 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
     public void initGui()
     {
         UserProfileData profile = null;
-        boolean enableProfileButton = false;
+        this.guivrSettings.useOculusProfile = true;
 
         if (Minecraft.getMinecraft().hmdInfo != null)
         {
@@ -56,35 +59,24 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                 this.guivrSettings.setOculusProfilePlayerEyeHeight(profile._eyeHeight);
                 this.guivrSettings.oculusProfileName = profile._name;
                 this.guivrSettings.oculusProfileGender = profile.getGenderString();
-                enableProfileButton = true;
             }
         }
-
-        if (profile == null)
+        else
         {
-            this.guivrSettings.useOculusProfile = false;
+            profile = new UserProfileData();
         }
-
-        // Set IPD // TODO: IPD
-        //mc.hmdInfo.setIPD(this.guivrSettings.getIPD());
-        Minecraft.getMinecraft().reinitFramebuffers = true;
 
         this.buttonList.clear();
 
         // Profile on/off
         GuiSmallButtonEx profileOnOff = new GuiSmallButtonEx(VRSettings.VrOptions.OCULUS_PROFILE.returnEnumOrdinal(), this.width / 2 - 78, this.height / 6 - 14, VRSettings.VrOptions.OCULUS_PROFILE, this.guivrSettings.getKeyBinding(VRSettings.VrOptions.OCULUS_PROFILE));
         profileOnOff.setEventHandler(this);
-        profileOnOff.enabled = enableProfileButton;
+        profileOnOff.enabled = false;
         this.buttonList.add(profileOnOff);
 
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
-        VRSettings.VrOptions[] buttons = null;
-
-        if (this.guivrSettings.useOculusProfile)
-            buttons = playerOptionsWithProfile;
-        else
-            buttons = playerOptionsNoProfile;
+        VRSettings.VrOptions[] buttons = playerOptionsWithProfile;   // Only use profile supported
 
         for (int var12 = 2; var12 < buttons.length + 2; ++var12)
         {
@@ -154,6 +146,10 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
 
     private boolean getEnabledState(VRSettings.VrOptions e)
     {
+        // TODO: Remove when sound orient supported
+        if (e == VRSettings.VrOptions.SOUND_ORIENT)
+            return false;
+
         if (this.guivrSettings.useOculusProfile)
         {
             if (e == VRSettings.VrOptions.IPD ||
@@ -193,10 +189,12 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                 //mc.hmdInfo.setIPD(this.guivrSettings.getIPD());    // TODO: IPD
                 this.guivrSettings.setMinecraftPlayerEyeHeight(1.74f);
                 this.guivrSettings.renderHeadWear = false;
-                this.guivrSettings.renderFullFirstPersonModel = true;
-                this.guivrSettings.renderPlayerOffset = 0.25f;
+                this.guivrSettings.renderFullFirstPersonModelMode = VRSettings.RENDER_FIRST_PERSON_FULL;
+                this.guivrSettings.renderPlayerOffset = 0f;
                 this.guivrSettings.eyeProtrusion = 0.185f;
                 this.guivrSettings.neckBaseToEyeHeight = 0.225f;
+                this.guivrSettings.calibrationStrategy = VRSettings.CALIBRATION_STRATEGY_AT_STARTUP;
+                this.guivrSettings.soundOrientWithHead = true;
 
                 this.guivrSettings.saveOptions();
                 Minecraft.getMinecraft().reinitFramebuffers = true;
@@ -222,15 +220,16 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                             "  ON:  Headwear is rendered. May obscure your view!",
                             "  OFF: Not rendered."
                     };
-                case RENDER_FULL_FIRST_PERSON_MODEL:
+                case RENDER_FULL_FIRST_PERSON_MODEL_MODE:
                     return new String[] {
-                            "Whether to render the full first-person model, or",
-                            "just the disembodied arm or held item (Ctrl-H).",
+                            "Whether to render the full first-person model or",
+                            "other variants (Ctrl-H).",
                             "  Full: A full first-person model is rendered.",
                             "        However some animations may not yet be",
                             "        supported (e.g. holding a map).",
                             "  Hand: Only the held item is rendered. You will",
-                            "        have no torso!"
+                            "        have no torso!",
+                            "  None: No first person model is rendered."
                     };
                 case RENDER_PLAYER_OFFSET:
                     return new String[] {
@@ -271,6 +270,23 @@ public class GuiPlayerPreferenceSettings extends BaseGuiSettings implements GuiE
                             "                               \\ Y /",
                             "                                 |Y|"
                     };
+            case SOUND_ORIENT:
+                return new String[] {
+                        "Sets the sound position dependent on how you are",
+                        "listening to Minecraft.",
+                        "  Headphones: Sound oriented with head.",
+                        "  Speakers:   Sound oriented with body."
+                };
+            case CALIBRATION_STRATEGY:
+                return new String[] {
+                        "Sets whether device calibration is performed when",
+                        "Minecraft is started.",
+                        "  At Startup: Calibration routines for all",
+                        "     utilised devices are run at startup.",
+                        "  Skip: No calibration will be performed. The user",
+                        "     will have to manually trigger calibration",
+                        "     at some point for correct device operation."
+                };
                 default:
                     return null;
             }

@@ -7,6 +7,7 @@ package com.mtbs3d.minecrift;
 import java.io.File;
 
 
+import com.mtbs3d.minecrift.api.PluginType;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
 
@@ -107,7 +108,7 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
             else
             	bodyPitch = 0;
 
-            if (this.mc.vrRenderer != null && this.mc.vrSettings.useQuaternions == true)
+            if (this.mc.vrSettings.useQuaternions == true)
             {
                 // No restrictions if using Quaternions
                 bodyPitch %= 360;
@@ -187,12 +188,18 @@ public class MCMouse extends BasePlugin implements IBodyAimController {
 	}
 
 	@Override
-	public boolean isCalibrated() {
+	public boolean isCalibrated(PluginType type) {
 		return true;
 	}
 
+    @Override
+    public void beginCalibration(PluginType type) {}
+
+    @Override
+    public void updateCalibration(PluginType type) {}
+
 	@Override
-	public String getCalibrationStep() {
+	public String getCalibrationStep(PluginType type) {
 		return "";
 	}
 

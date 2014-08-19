@@ -13,6 +13,7 @@ import de.fruitfly.ovr.OculusRift;
 import de.fruitfly.ovr.UserProfileData;
 import de.fruitfly.ovr.enums.EyeType;
 import de.fruitfly.ovr.structs.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.Display;
@@ -20,7 +21,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.util.vector.Quaternion;
 
-public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting 
+public class MCOculus extends OculusRift //OculusRift does most of the heavy lifting
 	implements IEyePositionProvider, IOrientationProvider, IBasePlugin, IHMDInfo, IStereoProvider, IEventNotifier, IEventListener {
 
     public static final int NOT_CALIBRATING = 0;
@@ -36,6 +37,8 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private int MagCalSampleCount = 0;
     private boolean forceMagCalibration = false; // Don't force mag cal initially
     private FrameTiming frameTiming = new FrameTiming();
+    private float yawOffsetRad = 0f;
+    private float pitchOffsetRad = 0f;
 
     @Override
     public EyeType eyeRenderOrder(int index)
@@ -72,9 +75,9 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         frameTiming = super.beginFrameGetTiming();
     }
 
-    public Posef beginEyeRender(EyeType eye)
+    public Posef getEyePose(EyeType eye)
     {
-        return super.beginEyeRender(eye);
+        return super.getEyePose(eye);
     }
 
     public Matrix4f getMatrix4fProjection(FovPort fov,
@@ -82,11 +85,6 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                                           float farClip)
     {
          return super.getMatrix4fProjection(fov, nearClip, farClip);
-    }
-
-    public void endEyeRender(EyeType eye)
-    {
-        super.endEyeRender(eye);
     }
 
     public void endFrame()
@@ -97,6 +95,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         // End the frame
         super.endFrame();
 
+        GL11.glFrontFace(GL11.GL_CCW);   // Needed for OVR SDK 0.4.0
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); // Unbind GL_ARRAY_BUFFER for my own vertex arrays to work...
         GL11.glEnable(GL11.GL_CULL_FACE); // Turn back on...
         GL11.glEnable(GL11.GL_DEPTH_TEST); // Turn back on...
@@ -127,8 +126,16 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	}
 
     @Override
-    public void update(float ipd, float yawHeadDegrees, float pitchHeadDegrees, float rollHeadDegrees, float worldYawOffsetDegrees, float worldPitchOffsetDegrees, float worldRollOffsetDegrees) {
-        // TODO:
+    public void update(float ipd,
+                       float yawHeadDegrees,
+                       float pitchHeadDegrees,
+                       float rollHeadDegrees,
+                       float worldYawOffsetDegrees,
+                       float worldPitchOffsetDegrees,
+                       float worldRollOffsetDegrees)
+    {
+        yawOffsetRad = (float)Math.toRadians(worldYawOffsetDegrees);
+        pitchOffsetRad = (float)Math.toRadians(worldPitchOffsetDegrees);
     }
 
     @Override
@@ -140,12 +147,19 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     @Override
     public Vec3 getEyePosition(EyeType eye)
     {
-        return super.getEyePosition(eye);
+        Vector3f eyePos = super.getEyePos(eye);
+        Vec3 eyePosition = Vec3.createVectorHelper(eyePos.x, eyePos.y, eyePos.z);
+        //eyePosition.yCoord += Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight;        // TODO:? This seems to be good already
+        eyePosition.zCoord -= Minecraft.getMinecraft().vrSettings.eyeProtrusion;
+        eyePosition.rotateAroundY(-yawOffsetRad);
+        // TODO: Rotate around pitch offset
+
+        return eyePosition;
     }
 
     @Override
 	public void resetOrigin() {
-        // TODO:
+        super.resetTracking();
     }
 
     @Override
@@ -155,33 +169,36 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
     @Override
     public void setPrediction(float delta, boolean enable) {
-        // TODO: Ignored for now
+        // Now ignored
     }
 
     @Override
-    public void beginAutomaticCalibration()
+    public void beginCalibration(PluginType type)
     {
         if (isInitialized())
             processCalibration();
     }
 
     @Override
-    public void updateAutomaticCalibration()
+    public void updateCalibration(PluginType type)
     {
         if (isInitialized())
             processCalibration();
     }
 
     @Override
-    public boolean isCalibrated() {
+    public boolean isCalibrated(PluginType type) {
         if (!isInitialized())
             return true;  // Return true if not initialised
+
+        if (type != PluginType.PLUGIN_POSITION)   // Only position provider needs calibrating
+            return true;
 
         return isCalibrated;
     }
 
 	@Override
-	public String getCalibrationStep()
+	public String getCalibrationStep(PluginType type)
     {
         String step = "";
 
@@ -208,7 +225,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     {
         switch (eventId)
         {
-            case IOrientationProvider.EVENT_ORIENTATION_AT_ORIGIN:
+            case IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN:
             {
                 if (calibrationStep == CALIBRATE_AWAITING_FIRST_ORIGIN)
                 {
@@ -217,7 +234,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 }
                 break;
             }
-            case IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN:
+            case IBasePlugin.EVENT_SET_ORIGIN:
             {
                 resetOrigin();
             }
@@ -260,7 +277,7 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
                 coolDownStart = System.currentTimeMillis();
                 calibrationStep = CALIBRATE_COOLDOWN;
                 resetOrigin();
-                notifyListeners(IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN);
+                notifyListeners(IBasePlugin.EVENT_SET_ORIGIN);
 
                 break;
             }
@@ -318,32 +335,14 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
         if (isInitialized())
         {
-            //userProfile = _getUserProfileData();   // TODO: Profiles
+            userProfile = _getUserProfileData();
+        }
+        else
+        {
+            userProfile = new UserProfileData();
         }
 
         return userProfile;
-    }
-
-    @Override
-    public String[] getUserProfiles()
-    {
-        String[] profileNames = null;
-
-        if (isInitialized())
-        {
-            //profileNames = _getUserProfiles();    // TODO: Profiles
-        }
-
-        return profileNames;
-    }
-
-    @Override
-    public boolean loadProfile(String profileName)
-    {
-        if (!isInitialized())
-            return false;
-
-        return false;//_loadUserProfile(profileName);     // TODO: Profiles
     }
 
     public EyeRenderParams getEyeRenderParams(int viewPortWidth, int viewPortHeight)

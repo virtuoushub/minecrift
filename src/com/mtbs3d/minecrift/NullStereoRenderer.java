@@ -2,6 +2,7 @@ package com.mtbs3d.minecrift;
 
 import com.mtbs3d.minecrift.api.BasePlugin;
 import com.mtbs3d.minecrift.api.IStereoProvider;
+import com.mtbs3d.minecrift.api.PluginType;
 import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.enums.EyeType;
 import de.fruitfly.ovr.structs.*;
@@ -13,7 +14,8 @@ import java.io.File;
 /**
  * Created by StellaArtois on 6/26/2014.
  */
-public class NullStereoRenderer extends BasePlugin implements IStereoProvider {
+public class NullStereoRenderer extends BasePlugin implements IStereoProvider
+{
     @Override
     public void eventNotification(int eventId) {
 
@@ -66,18 +68,13 @@ public class NullStereoRenderer extends BasePlugin implements IStereoProvider {
     }
 
     @Override
-    public Posef beginEyeRender(EyeType eye) {
+    public Posef getEyePose(EyeType eye) {
         return null;
     }
 
     @Override
     public Matrix4f getMatrix4fProjection(FovPort fov, float nearClip, float farClip) {
         return null;
-    }
-
-    @Override
-    public void endEyeRender(EyeType eye) {
-
     }
 
     @Override
@@ -116,12 +113,18 @@ public class NullStereoRenderer extends BasePlugin implements IStereoProvider {
     }
 
     @Override
-    public boolean isCalibrated() {
+    public boolean isCalibrated(PluginType type) {
         return true;
     }
 
     @Override
-    public String getCalibrationStep() {
+    public void beginCalibration(PluginType type) {}
+
+    @Override
+    public void updateCalibration(PluginType type) {}
+
+    @Override
+    public String getCalibrationStep(PluginType type) {
         return null;
     }
 

@@ -7,6 +7,7 @@ package com.mtbs3d.minecrift;
 import java.io.File;
 
 import com.mtbs3d.minecrift.api.IEyePositionProvider;
+import com.mtbs3d.minecrift.api.PluginType;
 import de.fruitfly.ovr.enums.EyeType;
 import com.mtbs3d.minecrift.api.BasePlugin;
 import net.minecraft.client.Minecraft;
@@ -67,12 +68,18 @@ public class NullEyePosition extends BasePlugin implements IEyePositionProvider 
 	}
 
 	@Override
-	public boolean isCalibrated() {
+	public boolean isCalibrated(PluginType type) {
 		return true;
 	}
 
+    @Override
+    public void beginCalibration(PluginType type) {}
+
+    @Override
+    public void updateCalibration(PluginType type) {}
+
 	@Override
-	public String getCalibrationStep() {
+	public String getCalibrationStep(PluginType type) {
 		return "";
 	}
 

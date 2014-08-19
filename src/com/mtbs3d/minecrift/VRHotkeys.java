@@ -4,8 +4,10 @@
  */
 package com.mtbs3d.minecrift;
 
+import com.mtbs3d.minecrift.api.IBasePlugin;
 import com.mtbs3d.minecrift.api.IOrientationProvider;
 import com.mtbs3d.minecrift.api.PluginManager;
+import com.mtbs3d.minecrift.settings.VRSettings;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
@@ -24,9 +26,13 @@ public class VRHotkeys {
 	    if (Keyboard.getEventKey() == Keyboard.KEY_O && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
             PluginManager.destroyAll();
-	    	mc.setUseVRRenderer(mc.vrSettings.useVRRenderer);
             mc.printChatMessage("Re-initialising all plugins...");
 	    }
+
+        if (Keyboard.getEventKey() == Keyboard.KEY_R && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+        {
+            //mc.renderStereo = !mc.renderStereo;   // TODO: Disabled for now until mono works again
+        }
 
 	    // Distortion on / off
 	    if (Keyboard.getEventKey() == Keyboard.KEY_P && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
@@ -116,11 +122,8 @@ public class VRHotkeys {
         // Quaternion prototype on / off
         if (Keyboard.getEventKey() == Keyboard.KEY_E && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
-            if (mc.vrRenderer != null)
-            {
-                mc.vrSettings.useQuaternions = !mc.vrSettings.useQuaternions;
-                mc.printChatMessage("useQuaternions: " + (mc.vrSettings.useQuaternions ? "On" : "Off"));
-            }
+            mc.vrSettings.useQuaternions = !mc.vrSettings.useQuaternions;
+            mc.printChatMessage("useQuaternions: " + (mc.vrSettings.useQuaternions ? "On" : "Off"));
         }
 	
 	    // Lock distance
@@ -170,7 +173,8 @@ public class VRHotkeys {
 	    // Allow mouse pitch
 	    if (Keyboard.getEventKey() == Keyboard.KEY_N && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 	    {
-	        mc.vrSettings.allowMousePitchInput = !mc.vrSettings.allowMousePitchInput;
+            // TODO: Disabled for now until working
+	        //mc.vrSettings.allowMousePitchInput = !mc.vrSettings.allowMousePitchInput;
 	        mc.vrSettings.saveOptions();
             mc.printChatMessage("Allow mouse pitch input: " + (mc.vrSettings.allowMousePitchInput ? "On" : "Off"));
 	    }
@@ -295,9 +299,12 @@ public class VRHotkeys {
         // Render full player model or just an disembodied hand...
         if (Keyboard.getEventKey() == Keyboard.KEY_H && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
         {
-            mc.vrSettings.renderFullFirstPersonModel = !mc.vrSettings.renderFullFirstPersonModel;
+            mc.vrSettings.renderFullFirstPersonModelMode++;
+            if (mc.vrSettings.renderFullFirstPersonModelMode > VRSettings.RENDER_FIRST_PERSON_NONE)
+                mc.vrSettings.renderFullFirstPersonModelMode = VRSettings.RENDER_FIRST_PERSON_FULL;
             mc.vrSettings.saveOptions();
-            mc.printChatMessage("First person model: " + (mc.vrSettings.renderFullFirstPersonModel ? "Full" : "Hand only"));
+            mc.printChatMessage("First person model: " + (mc.vrSettings.renderFullFirstPersonModelMode == VRSettings.RENDER_FIRST_PERSON_FULL ? "Full" :
+                    (mc.vrSettings.renderFullFirstPersonModelMode == VRSettings.RENDER_FIRST_PERSON_HAND ? "Hand only" : "None")));
         }
 
         // Reset positional track origin
@@ -310,7 +317,7 @@ public class VRHotkeys {
         // If an orientation plugin is performing calibration, space also sets the origin
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {
-            PluginManager.notifyAll(IOrientationProvider.EVENT_ORIENTATION_AT_ORIGIN);
+            PluginManager.notifyAll(IBasePlugin.EVENT_CALIBRATION_SET_ORIGIN);
         }
 	}
 }

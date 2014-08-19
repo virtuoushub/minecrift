@@ -139,6 +139,10 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             {
                 String keyText = this.guivrSettings.getKeyBinding(var8);
                 GuiSmallButtonEx smallButton = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, keyText);
+                // TODO: Remove once pitch affects camera is fixed
+                if (var8 == VRSettings.VrOptions.PITCH_AFFECTS_CAMERA)
+                    smallButton.enabled = false;
+                // TODO: end Remove once pitch affects camera is fixed
                 this.buttonList.add(smallButton);
             }
         }
@@ -198,7 +202,7 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                     this.guivrSettings.keyholeHeight = 0f;
                     this.guivrSettings.keyholeHeadRelative = true;
                     this.guivrSettings.lookMoveDecoupled = false;
-                    this.guivrSettings.allowMousePitchInput = true;
+                    this.guivrSettings.allowMousePitchInput = false;
                 }
                 this.guivrSettings.aimPitchOffset = 0;
                 this.guivrSettings.saveOptions();

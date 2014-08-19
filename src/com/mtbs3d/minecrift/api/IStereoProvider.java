@@ -40,11 +40,9 @@ public interface IStereoProvider extends IBasePlugin
 
     public FrameTiming getFrameTiming();
 
-    public Posef beginEyeRender(EyeType eye);
+    public Posef getEyePose(EyeType eye);
 
     public Matrix4f getMatrix4fProjection(FovPort fov,
                                           float nearClip,
                                           float farClip);
-
-    public void endEyeRender(EyeType eye);
 }

@@ -21,9 +21,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
     /** An array of all of EnumOption's video options. */
     static VRSettings.VrOptions[] oculusHeadOrientationOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.HEAD_TRACKING,
-            VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY,
-            VRSettings.VrOptions.HEAD_TRACK_PREDICTION,
-            VRSettings.VrOptions.HEAD_TRACK_PREDICTION_TIME,
+            //VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY,
     };
     static VRSettings.VrOptions[] hydraHeadOrientationOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.HEAD_TRACKING,
@@ -45,7 +43,8 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
         this.buttonList.clear();
         this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
         this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
-        this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
+        if( Minecraft.getMinecraft().headTracker instanceof MCHydra )
+            this.buttonList.add(new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Recalibrate..."));
         pluginModeChangeutton = new PluginModeChangeButton(203, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.orientPlugins, this.guivrSettings.headTrackerPluginID );
         this.buttonList.add(pluginModeChangeutton);
         VRSettings.VrOptions[] var10 = null;
@@ -73,12 +72,6 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
                     minValue = 0.5f;
                     maxValue = 3.0f;
                     increment = 0.01f;
-                }
-                else if (var8 == VRSettings.VrOptions.HEAD_TRACK_PREDICTION_TIME)
-                {
-                    minValue = 0.000f;
-                    maxValue = 0.100f;
-                    increment = 0.001f;
                 }
 
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
@@ -133,8 +126,7 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
             }
             else if (par1GuiButton.id == 202)
             {
-	            if (vrRenderer != null)
-	            	vrRenderer.startCalibration();
+            	this.mc.entityRenderer.startCalibration();
             }
             else if (par1GuiButton.id == 203) // Mode Change
             {

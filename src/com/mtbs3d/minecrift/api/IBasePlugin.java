@@ -12,7 +12,8 @@ public interface IBasePlugin {
 
 	float PIOVER180 = (float)(Math.PI/180);
 
-    public static final int EVENT_CALIBRATION_SET_ORIGIN = 1;
+    public static final int EVENT_CALIBRATION_SET_ORIGIN = 0;
+    public static final int EVENT_SET_ORIGIN = 1;
 
 	/**
 	 * Plugin ID: should be fixed per plugin! Used in optionsvr.txt
@@ -38,9 +39,13 @@ public interface IBasePlugin {
 
 	public void destroy();
 
-	public boolean isCalibrated();
+	public boolean isCalibrated(PluginType type);
+
+    void beginCalibration(PluginType type);
+
+    void updateCalibration(PluginType type);
 	
-	public String getCalibrationStep();
+	public String getCalibrationStep(PluginType type);
 
     public void beginFrame();
 
