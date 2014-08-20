@@ -61,6 +61,7 @@ public class VRSettings
     public boolean useDistortion = true;
     public boolean loadMumbleLib = true;
     public boolean useHeadTracking = true;
+    public boolean usePositionTracking = true;
     public boolean useHeadTrackPrediction = true;
     public float headTrackPredictionTimeSecs = 0f;
     protected float ipd = 0.0635F;   // Use getIPD()
@@ -319,6 +320,11 @@ public class VRSettings
                     if (optionTokens[0].equals("useHeadTracking"))
                     {
                         this.useHeadTracking = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("usePositionTracking"))
+                    {
+                        this.usePositionTracking = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("useDistortion"))
@@ -818,6 +824,8 @@ public class VRSettings
                 return this.loadMumbleLib ? var4 + "YES" : var4 + "NO";
 	        case HEAD_TRACKING:
 	            return this.useHeadTracking ? var4 + "ON" : var4 + "OFF";
+            case POSITION_TRACKING:
+                return this.usePositionTracking ? var4 + "ON" : var4 + "OFF";
 	        case HEAD_TRACK_PREDICTION:
 	            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
             case DELAYED_RENDER:
@@ -1198,6 +1206,9 @@ public class VRSettings
 	        case HEAD_TRACKING:
 	            this.useHeadTracking = !this.useHeadTracking;
 	            break;
+            case POSITION_TRACKING:
+                this.usePositionTracking = !this.usePositionTracking;
+                break;
             case DELAYED_RENDER:
                 this.frameTimingEnableVsyncSleep = !this.frameTimingEnableVsyncSleep;
                 break;
@@ -1627,6 +1638,7 @@ public class VRSettings
             var5.println("headTrackPredictionTimeSecs:" + this.headTrackPredictionTimeSecs);
             var5.println("hudOpacity:" + this.hudOpacity);
             var5.println("useHeadTracking:" + this.useHeadTracking);
+            var5.println("usePositionTracking:" + this.usePositionTracking);
             var5.println("useDistortion:" + this.useDistortion);
             var5.println("loadMumbleLib:" + this.loadMumbleLib);
             var5.println("useHeadTrackPrediction:" + this.useHeadTrackPrediction);
@@ -1827,6 +1839,7 @@ public class VRSettings
         HUD_OCCLUSION("HUD Occlusion", false, true),
         SOUND_ORIENT("Sound Source", false, true),
         HEAD_TRACKING("Head Tracking", false, true),
+        POSITION_TRACKING("Position Tracking", false, true),
         DUMMY("Dummy", false, true),
         VR_RENDERER("Stereo Renderer", false, true),
         VR_HEAD_ORIENTATION("Head Orientation", false, true),

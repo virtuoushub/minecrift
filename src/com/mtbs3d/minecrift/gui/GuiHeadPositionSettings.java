@@ -43,6 +43,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     };
 
     static VRSettings.VrOptions[] oculusOptions = new VRSettings.VrOptions[] {
+            VRSettings.VrOptions.POSITION_TRACKING,
             VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
     };
 
@@ -455,6 +456,12 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                             "                               \\ Y /",
                             "                                 |Y|"
                     };
+                case POSITION_TRACKING:
+                    return new String[] {
+                            "If position tracking should be enabled or not",
+                            "  OFF: No position tracking",
+                            "  ON: Position tracking enabled",
+                            "  Recommended: ON"} ;
 //                case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
 //                    return new String[] {
 //                            "Explain this! Good luck!"
