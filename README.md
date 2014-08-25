@@ -1,9 +1,63 @@
 Minecrift Mod for Minecraft
 ===========================
 
-Current Version: Minecrift 1.6.4 
+Current Version: Minecrift 1.7.10, MCP 908 
 
-StellaArtois, mabrowning 2013
+---
+
+Building
+========
+
+The installation process has been tested on Windows 7, 8, 8.1, OSX 10.8, and Ubuntu
+Linux, but was written with cross-platform support in mind, so should be usable
+"everywhere". It requires the MCP (Minecraft Coders Pack).
+
+Install build prerequisites
+---------------------------
+
+- Be sure to pull in the required submodules linked to the minecrift git project:
+ JRift, Sixense, repo, JMumble
+
+- Java 1.7 (Java 1.6 or 1.8 most likely will NOT work)
+- Python 2.7 latest version
+- Scala is NOT required
+- MCP908 from http://mcp.ocean-labs.de/news.php?extend.14.1
+- Copy the contents of the unzipped mcp908 directory into the minecrift/mcp908 directory.
+
+Building / updating the patches / pushing changes
+-------------------------------------------------
+
+- Run install.sh (or install.bat) to download minecraft, Optifine, and other
+libraries; deobfuscate the base system, and apply the patches and new files.
+
+NOTE: The initial build will fail; applychanges is then called and a few patches will
+fail. This is normal for now. 
+
+- Use the MCP environment in /mcpxxx to modify, test, and recompile.  If you use
+the built-in eclipse workspace, you'll need to add the JRift, SixenseJava and
+JMumble jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr
+and SixenseJava is in com/sixense. 
+
+To run Minecrift in your dev env you will need to:
+
+  Delete META-INF dir within minecrift/mcp908/jars/versions/1.7.10/1.7.10.jar otherwise
+  you get a SecurityException on Minecrift startup
+  Merge in the assets directory from .minecraft into the minecrift/assets dir.
+
+- Run build.sh (or build.bat) to create a release installer. Run the release installer to
+  test the reobfuscated changes in the Minecraft launcher.
+
+- Run getchanges.sh (or getchanges.bat) to diff the modified /mcpxxx/src files into
+version controlled /patches and copy the new classes into the /src/
+directory. Create a pull request for your changes.
+
+
+License
+-------
+
+See [The License File](LICENSE.md) for more information.
+
+StellaArtois, mabrowning 2013, 2014
 
 With thanks to:
 
@@ -178,30 +232,3 @@ Release Notes
 
 The change-list can be seen [here](CHANGES.md)
 
----
-
-Building
-========
-
-The installation process has been tested on Windows 7, OSX 10.8, and Ubuntu
-Linux, but was written with cross-platform support in mind, so should be usable
-"everywhere".
-
-Run install.sh (or install.bat) to download mcp, minecraft, Optifine, and other
-libraries; deobfuscate the base system, and apply the patches and new files.
-
-Use the MCP environment in /mcpxxx to modify, test, and recompile.  If you use
-the built-in eclipse workspace, you'll need to add the JRift, SixenseJava and
-JMumble jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr
-and SixenseJava is in com/sixense.
-
-Run build.sh (or build.bat) to create a release installer.
-
-Run getchanges.sh (or getchanges.bat) to diff the modified /mcpxxx/src files into
-version controlled /patches and copy the new classes into the /src/
-directory.
-
-License
--------
-
-See [The License File](LICENSE.md) for more information.
