@@ -35,7 +35,7 @@ fail. This is normal for now.
 
 - Use the MCP environment in /mcpxxx to modify, test, and recompile.  If you use
 the built-in eclipse workspace, you'll need to add the JRift, SixenseJava and
-JMumble jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr
+JMumble jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr, JMumble is in net/aib42/mumblelink
 and SixenseJava is in com/sixense. 
 
 To run Minecrift in your dev env you will need to:
