@@ -34,9 +34,19 @@ NOTE: The initial build will fail; applychanges is then called and a few patches
 fail. This is normal for now. 
 
 - Use the MCP environment in /mcpxxx to modify, test, and recompile.  If you use
-the built-in eclipse workspace, you'll need to add the JRift, SixenseJava and
-JMumble jars, located in the jars/libraries/ directory. JRift is in de/fruitfly/ovr, JMumble is in net/aib42/mumblelink
-and SixenseJava is in com/sixense. 
+the built-in eclipse workspace, you'll need to add the launchwrapper, JRift, SixenseJava and
+JMumble jars, located in the jars/libraries/ directory. launchwrapper is in net\minecraft\launchwrapper, JRift is in de/fruitfly/ovr, JMumble is in net/aib42/mumblelink
+and SixenseJava is in com/sixense.  
+- If you are using the built-in Eclipse project you will also need to change the version of realms jar.  The easiest way to do this is before importing the project in Eclipse, in the file mcp908\eclipse\Client\.classpath change the line
+
+```xml
+<classpathentry kind="var" path="MCP_LOC/jars/libraries/com/mojang/realms/1.2.4/realms-1.2.4.jar"/>
+```
+to
+
+```xml
+<classpathentry kind="var" path="MCP_LOC/jars/libraries/com/mojang/realms/1.2.7/realms-1.2.7.jar"/>
+```
 
 To run Minecrift in your dev env you will need to:
 
