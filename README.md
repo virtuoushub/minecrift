@@ -18,9 +18,11 @@ Install build prerequisites
 - Be sure to pull in the required submodules linked to the minecrift git project:
  JRift, Sixense, repo, JMumble
 
-- Java 1.7 (Java 1.6 or 1.8 most likely will NOT work)
+- Java JDK 1.6 or 1.7 (Java JRE, or 1.8 JDK or 1.8 JRE will NOT work)
+- JAVA_HOME should be set to the JDK directory
+- %JAVA_HOME%/bin must be added to your path
 - Python 2.7 latest version
-- Scala is NOT required
+- Scala is NOT required (and should NOT be present on your path to avoid build issues)
 - MCP908 from http://mcp.ocean-labs.de/news.php?extend.14.1
 - Copy the contents of the unzipped mcp908 directory into the minecrift/mcp908 directory.
 
