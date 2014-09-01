@@ -10,7 +10,6 @@ import com.mtbs3d.minecrift.MCHydra;
 import de.fruitfly.ovr.IOculusRift;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.src.Config;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -108,7 +107,7 @@ public class VRSettings
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
     public boolean posTrackHydraUseController1 = true;
     public boolean posTrackHydraDebugCentreEyePos = false;
-    public float posTrackHydraDistanceScale = 1.00f;
+    public float posTrackWorldDistanceScale = 1.00f;
     public boolean posTrackResetPosition = true;
     public float posTrackHydraLROffsetX = 0.0f;
     public float posTrackHydraLROffsetY = 0.0f;
@@ -154,6 +153,7 @@ public class VRSettings
 	public float chatOffsetX = 0;
 	public float chatOffsetY = 0;
 	public float aimPitchOffset = 0;
+    public boolean storeDebugAim = false;
 
     // Experimental: frame timing parameters   - to use these, generally you should have already configured Minecraft's graphics
     //                                           so that you have a frame rate as high as possible. Auto head prediction time enabled.
@@ -613,9 +613,9 @@ public class VRSettings
                         this.posTrackHydraBROffsetZ = this.parseFloat(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("posTrackHydraDistanceScale"))
+                    if (optionTokens[0].equals("posTrackWorldDistanceScale"))
                     {
-                        this.posTrackHydraDistanceScale = this.parseFloat(optionTokens[1]);
+                        this.posTrackWorldDistanceScale = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("crosshairScale"))
@@ -777,6 +777,7 @@ public class VRSettings
             this.mc.gameSettings.enableVsync = true;
             this.mc.gameSettings.ofChunkLoading = 1;
             this.mc.gameSettings.renderDistanceChunks = 8;
+            this.mc.gameSettings.ofFogType = 2; // Fancy fog to prevent draw distance changes in edge of FOV
         }
 
         if (version == UNKNOWN_VERSION)
@@ -811,7 +812,7 @@ public class VRSettings
             case USE_QUATERNIONS:
                 return this.useQuaternions ? var4 + "Quaternion" : var4 + "Euler";
 	        case EYE_HEIGHT:
-	            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
+	            return var4 + String.format("1.62m"/*"%.2fm"*/, new Object[] { Float.valueOf(getPlayerEyeHeight()) });  // Fix player height for now
 	        case EYE_PROTRUSION:
 	            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
 	        case NECK_LENGTH:
@@ -963,8 +964,8 @@ public class VRSettings
 	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetY() * 1000) });
 	        case POS_TRACK_HYDRA_OFFSET_Z:
 	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetZ() * 1000) });
-	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
-	            return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.posTrackHydraDistanceScale) });
+	        case POS_TRACK_WORLD_SCALE:
+	            return var4 + String.format("%.1f%%", new Object[] { Float.valueOf((1f/this.posTrackWorldDistanceScale) * 100f) });
 	        case CROSSHAIR_SCALE:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.crosshairScale) });
 	        case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
@@ -1167,8 +1168,8 @@ public class VRSettings
 			  			else 
 			  				return this.posTrackHydraBROffsetZ;
 			  	 }
-			case POS_TRACK_HYDRA_DISTANCE_SCALE :
-				return this.posTrackHydraDistanceScale ;
+			case POS_TRACK_WORLD_SCALE:
+				return -this.posTrackWorldDistanceScale;
 			case CROSSHAIR_SCALE :
 				return this.crosshairScale ;
 			case POS_TRACK_Y_AXIS_DISTANCE_SKEW :
@@ -1482,8 +1483,8 @@ public class VRSettings
 	                    break;
 	            }
                 break;
-	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
-	            this.posTrackHydraDistanceScale = par2;
+	        case POS_TRACK_WORLD_SCALE:
+	            this.posTrackWorldDistanceScale = -par2;
 	        	break;
 	        case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
 	            this.posTrackHydraYAxisDistanceSkewAngleDeg = par2;
@@ -1696,7 +1697,7 @@ public class VRSettings
             var5.println("posTrackHydraBROffsetX:" + this.posTrackHydraBROffsetX);
             var5.println("posTrackHydraBRffsetY:" + this.posTrackHydraBROffsetY);
             var5.println("posTrackHydraBRffsetZ:" + this.posTrackHydraBROffsetZ);
-            var5.println("posTrackHydraDistanceScale:" + this.posTrackHydraDistanceScale);
+            var5.println("posTrackWorldDistanceScale:" + this.posTrackWorldDistanceScale);
             var5.println("posTrackHydraUseController1:" + this.posTrackHydraUseController1);
             var5.println("posTrackHydraBIsPointingLeft:" + this.posTrackHydraBIsPointingLeft);
             var5.println("posTrackHydraYAxisDistanceSkewAngleDeg:" + this.posTrackHydraYAxisDistanceSkewAngleDeg);
@@ -1900,7 +1901,7 @@ public class VRSettings
         POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
         POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
         POS_TRACK_OFFSET_SET_DEFAULT("Default Offsets", false, true),
-        POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
+        POS_TRACK_WORLD_SCALE("World Scale", true, false),
         POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
         POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT("Hydra Direction", false, true),
         HYDRA_USE_FILTER("Filter", false, true),

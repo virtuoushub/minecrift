@@ -314,6 +314,13 @@ public class VRHotkeys {
             mc.printChatMessage("Reset origin: done");
         }
 
+        // Debug aim
+        if (Keyboard.getEventKey() == Keyboard.KEY_RSHIFT && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))
+        {
+            mc.vrSettings.storeDebugAim = true;
+            mc.printChatMessage("Show aim: done");
+        }
+
         // If an orientation plugin is performing calibration, space also sets the origin
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
         {

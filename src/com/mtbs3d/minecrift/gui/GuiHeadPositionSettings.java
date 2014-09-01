@@ -14,7 +14,6 @@ import com.mtbs3d.minecrift.settings.VRSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.StringTranslate;
 
 public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEventEx
 {
@@ -29,7 +28,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
     static VRSettings.VrOptions[] hydraOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.POS_TRACK_HYDRALOC,
-            VRSettings.VrOptions.POS_TRACK_HYDRA_DISTANCE_SCALE,
+            VRSettings.VrOptions.POS_TRACK_WORLD_SCALE,
             VRSettings.VrOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE,
             VRSettings.VrOptions.POS_TRACK_HYDRA_OFFSET_X,
             VRSettings.VrOptions.HYDRA_USE_FILTER,
@@ -44,7 +43,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
     static VRSettings.VrOptions[] oculusOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.POSITION_TRACKING,
+            VRSettings.VrOptions.POS_TRACK_WORLD_SCALE,
             VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
+            VRSettings.VrOptions.EYE_PROTRUSION,
     };
 
     protected boolean reinit = false;
@@ -129,11 +130,11 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                         maxValue = 0.30f;
                         increment = 0.001f;
                     }
-                    else if (var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
+                    else if (var8 == VRSettings.VrOptions.POS_TRACK_WORLD_SCALE)
                     {
-                        minValue = 0.8f;
-                        maxValue = 1.2f;
-                        increment = 0.001f;
+                        minValue = -5.0f;
+                        maxValue = -0.1f;
+                        increment = 0.01f;
                     }
                     else if (var8 == VRSettings.VrOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW)
                     {
@@ -201,7 +202,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         }
 
         if (var8 == VRSettings.VrOptions.POS_TRACK_HYDRALOC ||
-            var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ||
+            var8 == VRSettings.VrOptions.POS_TRACK_WORLD_SCALE ||
             var8 == VRSettings.VrOptions.HYDRA_USE_FILTER ||
             var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
             return true;
@@ -357,13 +358,13 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                             "  T   - One Hydra is mounted to the top of the HMD.",
                             "  B   - One hydra is mounted to the back of your head."
                     } ;
-                case POS_TRACK_HYDRA_DISTANCE_SCALE:
+                case POS_TRACK_WORLD_SCALE:
                     return new String[] {
-                            "Sets the distance scale factor.",
-                            "  Allows adjustment of your perceived body movement",
+                            "Sets the perceived world scale factor.",
+                            "  Allows adjustment of your perceived head movement",
                             " in-game by the selected factor. Adjust this if the",
                             " distance moved in game does not seem to match actual",
-                            " body distance travelled."
+                            " head distance travelled."
                             } ;
                 case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
                     return new String[] {

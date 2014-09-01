@@ -165,9 +165,13 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     public Vec3 getCenterEyePosition()
     {
         Vec3 eyePosition = Vec3.createVectorHelper(0, 0, 0);
-        if (Minecraft.getMinecraft().vrSettings.usePositionTracking) {
-            eyePosition = Vec3.createVectorHelper(-ts.HeadPose.ThePose.Position.x, -ts.HeadPose.ThePose.Position.y, -ts.HeadPose.ThePose.Position.z);
+        if (Minecraft.getMinecraft().vrSettings.usePositionTracking)
+        {
+            eyePosition = Vec3.createVectorHelper(-ts.HeadPose.ThePose.Position.x * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
+                                                  -ts.HeadPose.ThePose.Position.y * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
+                                                  -ts.HeadPose.ThePose.Position.z * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale);
         }
+        //eyePosition.yCoord += (Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f);
         eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
         eyePosition.rotateAroundY(-yawOffsetRad);
         // TODO: Rotate around pitch offset
@@ -177,21 +181,17 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     @Override
     public Vec3 getEyePosition(EyeType eye, float ipd)
     {
-        //Minecraft.getMinecraft().printChatMessage("Eye: " + eye.toString() + ", IPD: " + -ipd);
         Vec3 eyePosition = Vec3.createVectorHelper(0, 0, 0);
-        if (Minecraft.getMinecraft().vrSettings.usePositionTracking) {
+        if (Minecraft.getMinecraft().vrSettings.usePositionTracking)
+        {
             Vector3f eyePos = super.getEyePos(eye);
-            eyePosition = Vec3.createVectorHelper(-eyePos.x, -eyePos.y, -eyePos.z);
+            eyePosition = Vec3.createVectorHelper(-eyePos.x * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
+                                                  -eyePos.y * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
+                                                  -eyePos.z * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale);
         }
-        Vec3 ipdAdjust = Vec3.createVectorHelper(-ipd, 0, 0);
-        ipdAdjust.rotateAroundZ(rollHeadRad);
-        ipdAdjust.rotateAroundX(pitchHeadRad);
-        ipdAdjust.rotateAroundY(-yawHeadRad);
-        //Minecraft.getMinecraft().printChatMessage("Yaw:         " + Math.toDegrees(yawHeadRad) + ", Pitch: " + Math.toDegrees(pitchHeadRad) + ", Roll: " + Math.toDegrees(rollHeadRad));
-        //Minecraft.getMinecraft().printChatMessage("IPDAdjust: x=" + ipdAdjust.xCoord +           ", y=     " + ipdAdjust.yCoord +             ", z=    " + ipdAdjust.zCoord);
-        eyePosition.xCoord += ipdAdjust.xCoord;  // Adjust for IPD!
-        eyePosition.yCoord += ipdAdjust.yCoord; // + Minecraft.getMinecraft().vrSettings.neckBaseToEyeHeight;        // TODO:? This seems to be good already
-        eyePosition.zCoord += (ipdAdjust.zCoord + Minecraft.getMinecraft().vrSettings.eyeProtrusion);
+
+        //eyePosition.yCoord += (Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f);
+        eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
         eyePosition.rotateAroundY(-yawOffsetRad);
         // TODO: Rotate around pitch offset
 

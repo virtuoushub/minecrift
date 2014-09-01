@@ -52,7 +52,7 @@ public enum VROption {
     POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
     POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
     POS_TRACK_OFFSET_SET_DEFAULT("Default Offsets", false, true),
-    POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
+    POS_TRACK_WORLD_SCALE("Dist. Scale", true, false),
     POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
     POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT("Hydra Direction", false, true),
     HYDRA_USE_FILTER("Filter", false, true),

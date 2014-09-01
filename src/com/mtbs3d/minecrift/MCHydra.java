@@ -257,7 +257,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
             cont2OrientationQuat_xyzw = IDENTITY_QUAT;
         }
 
-        userScale = SCALE * mc.vrSettings.posTrackHydraDistanceScale;
+        userScale = SCALE * mc.vrSettings.posTrackWorldDistanceScale;
 
         cont1PosX = userScale * cont1.pos[0] * XDIRECTION;
         cont1PosY = userScale * cont1.pos[1] * YDIRECTION;

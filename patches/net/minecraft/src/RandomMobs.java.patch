@@ -1,0 +1,41 @@
+--- a/net/minecraft/src/RandomMobs.java
++++ b/net/minecraft/src/RandomMobs.java
+@@ -105,7 +105,7 @@
+         }
+         else
+         {
+-            ResourceLocation uuidLow;
++            ResourceLocation var6;
+ 
+             try
+             {
+@@ -139,22 +139,22 @@
+ 
+                 String name = loc.getResourcePath();
+ 
+-                if (name.startsWith("textures/entity/"))
++                if (!name.startsWith("textures/entity/"))
+                 {
+-                    long uuidLow1 = entity.getUniqueID().getLeastSignificantBits();
+-                    int id = (int)(uuidLow1 & 2147483647L);
+-                    ResourceLocation var6 = getTextureLocation(loc, id);
+-                    return var6;
++                    ResourceLocation uuidLow1 = loc;
++                    return uuidLow1;
+                 }
+ 
+-                uuidLow = loc;
++                long uuidLow = entity.getUniqueID().getLeastSignificantBits();
++                int id = (int)(uuidLow & 2147483647L);
++                var6 = getTextureLocation(loc, id);
+             }
+             finally
+             {
+                 working = false;
+             }
+ 
+-            return uuidLow;
++            return var6;
+         }
+     }
+ 
