@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.security.MessageDigest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -32,13 +33,18 @@ import javax.swing.border.LineBorder;
  * @author mabrowning
  *
  */
-public class Installer extends JPanel  implements PropertyChangeListener {
+public class Installer extends JPanel  implements PropertyChangeListener
+{
 	private static final long serialVersionUID = -562178983462626162L;
-	private static final String MC_VERSION = "1.7.10";
-	private static final String OF_VERSION = "1.7.10_HD_U_A4";
-    private static final String FORGE_VERSION = "10.13.0.1180";
+
+	private static final String MC_VERSION     = "1.7.10";
+
+    private static final String OF_LIB_PATH    = "libraries/optifine/OptiFine/";
+	private static final String OF_VERSION     = "1.7.10_HD_U_A4";
+	private static final String OF_MD5         = "FF3FD4C98E267D9D9EEB1296EDFBA5AA";
     private static final String OF_VERSION_EXT = "jar";
-    private static final String OF_LIB_PATH = "libraries/optifine/OptiFine/";
+
+    private static final String FORGE_VERSION  = "10.13.0.1180";
 
 	private InstallTask task;
 
@@ -65,24 +71,113 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 	class InstallTask extends SwingWorker<Void, Void>{
 		private boolean DownloadOptiFine()
 		{
+            boolean success = true;
+            boolean deleted = false;
+
 			try {
 			    File fod = new File(targetDir,OF_LIB_PATH+OF_VERSION);
 			    fod.mkdirs();
 			    File fo = new File(fod,"OptiFine-"+OF_VERSION+".jar");
-			    if( fo.exists() && fo.length() > 375500 ) return true;
 
-                String surl = "http://optifine.net/download.php?f=OptiFine_"+OF_VERSION+"."+OF_VERSION_EXT;
-				URL url = new URL(surl);
-			    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-			    FileOutputStream fos = new FileOutputStream(fo);
-			    boolean success =  fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE) > 0 ;
-			    fos.close();
-			    return success;
+			    // Attempt to get the Optifine MD5
+                String optOnDiskMd5 = GetMd5(fo);
+                System.out.println(optOnDiskMd5 == null ? fo.getCanonicalPath() + " MD5: N/A" : fo.getCanonicalPath() + " MD5: " + optOnDiskMd5);
+
+                // Test MD5
+                if (optOnDiskMd5 == null || !optOnDiskMd5.equalsIgnoreCase(OF_MD5)) {
+                    // Bad copy. Attempt delete just to make sure.
+                    System.out.println("Optifine MD5 bad - re-downloading");
+                    try {
+                        deleted = fo.delete();
+                    }
+                    catch (Exception ex1) {
+                        ex1.printStackTrace();
+                    }
+                }
+                else {
+                    // A good copy!
+                    System.out.println("Optifine MD5 good!");
+                    return true;
+                }
+
+                // Need to attempt download...
+                FileOutputStream fos = new FileOutputStream(fo);
+                try {
+                    String surl = "http://optifine.net/download.php?f=OptiFine_" + OF_VERSION + "." + OF_VERSION_EXT;
+                    URL url = new URL(surl);
+                    ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+                    long bytes = fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                    fos.flush();
+                }
+                catch(Exception ex) {
+                    ex.printStackTrace();
+                    success = false;
+                }
+                finally {
+                    fos.close();
+                }
+
+                // Check (potentially) downloaded optifine md5
+                optOnDiskMd5 = GetMd5(fo);
+                if (success == false || optOnDiskMd5 == null || !optOnDiskMd5.equalsIgnoreCase(OF_MD5)) {
+                    // No good
+                    try {
+                        deleted = fo.delete();
+                    }
+                    catch (Exception ex1) {
+                        ex1.printStackTrace();
+                    }
+                    return false;
+                }
+
+			    return true;
 			} catch (Exception e) {
 				finalMessage += " Error: "+e.getLocalizedMessage();
 			}
 			return false;
 		}
+
+		private String GetMd5(File fo)
+        {
+            if (!fo.exists())
+                return null;
+
+            if (fo.length() < 1)
+                return null;
+
+            FileInputStream fis = null;
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                fis = new FileInputStream(fo);
+
+                byte[] buffer = new byte[(int)fo.length()];
+                int numOfBytesRead = 0;
+                while( (numOfBytesRead = fis.read(buffer)) > 0)
+                {
+                    md.update(buffer, 0, numOfBytesRead);
+                }
+                byte[] hash = md.digest();
+                StringBuilder sb = new StringBuilder();
+                for (byte b : hash) {
+                    sb.append(String.format("%02X", b));
+                }
+                return sb.toString();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally {
+                if (fis != null)
+                {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
 
 		private boolean SetupMinecraftAsLibrary() {
 			File lib_dir = new File(targetDir,"libraries/net/minecraft/Minecraft/"+MC_VERSION );
@@ -241,10 +336,27 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 			finalMessage = "Failed: Couldn't download Optifine. ";
 			statusMessage = "Downloading Optifine... Please donate to them!";
 			setProgress(1);
-			if(!DownloadOptiFine())
+			// Attempt optifine download...
+			boolean downloadedOptifine = false;
+			for (int i = 1; i <= 3; i++)
 			{
-				return null;
-			}
+                setProgress(10 * i);
+                if (DownloadOptiFine())
+                {
+                    // Got it!
+                    downloadedOptifine = true;
+                    break;
+                }
+
+                // Failed. Sleep a bit and retry...
+                if (i < 3) {
+                    try {
+                        Thread.sleep(i * 1000);
+                    }
+                    catch (InterruptedException e) {
+                    }
+                }
+            }
 			setProgress(50);
 			finalMessage = "Failed: Couldn't setup Minecraft "+MC_VERSION+" as library. Have you run "+MC_VERSION+" at least once yet?";
 			if(!SetupMinecraftAsLibrary())
@@ -266,7 +378,13 @@ public class Installer extends JPanel  implements PropertyChangeListener {
                     return null;
                 }
             }
-			finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-"+version+mod;
+            if (!downloadedOptifine) {
+                finalMessage = "Installed (but failed to download OptiFine). Restart Minecraft and Edit Profile->Use Version minecrift-" + version + mod +
+                        "\nPlease download and install Optifine " + OF_VERSION + "from https://optifine.net/downloads before attempting to play.";
+            }
+            else {
+                finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-" + version + mod;
+            }
 			setProgress(100);
 			return null;
 		}
@@ -551,9 +669,8 @@ public class Installer extends JPanel  implements PropertyChangeListener {
     }
 
     
-	public static void main(String[] args) {
-
-
+	public static void main(String[] args)
+    {
 		try {
         	// Set System L&F
 	        UIManager.setLookAndFeel(
