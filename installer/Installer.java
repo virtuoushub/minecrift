@@ -47,6 +47,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
     private static final String FORGE_VERSION  = "10.13.0.1180";
 
 	private InstallTask task;
+    private static ProgressMonitor monitor;
 
     static private File targetDir;
     private JTextField selectedDirText;
@@ -87,6 +88,7 @@ public class Installer extends JPanel  implements PropertyChangeListener
                 if (optOnDiskMd5 == null || !optOnDiskMd5.equalsIgnoreCase(OF_MD5)) {
                     // Bad copy. Attempt delete just to make sure.
                     System.out.println("Optifine MD5 bad - re-downloading");
+
                     try {
                         deleted = fo.delete();
                     }
@@ -324,23 +326,31 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
             return false;
         }
-                
+
+        private void sleep(int millis)
+        {
+            try {
+                Thread.sleep(millis);
+            } catch (InterruptedException e) {}
+        }
 
 		/*
 		 * Main task. Executed in background thread.
 		 */
 		public String finalMessage;
-		public String statusMessage;
 		@Override
 		public Void doInBackground() {
 			finalMessage = "Failed: Couldn't download Optifine. ";
-			statusMessage = "Downloading Optifine... Please donate to them!";
-			setProgress(1);
+            monitor.setNote("Checking Optifine... Please donate to them!");
+            monitor.setProgress(5);
 			// Attempt optifine download...
 			boolean downloadedOptifine = false;
+			sleep(1800);
+            monitor.setNote("Downloading Optifine... Please donate to them!");
+
 			for (int i = 1; i <= 3; i++)
 			{
-                setProgress(10 * i);
+                monitor.setProgress(10 * i);
                 if (DownloadOptiFine())
                 {
                     // Got it!
@@ -350,31 +360,42 @@ public class Installer extends JPanel  implements PropertyChangeListener
 
                 // Failed. Sleep a bit and retry...
                 if (i < 3) {
+                    monitor.setNote("Downloading Optifine... waiting...");
                     try {
                         Thread.sleep(i * 1000);
                     }
                     catch (InterruptedException e) {
                     }
+                    monitor.setNote("Downloading Optifine...retrying...");
                 }
             }
-			setProgress(50);
-			finalMessage = "Failed: Couldn't setup Minecraft "+MC_VERSION+" as library. Have you run "+MC_VERSION+" at least once yet?";
+            monitor.setProgress(50);
+            monitor.setNote("Setting up Minecrift as a library...");
+			finalMessage = "Failed: Couldn't setup Minecrift "+MC_VERSION+" as library. Have you run "+MC_VERSION+" at least once yet?";
+			sleep(800);
 			if(!SetupMinecraftAsLibrary())
 			{
+                monitor.close();
 				return null;
 			}
-			setProgress(75);
+            monitor.setProgress(75);
+            monitor.setNote("Extracting correct Minecrift version...");
+            sleep(700);
 			finalMessage = "Failed: Couldn't extract Minecrift. Try redownloading this installer.";
 			if(!ExtractVersion())
 			{
+                monitor.close();
 				return null;
 			}
             if(useHrtf.isSelected())
             {
-                setProgress(99);
+                monitor.setProgress(85);
+                monitor.setNote("Configuring HRTF audio...");
+                sleep(800);
                 finalMessage = "Failed to set up HRTF! Your game will still work but audio won't be binaural.";
                 if(!EnableHRTF())
                 {
+                    monitor.close();
                     return null;
                 }
             }
@@ -385,7 +406,8 @@ public class Installer extends JPanel  implements PropertyChangeListener
             else {
                 finalMessage = "Installed Successfully! Restart Minecraft and Edit Profile->Use Version minecrift-" + version + mod;
             }
-			setProgress(100);
+            monitor.setProgress(100);
+            monitor.close();
 			return null;
 		}
 
@@ -423,9 +445,13 @@ public class Installer extends JPanel  implements PropertyChangeListener
         int result = (Integer) (optionPane.getValue() != null ? optionPane.getValue() : -1);
         if (result == JOptionPane.OK_OPTION)
         {
-        	task = new InstallTask();
-        	task.run();
+        	monitor = new ProgressMonitor(null, "Installing Minecrift...", "", 0, 100);
+        	monitor.setMillisToDecideToPopup(0);
+        	monitor.setMillisToPopup(0);
+
+            task = new InstallTask();
         	task.addPropertyChangeListener(this);
+            task.execute();
         }
         else{
 	        dialog.dispose();
