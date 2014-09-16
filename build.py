@@ -87,8 +87,8 @@ def create_install(mcp_dir):
     with zipfile.ZipFile( installer,'a', zipfile.ZIP_DEFLATED) as install_out: #append to installer.jar
         install_out.writestr( "version.json", process_json("", version))
         install_out.writestr( "version-forge.json", process_json("-forge", version))
-        install_out.writestr( "version-nohydra.json", process_json("-nohydra", version))
-        install_out.writestr( "version-forge-nohydra.json", process_json("-forge-nohydra", version))
+        install_out.writestr( "version-hydra.json", process_json("-hydra", version))
+        install_out.writestr( "version-forge-hydra.json", process_json("-forge-hydra", version))
         install_out.writestr( "version.jar", in_mem_zip.read() )
         install_out.writestr( "version", artifact_id+":"+version )
 
