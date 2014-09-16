@@ -609,6 +609,9 @@ public class Installer extends JPanel  implements PropertyChangeListener
 		useForge = new JCheckBox("Install with Forge " + FORGE_VERSION,false);
 		forgeVersion = new JComboBox();
 
+		// TODO: Renable forge when working!
+        useForge.setEnabled(false);
+
 		//Add "yes" and "which version" to the forgePanel
 		useForge.setAlignmentX(LEFT_ALIGNMENT);
 		forgeVersion.setAlignmentX(LEFT_ALIGNMENT);
