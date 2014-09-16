@@ -125,11 +125,11 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				if(useForge.isSelected() /*&& forgeVersion.getSelectedItem() != forgeNotFound*/ ) {
 					String filename;
 					if( useHydra.isSelected() ) {
+						filename = "version-forge-hydra.json";
+						mod="-forge-hydra";
+					} else {
 						filename = "version-forge.json";
 						mod="-forge";
-					} else {
-						filename = "version-forge-nohydra.json";
-						mod="-forge-nohydra";
 					}
 
 					version_json = new FilterInputStream( Installer.class.getResourceAsStream(filename) ) {
@@ -148,10 +148,11 @@ public class Installer extends JPanel  implements PropertyChangeListener {
 				} else {
 					String filename;
 					if( useHydra.isSelected() ) {
-						filename = "version.json";
+						filename = "version-hydra.json";
+                        mod="-hydra";
 					} else {
-						filename = "version-nohydra.json";
-						mod="-nohydra";
+						filename = "version.json";
+						mod="";
 					}
 					version_json = Installer.class.getResourceAsStream(filename);
 				}
