@@ -81,8 +81,8 @@ def download_deps( mcp_dir ):
             os.chmod(astyle, st.st_mode | stat.S_IEXEC)
         except:
             pass
-    print("Patching mcp.cfg. ignore \"FAILED\" hunks")
-    apply_patch( mcp_dir, "mcp.cfg.patch", os.path.join(mcp_dir,"conf"))
+        print("Patching mcp.cfg. ignore \"FAILED\" hunks")
+        apply_patch( mcp_dir, "mcp.cfg.patch", os.path.join(mcp_dir,"conf"))
 
     jars = os.path.join(mcp_dir,"jars")
 
@@ -99,8 +99,8 @@ def download_deps( mcp_dir ):
         native = "windows"
 
 
-    json_file = os.path.join(versions,mc_version+".json")
-    shutil.copy( os.path.join("installer",mc_version+".json"),json_file)
+    json_file = os.path.join(versions,mc_version+"-hydra.json")
+    shutil.copy( os.path.join("installer",mc_version+"-hydra.json"),json_file)
 
     optifine_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_version )
     mkdir_p( optifine_dir )
