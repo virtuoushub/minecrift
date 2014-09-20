@@ -99,8 +99,8 @@ def download_deps( mcp_dir ):
         native = "windows"
 
 
-    json_file = os.path.join(versions,mc_version+"-hydra.json")
-    shutil.copy( os.path.join("installer",mc_version+"-hydra.json"),json_file)
+    json_file = os.path.join(versions,mc_version+".json")
+    shutil.copy( os.path.join("installer",mc_version+".json"),json_file)
 
     optifine_dir = os.path.join(jars,"libraries","optifine","OptiFine",of_version )
     mkdir_p( optifine_dir )
