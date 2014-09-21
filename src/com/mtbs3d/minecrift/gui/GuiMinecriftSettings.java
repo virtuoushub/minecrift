@@ -170,7 +170,6 @@ public class GuiMinecriftSettings extends BaseGuiSettings
             {
                 Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.guivrSettings.posTrackResetPosition = true;
-                this.mc.entityRenderer.resetGuiYawOrientation();
             }
             else if (par1GuiButton.id == 200)
             {

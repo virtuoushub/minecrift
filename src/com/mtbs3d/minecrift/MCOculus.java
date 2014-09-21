@@ -11,7 +11,10 @@ import de.fruitfly.ovr.EyeRenderParams;
 import de.fruitfly.ovr.IOculusRift;
 import de.fruitfly.ovr.OculusRift;
 import de.fruitfly.ovr.UserProfileData;
+import de.fruitfly.ovr.enums.Axis;
 import de.fruitfly.ovr.enums.EyeType;
+import de.fruitfly.ovr.enums.HandedSystem;
+import de.fruitfly.ovr.enums.RotateDirection;
 import de.fruitfly.ovr.structs.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Vec3;
@@ -45,6 +48,18 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
     private float yawHeadRad = 0f;
     private boolean polledThisFrame = false;
     private TrackerState ts = new TrackerState();
+    private Posef[] eyePose = new Posef[2];
+    private EulerOrient[] eulerOrient = new EulerOrient[2];
+    private EyeType lastEyePolled = EyeType.ovrEye_Left;
+
+    public MCOculus()
+    {
+        super();
+        eyePose[0] = new Posef();
+        eyePose[1] = new Posef();
+        eulerOrient[0] = new EulerOrient();
+        eulerOrient[1] = new EulerOrient();
+    }
 
     @Override
     public EyeType eyeRenderOrder(int index)
@@ -90,7 +105,17 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 
     public Posef getEyePose(EyeType eye)
     {
-        return super.getEyePose(eye);
+        this.eyePose[eye.value()] = super.getEyePose(eye);
+        this.eulerOrient[eye.value()] = OculusRift.getEulerAnglesDeg(this.eyePose[eye.value()].Orientation,
+                                                                     1.0f,
+                                                                     Axis.Axis_Y,
+                                                                     Axis.Axis_X,
+                                                                     Axis.Axis_Z,
+                                                                     HandedSystem.Handed_L,
+                                                                     RotateDirection.Rotate_CCW);
+
+        this.lastEyePolled = eye;
+        return this.eyePose[eye.value()];
     }
 
     public Matrix4f getMatrix4fProjection(FovPort fov,
@@ -167,32 +192,32 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
         Vec3 eyePosition = Vec3.createVectorHelper(0, 0, 0);
         if (Minecraft.getMinecraft().vrSettings.usePositionTracking)
         {
-            eyePosition = Vec3.createVectorHelper(-ts.HeadPose.ThePose.Position.x * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-                                                  -ts.HeadPose.ThePose.Position.y * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-                                                  -ts.HeadPose.ThePose.Position.z * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale);
+            eyePosition = Vec3.createVectorHelper(ts.HeadPose.ThePose.Position.x * Minecraft.getMinecraft().vrSettings.posTrackDistanceScale,
+                                                  -ts.HeadPose.ThePose.Position.y * Minecraft.getMinecraft().vrSettings.posTrackDistanceScale,
+                                                  ts.HeadPose.ThePose.Position.z * Minecraft.getMinecraft().vrSettings.posTrackDistanceScale);
         }
-        //eyePosition.yCoord += (Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f);
-        eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
-        eyePosition.rotateAroundY(-yawOffsetRad);
+//        eyePosition.yCoord -= (Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f);
+//        eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
+        //eyePosition.rotateAroundY(-yawOffsetRad);
         // TODO: Rotate around pitch offset
         return eyePosition;
     }
 
     @Override
-    public Vec3 getEyePosition(EyeType eye, float ipd)
+    public Vec3 getEyePosition(EyeType eye)
     {
         Vec3 eyePosition = Vec3.createVectorHelper(0, 0, 0);
         if (Minecraft.getMinecraft().vrSettings.usePositionTracking)
         {
             Vector3f eyePos = super.getEyePos(eye);
-            eyePosition = Vec3.createVectorHelper(-eyePos.x * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-                                                  -eyePos.y * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-                                                  -eyePos.z * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale);
+            eyePosition = Vec3.createVectorHelper(eyePos.x * Minecraft.getMinecraft().vrSettings.posTrackDistanceScale,
+                                                  -eyePos.y * Minecraft.getMinecraft().vrSettings.posTrackDistanceScale,
+                                                  eyePos.z * Minecraft.getMinecraft().vrSettings.posTrackDistanceScale);
         }
 
-        //eyePosition.yCoord += (Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f);
-        eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
-        eyePosition.rotateAroundY(-yawOffsetRad);
+//        eyePosition.yCoord -= (Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f);
+//        eyePosition.zCoord += Minecraft.getMinecraft().vrSettings.eyeProtrusion;
+        //eyePosition.rotateAroundY(-yawOffsetRad);
         // TODO: Rotate around pitch offset
 
         return eyePosition;
@@ -345,27 +370,25 @@ public class MCOculus extends OculusRift //OculusRift does most of the heavy lif
 	@Override
 	public float getHeadYawDegrees()
     {
-        return 0.0f;//getYawDegrees_LH();
+        return this.eulerOrient[lastEyePolled.value()].yaw;
 	}
 
 	@Override
 	public float getHeadPitchDegrees()
     {
-		return 0.0f;//getPitchDegrees_LH();
+        return this.eulerOrient[lastEyePolled.value()].pitch;
 	}
 
 	@Override
 	public float getHeadRollDegrees()
     {
-		return 0.0f;//getRollDegrees_LH();
+        return this.eulerOrient[lastEyePolled.value()].roll;
 	}
 
     @Override
     public Quaternion getOrientationQuaternion()
     {
-        Quatf orient = Quatf.IDENTITY;//super.getOrientQuatf();
-
-        // Needs x, y, z, w
+        Quatf orient = this.eyePose[lastEyePolled.value()].Orientation;
         return new Quaternion(orient.x, orient.y, orient.z, orient.w);
     }
 

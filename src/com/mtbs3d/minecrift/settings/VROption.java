@@ -36,7 +36,7 @@ public enum VROption {
     //HMD/render
     USE_DISTORTION("Distortion", false, true),
     CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
-    FOV_SCALE_FACTOR("FOV Scale", true, false),
+    FOV_CHANGE("FOV Scale", true, false),
     DISTORTION_FIT_POINT("Distortion Border", true, false),
     SUPERSAMPLING("FSAA", false, true),
     SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),

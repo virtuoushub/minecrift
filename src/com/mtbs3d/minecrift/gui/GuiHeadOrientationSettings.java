@@ -154,10 +154,9 @@ public class GuiHeadOrientationSettings  extends BaseGuiSettings implements GuiE
 
         if (var8 == VRSettings.VrOptions.HEAD_TRACK_SENSITIVITY)
         {
-            if (Minecraft.getMinecraft().vrSettings.useQuaternions)
-                return false;
-            else
-                return true;
+            return false;
+//            else     // TODO: If head track sensitivity is ever working....if
+//                return true;
         }
 
         return true;

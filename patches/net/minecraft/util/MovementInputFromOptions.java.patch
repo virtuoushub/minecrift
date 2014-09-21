@@ -1,0 +1,38 @@
+--- a/net/minecraft/util/MovementInputFromOptions.java
++++ b/net/minecraft/util/MovementInputFromOptions.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.util;
+ 
++import net.minecraft.client.Minecraft;
+ import net.minecraft.client.settings.GameSettings;
+ 
+ public class MovementInputFromOptions extends MovementInput
+@@ -14,8 +15,9 @@
+ 
+     public void updatePlayerMoveState()
+     {
+-        this.moveStrafe = 0.0F;
+-        this.moveForward = 0.0F;
++        /* Minecrift */
++        this.moveStrafe = baseMoveStrafe;        // 0.0f;
++        this.moveForward = baseMoveForward;      // 0.0f;
+ 
+         if (this.gameSettings.keyBindForward.getIsKeyPressed())
+         {
+@@ -45,5 +47,16 @@
+             this.moveStrafe = (float)((double)this.moveStrafe * 0.3D);
+             this.moveForward = (float)((double)this.moveForward * 0.3D);
+         }
++
++        this.moveForward = this.moveForward * Minecraft.getMinecraft().vrSettings.movementSpeedMultiplier;
++        this.moveStrafe  = this.moveStrafe * Minecraft.getMinecraft().vrSettings.movementSpeedMultiplier;
++
++        // Ensure no one component is greater > 1
++        this.moveForward = Math.min(this.moveForward, 1f);
++        this.moveStrafe  = Math.min(this.moveStrafe, 1f);
++
++        // Don't bother to normalise, vanilla doesn't
++
++        /* end Minecrift */
+     }
+ }

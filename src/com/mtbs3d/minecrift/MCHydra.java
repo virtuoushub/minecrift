@@ -257,7 +257,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
             cont2OrientationQuat_xyzw = IDENTITY_QUAT;
         }
 
-        userScale = SCALE * mc.vrSettings.posTrackWorldDistanceScale;
+        userScale = SCALE * mc.vrSettings.posTrackDistanceScale;
 
         cont1PosX = userScale * cont1.pos[0] * XDIRECTION;
         cont1PosY = userScale * cont1.pos[1] * YDIRECTION;
@@ -622,7 +622,7 @@ public class MCHydra extends BasePlugin implements IEyePositionProvider, IOrient
 	}
 
     @Override
-    public Vec3 getEyePosition(EyeType eye, float ipd)
+    public Vec3 getEyePosition(EyeType eye)
     {
         if (eye == EyeType.ovrEye_Left)
             return leftEyePos;

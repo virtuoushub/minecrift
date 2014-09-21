@@ -30,14 +30,14 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             VRSettings.VrOptions.ENABLE_DIRECT,
             VRSettings.VrOptions.RENDER_SCALEFACTOR,
             VRSettings.VrOptions.MIRROR_DISPLAY,
-            VRSettings.VrOptions.DUMMY,
-            VRSettings.VrOptions.DUMMY,
             VRSettings.VrOptions.CHROM_AB_CORRECTION,
             VRSettings.VrOptions.TIMEWARP,
             VRSettings.VrOptions.VIGNETTE,
             VRSettings.VrOptions.LOW_PERSISTENCE,
             VRSettings.VrOptions.DYNAMIC_PREDICTION,
             VRSettings.VrOptions.OVERDRIVE_DISPLAY,
+            VRSettings.VrOptions.HIGH_QUALITY_DISTORTION,
+            VRSettings.VrOptions.OTHER_RENDER_SETTINGS,
     };
 
     static VRSettings.VrOptions[] oculusDK1DisplayOptions = new VRSettings.VrOptions[] {
@@ -45,11 +45,11 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
             VRSettings.VrOptions.ENABLE_DIRECT,
             VRSettings.VrOptions.RENDER_SCALEFACTOR,
             VRSettings.VrOptions.MIRROR_DISPLAY,
-            VRSettings.VrOptions.DUMMY,
-            VRSettings.VrOptions.DUMMY,
             VRSettings.VrOptions.CHROM_AB_CORRECTION,
             VRSettings.VrOptions.TIMEWARP,
             VRSettings.VrOptions.VIGNETTE,
+            VRSettings.VrOptions.HIGH_QUALITY_DISTORTION,
+            VRSettings.VrOptions.OTHER_RENDER_SETTINGS,
     };
 
     GameSettings settings;
@@ -70,10 +70,10 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 
         // this.screenTitle = var1.translateKey("options.videoTitle");
         this.buttonList.clear();
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
-        this.buttonList.add(new GuiButtonEx(201, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
+        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 100, this.height / 6 + 168, "Done"));
+        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DEFAULTS, this.width / 2 - 100, this.height / 6 + 148, "Reset To Defaults"));
 
-        pluginModeChangeButton = new PluginModeChangeButton(202, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.stereoProviderPlugins, this.guivrSettings.stereoProviderPluginID);
+        pluginModeChangeButton = new PluginModeChangeButton(ID_GENERIC_MODE_CHANGE, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.stereoProviderPlugins, this.guivrSettings.stereoProviderPluginID);
         this.buttonList.add(pluginModeChangeButton);
         pluginModeChangeButton.enabled = false; // TODO: Allow changes once mono provider working
 
@@ -116,12 +116,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                     maxValue = 2.5f;
                     increment = 0.1f;
                 }
-                if (var8 == VRSettings.VrOptions.DISTORTION_FIT_POINT)
-                {
-                    minValue = 0.0f;
-                    maxValue = 14.0f;
-                    increment = 1.0f;
-                }
+
                 GuiSliderEx slider = new GuiSliderEx(var8.returnEnumOrdinal(), width, height, var8, this.guivrSettings.getKeyBinding(var8), minValue, maxValue, increment, this.guivrSettings.getOptionFloatValue(var8));
                 slider.setEventHandler(this);
                 slider.enabled = getEnabledState(var8);
@@ -156,39 +151,44 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
 
         if (par1GuiButton.enabled)
         {
-            if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
-            {
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
-            }
-            else if (par1GuiButton.id == 200)
+            if (par1GuiButton.id == ID_GENERIC_DONE)
             {
                 minecraft.vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
-            else if (par1GuiButton.id == 201)
+            else if (par1GuiButton.id == ID_GENERIC_DEFAULTS)
             {
                 minecraft.vrSettings.useChromaticAbCorrection = true;
-                minecraft.vrSettings.distortionFitPoint = 5;
 
                 minecraft.vrSettings.useTimewarp = true;
                 minecraft.vrSettings.useVignette = true;
                 minecraft.vrSettings.useLowPersistence = true;
-                minecraft.vrSettings.useDynamicPrediction = false; // Can cause judder with OVR 0.4.1...
+                minecraft.vrSettings.useDynamicPrediction = true;
                 minecraft.vrSettings.renderScaleFactor = 1.1f;
                 minecraft.vrSettings.useDirectRenderMode = false;
                 minecraft.vrSettings.useDisplayMirroring = false;
                 minecraft.vrSettings.useDisplayOverdrive = true;
+                minecraft.vrSettings.useHighQualityDistortion = true;
 
                 minecraft.reinitFramebuffers = true;
 			    this.guivrSettings.saveOptions();
             }
-            else if (par1GuiButton.id == 202) // Mode Change
+            else if (par1GuiButton.id == ID_GENERIC_MODE_CHANGE) // Mode Change
             {
                 Minecraft.getMinecraft().vrSettings.stereoProviderPluginID = pluginModeChangeButton.getSelectedID();
                 Minecraft.getMinecraft().vrSettings.saveOptions();
                 Minecraft.getMinecraft().stereoProvider = PluginManager.configureStereoProvider(Minecraft.getMinecraft().vrSettings.stereoProviderPluginID);
                 this.reinit = true;
+            }
+            else if (par1GuiButton.id == VRSettings.VrOptions.OTHER_RENDER_SETTINGS.returnEnumOrdinal())
+            {
+                Minecraft.getMinecraft().vrSettings.saveOptions();
+                this.mc.displayGuiScreen(new GuiOtherRenderOpticsSettings(this, this.guivrSettings));
+            }
+            else if (par1GuiButton instanceof GuiSmallButtonEx)
+            {
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
             }
 
             if (num == VRSettings.VrOptions.CHROM_AB_CORRECTION ||
@@ -222,8 +222,7 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
     @Override
     public void event(int id, VRSettings.VrOptions enumm)
     {
-        if (enumm == VRSettings.VrOptions.DISTORTION_FIT_POINT ||
-            enumm == VRSettings.VrOptions.RENDER_SCALEFACTOR)
+        if (enumm == VRSettings.VrOptions.RENDER_SCALEFACTOR)
         {
             Minecraft.getMinecraft().reinitFramebuffers = true;
         }
@@ -308,6 +307,20 @@ public class GuiRenderOpticsSettings  extends BaseGuiSettings implements GuiEven
                         "  OFF - No burring of distortion edges. The edge",
                         "        of distortion may be more noticeable",
                         "        within your field of view."
+                };
+            case HIGH_QUALITY_DISTORTION:
+                return new String[] {
+                        "If enabled, and render scale is greater than one,",
+                        "uses an improved downsampling algorithm to anti-",
+                        "alias the image.",
+                        "  ON  - Higher quality if render scale is increased",
+                        "        above 1. May increase perceived latency",
+                        "        slightly.",
+                        "  OFF - Standard downsampling algorithm used. Faster."
+                };
+            case OTHER_RENDER_SETTINGS:
+                return new String[] {
+                        "Configure IPD and FOV border settings."
                 };
     	// TODO: Add others
     	default:

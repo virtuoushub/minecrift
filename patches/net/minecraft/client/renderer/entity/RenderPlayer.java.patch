@@ -143,7 +143,7 @@
          float var11;
  
          if (var21 && !p_77029_1_.isInvisible() && !p_77029_1_.getHideCape())
-@@ -291,8 +355,11 @@
+@@ -291,10 +355,16 @@
          }
  
          ItemStack var24 = p_77029_1_.inventory.getCurrentItem();
@@ -156,8 +156,13 @@
 +        if (var24 != null && eventRenderItem)
          {
              GL11.glPushMatrix();
++            /** Minecrift */
++            GL11.glTranslatef(0, 0, vrOffset);
++            /** end Minecrift */
              this.modelBipedMain.bipedRightArm.postRender(0.0625F);
-@@ -310,7 +377,14 @@
+             GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
+ 
+@@ -310,7 +380,14 @@
                  var26 = var24.getItemUseAction();
              }
  
@@ -173,7 +178,7 @@
              {
                  var7 = 0.5F;
                  GL11.glTranslatef(0.0F, 0.1875F, -0.3125F);
-@@ -367,7 +441,11 @@
+@@ -367,7 +444,11 @@
  
              if (var24.getItem().requiresMultipleRenderPasses())
              {
@@ -186,7 +191,7 @@
                  {
                      int var8 = var24.getItem().getColorFromItemStack(var24, var28);
                      var30 = (float)(var8 >> 16 & 255) / 255.0F;
-@@ -389,6 +467,9 @@
+@@ -389,6 +470,9 @@
  
              GL11.glPopMatrix();
          }

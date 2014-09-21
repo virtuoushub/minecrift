@@ -17,16 +17,22 @@ import de.fruitfly.ovr.structs.*;
  */
 public interface IStereoProvider extends IBasePlugin
 {
-    public FovTextureInfo getFovTextureSize(float renderScaleFactor);
+    public FovTextureInfo getFovTextureSize(FovPort LeftFov,
+                                            FovPort RightFov,
+                                            float renderScaleFactor);
 
     public EyeRenderParams configureRendering(Sizei InTextureSize,
                                               Sizei OutTextureSize,
-                                              GLConfig glConfig);
+                                              GLConfig glConfig,
+                                              FovPort LeftFov,
+                                              FovPort RightFov);
 
     public EyeRenderParams configureRenderingDualTexture(Sizei InTexture1Size,
                                                          Sizei InTexture2Size,
                                                          Sizei OutDisplaySize,
-                                                         GLConfig glConfig);
+                                                         GLConfig glConfig,
+                                                         FovPort LeftFov,
+                                                         FovPort RightFov);
 
     public void resetRenderConfig();
 

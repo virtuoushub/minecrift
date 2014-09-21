@@ -28,6 +28,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             VRSettings.VrOptions.DECOUPLE_LOOK_MOVE,
             VRSettings.VrOptions.JOYSTICK_SENSITIVITY,
             VRSettings.VrOptions.MOVEAIM_HYDRA_USE_CONTROLLER_ONE,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.MOVEMENT_MULTIPLIER,
+            VRSettings.VrOptions.WALK_UP_BLOCKS,
     };
     /** An array of all of EnumOption's movement options relevant to the mouse. */
     static VRSettings.VrOptions[] mouseMoveAimOptions = new VRSettings.VrOptions[] {
@@ -36,6 +39,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             VRSettings.VrOptions.DECOUPLE_LOOK_MOVE,
             VRSettings.VrOptions.PITCH_AFFECTS_CAMERA,
             VRSettings.VrOptions.AIM_PITCH_OFFSET,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.MOVEMENT_MULTIPLIER,
+            VRSettings.VrOptions.WALK_UP_BLOCKS,
     };
     /** An array of all of EnumOption's movement options relevant to the controller. */
     static VRSettings.VrOptions[] controllerMoveAimOptions = new VRSettings.VrOptions[] {
@@ -46,6 +52,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             VRSettings.VrOptions.JOYSTICK_SENSITIVITY,
             VRSettings.VrOptions.JOYSTICK_DEADZONE,
             VRSettings.VrOptions.JOYSTICK_AIM_TYPE,
+            VRSettings.VrOptions.DUMMY,
+            VRSettings.VrOptions.MOVEMENT_MULTIPLIER,
+            VRSettings.VrOptions.WALK_UP_BLOCKS,
     };
 	private PluginModeChangeButton pluginModeChangeutton;
 	private boolean reinit;
@@ -88,6 +97,9 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             VRSettings.VrOptions var8 = var10[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
+
+            if (var8 == VRSettings.VrOptions.DUMMY)
+                continue;
 
             if (var8.getEnumFloat())
             {
@@ -139,10 +151,6 @@ public class GuiMoveAimSettings extends BaseGuiSettings
             {
                 String keyText = this.guivrSettings.getKeyBinding(var8);
                 GuiSmallButtonEx smallButton = new GuiSmallButtonEx(var8.returnEnumOrdinal(), width, height, var8, keyText);
-                // TODO: Remove once pitch affects camera is fixed
-                if (var8 == VRSettings.VrOptions.PITCH_AFFECTS_CAMERA)
-                    smallButton.enabled = false;
-                // TODO: end Remove once pitch affects camera is fixed
                 this.buttonList.add(smallButton);
             }
         }
@@ -287,13 +295,33 @@ public class GuiMoveAimSettings extends BaseGuiSettings
                             "  controller to that used for positional tracking."
                     } ;
                 case AIM_PITCH_OFFSET:
-                	return new String[] {
-                			"Vertical Crosshair Offset",
-                			"  If your headset doesn't sit straight on your face,",
-                			"  this setting allows you to set the 'fixed' crosshair",
-                			"  lower or higher than center of the screen.",
-                			"  Recommended value: 0.0"
-                	} ;
+                return new String[] {
+                        "Vertical Crosshair Offset",
+                        "  If your headset doesn't sit straight on your face,",
+                        "  this setting allows you to set the 'fixed' crosshair",
+                        "  lower or higher than center of the screen.",
+                        "  Recommended value: 0.0"
+                } ;
+                case MOVEMENT_MULTIPLIER:
+                    return new String[] {
+                            "Sets a movement multiplier, allowing slower movement",
+                            "than default. This may help reduce locomotion induced",
+                            "simulator sickness.",
+                            "WARNING: May trigger anti-cheat warnings if on a",
+                            "Multiplayer server!!",
+                            "Defaults to 1.0 (no movement adjustment, standard",
+                            "Minecraft movement speed)."
+                    } ;
+                case WALK_UP_BLOCKS:
+                    return new String[] {
+                            "Allows you to set the ability to walk up blocks without",
+                            "having to jump.",
+                            "WARNING: May trigger anti-cheat warnings if on a",
+                            "Multiplayer server!!",
+                            "  OFF: (default) You will have to jump up blocks.",
+                            "  ON:  You can walk up single blocks. May reduce",
+                            "       locomotion induced simulator sickness for some."
+                    } ;
                 default:
                     return null;
             }

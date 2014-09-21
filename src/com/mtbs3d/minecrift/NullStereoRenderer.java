@@ -22,17 +22,24 @@ public class NullStereoRenderer extends BasePlugin implements IStereoProvider
     }
 
     @Override
-    public FovTextureInfo getFovTextureSize(float renderScaleFactor) {
+    public FovTextureInfo getFovTextureSize(FovPort LeftFov,
+            FovPort RightFov,
+            float renderScaleFactor)
+    {
         return null;
     }
 
     @Override
-    public EyeRenderParams configureRendering(Sizei InTextureSize, Sizei OutTextureSize, GLConfig glConfig) {
+    public EyeRenderParams configureRendering(Sizei InTextureSize, Sizei OutTextureSize, GLConfig glConfig, FovPort LeftFov,
+            FovPort RightFov)
+    {
         return null;
     }
 
     @Override
-    public EyeRenderParams configureRenderingDualTexture(Sizei InTexture1Size, Sizei InTexture2Size, Sizei OutDisplaySize, GLConfig glConfig) {
+    public EyeRenderParams configureRenderingDualTexture(Sizei InTexture1Size, Sizei InTexture2Size, Sizei OutDisplaySize, GLConfig glConfig, FovPort LeftFov,
+            FovPort RightFov)
+    {
         return null;
     }
 

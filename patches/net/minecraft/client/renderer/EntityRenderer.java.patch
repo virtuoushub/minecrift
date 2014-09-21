@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/renderer/EntityRenderer.java
 +++ b/net/minecraft/client/renderer/EntityRenderer.java
-@@ -4,15 +4,35 @@
+@@ -4,15 +4,33 @@
  import java.io.IOException;
  import java.lang.reflect.Field;
  import java.nio.FloatBuffer;
@@ -12,10 +12,8 @@
  import java.util.concurrent.Callable;
 +
 +import com.mtbs3d.minecrift.CalibrationHelper;
-+import com.mtbs3d.minecrift.api.IOrientationProvider;
 +import com.mtbs3d.minecrift.api.PluginManager;
 +import com.mtbs3d.minecrift.control.JoystickAim;
-+import com.mtbs3d.minecrift.render.OpenGLdebugging;
 +import com.mtbs3d.minecrift.render.QuaternionHelper;
 +import com.mtbs3d.minecrift.settings.VRSettings;
 +import com.mtbs3d.minecrift.utils.Utils;
@@ -26,17 +24,17 @@
 +import de.fruitfly.ovr.structs.EulerOrient;
 +import de.fruitfly.ovr.structs.Matrix4f;
 +import de.fruitfly.ovr.structs.Quatf;
++import de.fruitfly.ovr.structs.Vector3f;
  import net.minecraft.block.Block;
  import net.minecraft.block.material.Material;
  import net.minecraft.client.Minecraft;
-+import net.minecraft.client.audio.SoundHandler;
 +import net.minecraft.client.audio.SoundManager;
  import net.minecraft.client.entity.EntityPlayerSP;
 +import net.minecraft.client.gui.Gui;
  import net.minecraft.client.gui.GuiDownloadTerrain;
  import net.minecraft.client.gui.GuiMainMenu;
  import net.minecraft.client.gui.MapItemRenderer;
-@@ -28,6 +48,7 @@
+@@ -28,6 +46,7 @@
  import net.minecraft.client.renderer.texture.TextureMap;
  import net.minecraft.client.resources.IResourceManager;
  import net.minecraft.client.resources.IResourceManagerReloadListener;
@@ -44,7 +42,7 @@
  import net.minecraft.client.shader.ShaderGroup;
  import net.minecraft.client.shader.ShaderLinkHelper;
  import net.minecraft.crash.CrashReport;
-@@ -64,9 +85,16 @@
+@@ -64,9 +83,17 @@
  import org.lwjgl.input.Keyboard;
  import org.lwjgl.input.Mouse;
  import org.lwjgl.opengl.Display;
@@ -56,12 +54,13 @@
 +import org.lwjgl.util.vector.Quaternion;
 +import org.lwjgl.util.vector.Vector4f;
 +import paulscode.sound.SoundSystem;
++import paulscode.sound.SoundSystemConfig;
 +
 +import javax.vecmath.Color3f;
  
  public class EntityRenderer implements IResourceManagerReloadListener
  {
-@@ -80,7 +108,7 @@
+@@ -80,7 +107,7 @@
  
      /** A reference to the Minecraft object. */
      private Minecraft mc;
@@ -70,7 +69,7 @@
      public ItemRenderer itemRenderer;
      private final MapItemRenderer theMapItemRenderer;
  
-@@ -157,9 +185,10 @@
+@@ -157,9 +184,10 @@
      private boolean cloudFog;
      private final IResourceManager resourceManager;
      public ShaderGroup theShaderGroup;
@@ -83,7 +82,7 @@
      private double cameraZoom;
      private double cameraYaw;
      private double cameraPitch;
-@@ -238,7 +267,56 @@
+@@ -238,7 +266,59 @@
      public long prevFrameTimeNano = -1L;
      private boolean lastShowDebugInfo = false;
      private boolean showExtendedDebugInfo = false;
@@ -126,7 +125,7 @@
 +    public float INITIAL_CALIBRATION_TEXT_SCALE = 0.0065f;
 +    public int CALIBRATION_TEXT_WORDWRAP_LEN = 40;
 +    public boolean headCollision = false;
-+    public float headCollisionThresholdDistance = 0.1f;
++    public float headCollisionThresholdDistance = 0.05f;
 +    public float headCollisionDistance = -1f;
 +    public Field _soundManagerSndSystemField = null;
 +    public float clipDistance = 0f;
@@ -137,11 +136,14 @@
 +    public Vec3 aimStartPos = null;
 +    public Vec3 aimEndPos = null;
 +    public Vec3 aimRenderOrigin = null;
++    public float lookYawOffset = 0;
++    public float lookPitchOffset = 0;
++    public int callCount = 0;
 +    /** end Minecrift **/
  
      public EntityRenderer(Minecraft p_i45076_1_, IResourceManager p_i45076_2_)
      {
-@@ -255,6 +333,14 @@
+@@ -255,6 +335,14 @@
          this.locationLightMap = p_i45076_1_.getTextureManager().getDynamicTextureLocation("lightMap", this.lightmapTexture);
          this.lightmapColors = this.lightmapTexture.getTextureData();
          this.theShaderGroup = null;
@@ -156,7 +158,7 @@
      }
  
      public boolean isShaderActive()
-@@ -277,39 +363,43 @@
+@@ -277,39 +365,43 @@
      {
          if (OpenGlHelper.shadersSupported)
          {
@@ -170,12 +172,12 @@
 +            // The change will be picked up the next time round the render loop...
 +        }
 +    }
-+
+ 
+-            if (this.shaderIndex != shaderCount)
 +    public ShaderGroup initShaderGroup(Framebuffer framebuffer)
 +    {
 +        ShaderGroup shaderGroup = null;
- 
--            if (this.shaderIndex != shaderCount)
++
 +        if (OpenGlHelper.shadersSupported && this.shaderIndex != shaderCount)
 +        {
 +            try
@@ -223,17 +225,31 @@
  
      public void onResourceManagerReload(IResourceManager par1ResourceManager)
      {
-@@ -414,41 +504,75 @@
+@@ -414,41 +506,85 @@
       */
      public void getMouseOver(float par1)
      {
 +        //No-op for performance reasons (MouseOver set in render loop via getPointedBlock)
 +    }
 +
++    public Vec3 getEyeCentrePosInWorldFrame()
++    {
++        Vec3 basePosition = Vec3.createVectorHelper(0f, -(Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f), 0f);
++        Vec3 centerEyePos = mc.positionTracker.getCenterEyePosition();  // Get center eye, so it is the same point for each eye render...
++        centerEyePos.zCoord += -Minecraft.getMinecraft().vrSettings.eyeProtrusion;
++        centerEyePos.rotateAroundX(-lookPitchOffset * this.mc.PIOVER180);
++        centerEyePos.rotateAroundY(-lookYawOffset   * this.mc.PIOVER180);
++        Vec3 centerEyePosOffset = centerEyePos.addVector(basePosition.xCoord, basePosition.yCoord, basePosition.zCoord);
++        return Vec3.createVectorHelper(-centerEyePosOffset.xCoord, -centerEyePosOffset.yCoord, -centerEyePosOffset.zCoord); // TODO: Why negated?
++    }
++
 +    public void getPointedBlock(float par1)
 +    {
          if (this.mc.renderViewEntity != null && this.mc.theWorld != null)
          {
++            // Lets choose to use the head position for block / entity distance hit / miss calcs for now. Lean
++            // forward, you can hit further away...
++
              this.mc.pointedEntity = null;
 -            double var2 = (double)this.mc.playerController.getBlockReachDistance();
 -            this.mc.objectMouseOver = this.mc.renderViewEntity.rayTrace(var2, par1);
@@ -241,24 +257,13 @@
 -            Vec3 var6 = this.mc.renderViewEntity.getPosition(par1);
 +            double blockReachDistance = (double)this.mc.playerController.getBlockReachDistance();
 +            double entityReachDistance = blockReachDistance;
-+            Vec3 centerEyePosOffset = mc.positionTracker.getCenterEyePosition();  // Get center eye, so it is the same point for each eye render...
++            Vec3 centerEyePosOffset = getEyeCentrePosInWorldFrame();
 +
 +            // Darktemp's crosshair fix
-+            Vec3 pos1 = renderOrigin.addVector(centerEyePosOffset.xCoord, -centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);   // Why minus yCoord?
-+            Vec3 pos2 = renderOrigin.addVector(centerEyePosOffset.xCoord, -centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
-+            Vec3 pos3 = renderOrigin.addVector(centerEyePosOffset.xCoord, -centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
++            Vec3 pos1 = renderOrigin.addVector(centerEyePosOffset.xCoord, centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
++            Vec3 pos2 = renderOrigin.addVector(centerEyePosOffset.xCoord, centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
++            Vec3 pos3 = renderOrigin.addVector(centerEyePosOffset.xCoord, centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
 +            Vec3 aim = Vec3.createVectorHelper(aimX, aimY, aimZ);
-+            Vec3 endPos = pos1.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
-+
-+            if (this.mc.vrSettings.storeDebugAim)
-+            {
-+                Vec3 posDebug = Vec3.createVectorHelper(centerEyePosOffset.xCoord, -centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
-+                Vec3 endPosDebug = posDebug.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
-+                this.mc.vrSettings.storeDebugAim = false;
-+                this.aimStartPos = posDebug;
-+                this.aimEndPos = endPosDebug;
-+                this.aimRenderOrigin = renderOrigin;
-+            }
  
              if (this.mc.playerController.extendedReach())
              {
@@ -280,23 +285,31 @@
 +                blockReachDistance = entityReachDistance;
              }
  
+-            if (this.mc.objectMouseOver != null)
++            Vec3 endPos = pos1.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
 +            this.mc.objectMouseOver = this.mc.theWorld.func_147447_a(pos1, endPos, false, false, true);
 +
 +            Vec3 crossVec=pos1.addVector(aim.xCoord*blockReachDistance,aim.yCoord*blockReachDistance ,aim.zCoord*blockReachDistance );
-             if (this.mc.objectMouseOver != null)
++            if (this.mc.objectMouseOver == null || this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS)
              {
 -                var4 = this.mc.objectMouseOver.hitVec.distanceTo(var6);
-+                entityReachDistance = this.mc.objectMouseOver.hitVec.distanceTo(pos2);
-+                crossVec = this.mc.objectMouseOver.hitVec;
++                // Get MISS distance
++                if (!this.mc.vrSettings.maxCrosshairDistanceAtBlockReach) {
++                    endPos = pos2.addVector(aim.xCoord * 128, aim.yCoord * 128, aim.zCoord * 128);
++                    MovingObjectPosition crossPos = this.mc.theWorld.func_147447_a(pos2, endPos, false, false, true);
++                    if (crossPos != null) {
++                        crossVec = crossPos.hitVec;
++                    } else {
++                        crossVec = Vec3.createVectorHelper(endPos.xCoord, endPos.yCoord, endPos.zCoord);
++                    }
++                }
++                this.mc.objectMouseOver = null;
 +            }
 +            else
 +            {
-+                endPos = pos2.addVector(aim.xCoord*128,aim.yCoord*128,aim.zCoord*128);
-+                MovingObjectPosition crossPos = this.mc.theWorld.func_147447_a(pos2, endPos, false, false, true);
-+                if( crossPos != null )
-+                {
-+                    crossVec = crossPos.hitVec;
-+                }
++                // Get HIT distance
++                entityReachDistance = this.mc.objectMouseOver.hitVec.distanceTo(pos2); // Set entityreach here - we can't hit an entity behind whatever this is...
++                crossVec = this.mc.objectMouseOver.hitVec;
              }
  
 -            Vec3 var7 = this.mc.renderViewEntity.getLook(par1);
@@ -305,15 +318,16 @@
 +            Vec3 var8 = otherpos.addVector(aim.xCoord * blockReachDistance, aim.yCoord * blockReachDistance, aim.zCoord * blockReachDistance);
              this.pointedEntity = null;
              Vec3 var9 = null;
-             float var10 = 1.0F;
+-            float var10 = 1.0F;
 -            List var11 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(var7.xCoord * var2, var7.yCoord * var2, var7.zCoord * var2).expand((double)var10, (double)var10, (double)var10));
 -            double var12 = var4;
++            float var10 = 1.0F;  // TODO: This should probably be the max coord of centerEyePosOffset
 +            List var11 = this.mc.theWorld.getEntitiesWithinAABBExcludingEntity(this.mc.renderViewEntity, this.mc.renderViewEntity.boundingBox.addCoord(aim.xCoord * blockReachDistance, aim.yCoord * blockReachDistance, aim.zCoord * blockReachDistance).expand((double)var10, (double)var10, (double)var10));
 +            double var12 = entityReachDistance;
  
              for (int var14 = 0; var14 < var11.size(); ++var14)
              {
-@@ -458,20 +582,20 @@
+@@ -458,20 +594,20 @@
                  {
                      float var16 = var15.getCollisionBorderSize();
                      AxisAlignedBB var17 = var15.boundingBox.expand((double)var16, (double)var16, (double)var16);
@@ -338,41 +352,52 @@
  
                          if (var19 < var12 || var12 == 0.0D)
                          {
-@@ -501,15 +625,32 @@
+@@ -501,15 +637,40 @@
                  }
              }
  
 -            if (this.pointedEntity != null && (var12 < var4 || this.mc.objectMouseOver == null))
-+            if (this.pointedEntity != null && (var12 < entityReachDistance || this.mc.objectMouseOver == null))
-             {
+-            {
++            if (this.pointedEntity != null && (var12 < entityReachDistance || this.mc.objectMouseOver == null)) {
                  this.mc.objectMouseOver = new MovingObjectPosition(this.pointedEntity, var9);
 +                crossVec = this.mc.objectMouseOver.hitVec;
  
-                 if (this.pointedEntity instanceof EntityLivingBase || this.pointedEntity instanceof EntityItemFrame)
-                 {
+-                if (this.pointedEntity instanceof EntityLivingBase || this.pointedEntity instanceof EntityItemFrame)
+-                {
++                if (this.pointedEntity instanceof EntityLivingBase || this.pointedEntity instanceof EntityItemFrame) {
                      this.mc.pointedEntity = this.pointedEntity;
-+                    //this.mc.printChatMessage("HIT: " + this.pointedEntity.toString());
-+                }
-+                else
-+                {
-+                    //this.mc.printChatMessage("Nowt");
                  }
              }
-+            else
-+            {
-+                //this.mc.printChatMessage("Nowt");
-+            }
 +
 +            // Set up crosshair position
-+            float SLIGHTLY_CLOSER = 0f; // Set to 0.001f if enabling depth test on crosshair?
++            float SLIGHTLY_CLOSER = 0.001f;
 +            Vec3 centerEyePosToCrossDirection = pos3.subtract(crossVec).normalize();
 +            crossX = (float)(crossVec.xCoord - (centerEyePosToCrossDirection.xCoord*SLIGHTLY_CLOSER) - renderOriginX);
 +            crossY = (float)(crossVec.yCoord - (centerEyePosToCrossDirection.yCoord*SLIGHTLY_CLOSER) - renderOriginY);
 +            crossZ = (float)(crossVec.zCoord - (centerEyePosToCrossDirection.zCoord*SLIGHTLY_CLOSER) - renderOriginZ);
++
++            if (this.mc.vrSettings.storeDebugAim)
++            {
++                Vec3 cross = Vec3.createVectorHelper(crossX, crossY, crossZ);
++                double crossDist = cross.lengthVector();
++                Vec3 posDebug = Vec3.createVectorHelper(centerEyePosOffset.xCoord, centerEyePosOffset.yCoord, centerEyePosOffset.zCoord);
++                Vec3 endPosDebug = posDebug.addVector(aim.xCoord*crossDist,aim.yCoord*crossDist ,aim.zCoord*crossDist );
++                this.mc.vrSettings.storeDebugAim = false;
++                this.aimStartPos = posDebug;
++                this.aimEndPos = endPosDebug;
++                this.aimRenderOrigin = renderOrigin;
++
++                if (this.mc.objectMouseOver == null || this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.MISS) {
++                    this.mc.printChatMessage("MISS: Cross dist=" + crossDist);
++                }
++                else {
++                    this.mc.printChatMessage("HIT: Cross dist=" + crossDist + ", Object=" + this.mc.objectMouseOver.toString());
++                }
++            }
          }
      }
  
-@@ -562,6 +703,7 @@
+@@ -562,6 +723,7 @@
                  var4 *= this.fovModifierHandPrev + (this.fovModifierHand - this.fovModifierHandPrev) * par1;
              }
  
@@ -380,7 +405,22 @@
              boolean zoomActive = false;
  
              if (this.mc.currentScreen == null)
-@@ -666,7 +808,7 @@
+@@ -646,9 +808,11 @@
+         {
+             EntityPlayer var2 = (EntityPlayer)this.mc.renderViewEntity;
+             float var3 = var2.distanceWalkedModified - var2.prevDistanceWalkedModified;
+-            float var4 = -(var2.distanceWalkedModified + var3 * par1);
+-            float var5 = var2.prevCameraYaw + (var2.cameraYaw - var2.prevCameraYaw) * par1;
+-            float var6 = var2.prevCameraPitch + (var2.cameraPitch - var2.prevCameraPitch) * par1;
++            /** Minecrift */       // TODO: Tweak this
++            float var4 = -(var2.distanceWalkedModified + var3 * par1) * this.mc.vrSettings.movementSpeedMultiplier;
++            float var5 = var2.prevCameraYaw + (var2.cameraYaw - var2.prevCameraYaw) * par1 * this.mc.vrSettings.movementSpeedMultiplier;
++            float var6 = var2.prevCameraPitch + (var2.cameraPitch - var2.prevCameraPitch) * par1 * this.mc.vrSettings.movementSpeedMultiplier;
++            /** end Minecrift */
+             GL11.glTranslatef(MathHelper.sin(var4 * (float)Math.PI) * var5 * 0.5F, -Math.abs(MathHelper.cos(var4 * (float)Math.PI) * var5), 0.0F);
+             GL11.glRotatef(MathHelper.sin(var4 * (float)Math.PI) * var5 * 3.0F, 0.0F, 0.0F, 1.0F);
+             GL11.glRotatef(Math.abs(MathHelper.cos(var4 * (float)Math.PI - 0.2F) * var5) * 5.0F, 1.0F, 0.0F, 0.0F);
+@@ -666,7 +830,7 @@
          double var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
          double var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
          double var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
@@ -389,7 +429,7 @@
  
          if (var2.isPlayerSleeping())
          {
-@@ -755,16 +897,35 @@
+@@ -755,16 +919,38 @@
          }
          else
          {
@@ -397,39 +437,45 @@
 +//            GL11.glTranslatef(0.0F, 0.0F, -0.1F);  // TODO: Minecrift
          }
  
-+        // Minecrift - view adjust for IPD etc.
-+        GL11.glTranslated(-this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.x * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-+                          this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.y * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-+                          this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.z * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale);
-+
-+
-+        // Minecrift - orientation
-         if (!this.mc.gameSettings.debugCamEnable)
-         {
+-        if (!this.mc.gameSettings.debugCamEnable)
+-        {
 -            GL11.glRotatef(var2.prevRotationPitch + (var2.rotationPitch - var2.prevRotationPitch) * par1, 1.0F, 0.0F, 0.0F);
 -            GL11.glRotatef(var2.prevRotationYaw + (var2.rotationYaw - var2.prevRotationYaw) * par1 + 180.0F, 0.0F, 1.0F, 0.0F);
-+            if (this.mc.gameSettings.thirdPersonView == 2)
-+                GL11.glRotated(-this.cameraRoll, 0.0F, 0.0F, 1.0F);
-+            else
-+                GL11.glRotated(this.cameraRoll, 0.0F, 0.0F, 1.0F);
+-        }
++        // Minecrift - view adjust for IPD etc.
++        GL11.glTranslatef(-this.mc.vrSettings.getHalfIPD(this.mc.currentEye) * this.mc.vrSettings.ipdScale,
++                          this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.y,
++                          Math.abs(this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.z * this.mc.vrSettings.ipdScale));  // TODO: Does z need to be minus? Also x pos track scale?
++                //this.mc.vrSettings.eyeRelief);
 +
-+            GL11.glRotated(this.cameraPitch, 1.0F, 0.0F, 0.0F);
-+            GL11.glRotated(this.cameraYaw + 180.0F, 0.0F, 1.0F, 0.0F);
-         }
++        // Minecrift - orientation
++        if (this.mc.gameSettings.thirdPersonView == 2)
++            GL11.glRotatef((float) -this.headRoll, 0.0F, 0.0F, 1.0F);
++        else
++            GL11.glRotatef((float) this.headRoll,  0.0F, 0.0F, 1.0F);
++        GL11.glRotatef((float) this.headPitch,     1.0F, 0.0F, 0.0F);
++        GL11.glRotatef((float) this.headYaw,       0.0F, 1.0F, 0.0F);
++
++        // Minecrift - pos
++        GL11.glTranslatef(camRelX,
++                          camRelY,
++                          camRelZ + Minecraft.getMinecraft().vrSettings.eyeProtrusion);
++
++        // Minecrift - correct for yaw / pitch offsets
++        GL11.glRotatef(this.lookPitchOffset, 1.0F, 0.0F, 0.0F);
++        GL11.glRotatef(this.lookYawOffset,   0.0F, 1.0F, 0.0F);
++
++        // Account for player eye height
++        GL11.glTranslatef(0f, -(Minecraft.getMinecraft().vrSettings.getPlayerEyeHeight() - 1.62f), 0f);
++
++        // Minecrift - rotate 180 to correct walk / strafe direction(!)
++        GL11.glRotatef(180f, 0f, 1f, 0f);
  
 -        GL11.glTranslatef(0.0F, var3, 0.0F);
-+        // Minecrift - pos
-+        GL11.glTranslated(camRelX, /*var3 -*/ camRelY, camRelZ);
-+
-+        //GL11.glTranslatef(0.0F, var3, 0.0F);     // TODO: Minecrift
-+
-+        //System.out.println(this.mc.currentEye.toString());
-+        //System.out.println(this.mc.currentPose.getPositionString());
-+
          var4 = var2.prevPosX + (var2.posX - var2.prevPosX) * (double)par1;
          var6 = var2.prevPosY + (var2.posY - var2.prevPosY) * (double)par1 - (double)var3;
          var8 = var2.prevPosZ + (var2.posZ - var2.prevPosZ) * (double)par1;
-@@ -776,68 +937,60 @@
+@@ -776,17 +962,7 @@
       */
      private void setupCameraTransform(float par1, int par2)
      {
@@ -448,38 +494,27 @@
  
          GL11.glMatrixMode(GL11.GL_PROJECTION);
          GL11.glLoadIdentity();
-         float var3 = 0.07F;
+@@ -797,25 +973,24 @@
+             GL11.glTranslatef((float)(-(par2 * 2 - 1)) * var3, 0.0F, 0.0F);
+         }
  
--        if (this.mc.gameSettings.anaglyph)
--        {
--            GL11.glTranslatef((float)(-(par2 * 2 - 1)) * var3, 0.0F, 0.0F);
--        }
--
 -        float clipDistance = this.farPlaneDistance * 2.0F;
-+		// TODO: Minecrift
-+//        if (this.mc.gameSettings.anaglyph)
-+//        {
-+//            GL11.glTranslatef((float)(-(p_78479_2_ * 2 - 1)) * f1, 0.0F, 0.0F);
-+//        }
-+
-+//        if (this.cameraZoom != 1.0D)
-+//        {
-+//            GL11.glTranslatef((float)this.cameraYaw, (float)(-this.cameraPitch), 0.0F);
-+//            GL11.glScaled(this.cameraZoom, this.cameraZoom, 1.0D);
-+//        }
- 
+-
 -        if (clipDistance < 128.0F)
-+        // TODO: Minecrift - use correct projection
-+        if (this.mc.renderStereo)
++        if (this.cameraZoom != 1.0D)
          {
 -            clipDistance = 128.0F;
++            GL11.glTranslatef((float)this.cameraYaw, (float)(-this.cameraPitch), (float)(-this.cameraRoll)); // Minecrift
++            GL11.glScaled(this.cameraZoom, this.cameraZoom, 1.0D);
+         }
+ 
+-        if (this.mc.theWorld.provider.dimensionId == 1)
++        // Minecrift - use correct projection
++        if (this.mc.renderStereo)
+         {
+-            clipDistance = 256.0F;
 +            GL11.glMultMatrix(eyeproj[this.mc.currentEye.value()].transposed().toFloatBuffer());
          }
--
--        if (this.mc.theWorld.provider.dimensionId == 1)
--        {
--            clipDistance = 256.0F;
--        }
 -
 -        if (this.cameraZoom != 1.0D)
 +        else
@@ -494,59 +529,25 @@
 -        Project.gluPerspective(this.getFOVModifier(par1, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, clipDistance);
          float var4;
  
--        if (this.mc.playerController.enableEverythingIsScrewedUpMode())
--        {
--            var4 = 0.6666667F;
--            GL11.glScalef(1.0F, var4, 1.0F);
--        }
-+		// TODO: Minecrift
-+//        if (this.mc.playerController.enableEverythingIsScrewedUpMode())
-+//        {
-+//            var4 = 0.6666667F;
-+//            GL11.glScalef(1.0F, var4, 1.0F);
-+//        }
+         if (this.mc.playerController.enableEverythingIsScrewedUpMode())
+@@ -832,7 +1007,7 @@
+             GL11.glTranslatef((float)(par2 * 2 - 1) * 0.1F, 0.0F, 0.0F);
+         }
  
-         GL11.glMatrixMode(GL11.GL_MODELVIEW);
-         GL11.glLoadIdentity();
- 
--        if (this.mc.gameSettings.anaglyph)
--        {
--            GL11.glTranslatef((float)(par2 * 2 - 1) * 0.1F, 0.0F, 0.0F);
--        }
--
 -        this.hurtCameraEffect(par1);
--
--        if (this.mc.gameSettings.viewBobbing)
--        {
--            this.setupViewBobbing(par1);
--        }
-+		// TODO: Minecrift
-+//        if (this.mc.gameSettings.anaglyph)
-+//        {
-+//            GL11.glTranslatef((float)(par2 * 2 - 1) * 0.1F, 0.0F, 0.0F);
-+//        }
-+
-+        //this.hurtCameraEffect(p_78479_1_);
-+
-+        //if (this.mc.gameSettings.viewBobbing)
-+        //{
-+        //    this.setupViewBobbing(par1);
-+        //}
++        this.hurtCameraEffect(par2);
  
-         var4 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * par1;
- 
-@@ -852,13 +1005,16 @@
+         if (this.mc.gameSettings.viewBobbing)
+         {
+@@ -852,6 +1027,7 @@
  
              float var6 = 5.0F / (var4 * var4 + 5.0F) - var4 * 0.04F;
              var6 *= var6;
--            GL11.glRotatef(((float)this.rendererUpdateCount + par1) * (float)var7, 0.0F, 1.0F, 1.0F);
--            GL11.glScalef(1.0F / var6, 1.0F, 1.0F);
--            GL11.glRotatef(-((float)this.rendererUpdateCount + par1) * (float)var7, 0.0F, 1.0F, 1.0F);
-+		// TODO: Minecrift
-+//            GL11.glRotatef(((float)this.rendererUpdateCount + par1) * (float)var7, 0.0F, 1.0F, 1.0F);
-+//            GL11.glScalef(1.0F / var6, 1.0F, 1.0F);
-+//            GL11.glRotatef(-((float)this.rendererUpdateCount + par1) * (float)var7, 0.0F, 1.0F, 1.0F);
-         }
++		    // TODO: Minecrift - enable blanking
+             GL11.glRotatef(((float)this.rendererUpdateCount + par1) * (float)var7, 0.0F, 1.0F, 1.0F);
+             GL11.glScalef(1.0F / var6, 1.0F, 1.0F);
+             GL11.glRotatef(-((float)this.rendererUpdateCount + par1) * (float)var7, 0.0F, 1.0F, 1.0F);
+@@ -859,6 +1035,8 @@
  
          this.orientCamera(par1);
  
@@ -555,7 +556,7 @@
          if (this.debugViewDirection > 0)
          {
              int var71 = this.debugViewDirection - 1;
-@@ -887,7 +1043,7 @@
+@@ -887,7 +1065,7 @@
              {
                  GL11.glRotatef(-90.0F, 1.0F, 0.0F, 0.0F);
              }
@@ -564,7 +565,7 @@
      }
  
      /**
-@@ -981,8 +1137,6 @@
+@@ -981,8 +1159,6 @@
          GL11.glTranslatef(8.0F, 8.0F, 8.0F);
          GL11.glMatrixMode(GL11.GL_MODELVIEW);
          this.mc.getTextureManager().bindTexture(this.locationLightMap);
@@ -573,16 +574,14 @@
          GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
          GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
          GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-@@ -1222,37 +1376,59 @@
+@@ -1222,37 +1398,60 @@
              this.prevFrameTime = Minecraft.getSystemTime();
          }
  
 -        this.mc.mcProfiler.startSection("mouse");
 -
 -        if (this.mc.inGameHasFocus && var21)
-+        //Update gui Yaw
-+        if( guiShowingThisFrame && !guiShowingLastFrame )
-         {
+-        {
 -            this.mc.mouseHelper.mouseXYChange();
 -            float var132 = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
 -            float var141 = var132 * var132 * var132 * 8.0F;
@@ -609,8 +608,13 @@
 -            {
 -                this.mc.thePlayer.setAngles(var15, var16 * (float)var17);
 -            }
-+            guiHeadYaw = (float)this.cameraYaw - this.mc.lookaimController.getBodyYawDegrees();
-         }
+-        }
++        //Update gui Yaw      // TODO: Is this needed for anything else? This doesn't work if in
++                              // game, no HUD displayed - menu appears in the wrong place (-current headYaw)
++//        if( guiShowingThisFrame && !guiShowingLastFrame )
++//        {
++//            guiHeadYaw = (float)this.cameraYaw - this.mc.lookaimController.getBodyYawDegrees();
++//        }
 +        guiShowingLastFrame = guiShowingThisFrame;
 +//        this.mc.mcProfiler.startSection("mouse");
 +//
@@ -662,7 +666,7 @@
  
          this.mc.mcProfiler.endSection();
  
-@@ -1268,6 +1444,8 @@
+@@ -1268,6 +1467,8 @@
  
              if (this.mc.theWorld != null)
              {
@@ -671,7 +675,7 @@
                  this.mc.mcProfiler.startSection("level");
  
                  if (this.mc.isFramerateLimitBelowMax())
-@@ -1288,6 +1466,7 @@
+@@ -1288,6 +1489,7 @@
                          GL11.glLoadIdentity();
                          this.theShaderGroup.loadShaderGroup(par1);
                          GL11.glPopMatrix();
@@ -679,7 +683,7 @@
                      }
  
                      this.mc.getFramebuffer().bindFramebuffer(true);
-@@ -1296,26 +1475,61 @@
+@@ -1296,26 +1498,46 @@
                  this.renderEndNanoTime = System.nanoTime();
                  this.mc.mcProfiler.endStartSection("gui");
  
@@ -731,28 +735,13 @@
 +                GL11.glEnable(GL11.GL_ALPHA_TEST);
 +                GL11.glEnable(GL11.GL_DEPTH_TEST);
 +
-+//                if (this.mc.theWorld == null)
-+//                    OpenGLdebugging.dumpOpenGLstateToFileOnce("../BeforeFinalRenderGui_noworld.txt");
-+//                else if (this.theShaderGroup != null)
-+//                    OpenGLdebugging.dumpOpenGLstateToFileOnce("../BeforeFinalRenderGui_world_shader.txt");
-+//                else
-+//                    OpenGLdebugging.dumpOpenGLstateToFileOnce("../BeforeFinalRenderGui_world_noshader.txt");
-+
 +                renderGuiLayer();
-+
-+//                if (this.mc.theWorld == null)
-+//                    OpenGLdebugging.dumpOpenGLstateToFileOnce("../AfterFinalRenderGui_noworld.txt");
-+//                else if (this.theShaderGroup != null)
-+//                    OpenGLdebugging.dumpOpenGLstateToFileOnce("../AfterFinalRenderGui_world_shader.txt");
-+//                else
-+//                    OpenGLdebugging.dumpOpenGLstateToFileOnce("../AfterFinalRenderGui_world_noshader.txt");
-+
 +            }
 +            else if (this.mc.currentScreen != null)
              {
                  GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
  
-@@ -1342,41 +1556,26 @@
+@@ -1342,41 +1564,26 @@
                      var11.addCrashSectionCallable("Screen name", new Callable()
                      {
                          private static final String __OBFID = "CL_00000948";
@@ -794,7 +783,7 @@
                      });
                      throw new ReportedException(var10);
                  }
-@@ -1401,6 +1600,261 @@
+@@ -1401,6 +1608,299 @@
              this.mc.gameSettings.showDebugProfilerChart = true;
          }
      }
@@ -839,6 +828,44 @@
 +            }
 +            else
 +            {
++//                float guiYaw = 0f;
++//                if (this.mc.theWorld != null && this.mc.vrSettings.lookMoveDecoupled)
++//                {
++//                    guiYaw = this.mc.lookaimController.getBodyYawDegrees();
++//                }
++//                else
++//                {
++//                    guiYaw = guiHeadYaw + this.mc.lookaimController.getBodyYawDegrees();
++//                }
++//
++//                float guiPitch = 0f;
++//
++////                    if( this.mc.vrSettings.allowMousePitchInput)
++////                        guiPitch += this.mc.lookaimController.getBodyPitchDegrees();
++//
++//                // View adjust for IPD etc.
++//                GL11.glTranslated(-this.mc.vrSettings.getHalfIPD(this.mc.currentEye) * this.mc.vrSettings.ipdScale,
++//                        this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.y,
++//                        this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.z);  // TODO: Does Z need to be minus?
++//
++//                // Orientation adjust
++//                GL11.glRotatef((float)cameraRoll, 0f, 0f, 1f);
++//                GL11.glRotatef((float)cameraPitch - guiPitch, 1f, 0f, 0f);
++//                GL11.glRotatef((float)cameraYaw - guiYaw, 0f, 1f, 0f);
++//
++//                // Rotate our position data
++//                Vec3 pos = Vec3.createVectorHelper(-camRelX, camRelY, -camRelZ);
++//
++//                pos.rotateAroundX(-guiPitch*this.mc.PIOVER180);
++//                pos.rotateAroundY(guiYaw*this.mc.PIOVER180);
++//
++//                // Position adjust
++//                GL11.glTranslated(pos.xCoord, pos.yCoord, pos.zCoord);
++//
++//                GL11.glRotatef(-this.mc.vrSettings.hudPitchOffset, 1f, 0f, 0f);
++//                GL11.glRotatef(-this.mc.vrSettings.hudYawOffset, 0f, 1f, 0f);
++//                GL11.glTranslatef(0.0f, 0.0f, -this.mc.vrSettings.hudDistance);
++
 +                float guiYaw = 0f;
 +                if (this.mc.theWorld != null && this.mc.vrSettings.lookMoveDecoupled)
 +                {
@@ -855,26 +882,25 @@
 +//                        guiPitch += this.mc.lookaimController.getBodyPitchDegrees();
 +
 +                // View adjust for IPD etc.
-+                GL11.glTranslated(-this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.x * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-+                        this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.y * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale,
-+                        this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.z * Minecraft.getMinecraft().vrSettings.posTrackWorldDistanceScale);
++                GL11.glTranslatef(-this.mc.vrSettings.getHalfIPD(this.mc.currentEye) * this.mc.vrSettings.ipdScale,
++                                  this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.y,
++                                  Math.abs(this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.z));  // TODO: Does Z need to be minus?
++
++                //System.out.println("ViewAdjust (" + this.mc.currentEye.toString() + "): " + this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.z);
 +
 +                // Orientation adjust
-+                GL11.glRotatef((float)cameraRoll, 0f, 0f, 1f);
-+                GL11.glRotatef((float)cameraPitch - guiPitch, 1f, 0f, 0f);
-+                GL11.glRotatef((float)cameraYaw - guiYaw, 0f, 1f, 0f);
-+
-+                // Rotate our position data
-+                Vec3 pos = Vec3.createVectorHelper(-camRelX, camRelY, -camRelZ);
-+
-+                pos.rotateAroundX(-guiPitch*this.mc.PIOVER180);
-+                pos.rotateAroundY(guiYaw*this.mc.PIOVER180);
++                GL11.glRotatef((float)headRoll, 0f, 0f, 1f);
++                GL11.glRotatef((float)headPitch, 1f, 0f, 0f);
++                GL11.glRotatef((float)headYaw, 0f, 1f, 0f);
 +
 +                // Position adjust
-+                GL11.glTranslated(pos.xCoord, pos.yCoord, pos.zCoord);
++                GL11.glTranslatef(camRelX, camRelY, camRelZ);
 +
-+                GL11.glRotatef(-this.mc.vrSettings.hudPitchOffset, 1f, 0f, 0f);
-+                GL11.glRotatef(-this.mc.vrSettings.hudYawOffset, 0f, 1f, 0f);
++                // Rotate HUD to appropriate position
++                GL11.glRotatef(this.mc.vrSettings.hudPitchOffset - guiPitch, 1f, 0f, 0f);
++                GL11.glRotatef(guiYaw - lookYawOffset - this.mc.vrSettings.hudYawOffset, 0f, 1f, 0f);
++
++                // Move out HUD distance
 +                GL11.glTranslatef(0.0f, 0.0f, -this.mc.vrSettings.hudDistance);
 +            }
 +
@@ -1029,7 +1055,7 @@
 +
 +                    GL11.glDisable(GL11.GL_LIGHTING); //inventory messes up fog color sometimes... This fixes
 +                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-+                    drawMouseQuad(mouseX, mouseY);
++                    drawMouseMenuQuad(mouseX, mouseY);
 +                }
 +
 +                this.mc.guiFramebuffer.bindFramebufferTexture();
@@ -1042,21 +1068,22 @@
 +        this.mc.displayHeight = currentDisplayHeight;
 +    }
 +
-+    public void drawMouseQuad(int mouseX, int mouseY)
++    public void drawMouseMenuQuad(int mouseX, int mouseY)
 +    {
 +        GL11.glDisable(GL11.GL_BLEND);
 +        GL11.glDisable(GL11.GL_DEPTH_TEST);
 +        GL11.glColor3f(1, 1, 1);
 +        this.mc.mcProfiler.endStartSection("mouse pointer");
 +        this.mc.getTextureManager().bindTexture(Gui.icons);
-+        this.mc.ingameGUI.drawTexturedModalRect(mouseX - 7, mouseY - 7, 0, 0, 15, 15);
++        float menuMousePointerSize = 16f * this.mc.vrSettings.menuCrosshairScale;
++        this.mc.ingameGUI.drawCentredTexturedModalRect(mouseX, mouseY, menuMousePointerSize, menuMousePointerSize, 0, 0, 15, 15);
 +
 +        GL11.glEnable(GL11.GL_BLEND);
 +    }
  
      public void func_152430_c(float p_152430_1_)
      {
-@@ -1435,9 +1889,23 @@
+@@ -1435,9 +1935,23 @@
          EntityLivingBase var4 = this.mc.renderViewEntity;
          RenderGlobal var5 = this.mc.renderGlobal;
          EffectRenderer var6 = this.mc.effectRenderer;
@@ -1083,7 +1110,7 @@
          this.mc.mcProfiler.endStartSection("center");
  
          for (int var13 = 0; var13 < 2; ++var13)
-@@ -1463,6 +1931,13 @@
+@@ -1463,6 +1977,13 @@
              GL11.glEnable(GL11.GL_CULL_FACE);
              this.mc.mcProfiler.endStartSection("camera");
              this.setupCameraTransform(par1, var13);
@@ -1097,7 +1124,7 @@
              ActiveRenderInfo.updateRenderInfo(this.mc.thePlayer, this.mc.gameSettings.thirdPersonView == 2);
              this.mc.mcProfiler.endStartSection("frustrum");
              ClippingHelperImpl.getInstance();
-@@ -1488,10 +1963,10 @@
+@@ -1488,10 +2009,10 @@
  
              this.mc.mcProfiler.endStartSection("culling");
              Frustrum var14 = new Frustrum();
@@ -1110,7 +1137,7 @@
              {
                  this.mc.mcProfiler.endStartSection("updatechunks");
  
-@@ -1525,6 +2000,10 @@
+@@ -1525,6 +2046,13 @@
              boolean hasForge = Reflector.ForgeHooksClient.exists();
              EntityPlayer var18;
  
@@ -1118,10 +1145,13 @@
 +            boolean renderOutline = this.mc.vrSettings.renderBlockOutlineMode == VRSettings.RENDER_BLOCK_OUTLINE_MODE_ALWAYS ||
 +                    (this.mc.vrSettings.renderBlockOutlineMode == VRSettings.RENDER_BLOCK_OUTLINE_MODE_HUD && !this.mc.gameSettings.hideGUI);
 +
++            // Minecrift - crosshair rendering
++            renderCrosshairAtDepth();
++
              if (this.debugViewDirection == 0)
              {
                  GL11.glMatrixMode(GL11.GL_MODELVIEW);
-@@ -1551,13 +2030,13 @@
+@@ -1551,13 +2079,13 @@
                  GL11.glPopMatrix();
                  GL11.glPushMatrix();
  
@@ -1137,7 +1167,7 @@
                      {
                          var5.drawSelectionBox(var18, this.mc.objectMouseOver, 0, par1);
                      }
-@@ -1568,13 +2047,13 @@
+@@ -1568,13 +2096,13 @@
              GL11.glMatrixMode(GL11.GL_MODELVIEW);
              GL11.glPopMatrix();
  
@@ -1153,7 +1183,7 @@
                  {
                      var5.drawSelectionBox(var18, this.mc.objectMouseOver, 0, par1);
                  }
-@@ -1682,13 +2161,23 @@
+@@ -1682,13 +2210,20 @@
                  Reflector.callVoid(Reflector.ForgeHooksClient_dispatchRenderLast, new Object[] {var5, Float.valueOf(par1)});
              }
  
@@ -1162,9 +1192,6 @@
 +            GL11.glPopMatrix();
 +            GL11.glMatrixMode(GL11.GL_MODELVIEW);
 +            GL11.glPopMatrix();
-+
-+            // Minecrift - crosshair rendering
-+            renderCrosshairAtDepth();
 +
              this.mc.mcProfiler.endStartSection("hand");
              boolean renderFirstPersonHand = Reflector.callBoolean(Reflector.ForgeHooksClient_renderFirstPersonHand, new Object[] {this.mc.renderGlobal, Float.valueOf(par1), Integer.valueOf(var13)});
@@ -1179,7 +1206,7 @@
              }
  
              if (!this.mc.gameSettings.anaglyph)
-@@ -1702,6 +2191,65 @@
+@@ -1702,6 +2237,66 @@
          this.mc.mcProfiler.endSection();
      }
  
@@ -1213,7 +1240,8 @@
 +                GL11.glRotated(this.cameraRoll, 0.0F, 0.0F, 1.0F);
 +            GL11.glScalef(-scale, -scale, scale);
 +            GL11.glDisable(GL11.GL_LIGHTING);
-+            GL11.glDisable(GL11.GL_DEPTH_TEST);
++            if (!this.mc.vrSettings.useCrosshairOcclusion)
++                GL11.glDisable(GL11.GL_DEPTH_TEST);
 +            GL11.glEnable(GL11.GL_BLEND);
 +            GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
 +            this.mc.getTextureManager().bindTexture(Gui.icons);
@@ -1245,7 +1273,7 @@
      /**
       * Render clouds if enabled
       */
-@@ -2593,4 +3141,532 @@
+@@ -2593,4 +3188,551 @@
              ;
          }
      }
@@ -1267,20 +1295,35 @@
 +
 +        if (this.mc.vrSettings.posTrackResetPosition)
 +        {
-+            mc.positionTracker.resetOrigin();
++            //mc.positionTracker.resetOrigin(); // TODO: HACK - Ensure we don't call reset in quick succession with the Oculus...
++                                                // this needs a cool down timer or something until the next reset on the same
++                                                // device is allowed
 +            mc.headTracker.resetOrigin();
-+            resetGuiYawOrientation();
++            guiYawOrientationResetRequested = true;
 +            this.mc.vrSettings.posTrackResetPosition = false;
 +        }
++
++        // TODO: PollAll can call controller code that updates the GUI.
++        // All controller code should be moved to UpdateTick really. For
++        // now, hack the displaySize so that any gui screens changed use
++        // the correct size...
++        int currentDisplayWidth = this.mc.displayWidth;
++        int currentDisplayHeight = this.mc.displayHeight;
++        this.mc.displayWidth = this.mc.displayFBWidth;
++        this.mc.displayHeight = this.mc.displayFBHeight;
 +
 +        // Poll sensors
 +        PluginManager.pollAll();
 +
++        this.mc.displayWidth = currentDisplayWidth;
++        this.mc.displayHeight = currentDisplayHeight;
++        // TODO: End display size hack
++
 +        if(JoystickAim.selectedJoystickMode != null)
 +            JoystickAim.selectedJoystickMode.update( renderPartialTicks );
 +
-+        float lookYawOffset   = mc.lookaimController.getBodyYawDegrees();
-+        float lookPitchOffset = mc.lookaimController.getBodyPitchDegrees();
++        lookYawOffset   = mc.lookaimController.getBodyYawDegrees();
++        lookPitchOffset = mc.lookaimController.getBodyPitchDegrees();
 +
 +        if (mc.headTracker.isInitialized() && this.mc.vrSettings.useHeadTracking)
 +        {
@@ -1297,40 +1340,36 @@
 +                                                    this.mc.currentPose.Orientation.w);
 +
 +            currentEulerOrientDegrees = OculusRift.getEulerAnglesDeg(this.mc.currentPose.Orientation,
-+                    1.0f,
-+                    Axis.Axis_Y,
-+                    Axis.Axis_X,
-+                    Axis.Axis_Z,
-+                    HandedSystem.Handed_L,
-+                    RotateDirection.Rotate_CCW);
++                1.0f,
++                Axis.Axis_Y,
++                Axis.Axis_X,
++                Axis.Axis_Z,
++                HandedSystem.Handed_L,
++                RotateDirection.Rotate_CCW);
 +//
 +//            this.mc.thePlayer.rotationYaw = currentEulerOrientDegrees.yaw;
 +//            this.mc.thePlayer.rotationPitch = currentEulerOrientDegrees.pitch;
 +
-+            Quaternion correctedOrient = new Quaternion(this.mc.currentPose.Orientation.x,
-+                                                  this.mc.currentPose.Orientation.y,
-+                                                  this.mc.currentPose.Orientation.z,
-+                                                  this.mc.currentPose.Orientation.w);
++            Quaternion orient = new Quaternion(this.mc.currentPose.Orientation.x,
++                                               this.mc.currentPose.Orientation.y,
++                                               this.mc.currentPose.Orientation.z,
++                                               this.mc.currentPose.Orientation.w);
 +
 +            headYaw    = currentEulerOrientDegrees.yaw;
 +            headPitch  = currentEulerOrientDegrees.pitch;
 +            headRoll   = currentEulerOrientDegrees.roll;
 +
-+            // Apply pitch offset
++            // Pitch offset
 +            Quaternion pitchCorrection = new Quaternion();
 +            Vector4f vecAxisPitchAngle = new Vector4f(1f, 0f, 0f, -lookPitchOffset * PIOVER180);
 +            pitchCorrection.setFromAxisAngle(vecAxisPitchAngle);
-+            Quaternion.mul(pitchCorrection, correctedOrient, correctedOrient);
 +
-+            // Apply yaw offset
++            // Yaw offset
 +            Quaternion yawCorrection   = new Quaternion();
 +            Vector4f vecAxisYawAngle   = new Vector4f(0f, 1f, 0f, (-lookYawOffset * PIOVER180));
 +            yawCorrection.setFromAxisAngle(vecAxisYawAngle);
-+            Quaternion.mul(yawCorrection, correctedOrient, correctedOrient);
 +
-+            // Get camera orientation:
-+            // Matrix
-+            //cameraMatrix4f = QuaternionHelper.quatToMatrix4fFloatBuf(orientation);
++            Quaternion correctedOrient = QuaternionHelper.mul(yawCorrection,   QuaternionHelper.mul(pitchCorrection, orient));
 +            Quatf corOrient = new Quatf(correctedOrient.x,
 +                    correctedOrient.y,
 +                    correctedOrient.z,
@@ -1392,10 +1431,10 @@
 +        //TODO: not sure if headPitch or cameraPitch is better here... they really should be the same; silly
 +        //people with their "pitch affects camera" settings.
 +        //At any rate, using cameraPitch makes the UI look less silly
-+        mc.positionTracker.update(this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.x, headYaw, (float)headPitch, (float)headRoll, lookYawOffset, 0.0f, 0.0f);
++        mc.positionTracker.update(this.mc.vrSettings.getHalfIPD(this.mc.currentEye), headYaw, (float)headPitch, (float)headRoll, lookYawOffset, 0.0f, 0.0f);
 +
 +        //Do head/neck model in non-GL math so we can use camera location(between eyes)
-+        Vec3 cameraOffset = mc.positionTracker.getEyePosition(this.mc.currentEye, this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.x);
++        Vec3 cameraOffset = mc.positionTracker.getEyePosition(this.mc.currentEye);
 +        cameraOffset.rotateAroundY((float)Math.PI);
 +
 +        //The worldOrigin is at player "eye height" (1.62) above foot position
@@ -1411,12 +1450,23 @@
 +
 +        if(this.mc.theWorld != null && this.mc.gameSettings.thirdPersonView == 0)
 +        {
-+            float eyeDistFromOrigin = (float)(Math.sqrt( camRelX * camRelX + camRelY * camRelY + camRelZ * camRelZ ));
++            Vec3 eyeCentrePos = getEyeCentrePosInWorldFrame();
++            eyeCentrePos.rotateAroundY((float)Math.PI);
++            float eyeDistFromOrigin = (float)eyeCentrePos.lengthVector();
++            eyeCentrePos.yCoord = -eyeCentrePos.yCoord; // TODO: y negation
 +
-+            float cameraYOffset = 1.62f - (this.mc.vrSettings.getPlayerEyeHeight() - this.mc.vrSettings.neckBaseToEyeHeight);
-+            float collDistFromOrigin = checkCameraCollision(renderOriginX, renderOriginY - cameraYOffset, renderOriginZ,
-+                    camRelX, camRelY, camRelZ, eyeDistFromOrigin );
-+            if( collDistFromOrigin < eyeDistFromOrigin )
++            // TODO: This is all a bit broken at the moment...
++            //float cameraYOffset = -this.mc.vrSettings.getPlayerEyeHeight() + 1.62f;
++            float collDistFromOrigin = checkCameraCollision(renderOriginX, renderOriginY /*- cameraYOffset*/, renderOriginZ,
++                    eyeCentrePos.xCoord, eyeCentrePos.yCoord, eyeCentrePos.zCoord, eyeDistFromOrigin );
++
++            if (eyeDistFromOrigin < 0.02f)    // Hack for if eyeDist is too small, no decent length raytrace
++                                              // occurs meaning we flag up a collision when there isn't one.
++            {
++                headCollision = false;
++                headCollisionDistance = -1;
++            }
++            else if( collDistFromOrigin < eyeDistFromOrigin )
 +            {
 +                // Prevent clipping if not blanking screen
 +                if (!this.mc.vrSettings.posTrackBlankOnCollision)
@@ -1451,7 +1501,7 @@
 +        {
 +            //Hit once at startup and if reset requested (usually during calibration when an origin
 +            //has been set)
-+            guiHeadYaw = (float)cameraYaw;
++            guiHeadYaw = 0f;
 +            guiYawOrientationResetRequested = false;
 +            guiShowingLastFrame = false;
 +        }
@@ -1613,15 +1663,17 @@
 +        up.rotateAroundZ(-(float)cameraRoll * PIOVER180);
 +        up.rotateAroundX(-(float)cameraPitch* PIOVER180);
 +        up.rotateAroundY(-(float)cameraYaw  * PIOVER180);
-+        if ( sndSystem != null /* && this.mc.gameSettings.getSoundVolume(SoundCategory // Which sound category?) != 0f // this.mc.gameSettings.soundVolume != 0f */)
-+        {
-+            // The sound system is on a separate thread? Sync issues?
++        //synchronized (SoundSystemConfig.THREAD_SYNC) {
++            if (/*SoundManger.soundLibrary != null &&*/ sndSystem != null /* && this.mc.gameSettings.getSoundVolume(SoundCategory // Which sound category?) != 0f // this.mc.gameSettings.soundVolume != 0f */)
++            {
++                // The sound system is on a separate thread? Sync issues? Can get to crash by turning analyglph mode on?
 +
-+            sndSystem.setListenerPosition((float)renderOriginX, (float)renderOriginY, (float)renderOriginZ);
++                sndSystem.setListenerPosition((float) renderOriginX, (float) renderOriginY, (float) renderOriginZ);
 +
-+            sndSystem.setListenerOrientation(lookX, lookY, lookZ,
-+                    (float)up.xCoord, (float)up.yCoord, (float)up.zCoord);
-+        }
++                sndSystem.setListenerOrientation(lookX, lookY, lookZ,
++                        (float) up.xCoord, (float) up.yCoord, (float) up.zCoord);
++            }
++        //}
 +        if( mc.mumbleLink != null ) {
 +            Vec3 forward = Vec3.createVectorHelper(0, 0 , -1);
 +            forward.rotateAroundZ(-(float)cameraRoll * PIOVER180);
@@ -1639,11 +1691,6 @@
 +        calibrationHelper = new CalibrationHelper(mc);
 +    }
 +
-+    public void resetGuiYawOrientation()
-+    {
-+        guiYawOrientationResetRequested = true;
-+    }
-+
 +    public void displayCalibrationText()
 +    {
 +        if (calibrationHelper != null)
@@ -1657,7 +1704,7 @@
 +            GL11.glPushMatrix();
 +            GL11.glLoadIdentity();
 +
-+            float x = -this.mc.eyeRenderParams.Eyes[this.mc.currentEye.value()].ViewAdjust.x;///*lookX */ (-mc.vrSettings.hudDistance * 0.9f);
++            float x = -this.mc.vrSettings.getHalfIPD(this.mc.currentEye) * this.mc.vrSettings.ipdScale;///*lookX */ (-mc.vrSettings.hudDistance * 0.9f);
 +            float y = 0f;//*lookY */ (-mc.vrSettings.hudDistance * 0.9f);
 +            float z = /*lookZ */ (-mc.vrSettings.hudDistance * 0.9f);
 +
