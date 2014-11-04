@@ -11,8 +11,8 @@ from applychanges import applychanges, apply_patch
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-mc_version = "1.8.0"
-of_version = mc_version+"_HD_U_A5"
+mc_version = "1.8"
+of_version = "1.8.0_HD_U_A5"
 of_file_extension = ".jar"
 mcp_version = "mcp910-pre1"
 
@@ -227,6 +227,17 @@ def osArch():
 def main(mcp_dir):
     print 'Using mcp dir: %s' % mcp_dir
     print 'Using base dir: %s' % base_dir
+
+    src_dir = os.path.join(mcp_dir, "src","minecraft")
+    sys.path.append(mcp_dir)    
+    
+    print("Cleaning...")
+    print("*** SOURCE WILL BE DELETED, HIT ENTER TO SKIP ***")
+    os.chdir(mcp_dir)
+    from runtime.cleanup import cleanup
+    cleanup('', False, False)
+    os.chdir( base_dir )
+
     print("Downloading dependencies...")
     download_deps( mcp_dir )
 
@@ -235,10 +246,8 @@ def main(mcp_dir):
     zipmerge( os.path.join( mcp_dir,"jars","versions",mc_version,mc_version+".jar"), optifine )
 
     print("Decompiling...")
-    src_dir = os.path.join(mcp_dir, "src","minecraft")
     if os.path.exists( src_dir ):
-        shutil.rmtree( src_dir, True )
-    sys.path.append(mcp_dir)
+        shutil.rmtree( src_dir, True )    
     os.chdir(mcp_dir)
     from runtime.decompile import decompile
     #         Conf  JAD    CSV    -r     -d     -a     -n     -p     -o     -l     -g     -c    -s     --rg   -w    json  --nocopy
