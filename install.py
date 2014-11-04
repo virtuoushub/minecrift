@@ -11,10 +11,10 @@ from applychanges import applychanges, apply_patch
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-mc_version = "1.7.10"
-of_version = mc_version+"_HD_U_A4"
+mc_version = "1.8.0"
+of_version = mc_version+"_HD_U_A5"
 of_file_extension = ".jar"
-mcp_version = "mcp908"
+mcp_version = "mcp910-pre1"
 
 try:
     WindowsError

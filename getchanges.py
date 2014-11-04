@@ -5,6 +5,8 @@ import shutil, glob, fnmatch
 import subprocess, logging, shlex, re
 from optparse import OptionParser
 
+from install import mcp_version
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 def cmdsplit(args):
@@ -85,4 +87,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp908'))
+        main(os.path.abspath(mcp_version))

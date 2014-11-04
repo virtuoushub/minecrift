@@ -3,9 +3,7 @@ import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
 import subprocess, shlex
 
-from install import download_deps, download_native, download_file, mkdir_p
-
-mc_ver ="1.7.10"
+from install import download_deps, download_native, download_file, mkdir_p, mc_version, mcp_version
 
 try:
     WindowsError
@@ -45,13 +43,13 @@ def process_json( addon, version ):
     json_id = "minecrift-"+version+addon
     lib_id = "com.mtbs3d:minecrift:"+version
     time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S-05:00")
-    with  open(os.path.join("installer",mc_ver+addon+".json"),"rb") as f:
+    with  open(os.path.join("installer",mc_version+addon+".json"),"rb") as f:
         json_obj = json.load(f)
         json_obj["id"] = json_id
         json_obj["time"] = time
         json_obj["releaseTime"] = time
         json_obj["libraries"].insert(0,{"name":lib_id}) #Insert at beginning
-        json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_ver}) #Insert at end
+        json_obj["libraries"].append({"name":"net.minecraft:Minecraft:"+mc_version}) #Insert at end
         return json.dumps( json_obj, indent=1 )
 
 def create_install(mcp_dir):
@@ -80,7 +78,7 @@ def create_install(mcp_dir):
     else:
         version = "PRE4"
 
-    version = mc_ver+"-"+version
+    version = mc_version+"-"+version
 	
     artifact_id = "minecrift-"+version
     installer_id = artifact_id+"-installer"
@@ -144,4 +142,4 @@ if __name__ == '__main__':
     elif os.path.isfile(os.path.join('..', 'runtime', 'commands.py')):
         main(os.path.abspath('..'))
     else:
-        main(os.path.abspath('mcp908'))	
+        main(os.path.abspath(mcp_version))	

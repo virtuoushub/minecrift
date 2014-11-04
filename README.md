@@ -1,7 +1,7 @@
 Minecrift Mod for Minecraft
 ===========================
 
-Current Version: Minecrift 1.7.10, MCP 908 
+Current Version: Minecrift 1.8.0, MCP 910-Pre1 
 
 ---
 
@@ -23,8 +23,8 @@ Install build prerequisites
 - %JAVA_HOME%/bin must be added to your path
 - Python 2.7 latest version
 - Scala is NOT required (and should NOT be present on your path to avoid build issues)
-- MCP908 from http://mcp.ocean-labs.de/news.php?extend.14.1
-- Copy the contents of the unzipped mcp908 directory into the minecrift/mcp908 directory.
+- MCP 910-Pre1 from https://mobile.twitter.com/SeargeDP/status/517027419103186944
+- Copy the contents of the unzipped mcp directory into the minecrift/mcpxxx directory.
 
 Building / updating the patches / pushing changes
 -------------------------------------------------
@@ -42,8 +42,8 @@ and SixenseJava is in com/sixense.
 
 To run Minecrift in your dev env you will need to:
 
-  Delete META-INF dir within minecrift/mcp908/jars/versions/1.7.10/1.7.10.jar otherwise
-  you get a SecurityException on Minecrift startup
+  Delete META-INF dir within minecrift/mcpxxx/jars/versions/x.x.x/x.x.x.jar (where x.x.x 
+  is the minecraft version) otherwise you get a SecurityException on Minecrift startup.
   Merge in the assets directory from .minecraft into the minecrift/assets dir.
 
 - Run build.sh (or build.bat) to create a release installer. Run the release installer to
