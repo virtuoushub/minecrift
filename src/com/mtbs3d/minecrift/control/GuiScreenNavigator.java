@@ -366,13 +366,13 @@ public class GuiScreenNavigator {
 		int mouseGUIX = curPoint.getLeft();
 		int mouseGUIY = curPoint.getRight();
 		
-		int mouseScreenX = (int)(mouseGUIX * mc.displayWidth / (float)mc.currentScreen.width );
-		int mouseScreenY = (int)(mc.displayHeight / (float)mc.currentScreen.height * (mc.currentScreen.height - mouseGUIY - 1 ) );
+        int mouseScreenX = (int)(mouseGUIX * mc.displayFBWidth / (float)mc.currentScreen.width );
+        int mouseScreenY = (int)(mc.displayFBHeight / (float)mc.currentScreen.height * (mc.currentScreen.height - mouseGUIY - 1 ) );
         Mouse.setCursorPosition(mouseScreenX, mouseScreenY);
-		
-		int mouseFBX = (int)(mouseScreenX * mc.displayFBWidth / (float)mc.displayWidth );
-		int mouseFBY = (int)(mouseScreenY * mc.displayFBHeight / (float)mc.displayHeight );
-		mc.resetMousePos( mouseFBX, mouseFBY );
+
+        int mouseFBX = (int)(mouseScreenX * mc.displayFBWidth / (float)mc.displayWidth );
+        int mouseFBY = (int)(mouseScreenY * mc.displayFBHeight / (float)mc.displayHeight );
+        mc.resetMousePos( mouseFBX, mouseFBY );
 		
 		if(altselectDepressed || selectDepressed ) {
 			if( keyDownField != null)

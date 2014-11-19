@@ -8,8 +8,12 @@
  import net.minecraft.util.IProgressUpdate;
  import net.minecraft.util.MinecraftError;
  import org.lwjgl.opengl.GL11;
-@@ -26,10 +27,15 @@
-     private Framebuffer field_146588_g;
+@@ -23,13 +24,18 @@
+     private long field_73723_d = Minecraft.getSystemTime();
+     private boolean field_73724_e;
+     private ScaledResolution field_146587_f;
+-    private Framebuffer field_146588_g;
++    public Framebuffer field_146588_g;      // Minecrift
      private static final String __OBFID = "CL_00000655";
  
 +	/** Minecrift **/

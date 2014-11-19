@@ -14,7 +14,6 @@ import com.mtbs3d.minecrift.settings.VRSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.StringTranslate;
 
 public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEventEx
 {
@@ -29,7 +28,7 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
     static VRSettings.VrOptions[] hydraOptions = new VRSettings.VrOptions[] {
             VRSettings.VrOptions.POS_TRACK_HYDRALOC,
-            VRSettings.VrOptions.POS_TRACK_HYDRA_DISTANCE_SCALE,
+            VRSettings.VrOptions.POS_TRACK_DIST_SCALE,
             VRSettings.VrOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE,
             VRSettings.VrOptions.POS_TRACK_HYDRA_OFFSET_X,
             VRSettings.VrOptions.HYDRA_USE_FILTER,
@@ -42,9 +41,12 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT,
     };
 
-    static VRSettings.VrOptions[] oculusOptions = new VRSettings.VrOptions[] {
+    static VRSettings.VrOptions[] oculusOptions = new VRSettings.VrOptions[]{
             VRSettings.VrOptions.POSITION_TRACKING,
             VRSettings.VrOptions.POS_TRACK_HIDE_COLLISION,
+            VRSettings.VrOptions.POS_TRACK_DIST_SCALE,
+            //VRSettings.VrOptions.WORLD_SCALE,
+            VRSettings.VrOptions.EYE_PROTRUSION,
     };
 
     protected boolean reinit = false;
@@ -72,29 +74,29 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
         if (this.reinit)
         {
-            this.guivrSettings.posTrackResetPosition = true;
-            this.mc.entityRenderer.resetGuiYawOrientation();
+            //this.guivrSettings.posTrackResetPosition = true;
+            //this.mc.entityRenderer.resetGuiYawOrientation();
         }
 
         this.buttonList.clear();
-        this.buttonList.add(new GuiButtonEx(200, this.width / 2 - 100, this.height / 6 + 168, "Done"));
+        this.buttonList.add(new GuiButtonEx(ID_GENERIC_DONE, this.width / 2 - 100, this.height / 6 + 168, "Done"));
 
-        pluginModeChangeButton = new PluginModeChangeButton(201, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.positionPlugins, this.guivrSettings.headPositionPluginID );
+        pluginModeChangeButton = new PluginModeChangeButton(ID_GENERIC_MODE_CHANGE, this.width / 2 - 78, this.height / 6 - 14, (List<IBasePlugin>)(List<?>) PluginManager.thePluginManager.positionPlugins, this.guivrSettings.headPositionPluginID );
         this.buttonList.add(pluginModeChangeButton);
 
         VRSettings.VrOptions[] var10 = null;
         if( Minecraft.getMinecraft().positionTracker instanceof MCHydra )
         {
-        	GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
+        	GuiButtonEx resetPosButton = new GuiButtonEx(ID_GENERIC_RESETORIGIN, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
             this.buttonList.add(resetPosButton);
 
-            GuiButtonEx recalibrate = new GuiButtonEx(203, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
+            GuiButtonEx recalibrate = new GuiButtonEx(ID_GENERIC_RECALIBRATE, this.width / 2 - 100, this.height / 6 + 148, "Recalibrate...");
             this.buttonList.add(recalibrate);
             var10 = hydraOptions;
         }
         else if ( Minecraft.getMinecraft().positionTracker instanceof MCOculus )
         {
-            GuiButtonEx resetPosButton = new GuiButtonEx(202, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
+            GuiButtonEx resetPosButton = new GuiButtonEx(ID_GENERIC_RESETORIGIN, this.width / 2 - 100, this.height / 6 + 128, "Reset Origin");
             this.buttonList.add(resetPosButton);
             var10 = oculusOptions;
         }
@@ -108,6 +110,9 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
             VRSettings.VrOptions var8 = var10[var12 - 2];
             int width = this.width / 2 - 155 + var12 % 2 * 160;
             int height = this.height / 6 + 21 * (var12 / 2) - 10;
+
+            if (var8 == VRSettings.VrOptions.DUMMY)
+                continue;
 
             if (isVisible(var8))
             {
@@ -129,11 +134,17 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                         maxValue = 0.30f;
                         increment = 0.001f;
                     }
-                    else if (var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_DISTANCE_SCALE)
+                    else if (var8 == VRSettings.VrOptions.POS_TRACK_DIST_SCALE)
                     {
-                        minValue = 0.8f;
-                        maxValue = 1.2f;
-                        increment = 0.001f;
+                        minValue = -5.0f;
+                        maxValue = -0.01f;
+                        increment = 0.01f;
+                    }
+                    else if (var8 == VRSettings.VrOptions.WORLD_SCALE)
+                    {
+                        minValue = -5.0f;
+                        maxValue = -0.1f;
+                        increment = 0.01f;
                     }
                     else if (var8 == VRSettings.VrOptions.POS_TRACK_Y_AXIS_DISTANCE_SKEW)
                     {
@@ -141,13 +152,13 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                         maxValue = 45.0f;
                         increment = 0.1f;
                     }
-                    if (var8 == VRSettings.VrOptions.EYE_PROTRUSION)
+                    else if (var8 == VRSettings.VrOptions.EYE_PROTRUSION)
                     {
                         minValue = 0.00f;
                         maxValue = 0.25f;
                         increment = 0.001f;
                     }
-                    if (var8 == VRSettings.VrOptions.NECK_LENGTH)
+                    else if (var8 == VRSettings.VrOptions.NECK_LENGTH)
                     {
                         minValue = 0.00f;
                         maxValue = 0.25f;
@@ -195,19 +206,20 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
     {
         String s = var8.getEnumString();
 
-        if( ! (Minecraft.getMinecraft().positionTracker instanceof MCHydra) )
+        if(!(Minecraft.getMinecraft().positionTracker instanceof MCHydra) )
         {
             return true;
         }
 
         if (var8 == VRSettings.VrOptions.POS_TRACK_HYDRALOC ||
-            var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_DISTANCE_SCALE ||
-            var8 == VRSettings.VrOptions.HYDRA_USE_FILTER ||
-            var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
+                var8 == VRSettings.VrOptions.POS_TRACK_DIST_SCALE ||
+                var8 == VRSettings.VrOptions.WORLD_SCALE ||
+                var8 == VRSettings.VrOptions.HYDRA_USE_FILTER ||
+                var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT)
             return true;
 
         if (this.guivrSettings.posTrackHydraLoc == VRSettings.POS_TRACK_HYDRA_LOC_HMD_LEFT_AND_RIGHT &&
-            var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
+                var8 == VRSettings.VrOptions.POS_TRACK_HYDRA_USE_CONTROLLER_ONE)
         {
             return false;
         }
@@ -224,31 +236,30 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
 
         if (par1GuiButton.enabled)
         {
-            if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
-            {
-                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
-                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
-            }
-            else if (par1GuiButton.id == 200)
+            if (par1GuiButton.id == ID_GENERIC_DONE)
             {
                 Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.mc.displayGuiScreen(this.parentGuiScreen);
             }
-            else if (par1GuiButton.id == 201) // Mode Change
+            else if (par1GuiButton.id == ID_GENERIC_MODE_CHANGE) // Mode Change
             {
                 Minecraft.getMinecraft().vrSettings.headPositionPluginID = pluginModeChangeButton.getSelectedID();
                 Minecraft.getMinecraft().vrSettings.saveOptions();
                 Minecraft.getMinecraft().positionTracker = PluginManager.configurePosition(Minecraft.getMinecraft().vrSettings.headPositionPluginID);
             	this.reinit = true;
             }
-            else if (par1GuiButton.id == 202) // Reset origin
+            else if (par1GuiButton.id == ID_GENERIC_RESETORIGIN) // Reset origin
             {
                 this.guivrSettings.posTrackResetPosition = true;
-                this.mc.entityRenderer.resetGuiYawOrientation();
             }
-            else if (par1GuiButton.id == 203)
+            else if (par1GuiButton.id == ID_GENERIC_RECALIBRATE)
             {
                 this.mc.entityRenderer.startCalibration();
+            }
+            else if (par1GuiButton instanceof GuiSmallButtonEx)
+            {
+                this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
+                par1GuiButton.displayString = this.guivrSettings.getKeyBinding(VRSettings.VrOptions.getEnumOptions(par1GuiButton.id));
             }
 
             if (num == VRSettings.VrOptions.HYDRA_USE_FILTER)
@@ -278,6 +289,12 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
         if (enumm == VRSettings.VrOptions.POS_TRACK_OFFSET_SET_DEFAULT)
         {
             this.reinitOffsetDefaults = true;
+            this.reinit = true;
+        }
+
+        if (enumm == VRSettings.VrOptions.WORLD_SCALE)
+        {
+            this.mc.reinitFramebuffers = true;
             this.reinit = true;
         }
 
@@ -357,14 +374,20 @@ public class GuiHeadPositionSettings extends BaseGuiSettings implements GuiEvent
                             "  T   - One Hydra is mounted to the top of the HMD.",
                             "  B   - One hydra is mounted to the back of your head."
                     } ;
-                case POS_TRACK_HYDRA_DISTANCE_SCALE:
+                case POS_TRACK_DIST_SCALE:
+                return new String[] {
+                        "Sets the positional tracking distance scale factor.",
+                        " Allows adjustment of your perceived head movement",
+                        " in-game by the selected factor. Adjust this if the",
+                        " distance moved in game does not seem to match actual",
+                        " head distance travelled."
+                } ;
+                case WORLD_SCALE:
                     return new String[] {
-                            "Sets the distance scale factor.",
-                            "  Allows adjustment of your perceived body movement",
-                            " in-game by the selected factor. Adjust this if the",
-                            " distance moved in game does not seem to match actual",
-                            " body distance travelled."
-                            } ;
+                            "Scales the size of the world objects.",
+                            " Adjust this if the blocks do not seem to be one metre",
+                            " in size."
+                    } ;
                 case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
                     return new String[] {
                             "Sets the controller used for positional tracking.",

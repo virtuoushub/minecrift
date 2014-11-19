@@ -8,9 +8,9 @@ import java.io.*;
 
 import com.mtbs3d.minecrift.MCHydra;
 import de.fruitfly.ovr.IOculusRift;
+import de.fruitfly.ovr.enums.EyeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.src.Config;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +22,7 @@ public class VRSettings
 	public static VRSettings inst;
 	public String defaults = new String();
     public static final int UNKNOWN_VERSION = 0;
+    public final String DEGREE  = "\u00b0";
 
     // Minecrift
     public static final int POS_TRACK_NECK = 0;
@@ -52,10 +53,10 @@ public class VRSettings
     public int version = UNKNOWN_VERSION;
     public boolean newlyCreated = true;
     public boolean useVRRenderer  = false; //default to false
-    public boolean useQuaternions = true;
     public boolean debugPose = false;
 	protected float playerEyeHeight = 1.74f;  // Use getPlayerEyeHeight()
 	public float eyeProtrusion = 0.185f;
+    public float eyeRelief = 0.05f;
 	public float neckBaseToEyeHeight = 0.225f;
     public float movementSpeedMultiplier = 1.0f;
     public boolean useDistortion = true;
@@ -64,8 +65,11 @@ public class VRSettings
     public boolean usePositionTracking = true;
     public boolean useHeadTrackPrediction = true;
     public float headTrackPredictionTimeSecs = 0f;
-    protected float ipd = 0.0635F;   // Use getIPD()
-    protected float oculusProfileIpd = ipd;
+    protected float leftHalfIpd = 0.032f;    // Use getIPD(eye), hence protected
+    protected float rightHalfIpd = 0.032f;
+    protected float oculusProfileLeftHalfIpd = leftHalfIpd;
+    protected float oculusProfileRightHalfIpd = rightHalfIpd;
+    public float ipdScale = 1f;
     public String oculusProfileName;
     public String oculusProfileGender;
     protected float oculusProfilePlayerEyeHeight = playerEyeHeight;
@@ -79,12 +83,23 @@ public class VRSettings
     public boolean useTimewarp = true;
     public boolean useVignette = true;
     public boolean useLowPersistence = true;
-    public boolean useDynamicPrediction = false; // Default to off for now
+    public boolean useDynamicPrediction = true;
     public float   renderScaleFactor = 1.1f; // Avoid weird star shaped shimmer at renderscale = 1
     public boolean useDirectRenderMode = false;
     public boolean useDisplayMirroring = false;
     public boolean useDisplayOverdrive = true;
+    public boolean useHighQualityDistortion = true;
     public boolean posTrackBlankOnCollision = true;
+    public boolean walkUpBlocks = false;
+    public boolean debugUseAlternateViewCalc = false;
+    public boolean debugfov = false;
+    public float   debugPosX = 0f;
+    public float   debugPosY = 0f;
+    public float   debugPosZ = 0f;
+    public float   menuCrosshairScale = 1f;
+    public boolean useCrosshairOcclusion = false;
+    public boolean maxCrosshairDistanceAtBlockReach = false;
+    public boolean useMaxFov = false;
 
     // TODO: Clean-up all the redundant crap!
     public boolean useDistortionTextureLookupOptimisation = false;
@@ -95,20 +110,22 @@ public class VRSettings
     public float hudPitchOffset = 0.0f;
     public float hudYawOffset = 0.0f;
     public boolean hudLockToHead = false;
-    public float fovScaleFactor = 1.0f;
+    public float fovChange = 0f;
     public float lensSeparationScaleFactor = 1.0f;
     private IOculusRift.AspectCorrectionType aspectRatioCorrectionMode = IOculusRift.AspectCorrectionType.CORRECTION_AUTO;
     private int aspectRatioCorrection = aspectRatioCorrectionMode.getValue();
-    public int distortionFitPoint = 5;
     protected float headTrackSensitivity = 1.0f;
     public boolean useSupersample = false;   // default to off
     public float superSampleScaleFactor = 2.0f;
     public boolean lookMoveDecoupled = false;
-    public boolean useOculusProfile = true;
+    public boolean useOculusProfileIpd = true;
+    public boolean useHalfIpds = false;
+    public boolean useOculusProfilePlayerHeight = true;
     public int posTrackHydraLoc = POS_TRACK_HYDRA_LOC_HMD_LEFT;
     public boolean posTrackHydraUseController1 = true;
     public boolean posTrackHydraDebugCentreEyePos = false;
-    public float posTrackHydraDistanceScale = 1.00f;
+    public float posTrackDistanceScale = 1.00f;
+    public float worldScale = 1f;
     public boolean posTrackResetPosition = true;
     public float posTrackHydraLROffsetX = 0.0f;
     public float posTrackHydraLROffsetY = 0.0f;
@@ -154,6 +171,7 @@ public class VRSettings
 	public float chatOffsetX = 0;
 	public float chatOffsetY = 0;
 	public float aimPitchOffset = 0;
+    public boolean storeDebugAim = false;
 
     // Experimental: frame timing parameters   - to use these, generally you should have already configured Minecraft's graphics
     //                                           so that you have a frame rate as high as possible. Auto head prediction time enabled.
@@ -245,11 +263,6 @@ public class VRSettings
                         this.useVRRenderer = optionTokens[1].equals("true");
                     }
 
-                    if (optionTokens[0].equals("useQuaternions"))
-                    {
-                        this.useQuaternions = optionTokens[1].equals("true");
-                    }
-
                     if (optionTokens[0].equals("debugPose"))
                     {
                         this.debugPose = optionTokens[1].equals("true");
@@ -270,9 +283,19 @@ public class VRSettings
                         this.eyeProtrusion = this.parseFloat(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("ipd"))
+                    if (optionTokens[0].equals("eyeRelief"))
                     {
-                        this.ipd = this.parseFloat(optionTokens[1]);
+                        this.eyeRelief = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("leftHalfIpd"))
+                    {
+                        this.leftHalfIpd = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("rightHalfIpd"))
+                    {
+                        this.rightHalfIpd = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("headTrackPredictionTimeSecs"))
@@ -377,6 +400,11 @@ public class VRSettings
                         this.posTrackBlankOnCollision = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("walkUpBlocks"))
+                    {
+                        this.walkUpBlocks = optionTokens[1].equals("true");
+                    }
+
                     if (optionTokens[0].equals("useLowPersistence"))
                     {
                         this.useLowPersistence = optionTokens[1].equals("true");
@@ -457,24 +485,24 @@ public class VRSettings
                         this.useSupersample = optionTokens[1].equals("true");
                     }
 
+                    if (optionTokens[0].equals("useHighQualityDistortion"))
+                    {
+                        this.useHighQualityDistortion = optionTokens[1].equals("true");
+                    }
+
                     if (optionTokens[0].equals("superSampleScaleFactor"))
                     {
                         this.superSampleScaleFactor = this.parseFloat(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("fovScaleFactor"))
+                    if (optionTokens[0].equals("fovChange"))
                     {
-                        this.fovScaleFactor = this.parseFloat(optionTokens[1]);
+                        this.fovChange = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("lensSeparationScaleFactor"))
                     {
                         this.lensSeparationScaleFactor = this.parseFloat(optionTokens[1]);
-                    }
-
-                    if (optionTokens[0].equals("distortionFitPoint"))
-                    {
-                        this.distortionFitPoint = Integer.parseInt(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("aspectRatioCorrection"))
@@ -496,6 +524,11 @@ public class VRSettings
                     if (optionTokens[0].equals("movementSpeedMultiplier"))
                     {
                         this.movementSpeedMultiplier = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("ipdScale"))
+                    {
+                        this.ipdScale = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("lookMoveDecoupled"))
@@ -613,9 +646,14 @@ public class VRSettings
                         this.posTrackHydraBROffsetZ = this.parseFloat(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("posTrackHydraDistanceScale"))
+                    if (optionTokens[0].equals("posTrackDistanceScale"))
                     {
-                        this.posTrackHydraDistanceScale = this.parseFloat(optionTokens[1]);
+                        this.posTrackDistanceScale = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("worldScale"))
+                    {
+                        this.worldScale = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("crosshairScale"))
@@ -623,14 +661,29 @@ public class VRSettings
                         this.crosshairScale = this.parseFloat(optionTokens[1]);
                     }
 
+                    if (optionTokens[0].equals("menuCrosshairScale"))
+                    {
+                        this.menuCrosshairScale = this.parseFloat(optionTokens[1]);
+                    }
+
                     if (optionTokens[0].equals("posTrackHydraUseController1"))
                     {
                         this.posTrackHydraUseController1 = optionTokens[1].equals("true");
                     }
 
-                    if (optionTokens[0].equals("useOculusProfile"))
+                    if (optionTokens[0].equals("useOculusProfileIpd"))
                     {
-                        this.useOculusProfile = optionTokens[1].equals("true");
+                        this.useOculusProfileIpd = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useOculusProfilePlayerHeight"))
+                    {
+                        this.useOculusProfilePlayerHeight = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useHalfIpds"))
+                    {
+                        this.useHalfIpds = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("posTrackHydraBIsPointingLeft"))
@@ -666,6 +719,21 @@ public class VRSettings
                     if (optionTokens[0].equals("hudOcclusion"))
                     {
                         this.hudOcclusion = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useCrosshairOcclusion"))
+                    {
+                        this.useCrosshairOcclusion = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("maxCrosshairDistanceAtBlockReach"))
+                    {
+                        this.maxCrosshairDistanceAtBlockReach = optionTokens[1].equals("true");
+                    }
+
+                    if (optionTokens[0].equals("useMaxFov"))
+                    {
+                        this.useMaxFov = optionTokens[1].equals("true");
                     }
 
                     if (optionTokens[0].equals("soundOrientWithHead"))
@@ -722,9 +790,14 @@ public class VRSettings
                         this.posTrackHydraYAxisDistanceSkewAngleDeg = this.parseFloat(optionTokens[1]);
                     }
 
-                    if (optionTokens[0].equals("oculusProfileIpd"))
+                    if (optionTokens[0].equals("oculusProfileLeftHalfIpd"))
                     {
-                        this.oculusProfileIpd = this.parseFloat(optionTokens[1]);
+                        this.oculusProfileLeftHalfIpd = this.parseFloat(optionTokens[1]);
+                    }
+
+                    if (optionTokens[0].equals("oculusProfileRightHalfIpd"))
+                    {
+                        this.oculusProfileRightHalfIpd = this.parseFloat(optionTokens[1]);
                     }
 
                     if (optionTokens[0].equals("oculusProfilePlayerEyeHeight"))
@@ -777,6 +850,7 @@ public class VRSettings
             this.mc.gameSettings.enableVsync = true;
             this.mc.gameSettings.ofChunkLoading = 1;
             this.mc.gameSettings.renderDistanceChunks = 8;
+            this.mc.gameSettings.ofFogType = 2; // Fancy fog to prevent draw distance changes in edge of FOV
         }
 
         if (version == UNKNOWN_VERSION)
@@ -806,18 +880,27 @@ public class VRSettings
         String var5;
 
         switch( par1EnumOptions) {
+            case OTHER_HUD_SETTINGS:
+                return var2;
+            case OTHER_RENDER_SETTINGS:
+                return var2;
 	        case USE_VR:
-	            return this.useVRRenderer ? var4 + "ON" : var4 + "OFF";
-            case USE_QUATERNIONS:
-                return this.useQuaternions ? var4 + "Quaternion" : var4 + "Euler";
+	            return this.mc.renderStereo ? var4 + "ON" : var4 + "OFF";    // TODO: Make this the stereo renderer mono setting
 	        case EYE_HEIGHT:
-	            return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });
+                if( getPlayerEyeHeight() < 1.63f)
+                    return var4 + "Steve!";
+                else
+	                return var4 + String.format("%.2fm", new Object[] { Float.valueOf(getPlayerEyeHeight()) });  // Fix player height for now
 	        case EYE_PROTRUSION:
 	            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.eyeProtrusion) });
+            case EYE_RELIEF:
+                return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.eyeRelief) });
 	        case NECK_LENGTH:
 	            return var4 + String.format("%.3fm", new Object[] { Float.valueOf(this.neckBaseToEyeHeight) });
 	        case MOVEMENT_MULTIPLIER:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.movementSpeedMultiplier) });
+            case IPD_SCALE:
+                return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.ipdScale) });
 	        case USE_DISTORTION:
 	            return this.useDistortion ? var4 + "ON" : var4 + "OFF";
             case LOAD_MUMBLE_LIB:
@@ -830,8 +913,18 @@ public class VRSettings
 	            return this.useHeadTrackPrediction ? var4 + "ON" : var4 + "OFF";
             case DELAYED_RENDER:
                 return this.frameTimingEnableVsyncSleep ? var4 + "Immediate" : var4 + "Delayed";
-	        case IPD:
+            case USE_PROFILE_PLAYER_HEIGHT:
+                return this.useOculusProfilePlayerHeight ? var4 + "Profile" : var4 + "Manual";
+            case USE_PROFILE_IPD:
+                return this.useOculusProfileIpd ? var4 + "Profile" : var4 + "Manual";
+            case CONFIG_IPD_MODE:
+                return this.useHalfIpds ? var4 + "Per Eye" : var4 + "Both";
+	        case TOTAL_IPD:
 	            return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getIPD() * 1000) });
+            case LEFT_HALF_IPD:
+                return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getHalfIPD(EyeType.ovrEye_Left) * 1000) });
+            case RIGHT_HALF_IPD:
+                return var4 + String.format("%.1fmm", new Object[] { Float.valueOf(getHalfIPD(EyeType.ovrEye_Right) * 1000) });
 	        case HEAD_TRACK_PREDICTION_TIME:
                 if (headTrackPredictionTimeSecs == 0.0f)
                     return var4 + "Auto";
@@ -839,7 +932,7 @@ public class VRSettings
 	                return var4 + String.format("%.0fms", new Object[] { Float.valueOf(this.headTrackPredictionTimeSecs * 1000) });
 	        case HUD_OPACITY:
 	        	if( this.hudOpacity > 0.99)
-	        		return var4 +" Opaque";
+	        		return var4 + "Opaque";
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.hudOpacity) });
 	        case RENDER_OWN_HEADWEAR:
 	            return this.renderHeadWear ? var4 + "ON" : var4 + "OFF";
@@ -873,6 +966,8 @@ public class VRSettings
                 return this.useDisplayMirroring ? var4 + "ON" : var4 + "OFF";
             case POS_TRACK_HIDE_COLLISION:
                 return this.posTrackBlankOnCollision ? var4 + "YES" : var4 + "NO";
+            case WALK_UP_BLOCKS:
+                return this.walkUpBlocks ? var4 + "YES" : var4 + "NO";
             case RENDER_SCALEFACTOR:
                 return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.renderScaleFactor) });
 
@@ -897,19 +992,10 @@ public class VRSettings
 	            return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudPitchOffset) });
             case HUD_YAW:
                 return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.hudYawOffset) });
-	        case FOV_SCALE_FACTOR:
-	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.fovScaleFactor) });
+	        case FOV_CHANGE:
+	            return var4 + String.format("%.1f%s", new Object[] { Float.valueOf(this.fovChange), DEGREE });
             case LENS_SEPARATION_SCALE_FACTOR:
                 return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.lensSeparationScaleFactor) });
-	        case DISTORTION_FIT_POINT:
-	            if (this.distortionFitPoint < 1)
-	                return var4 + "None";
-	            else if (this.distortionFitPoint > 13)
-	                return var4 + "Large";
-	            else if (this.distortionFitPoint == 5)
-	                return var4 + "Normal";
-	            else
-	                return var4 + String.format("%.0f", new Object[] { Float.valueOf(this.distortionFitPoint) });
 	        case CALIBRATION_STRATEGY:
 	            if (this.calibrationStrategy < 1)
 	                return var4 + "At Startup";
@@ -921,6 +1007,8 @@ public class VRSettings
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.getHeadTrackSensitivity()) });
 	        case SUPERSAMPLING:
 	            return this.useSupersample ? var4 + "ON" : var4 + "OFF";
+            case HIGH_QUALITY_DISTORTION:
+                return this.useHighQualityDistortion ? var4 + "ON" : var4 + "OFF";
 	        case SUPERSAMPLE_SCALEFACTOR:
 	            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.superSampleScaleFactor) });
 	        case DECOUPLE_LOOK_MOVE:
@@ -963,10 +1051,14 @@ public class VRSettings
 	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetY() * 1000) });
 	        case POS_TRACK_HYDRA_OFFSET_Z:
 	            return var4 + String.format("%.0fmm", new Object[] { Float.valueOf(getPosTrackHydraOffsetZ() * 1000) });
-	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
-	            return var4 + String.format("%.3f", new Object[] { Float.valueOf(this.posTrackHydraDistanceScale) });
+	        case POS_TRACK_DIST_SCALE:
+                return var4 + String.format("%.1f%%", new Object[] { Float.valueOf((1f/this.posTrackDistanceScale) * 100f) });
+            case WORLD_SCALE:
+                return var4 + String.format("%.1f%%", new Object[] { Float.valueOf((1f/this.worldScale) * 100f) });
 	        case CROSSHAIR_SCALE:
 	            return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.crosshairScale) });
+            case MENU_CROSSHAIR_SCALE:
+                return var4 + String.format("%.2f", new Object[] { Float.valueOf(this.menuCrosshairScale) });
 	        case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
 	            return var4 + String.format("%.1f", new Object[] { Float.valueOf(this.posTrackHydraYAxisDistanceSkewAngleDeg) });
 	        case POS_TRACK_HYDRA_USE_CONTROLLER_ONE:
@@ -981,8 +1073,6 @@ public class VRSettings
 	            return this.posTrackHydraUseController1? var4 + "Right" : var4 + "Left";
 	        case POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT:
 	            return this.posTrackHydraBIsPointingLeft ? var4 + "To the Left" : var4 + "To the Right";
-	        case OCULUS_PROFILE:
-	            return this.useOculusProfile ? var4 + "YES" : var4 + "NO";
 	        case OCULUS_PROFILE_NAME:
 	            return var4 + this.oculusProfileName;
 	        case OCULUS_PROFILE_GENDER:
@@ -1007,6 +1097,12 @@ public class VRSettings
 	            return this.crosshairRollsWithHead ? var4 + "With Head" : var4 + "With HUD";
 	        case HUD_OCCLUSION:
 	            return this.hudOcclusion ? var4 + "ON" : var4 + "OFF";
+            case CROSSHAIR_OCCLUSION:
+                return this.useCrosshairOcclusion ? var4 + "ON" : var4 + "OFF";
+            case MAX_CROSSHAIR_DISTANCE_AT_BLOCKREACH:
+                return this.maxCrosshairDistanceAtBlockReach ? var4 + "Reach" : var4 + "Far";
+            case MAX_FOV:
+                return this.useMaxFov ? var4 + "Max" : var4 + "Default";
 	        case SOUND_ORIENT:
 	            return this.soundOrientWithHead ? var4 + "Headphones" : var4 + "Speakers";
 	        case KEYHOLE_HEAD_RELATIVE:
@@ -1076,12 +1172,20 @@ public class VRSettings
 				return getPlayerEyeHeight() ;
 			case EYE_PROTRUSION :
 				return this.eyeProtrusion ;
+            case EYE_RELIEF :
+                return this.eyeRelief ;
 			case NECK_LENGTH :
 				return this.neckBaseToEyeHeight ;
 			case MOVEMENT_MULTIPLIER :
 				return this.movementSpeedMultiplier ;
-			case IPD :
-				return getIPD() ;
+            case IPD_SCALE:
+                return this.ipdScale;
+			case TOTAL_IPD:
+				return getIPD();
+            case LEFT_HALF_IPD:
+                return getHalfIPD(EyeType.ovrEye_Left) ;
+            case RIGHT_HALF_IPD:
+                return getHalfIPD(EyeType.ovrEye_Right) ;
 			case HEAD_TRACK_PREDICTION_TIME :
 				return this.headTrackPredictionTimeSecs ;
 			case JOYSTICK_SENSITIVITY :
@@ -1106,16 +1210,14 @@ public class VRSettings
 				return this.hudPitchOffset ;
             case HUD_YAW :
                 return this.hudYawOffset ;
-			case FOV_SCALE_FACTOR :
-				return this.fovScaleFactor ;
+			case FOV_CHANGE:
+				return this.fovChange;
             case LENS_SEPARATION_SCALE_FACTOR:
                 return this.lensSeparationScaleFactor ;
 			case HEAD_TRACK_SENSITIVITY :
 				return this.getHeadTrackSensitivity() ;
 			case SUPERSAMPLE_SCALEFACTOR :
 				return this.superSampleScaleFactor ;
-			case DISTORTION_FIT_POINT :
-				return (float)this.distortionFitPoint ;
 			case POS_TRACK_HYDRA_OFFSET_X:
 			  	switch( this.posTrackHydraLoc )
 			  	{
@@ -1167,10 +1269,14 @@ public class VRSettings
 			  			else 
 			  				return this.posTrackHydraBROffsetZ;
 			  	 }
-			case POS_TRACK_HYDRA_DISTANCE_SCALE :
-				return this.posTrackHydraDistanceScale ;
+			case POS_TRACK_DIST_SCALE:
+				return -this.posTrackDistanceScale;
+            case WORLD_SCALE:
+                return -this.worldScale;
 			case CROSSHAIR_SCALE :
 				return this.crosshairScale ;
+            case MENU_CROSSHAIR_SCALE :
+                return this.menuCrosshairScale ;
 			case POS_TRACK_Y_AXIS_DISTANCE_SKEW :
 				return this.posTrackHydraYAxisDistanceSkewAngleDeg;
 			case CHAT_OFFSET_X:
@@ -1194,9 +1300,6 @@ public class VRSettings
 	            this.useVRRenderer = !this.useVRRenderer;
 	            //mc.setUseVRRenderer(useVRRenderer);      // TODO:
 	            break;
-            case USE_QUATERNIONS:
-                this.useQuaternions = !this.useQuaternions;
-                break;
 	        case USE_DISTORTION:
 	            this.useDistortion = !this.useDistortion;
 	            break;
@@ -1257,6 +1360,9 @@ public class VRSettings
             case POS_TRACK_HIDE_COLLISION:
                 this.posTrackBlankOnCollision = !this.posTrackBlankOnCollision;
                 break;
+            case WALK_UP_BLOCKS:
+                this.walkUpBlocks = !this.walkUpBlocks;
+                break;
             case TEXTURE_LOOKUP_OPT:
                 this.useDistortionTextureLookupOptimisation = !this.useDistortionTextureLookupOptimisation;
                 break;
@@ -1272,6 +1378,9 @@ public class VRSettings
 	        case SUPERSAMPLING:
 	            this.useSupersample = !this.useSupersample;
 	            break;
+            case HIGH_QUALITY_DISTORTION:
+                this.useHighQualityDistortion = !this.useHighQualityDistortion;
+                break;
 	        case DECOUPLE_LOOK_MOVE:
 	            this.lookMoveDecoupled = !this.lookMoveDecoupled;
 	            break;
@@ -1293,8 +1402,14 @@ public class VRSettings
 	        case MOVEAIM_HYDRA_USE_CONTROLLER_ONE:
 	            this.posTrackHydraUseController1 = !this.posTrackHydraUseController1;
 	            break;
-	        case OCULUS_PROFILE:
-	            this.useOculusProfile = !this.useOculusProfile;
+	        case USE_PROFILE_IPD:
+	            this.useOculusProfileIpd = !this.useOculusProfileIpd;
+	            break;
+            case USE_PROFILE_PLAYER_HEIGHT:
+                this.useOculusProfilePlayerHeight = !this.useOculusProfilePlayerHeight;
+                break;
+	        case CONFIG_IPD_MODE:
+	            this.useHalfIpds = !this.useHalfIpds;
 	            break;
 	        case POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT:
 	            this.posTrackHydraBIsPointingLeft = !this.posTrackHydraBIsPointingLeft;
@@ -1323,6 +1438,15 @@ public class VRSettings
 	        case HUD_OCCLUSION:
 	            this.hudOcclusion = !this.hudOcclusion;
 	            break;
+            case CROSSHAIR_OCCLUSION:
+                this.useCrosshairOcclusion = !this.useCrosshairOcclusion;
+                break;
+            case MAX_CROSSHAIR_DISTANCE_AT_BLOCKREACH:
+                this.maxCrosshairDistanceAtBlockReach = !this.maxCrosshairDistanceAtBlockReach;
+                break;
+            case MAX_FOV:
+                this.useMaxFov = !this.useMaxFov;
+                break;
 	        case SOUND_ORIENT:
 	            this.soundOrientWithHead = !this.soundOrientWithHead;
 	            break;
@@ -1345,20 +1469,32 @@ public class VRSettings
     {
     	switch( par1EnumOptions ) {
 	        case EYE_HEIGHT:
-	            this.playerEyeHeight = par2;
+	            setMinecraftPlayerEyeHeight(par2);
 	            break;
 	        case EYE_PROTRUSION:
 	            this.eyeProtrusion = par2;
 	            break;
+            case EYE_RELIEF:
+                this.eyeRelief = par2;
+                break;
 	        case NECK_LENGTH:
 	            this.neckBaseToEyeHeight = par2;
 	            break;
 	        case MOVEMENT_MULTIPLIER:
 	            this.movementSpeedMultiplier = par2;
 	            break;
-	        case IPD:
-	            this.ipd = par2;
-	        	break;
+            case IPD_SCALE:
+                this.ipdScale = par2;
+                break;
+            case TOTAL_IPD:
+                setIPD(par2);
+                break;
+	        case LEFT_HALF_IPD:
+                setIPD(par2, this.rightHalfIpd);
+                break;
+            case RIGHT_HALF_IPD:
+                setIPD(this.leftHalfIpd, par2);
+                break;
 	        case HEAD_TRACK_PREDICTION_TIME:
 	            this.headTrackPredictionTimeSecs = par2;
 	        	break;
@@ -1395,8 +1531,8 @@ public class VRSettings
             case HUD_YAW:
                 this.hudYawOffset = par2;
                 break;
-	        case FOV_SCALE_FACTOR:
-	            this.fovScaleFactor = par2;
+	        case FOV_CHANGE:
+	            this.fovChange = par2;
 	        	break;
             case LENS_SEPARATION_SCALE_FACTOR:
                 this.lensSeparationScaleFactor = par2;
@@ -1406,9 +1542,6 @@ public class VRSettings
 	        	break;
 	        case SUPERSAMPLE_SCALEFACTOR:
 	            this.superSampleScaleFactor = par2;
-	        	break;
-	        case DISTORTION_FIT_POINT:
-	            this.distortionFitPoint = (int)Math.floor(par2);
 	        	break;
 	        case CALIBRATION_STRATEGY:
 	            this.calibrationStrategy = (int)Math.floor(par2);
@@ -1482,15 +1615,21 @@ public class VRSettings
 	                    break;
 	            }
                 break;
-	        case POS_TRACK_HYDRA_DISTANCE_SCALE:
-	            this.posTrackHydraDistanceScale = par2;
-	        	break;
+	        case POS_TRACK_DIST_SCALE:
+                this.posTrackDistanceScale = -par2;
+                break;
+            case WORLD_SCALE:
+                this.worldScale = -par2;
+                break;
 	        case POS_TRACK_Y_AXIS_DISTANCE_SKEW:
 	            this.posTrackHydraYAxisDistanceSkewAngleDeg = par2;
 	        	break;
 	        case CROSSHAIR_SCALE:
 	            this.crosshairScale = par2;
 	        	break;
+            case MENU_CROSSHAIR_SCALE:
+                this.menuCrosshairScale = par2;
+                break;
 	        case CHAT_OFFSET_X:
 	        	this.chatOffsetX = par2;
 	        	break;
@@ -1624,17 +1763,18 @@ public class VRSettings
             var5.println("version:" + version);
             var5.println("newlyCreated:" + false );
             var5.println("useVRRenderer:"+ this.useVRRenderer );
-            var5.println("useQuaternions:"+ this.useQuaternions );
             var5.println("debugPose:"+ this.debugPose );
             var5.println("playerEyeHeight:" + this.playerEyeHeight);
             var5.println("eyeProtrusion:" + this.eyeProtrusion );
+            var5.println("eyeRelief:" + this.eyeRelief );
             var5.println("neckBaseToEyeHeight:" + this.neckBaseToEyeHeight );
             var5.println("headTrackerPluginID:"+ this.headTrackerPluginID);
             var5.println("headPositionPluginID:"+ this.headPositionPluginID);
             var5.println("hmdPluginID:"+ this.hmdPluginID);
             var5.println("stereoProviderPluginID:"+ this.stereoProviderPluginID);
             var5.println("controllerPluginID:"+ this.controllerPluginID);
-            var5.println("ipd:" + this.ipd);
+            var5.println("leftHalfIpd:" + this.leftHalfIpd);
+            var5.println("rightHalfIpd:" + this.rightHalfIpd);
             var5.println("headTrackPredictionTimeSecs:" + this.headTrackPredictionTimeSecs);
             var5.println("hudOpacity:" + this.hudOpacity);
             var5.println("useHeadTracking:" + this.useHeadTracking);
@@ -1656,7 +1796,7 @@ public class VRSettings
             var5.println("useDirectRenderMode:" + this.useDirectRenderMode);
             var5.println("useDisplayMirroring:" + this.useDisplayMirroring);
             var5.println("posTrackBlankOnCollision:" + this.posTrackBlankOnCollision);
-
+            var5.println("walkUpBlocks:" + this.walkUpBlocks);
             var5.println("useDistortionTextureLookupOptimisation:" + this.useDistortionTextureLookupOptimisation);
             var5.println("useFXAA:" + this.useFXAA);
             var5.println("hudScale:" + this.hudScale);
@@ -1668,10 +1808,10 @@ public class VRSettings
             var5.println("hudPitchOffset:" + this.hudPitchOffset);
             var5.println("hudYawOffset:" + this.hudYawOffset);
             var5.println("useSupersample:" + this.useSupersample);
+            var5.println("useHighQualityDistortion:" + this.useHighQualityDistortion);
             var5.println("superSampleScaleFactor:" + this.superSampleScaleFactor);
-            var5.println("fovScaleFactor:" + this.fovScaleFactor);
+            var5.println("fovChange:" + this.fovChange);
             var5.println("lensSeparationScaleFactor:" + this.lensSeparationScaleFactor);
-            var5.println("distortionFitPoint:" + this.distortionFitPoint);
             var5.println("calibrationStrategy1:" + this.calibrationStrategy);    // Deliberately using a new value to get people using the 'At startup' setting again by default.
             var5.println("headTrackSensitivity:" + this.headTrackSensitivity);
             var5.println("movementSpeedMultiplier:" + this.movementSpeedMultiplier);
@@ -1696,7 +1836,8 @@ public class VRSettings
             var5.println("posTrackHydraBROffsetX:" + this.posTrackHydraBROffsetX);
             var5.println("posTrackHydraBRffsetY:" + this.posTrackHydraBROffsetY);
             var5.println("posTrackHydraBRffsetZ:" + this.posTrackHydraBROffsetZ);
-            var5.println("posTrackHydraDistanceScale:" + this.posTrackHydraDistanceScale);
+            var5.println("posTrackDistanceScale:" + this.posTrackDistanceScale);
+            var5.println("worldScale:" + this.worldScale);
             var5.println("posTrackHydraUseController1:" + this.posTrackHydraUseController1);
             var5.println("posTrackHydraBIsPointingLeft:" + this.posTrackHydraBIsPointingLeft);
             var5.println("posTrackHydraYAxisDistanceSkewAngleDeg:" + this.posTrackHydraYAxisDistanceSkewAngleDeg);
@@ -1706,6 +1847,9 @@ public class VRSettings
             var5.println("showEntityOutline:" + this.showEntityOutline);
             var5.println("crosshairRollsWithHead:" + this.crosshairRollsWithHead);
             var5.println("hudOcclusion:" + this.hudOcclusion);
+            var5.println("useCrosshairOcclusion:" + this.useCrosshairOcclusion);
+            var5.println("maxCrosshairDistanceAtBlockReach:" + this.maxCrosshairDistanceAtBlockReach);
+            var5.println("useMaxFov:" + this.useMaxFov);
             var5.println("soundOrientWithHead:" + this.soundOrientWithHead);
             var5.println("joystickSensitivity:" + this.joystickSensitivity);
             var5.println("joystickDeadzone:" + this.joystickDeadzone);
@@ -1713,10 +1857,15 @@ public class VRSettings
             var5.println("keyholeWidth:" + this.aimKeyholeWidthDegrees);
             var5.println("keyholeHeight:" + this.keyholeHeight);
             var5.println("keyholeHeadRelative:" + this.keyholeHeadRelative);
-            var5.println("useOculusProfile:" + this.useOculusProfile);
-            var5.println("oculusProfileIpd:" + this.oculusProfileIpd);
+            var5.println("ipdScale:" + this.ipdScale);
+            var5.println("useOculusProfileIpd:" + this.useOculusProfileIpd);
+            var5.println("useOculusProfilePlayerHeight:" + this.useOculusProfilePlayerHeight);
+            var5.println("useHalfIpds:" + this.useHalfIpds);
+            var5.println("oculusProfileLeftHalfIpd:" + this.oculusProfileLeftHalfIpd);
+            var5.println("oculusProfileRightHalfIpd:" + this.oculusProfileRightHalfIpd);
             var5.println("oculusProfilePlayerEyeHeight:" + this.oculusProfilePlayerEyeHeight);
             var5.println("crosshairScale:" + this.crosshairScale);
+            var5.println("menuCrosshairScale:" + this.menuCrosshairScale);
             var5.println("chatOffsetX:" + this.chatOffsetX);
             var5.println("chatOffsetY:" + this.chatOffsetY);
             var5.println("aimPitchOffset:" + this.aimPitchOffset);
@@ -1734,14 +1883,82 @@ public class VRSettings
         }
     }
 
-    public void setMinecraftIpd(float ipd)
+    public void setMinecraftIpd(float leftHalfIpd, float rightHalfIpd)
     {
-        this.ipd = ipd;
+        this.leftHalfIpd = Math.abs(leftHalfIpd);
+        this.rightHalfIpd = Math.abs(rightHalfIpd);
     }
 
-    public void setOculusProfileIpd(float ipd)
+    public void setMinecraftIpd(float Ipd)
     {
-        this.oculusProfileIpd = ipd;
+        this.leftHalfIpd = Math.abs(Ipd)/2f;
+        this.rightHalfIpd = Math.abs(Ipd)/2f;
+    }
+
+    public void setOculusProfileIpd(float leftHalfIpd, float rightHalfIpd)
+    {
+        this.oculusProfileLeftHalfIpd = Math.abs(leftHalfIpd);
+        this.oculusProfileRightHalfIpd = Math.abs(rightHalfIpd);
+    }
+
+    public void setOculusProfileIpd(float Ipd)
+    {
+        this.oculusProfileLeftHalfIpd = Math.abs(Ipd)/2f;
+        this.oculusProfileRightHalfIpd = Math.abs(Ipd)/2f;
+    }
+
+    public void setIPD(float leftHalfIpd, float rightHalfIpd)
+    {
+        if (!this.useOculusProfileIpd)
+        {
+            setMinecraftIpd(leftHalfIpd, rightHalfIpd);
+        }
+    }
+
+    public void setIPD(float Ipd)
+    {
+        if (!this.useOculusProfileIpd)
+        {
+            setMinecraftIpd(Ipd);
+        }
+    }
+
+    public float getHalfIPD(EyeType eye)
+    {
+        if (this.useOculusProfileIpd)
+        {
+            if (eye == EyeType.ovrEye_Left)
+                return -Math.abs(this.oculusProfileLeftHalfIpd);
+            else
+                return Math.abs(this.oculusProfileRightHalfIpd);
+        }
+        else
+        {
+            if (eye == EyeType.ovrEye_Left)
+                return -Math.abs(this.leftHalfIpd);
+            else
+                return Math.abs(this.rightHalfIpd);
+        }
+    }
+
+    public float getOculusProfileHalfIPD(EyeType eye)
+    {
+        if (eye == EyeType.ovrEye_Left)
+            return -Math.abs(this.oculusProfileLeftHalfIpd);
+        else
+            return Math.abs(this.oculusProfileRightHalfIpd);
+    }
+
+    public float getIPD()
+    {
+        if (this.useOculusProfileIpd)
+        {
+            return Math.abs(this.oculusProfileLeftHalfIpd) + Math.abs(this.oculusProfileRightHalfIpd);
+        }
+        else
+        {
+            return Math.abs(this.leftHalfIpd) + Math.abs(this.rightHalfIpd);
+        }
     }
 
     public void setMinecraftPlayerEyeHeight(float eyeHeight)
@@ -1754,17 +1971,9 @@ public class VRSettings
         this.oculusProfilePlayerEyeHeight = eyeHeight;
     }
 
-    public float getIPD()
-    {
-        if (this.useOculusProfile)
-            return this.oculusProfileIpd;
-
-        return this.ipd;
-    }
-
     public float getPlayerEyeHeight()
     {
-        if (this.useOculusProfile)
+        if (this.useOculusProfilePlayerHeight)
             return this.oculusProfilePlayerEyeHeight;
 
         return this.playerEyeHeight;
@@ -1814,10 +2023,10 @@ public class VRSettings
 
     public float getHeadTrackSensitivity()
     {
-        if (this.useQuaternions)
+        //if (this.useQuaternions)
             return 1.0f;
 
-        return this.headTrackSensitivity;
+        //return this.headTrackSensitivity;  // TODO: If head track sensitivity is working again... if
     }
 
     public static enum VrOptions
@@ -1837,6 +2046,9 @@ public class VRSettings
         RENDER_MENU_BACKGROUND("Menu Background", false, true),
         HUD_HIDE("Hide HUD (F1)", false, true),
         HUD_OCCLUSION("HUD Occlusion", false, true),
+        CROSSHAIR_OCCLUSION("Crosshair Occlusion", false, true),
+        MAX_CROSSHAIR_DISTANCE_AT_BLOCKREACH("Max. Crosshair Dist.", false, true),
+        MAX_FOV("Use FOV", false, true),
         SOUND_ORIENT("Sound Source", false, true),
         HEAD_TRACKING("Head Tracking", false, true),
         POSITION_TRACKING("Position Tracking", false, true),
@@ -1846,6 +2058,7 @@ public class VRSettings
         VR_HEAD_POSITION("Head Position", false, true),
         VR_CONTROLLER("Controller", false, true),
         CROSSHAIR_SCALE("Crosshair Size", true, false),
+        MENU_CROSSHAIR_SCALE("Menu Crosshair Size", true, false),
         RENDER_CROSSHAIR_MODE("Show Crosshair", false, true),
         CROSSHAIR_ROLL("Roll Crosshair", false, true),
         RENDER_BLOCK_OUTLINE_MODE("Show Block Outline", false, true),
@@ -1856,13 +2069,19 @@ public class VRSettings
         // Player
         EYE_HEIGHT("Eye Height", true, false),
         EYE_PROTRUSION("Eye Protrusion", true, false),
+        EYE_RELIEF("Eye Relief", true, false),
         NECK_LENGTH("Neck Length", true, false),
         RENDER_OWN_HEADWEAR("Render Own Headwear", false, true),
         RENDER_FULL_FIRST_PERSON_MODEL_MODE("First Person Model", false, true),
         RENDER_PLAYER_OFFSET("View Body Offset", true, false),
-        IPD("IPD", true, false),
-        OCULUS_PROFILE("Use Oculus Profile", false, false),
-        OCULUS_PROFILE_NAME("Name", false, true),
+        CONFIG_IPD_MODE("Set IPD", false, true),
+        USE_PROFILE_PLAYER_HEIGHT("Use Height from", false, true),
+        USE_PROFILE_IPD("Use IPD from", false, true),
+        TOTAL_IPD("IPD", true, false),
+        LEFT_HALF_IPD("Left Half IPD", true, false),
+        RIGHT_HALF_IPD("Right Half IPD", true, false),
+        IPD_SCALE("IPD Scale", true, false),
+        OCULUS_PROFILE_NAME("Oculus Profile", false, true),
         OCULUS_PROFILE_GENDER("Gender", false, true),
 
         //HMD/render
@@ -1872,11 +2091,11 @@ public class VRSettings
         VIGNETTE("Vignette", false, true),
         TEXTURE_LOOKUP_OPT("Dist. Method", false, true),
         FXAA("FXAA", false, true),
-        FOV_SCALE_FACTOR("FOV Scale", true, false),
+        FOV_CHANGE("FOV Border Change", true, false),
         LENS_SEPARATION_SCALE_FACTOR("Lens Sep. Scale", true, false),
-        DISTORTION_FIT_POINT("Distortion Border", true, false),
         ASPECT_RATIO_CORRECTION("Asp. Correction", false, false),
         SUPERSAMPLING("FSAA", false, true),
+        HIGH_QUALITY_DISTORTION("HQ Distortion", false, true),
         SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
         USE_QUATERNIONS("Orient. Mode", false, true),
         DELAYED_RENDER("Render Mode", false, true),
@@ -1900,14 +2119,15 @@ public class VRSettings
         POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
         POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
         POS_TRACK_OFFSET_SET_DEFAULT("Default Offsets", false, true),
-        POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
+        POS_TRACK_DIST_SCALE("Dist. Scale", true, false),
+        WORLD_SCALE("World Scale", true, false),
         POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
         POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT("Hydra Direction", false, true),
         HYDRA_USE_FILTER("Filter", false, true),
         POS_TRACK_Y_AXIS_DISTANCE_SKEW("Distance Skew Angle", true, false),
         // SDK 0.4.0 up
         POS_TRACK_HIDE_COLLISION("Blank on collision", false, true),
-
+        WALK_UP_BLOCKS("Walk up blocks", false, true),
         //Movement/aiming controls
         DECOUPLE_LOOK_MOVE("Decouple Look/Move", false, true),
         MOVEMENT_MULTIPLIER("Move. Speed Multiplier", true, false),
@@ -1922,7 +2142,11 @@ public class VRSettings
         AIM_PITCH_OFFSET("Vertical Crosshair Offset",true,false),
 
         // Calibration
-        CALIBRATION_STRATEGY("Initial Calibration", false, false);
+        CALIBRATION_STRATEGY("Initial Calibration", false, false),
+
+        // OTher buttons
+        OTHER_HUD_SETTINGS("Overlay / Crosshair...", false, true),
+        OTHER_RENDER_SETTINGS("IPD / FOV...", false, true);
 
 //        ANISOTROPIC_FILTERING("options.anisotropicFiltering", true, false, 1.0F, 16.0F, 0.0F)
 //                {

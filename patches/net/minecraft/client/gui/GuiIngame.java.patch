@@ -61,7 +61,7 @@
              this.mc.mcProfiler.startSection("debug");
              GL11.glPushMatrix();
 -            var8.drawStringWithShadow("Minecraft 1.7.10 (" + this.mc.debug + ")", 2, 2, 16777215);
-+            var8.drawStringWithShadow("Minecrift 1.7.10 Pre2, " + OculusRift.getVersionString() + " (" + this.mc.debug + ")", 2, 2, 16777215);            // Minecrift
++            var8.drawStringWithShadow("Minecrift 1.7.10 Pre4, " + OculusRift.getVersionString() + " (" + this.mc.debug + ")", 2, 2, 16777215);            // Minecrift
              var8.drawStringWithShadow(this.mc.debugInfoRenders(), 2, 12, 16777215);
              var8.drawStringWithShadow(this.mc.getEntityDebug(), 2, 22, 16777215);
              var8.drawStringWithShadow(this.mc.debugInfoEntities(), 2, 32, 16777215);
@@ -83,3 +83,26 @@
              var22 = MathHelper.floor_double(this.mc.thePlayer.posX);
              var23 = MathHelper.floor_double(this.mc.thePlayer.posY);
              int var24 = MathHelper.floor_double(this.mc.thePlayer.posZ);
+@@ -1036,4 +1060,22 @@
+     {
+         return this.updateCounter;
+     }
++
++    /** Minecrift */
++    /**
++     * Draws a centred textured rectangle at the stored z-value. Args: x, y, width, height, u, v, texwidth, texheight
++     */
++    public void drawCentredTexturedModalRect(int centreX, int centreY, float width, float height, int u, int v, int texWidth, int texHeight)
++    {
++        float f = 0.00390625F;
++        float f1 = 0.00390625F;
++        Tessellator tessellator = Tessellator.instance;
++        tessellator.startDrawingQuads();
++        tessellator.addVertexWithUV((double)(centreX - (width / 2f)), (double)(centreY + (height / 2f)), (double)this.zLevel, (double)((float)(u + 0) * f), (double)((float)(v + texHeight) * f1));
++        tessellator.addVertexWithUV((double)(centreX + (width / 2f)), (double)(centreY + (height / 2f)), (double)this.zLevel, (double)((float)(u + texWidth) * f), (double)((float)(v + texHeight) * f1));
++        tessellator.addVertexWithUV((double)(centreX + (width / 2f)), (double)(centreY - (height / 2f)), (double)this.zLevel, (double)((float)(u + texWidth) * f), (double)((float)(v + 0) * f1));
++        tessellator.addVertexWithUV((double)(centreX - (width / 2f)), (double)(centreY - (height / 2f)), (double)this.zLevel, (double)((float)(u + 0) * f), (double)((float)(v + 0) * f1));
++        tessellator.draw();
++    }
++    /* end Minecrift */
+ }

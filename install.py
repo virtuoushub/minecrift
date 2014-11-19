@@ -81,8 +81,8 @@ def download_deps( mcp_dir ):
             os.chmod(astyle, st.st_mode | stat.S_IEXEC)
         except:
             pass
-    print("Patching mcp.cfg. ignore \"FAILED\" hunks")
-    apply_patch( mcp_dir, "mcp.cfg.patch", os.path.join(mcp_dir,"conf"))
+        print("Patching mcp.cfg. ignore \"FAILED\" hunks")
+        apply_patch( mcp_dir, "mcp.cfg.patch", os.path.join(mcp_dir,"conf"))
 
     jars = os.path.join(mcp_dir,"jars")
 

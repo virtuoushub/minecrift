@@ -20,10 +20,7 @@ public class GuiHUDSettings extends BaseGuiSettings
             VRSettings.VrOptions.HUD_YAW,
             VRSettings.VrOptions.HUD_OPACITY,
             VRSettings.VrOptions.RENDER_MENU_BACKGROUND,
-            VRSettings.VrOptions.CROSSHAIR_SCALE,
-            VRSettings.VrOptions.RENDER_CROSSHAIR_MODE,
-            VRSettings.VrOptions.CROSSHAIR_ROLL,
-            VRSettings.VrOptions.RENDER_BLOCK_OUTLINE_MODE,
+            VRSettings.VrOptions.OTHER_HUD_SETTINGS,
     };
 
     public GuiHUDSettings(GuiScreen guiScreen, VRSettings guivrSettings) {
@@ -69,12 +66,6 @@ public class GuiHUDSettings extends BaseGuiSettings
                     maxValue = 5.0f;
                     increment = 0.01f;
                 }
-                else if (var8 == VRSettings.VrOptions.CROSSHAIR_SCALE)
-                {
-                    minValue = 0.25f;
-                    maxValue = 2.5f;
-                    increment = 0.01f;
-                }
                 else if (var8 == VRSettings.VrOptions.HUD_PITCH)
                 {
                     minValue = -45f;
@@ -110,7 +101,12 @@ public class GuiHUDSettings extends BaseGuiSettings
     {
         if (par1GuiButton.enabled)
         {
-            if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
+            if (par1GuiButton.id == VRSettings.VrOptions.OTHER_HUD_SETTINGS.returnEnumOrdinal())
+            {
+                Minecraft.getMinecraft().vrSettings.saveOptions();
+                this.mc.displayGuiScreen(new GuiOtherHUDSettings(this, this.guivrSettings));
+            }
+            else if (par1GuiButton.id < 200 && par1GuiButton instanceof GuiSmallButtonEx)
             {
                 VRSettings.VrOptions num = VRSettings.VrOptions.getEnumOptions(par1GuiButton.id);
                 this.guivrSettings.setOptionValue(((GuiSmallButtonEx)par1GuiButton).returnVrEnumOptions(), 1);
@@ -132,10 +128,7 @@ public class GuiHUDSettings extends BaseGuiSettings
                 this.guivrSettings.menuBackground = false;
                 this.guivrSettings.hudLockToHead = false;
                 this.guivrSettings.hudOcclusion = false;
-                this.guivrSettings.crosshairScale = 1.0f;
-                this.guivrSettings.renderBlockOutlineMode = VRSettings.RENDER_BLOCK_OUTLINE_MODE_HUD;
-                this.guivrSettings.renderInGameCrosshairMode = VRSettings.RENDER_CROSSHAIR_MODE_HUD;
-                this.guivrSettings.crosshairRollsWithHead = true;
+
                 Minecraft.getMinecraft().vrSettings.saveOptions();
                 this.reinit = true;
             }
@@ -151,7 +144,7 @@ public class GuiHUDSettings extends BaseGuiSettings
             {
                 case HUD_OPACITY:
                     return new String[] {
-                            "How transapernet to draw the in-game HUD and UI",
+                            "How transparent to draw the in-game HUD and UI",
                     };
                 case HUD_HIDE:
                     return new String[] {
@@ -208,34 +201,9 @@ public class GuiHUDSettings extends BaseGuiSettings
 							"         fit within your visible field of view. Edges",
 							"         may be blurred!"
                     };
-                case RENDER_CROSSHAIR_MODE:
+                case OTHER_HUD_SETTINGS:
                     return new String[] {
-                            "Set the in-game crosshair display mode",
-                            "  Always:   The crosshair is always shown even if the",
-                            "            HUD is disabled",
-                            "  With HUD: The crosshair is only shown when the HUD",
-                            "            is enabled",
-                            "  Never:    The crosshair is never shown"
-                    };
-                case CROSSHAIR_SCALE:
-                    return new String[] {
-                            "Sets the size of the in-game crosshair"
-                    };
-                case RENDER_BLOCK_OUTLINE_MODE:
-                    return new String[] {
-                            "Sets the in-game block outline display mode.",
-                            "  Always:   The block outline is always shown even if",
-                            "            the HUD is disabled",
-                            "  With HUD: The block outline is only shown when the",
-                            "            HUD is enabled",
-                            "  Never:    The block outline is never shown"
-                    };
-                case CROSSHAIR_ROLL:
-                    return new String[] {
-                            "Sets the crosshair roll behaviour.",
-                            "  With Head: The crosshair rolls with your head.",
-                            "  With HUD:  The crosshair appears to roll, keeping",
-                            "             the same orientation as the HUD."
+                            "Configure Crosshair and overlay settings."
                     };
                 default:
                     return null;

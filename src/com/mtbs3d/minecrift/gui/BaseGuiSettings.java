@@ -18,6 +18,12 @@ public class BaseGuiSettings extends GuiScreen
     /** GUI game settings */
     protected VRSettings guivrSettings;
 
+    public static final int ID_GENERIC_DONE = 9000;
+    public static final int ID_GENERIC_MODE_CHANGE = 9001;
+    public static final int ID_GENERIC_RESETORIGIN = 9002;
+    public static final int ID_GENERIC_RECALIBRATE = 9003;
+    public static final int ID_GENERIC_DEFAULTS    = 9004;
+
     private int lastMouseX = 0;
     private int lastMouseY = 0;
     private long mouseStillTimeMs = 0L;

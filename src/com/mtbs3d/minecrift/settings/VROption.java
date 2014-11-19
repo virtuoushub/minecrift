@@ -36,7 +36,7 @@ public enum VROption {
     //HMD/render
     USE_DISTORTION("Distortion", false, true),
     CHROM_AB_CORRECTION("Chrom. Ab. Correction", false, true),
-    FOV_SCALE_FACTOR("FOV Scale", true, false),
+    FOV_CHANGE("FOV Scale", true, false),
     DISTORTION_FIT_POINT("Distortion Border", true, false),
     SUPERSAMPLING("FSAA", false, true),
     SUPERSAMPLE_SCALEFACTOR("FSAA Render Scale", true, false),
@@ -52,7 +52,7 @@ public enum VROption {
     POS_TRACK_HYDRA_OFFSET_Y("Hydra Y Offset", true, false),
     POS_TRACK_HYDRA_OFFSET_Z("Hydra Z Offset", true, false),
     POS_TRACK_OFFSET_SET_DEFAULT("Default Offsets", false, true),
-    POS_TRACK_HYDRA_DISTANCE_SCALE("Dist. Scale", true, false),
+    POS_TRACK_WORLD_SCALE("Dist. Scale", true, false),
     POS_TRACK_HYDRA_USE_CONTROLLER_ONE("Controller", false, true),
     POS_TRACK_HYDRA_AT_BACKOFHEAD_IS_POINTING_LEFT("Hydra Direction", false, true),
     HYDRA_USE_FILTER("Filter", false, true),

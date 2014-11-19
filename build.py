@@ -3,6 +3,8 @@ import shutil, tempfile,zipfile, fnmatch
 from optparse import OptionParser
 import subprocess, shlex
 
+from install import download_deps, download_native, download_file, mkdir_p
+
 mc_ver ="1.7.10"
 
 try:
@@ -76,7 +78,7 @@ def create_install(mcp_dir):
     elif os.getenv("BUILD_NUMBER"):
         version = "b"+os.getenv("BUILD_NUMBER")
     else:
-        version = "PREVIEW_2"
+        version = "PRE4"
 
     version = mc_ver+"-"+version
 	
@@ -107,6 +109,10 @@ def create_install(mcp_dir):
 def main(mcp_dir):
     print 'Using mcp dir: %s' % mcp_dir
     print 'Using base dir: %s' % base_dir
+    
+    print("Refreshing dependencies...")
+    download_deps( mcp_dir )
+    
     sys.path.append(mcp_dir)
     os.chdir(mcp_dir)
 

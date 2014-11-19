@@ -86,7 +86,7 @@
          this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
          GL11.glPopMatrix();
 -        String var9 = "Minecraft 1.7.10";
-+        String var9 = "Minecrift 1.7.10 Pre2, " + OculusRift.getVersionString();
++        String var9 = "Minecrift 1.7.10 Pre4, " + OculusRift.getVersionString();
  
          if (this.mc.isDemo())
          {
